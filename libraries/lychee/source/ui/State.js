@@ -18,8 +18,15 @@ lychee.define('lychee.ui.State').requires([
 	'lychee.app.State'
 ]).exports(function(lychee, global, attachments) {
 
-	var _BLOB = attachments["json"].buffer;
-	var _MENU = null;
+	const _Blueprint = lychee.import('lychee.ui.Blueprint');
+	const _Layer     = lychee.import('lychee.ui.Layer');
+	const _Menu      = lychee.import('lychee.ui.Menu');
+	const _Position  = lychee.import('lychee.effect.Position');
+	const _State     = lychee.import('lychee.app.State');
+	const _Visible   = lychee.import('lychee.effect.Visible');
+	const _BLOB      = attachments["json"].buffer;
+	const _INSTANCES = [];
+	let   _MENU      = null;
 
 
 
@@ -27,12 +34,41 @@ lychee.define('lychee.ui.State').requires([
 	 * HELPERS
 	 */
 
-	var _on_fade = function(id) {
+	const _on_escape = function() {
 
-		var fade_offset = -3/2 * this.getLayer('ui').height;
-		var entity      = this.queryLayer('ui', id);
-		var layers      = this.getLayer('ui').entities.filter(function(layer) {
-			return lychee.interfaceof(lychee.ui.Menu, layer) === false;
+		let menu = this.queryLayer('ui', 'menu');
+		if (menu !== null) {
+
+			if (menu.state === 'active') {
+
+				if (this.__focus !== null) {
+					this.__focus.trigger('blur');
+				}
+
+				this.__focus = this.queryLayer('ui', menu.value.toLowerCase());
+				this.__focus.trigger('focus');
+
+			} else {
+
+				if (this.__focus !== null) {
+					this.__focus.trigger('blur');
+				}
+
+				this.__focus = menu;
+				this.__focus.trigger('focus');
+
+			}
+
+		}
+
+	};
+
+	const _on_fade = function(id) {
+
+		let fade_offset = -3/2 * this.getLayer('ui').height;
+		let entity      = this.queryLayer('ui', id);
+		let layers      = this.getLayer('ui').entities.filter(function(layer) {
+			return lychee.interfaceof(_Menu, layer) === false;
 		});
 
 
@@ -47,8 +83,8 @@ lychee.define('lychee.ui.State').requires([
 						y: fade_offset
 					});
 
-					layer.addEffect(new lychee.effect.Position({
-						type:     lychee.effect.Position.TYPE.easeout,
+					layer.addEffect(new _Position({
+						type:     _Position.TYPE.easeout,
 						duration: 300,
 						position: {
 							y: 0
@@ -61,15 +97,15 @@ lychee.define('lychee.ui.State').requires([
 						y: 0
 					});
 
-					layer.addEffect(new lychee.effect.Position({
-						type:     lychee.effect.Position.TYPE.easeout,
+					layer.addEffect(new _Position({
+						type:     _Position.TYPE.easeout,
 						duration: 300,
 						position: {
 							y: fade_offset
 						}
 					}));
 
-					layer.addEffect(new lychee.effect.Visible({
+					layer.addEffect(new _Visible({
 						delay:   300,
 						visible: false
 					}));
@@ -86,15 +122,15 @@ lychee.define('lychee.ui.State').requires([
 					y: 0
 				});
 
-				layer.addEffect(new lychee.effect.Position({
-					type:     lychee.effect.Position.TYPE.easeout,
+				layer.addEffect(new _Position({
+					type:     _Position.TYPE.easeout,
 					duration: 300,
 					position: {
 						y: fade_offset
 					}
 				}));
 
-				layer.addEffect(new lychee.effect.Visible({
+				layer.addEffect(new _Visible({
 					delay:   300,
 					visible: false
 				}));
@@ -105,31 +141,33 @@ lychee.define('lychee.ui.State').requires([
 
 	};
 
-	var _on_relayout = function() {
+	const _on_relayout = function() {
 
-		var viewport = this.viewport;
+		let viewport = this.viewport;
 		if (viewport !== null) {
 
-			var entity = null;
-			var width  = viewport.width;
-			var height = viewport.height;
-			var menu   = this.queryLayer('ui', 'menu');
+			let entity = null;
+			let width  = viewport.width;
+			let height = viewport.height;
+			let menu   = this.queryLayer('ui', 'menu');
+			if (menu !== null) {
+
+				entity = this.getLayer('ui');
+				entity.width  = width;
+				entity.height = height;
 
 
-			entity = this.getLayer('ui');
-			entity.width      = width;
-			entity.height     = height;
+				for (let e = 0, el = entity.entities.length; e < el; e++) {
 
+					let blueprint = entity.entities[e];
+					if (blueprint !== menu) {
 
-			for (var e = 0, el = entity.entities.length; e < el; e++) {
+						blueprint.width      = width - menu.width;
+						blueprint.height     = height;
+						blueprint.position.x = menu.width / 2;
+						blueprint.trigger('relayout');
 
-				var blueprint = entity.entities[e];
-				if (blueprint !== menu) {
-
-					blueprint.width      = width - menu.width;
-					blueprint.height     = height;
-					blueprint.position.x = menu.width / 2;
-					blueprint.trigger('relayout');
+					}
 
 				}
 
@@ -145,78 +183,21 @@ lychee.define('lychee.ui.State').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(main) {
+	let Composite = function(main) {
 
-		lychee.app.State.call(this, main);
-
-
-		this.deserialize(_BLOB);
+		_State.call(this, main);
 
 
-
-		/*
-		 * INITIALIZATION
-		 */
-
-		var input = this.input;
-		if (input !== null) {
-
-			input.bind('escape', function(delta) {
-
-				var menu = this.queryLayer('ui', 'menu');
-				if (menu !== null) {
-
-					if (menu.state === 'active') {
-
-						if (this.__focus !== null) {
-							this.__focus.trigger('blur');
-						}
-
-						this.__focus = this.queryLayer('ui', menu.value.toLowerCase());
-						this.__focus.trigger('focus');
-
-					} else {
-
-						if (this.__focus !== null) {
-							this.__focus.trigger('blur');
-						}
-
-						this.__focus = menu;
-						this.__focus.trigger('focus');
-
-					}
-
-				}
-
-			}, this);
-
-		}
-
-		var viewport = this.viewport;
-		if (viewport !== null) {
-
-			viewport.relay('reshape', this.queryLayer('bg', 'background'));
-			viewport.relay('reshape', this.queryLayer('bg', 'emblem'));
-			viewport.relay('reshape', this.queryLayer('ui', 'menu'));
-
-			viewport.relay('reshape', this.queryLayer('ui', 'welcome'));
-			viewport.relay('reshape', this.queryLayer('ui', 'settings'));
+		this.__layers.ui  = new _Layer();
+		this.__layers_map = Object.keys(this.__layers).sort();
 
 
-			this.queryLayer('ui', 'menu').bind('relayout', function() {
-				_on_relayout.call(this);
-			}, this);
-
-			viewport.bind('reshape', function(orientation, rotation, width, height) {
-				_on_relayout.call(this);
-			}, this);
-
-		}
+		_INSTANCES.push(this);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -224,7 +205,7 @@ lychee.define('lychee.ui.State').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.State.prototype.serialize.call(this);
+			let data = _State.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.ui.State';
 
 
@@ -234,55 +215,164 @@ lychee.define('lychee.ui.State').requires([
 
 		deserialize: function(blob) {
 
-			lychee.app.State.prototype.deserialize.call(this, blob);
+			if (_INSTANCES[0] === this) {
+
+				_State.prototype.deserialize.call(this, _BLOB);
+				_State.prototype.deserialize.call(this, blob);
 
 
-			var menu = this.queryLayer('ui', 'menu');
-			if (_MENU === null && menu !== null) {
+				let menu = this.queryLayer('ui', 'menu');
+				let main = this.main;
+				if (main !== null && menu !== null) {
 
-				_MENU = menu;
+					_MENU = menu;
 
-			} else if (_MENU !== null && menu !== null) {
+					_MENU.bind('change', function(value) {
 
-				var welcome = this.queryLayer('ui', 'welcome');
-				if (welcome !== null) {
-					this.getLayer('ui').removeEntity(welcome);
-				}
+						let val = value.toLowerCase();
 
-				var settings = this.queryLayer('ui', 'settings');
-				if (settings !== null) {
-					this.getLayer('ui').removeEntity(settings);
-				}
+						for (let sid in this.__states) {
 
-				this.getLayer('ui').removeEntity(menu);
-				this.getLayer('ui').setEntity('menu', _MENU);
+							let state = this.__states[sid];
+							let layer = state.queryLayer('ui', val);
 
-			}
+							if (layer !== null) {
 
+								this.changeState(sid, val);
 
-			this.queryLayer('ui', 'menu').bind('change', function(value) {
+							} else if (sid === val) {
 
-				var entity = this.queryLayer('ui', value.toLowerCase());
-				if (entity !== null) {
+								this.changeState(sid);
 
-					_on_fade.call(this, value.toLowerCase());
+							}
 
-
-					var menu = this.queryLayer('ui', 'menu');
-					if (menu.state === 'default') {
-
-						if (this.__focus !== null) {
-							this.__focus.trigger('blur');
 						}
 
-						this.__focus = this.queryLayer('ui', menu.value.toLowerCase());
-						this.__focus.trigger('focus');
+					}, this.main);
+
+
+					let viewport = this.viewport;
+					if (viewport !== null) {
+
+						viewport.relay('reshape', this.queryLayer('bg', 'background'));
+						viewport.relay('reshape', this.queryLayer('bg', 'emblem'));
+						viewport.relay('reshape', this.queryLayer('ui', 'menu'));
+
+						viewport.relay('reshape', this.queryLayer('ui', 'welcome'));
+						viewport.relay('reshape', this.queryLayer('ui', 'settings'));
 
 					}
 
 				}
 
-			}, this);
+			} else {
+
+				_State.prototype.deserialize.call(this, blob);
+
+
+				let menu = this.queryLayer('ui', 'menu');
+				if (menu !== null && menu !== _MENU) {
+
+					this.getLayer('ui').removeEntity(menu);
+					this.getLayer('ui').setEntity('menu', _MENU);
+
+				} else if (menu === null) {
+
+					this.getLayer('ui').setEntity('menu', _MENU);
+					menu = _MENU;
+
+				}
+
+
+				let main = this.main;
+				if (main !== null && menu !== null) {
+
+					let options = [];
+					let ui      = null;
+					let bid     = null;
+					let entity  = null;
+
+
+					for (let sid in main.__states) {
+
+						let state = main.__states[sid];
+
+						if (_INSTANCES.indexOf(state) !== -1) {
+
+							ui = state.getLayer('ui');
+
+							if (ui !== null) {
+
+								for (bid in ui.__map) {
+
+									entity = ui.__map[bid];
+
+									if (entity instanceof _Blueprint) {
+										options.push(bid.charAt(0).toUpperCase() + bid.substr(1));
+									}
+
+								}
+
+							}
+
+						} else {
+
+							options.push(sid.charAt(0).toUpperCase() + sid.substr(1));
+
+						}
+
+					}
+
+
+					ui = this.getLayer('ui');
+
+					if (ui !== null) {
+
+						for (bid in ui.__map) {
+
+							entity = ui.__map[bid];
+
+							if (entity instanceof _Blueprint) {
+								options.push(bid.charAt(0).toUpperCase() + bid.substr(1));
+							}
+
+						}
+
+					}
+
+
+					let index = options.indexOf('Settings');
+					if (index !== -1) {
+						options.splice(index, 1);
+						options.push('Settings');
+					}
+
+
+					menu.setOptions(options);
+
+				}
+
+			}
+
+
+
+			if (_MENU !== null) {
+
+				_MENU.bind('relayout', function() {
+					_on_relayout.call(this);
+				}, this);
+
+			}
+
+
+			let viewport = this.viewport;
+			if (viewport !== null) {
+
+				viewport.bind('reshape', function(orientation, rotation, width, height) {
+					_on_relayout.call(this);
+				}, this);
+
+			}
 
 		},
 
@@ -294,24 +384,27 @@ lychee.define('lychee.ui.State').requires([
 
 		enter: function(oncomplete, data) {
 
-			if (data !== null) {
-				_on_fade.call(this, data);
-			} else {
-				_on_fade.call(this, 'welcome');
+			data = typeof data === 'string' ? data : 'welcome';
+
+
+			_on_fade.call(this, data);
+
+
+			let focus = this.queryLayer('ui', data);
+			if (focus !== null && focus !== _MENU) {
+				focus.trigger('focus');
+				this.__focus = focus;
 			}
 
 
-			var menu = this.queryLayer('ui', 'menu');
-			if (menu !== null) {
-
-				this.__focus = this.queryLayer('ui', menu.value.toLowerCase());
-				this.__focus.trigger('focus');
-
+			let input = this.input;
+			if (input !== null) {
+				input.bind('escape', _on_escape, this);
 			}
 
 
 			this.loop.setTimeout(400, function() {
-				lychee.app.State.prototype.enter.call(this, oncomplete);
+				_State.prototype.enter.call(this, oncomplete);
 			}, this);
 
 		},
@@ -320,8 +413,22 @@ lychee.define('lychee.ui.State').requires([
 
 			_on_fade.call(this, null);
 
+
+			let input = this.input;
+			if (input !== null) {
+				input.unbind('escape', _on_escape, this);
+			}
+
+
+			let focus = this.__focus;
+			if (focus !== null && focus !== _MENU) {
+				focus.trigger('blur');
+				this.__focus = null;
+			}
+
+
 			this.loop.setTimeout(400, function() {
-				lychee.app.State.prototype.leave.call(this, oncomplete);
+				_State.prototype.leave.call(this, oncomplete);
 			}, this);
 
 		}
@@ -329,6 +436,6 @@ lychee.define('lychee.ui.State').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });

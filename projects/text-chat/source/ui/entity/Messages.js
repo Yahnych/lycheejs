@@ -3,9 +3,11 @@ lychee.define('app.ui.entity.Messages').requires([
 	'app.ui.sprite.Avatar'
 ]).includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _FONT = attachments["fnt"];
+	const _Avatar = lychee.import('app.ui.sprite.Avatar');
+	const _Entity = lychee.import('lychee.ui.Entity');
+	const _FONT   = attachments["fnt"];
 
 
 
@@ -13,9 +15,9 @@ lychee.define('app.ui.entity.Messages').requires([
 	 * HELPERS
 	 */
 
-	var _render_buffer = function(renderer) {
+	const _render_buffer = function(renderer) {
 
-		var font = _FONT;
+		let font = _FONT || null;
 		if (font !== null && font.texture !== null) {
 
 			if (this.__buffer !== null) {
@@ -30,16 +32,16 @@ lychee.define('app.ui.entity.Messages').requires([
 			renderer.setAlpha(1.0);
 
 
-			var avatar   = this.avatar;
-			var mx1      = this.offset.x;
-			var my1      = this.offset.y + this.height - 32;
-			var last     = null;
-			var messages = this.cache.messages;
+			let avatar   = this.avatar;
+			let mx1      = this.offset.x;
+			let my1      = this.offset.y + this.height - 32;
+			let last     = null;
+			let messages = this.cache.messages;
 
-			for (var m = messages.length - 1; m >= 0; m--) {
+			for (let m = messages.length - 1; m >= 0; m--) {
 
-				var entry = messages[m];
-				var color = entry.user === 'system' ? '#d0494b' : entry.user;
+				let entry = messages[m];
+				let color = entry.user === 'system' ? '#d0494b' : entry.user;
 
 
 				if (avatar !== null && avatar.value === color) {
@@ -109,9 +111,9 @@ lychee.define('app.ui.entity.Messages').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.avatar = null;
@@ -129,7 +131,7 @@ lychee.define('app.ui.entity.Messages').requires([
 		this.__isDirty = true;
 
 
-		lychee.ui.Entity.call(this, settings);
+		_Entity.call(this, settings);
 
 
 
@@ -146,7 +148,7 @@ lychee.define('app.ui.entity.Messages').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -154,7 +156,7 @@ lychee.define('app.ui.entity.Messages').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Entity.prototype.serialize.call(this);
 			data['constructor'] = 'app.ui.entity.Messages';
 
 
@@ -167,12 +169,12 @@ lychee.define('app.ui.entity.Messages').requires([
 			if (this.visible === false) return;
 
 
-			var alpha    = this.alpha;
-			var position = this.position;
-			var x        = position.x + offsetX;
-			var y        = position.y + offsetY;
-			var hwidth   = this.width  / 2;
-			var hheight  = this.height / 2;
+			let alpha    = this.alpha;
+			let position = this.position;
+			let x        = position.x + offsetX;
+			let y        = position.y + offsetY;
+			let hwidth   = this.width  / 2;
+			let hheight  = this.height / 2;
 
 
 			if (this.__isDirty === true) {
@@ -208,7 +210,7 @@ lychee.define('app.ui.entity.Messages').requires([
 
 		setAvatar: function(avatar) {
 
-			avatar = lychee.interfaceof(app.ui.sprite.Avatar, avatar) ? avatar : null;
+			avatar = lychee.interfaceof(_Avatar, avatar) ? avatar : null;
 
 
 			if (avatar !== null) {
@@ -245,7 +247,7 @@ lychee.define('app.ui.entity.Messages').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

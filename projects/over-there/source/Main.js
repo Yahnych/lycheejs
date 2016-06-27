@@ -5,14 +5,19 @@ lychee.define('app.Main').requires([
 	'app.state.App'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var Class = function(data) {
+	const _app  = lychee.import('app');
+	const _Main = lychee.import('lychee.app.Main');
 
-		var settings = lychee.extend({
 
-			// Is configured in lychee.pkg
-			// client: '/api/Server?identifier=/projects/over-there',
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Composite = function(data) {
+
+		let settings = Object.assign({
 
 			input: {
 				delay:       0,
@@ -41,7 +46,9 @@ lychee.define('app.Main').requires([
 		}, data);
 
 
-		lychee.app.Main.call(this, settings);
+		_Main.call(this, settings);
+
+		settings = null;
 
 
 
@@ -63,44 +70,42 @@ lychee.define('app.Main').requires([
 
 		this.bind('init', function() {
 
-			var appclient = this.settings.appclient || null;
+			let appclient = this.settings.appclient || null;
 			if (appclient !== null) {
 
-				this.client = new app.net.Client(appclient, this);
+				this.client = new _app.net.Client(appclient, this);
 				this.client.bind('connect', function() {
 					this.changeState('app');
 				}, this);
 
 			}
 
-			var appserver = this.settings.appserver || null;
+			let appserver = this.settings.appserver || null;
 			if (appserver !== null) {
-				this.server = new app.net.Server(appserver, this);
+				this.server = new _app.net.Server(appserver, this);
 			}
 
 
-			this.setState('app', new app.state.App(this));
+			this.setState('app', new _app.state.App(this));
 
 		}, this, true);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
-		// deserialize: function(blob) {},
-
 		serialize: function() {
 
-			var data = lychee.app.Main.prototype.serialize.call(this);
+			let data = _Main.prototype.serialize.call(this);
 			data['constructor'] = 'app.Main';
 
-			var settings = data['arguments'][0] || {};
-			var blob     = data['blob'] || {};
+			let settings = data['arguments'][0] || {};
+			let blob     = data['blob'] || {};
 
 
 			if (this.settings.appclient !== null) { settings.client = this.settings.appclient; }
@@ -118,6 +123,6 @@ lychee.define('app.Main').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });

@@ -12,7 +12,7 @@ lychee.define('lychee.ui.Menu').requires([
 	'lychee.ui.Layer'
 ]).exports(function(lychee, global, attachments) {
 
-	var _FONT = attachments["fnt"];
+	const _FONT = attachments["fnt"];
 
 
 
@@ -20,9 +20,9 @@ lychee.define('lychee.ui.Menu').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.font    = _FONT;
@@ -61,7 +61,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 		this.bind('touch', function(id, position, delta) {
 
-			var min_y = -1/2 * this.height + 64;
+			let min_y = -1/2 * this.height + 64;
 			if (min_y > position.y) {
 
 				if (this.state === 'active') {
@@ -72,15 +72,15 @@ lychee.define('lychee.ui.Menu').requires([
 
 			} else {
 
-				var args = [ id, {
+				let args = [ id, {
 					x: 0,
 					y: 0
 				}, delta ];
 
 
-				for (var h = 0, hl = this.__helpers.length; h < hl; h++) {
+				for (let h = 0, hl = this.__helpers.length; h < hl; h++) {
 
-					var helper = this.__helpers[h];
+					let helper = this.__helpers[h];
 					if (helper.visible === false) continue;
 
 					if (helper.isAtPosition(position) === true) {
@@ -102,9 +102,9 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (this.state === 'active') {
 
-				var entities = [ this.getEntity('@select') ].concat(this.__helpers);
-				var focus    = this.__focus;
-				var index    = entities.indexOf(focus);
+				let entities = [ this.getEntity('@select') ].concat(this.__helpers);
+				let focus    = this.__focus;
+				let index    = entities.indexOf(focus);
 
 
 				if (name === 'tab') {
@@ -161,7 +161,15 @@ lychee.define('lychee.ui.Menu').requires([
 		}, this);
 
 		this.bind('blur', function() {
+
 			this.setState('default');
+
+			let focus = this.__focus;
+			if (focus !== null) {
+				focus.trigger('blur');
+				this.__focus = null;
+			}
+
 		}, this);
 
 		this.bind('reshape', function(orientation, rotation, width, height) {
@@ -181,11 +189,11 @@ lychee.define('lychee.ui.Menu').requires([
 				this.position.x = -1/2 * width + this.width / 2;
 
 
-				var entity = null;
-				var x1     = -1/2 * this.width;
-				var y1     = -1/2 * this.height;
-				var x2     =  1/2 * this.width;
-				var y2     =  1/2 * this.height;
+				let entity = null;
+				let x1     = -1/2 * this.width;
+				let y1     = -1/2 * this.height;
+				let x2     =  1/2 * this.width;
+				let y2     =  1/2 * this.height;
 
 
 				entity = this.getEntity('@label');
@@ -197,11 +205,11 @@ lychee.define('lychee.ui.Menu').requires([
 				entity.position.y = y1 + 64 + entity.height / 2;
 
 
-				for (var h = 0, hl = this.__helpers.length; h < hl; h++) {
+				for (let h = 0, hl = this.__helpers.length; h < hl; h++) {
 
 					entity = this.__helpers[h];
 					entity.position.x = 0;
-					entity.position.y = y2 - 32 - 32 * h - 16 * h;
+					entity.position.y = y2 - 16 - 32 * hl + 32 * h + 16 * h;
 
 				}
 
@@ -222,15 +230,12 @@ lychee.define('lychee.ui.Menu').requires([
 
 		this.getEntity('@select').bind('change', function(value) {
 
-			var result = this.setValue(value);
+			let result = this.setValue(value);
 			if (result === true) {
 				this.trigger('change', [ value ]);
 			}
 
 		}, this);
-
-
-		this.__focus = this.getEntity('@select');
 
 
 		this.setFont(settings.font);
@@ -248,7 +253,7 @@ lychee.define('lychee.ui.Menu').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -256,7 +261,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 		deserialize: function(blob) {
 
-			var font = lychee.deserialize(blob.font);
+			let font = lychee.deserialize(blob.font);
 			if (font !== null) {
 				this.setFont(font);
 			}
@@ -265,11 +270,11 @@ lychee.define('lychee.ui.Menu').requires([
 
 		serialize: function() {
 
-			var data = lychee.ui.Layer.prototype.serialize.call(this);
+			let data = lychee.ui.Layer.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.ui.Menu';
 
-			var settings = data['arguments'][0];
-			var blob     = (data['blob'] || {});
+			let settings = data['arguments'][0];
+			let blob     = (data['blob'] || {});
 
 
 			if (this.label !== 'MENU')     settings.label   = this.label;
@@ -292,8 +297,8 @@ lychee.define('lychee.ui.Menu').requires([
 
 		update: function(clock, delta) {
 
-			var helpers = this.__helpers;
-			for (var h = 0, hl = helpers.length; h < hl; h++) {
+			let helpers = this.__helpers;
+			for (let h = 0, hl = helpers.length; h < hl; h++) {
 				helpers[h].update(clock, delta);
 			}
 
@@ -307,17 +312,17 @@ lychee.define('lychee.ui.Menu').requires([
 			if (this.visible === false) return;
 
 
-			var alpha    = this.alpha;
-			var helpers  = this.__helpers;
-			var position = this.position;
+			let alpha    = this.alpha;
+			let helpers  = this.__helpers;
+			let position = this.position;
 
 
-			var x  = position.x + offsetX;
-			var y  = position.y + offsetY;
-			var x1 = x - this.width  / 2;
-			var y1 = y - this.height / 2;
-			var x2 = x + this.width  / 2;
-			var y2 = y + this.height / 2;
+			let x  = position.x + offsetX;
+			let y  = position.y + offsetY;
+			let x1 = x - this.width  / 2;
+			let y1 = y - this.height / 2;
+			let x2 = x + this.width  / 2;
+			let y2 = y + this.height / 2;
 
 
 			renderer.drawBox(
@@ -357,7 +362,7 @@ lychee.define('lychee.ui.Menu').requires([
 			);
 
 
-			for (var h = 0, hl = helpers.length; h < hl; h++) {
+			for (let h = 0, hl = helpers.length; h < hl; h++) {
 
 				helpers[h].render(
 					renderer,
@@ -424,7 +429,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 				this.__helpers = [];
 
-				for (var h = 0, hl = this.helpers.length; h < hl; h++) {
+				for (let h = 0, hl = this.helpers.length; h < hl; h++) {
 
 					this.__helpers.push(new lychee.ui.entity.Helper({
 						width:  32,
@@ -433,7 +438,7 @@ lychee.define('lychee.ui.Menu').requires([
 						value:  this.helpers[h],
 						position: {
 							x: 0,
-							y: (this.height / 2) - 32 - 32 * h - 16 * h
+							y: (this.height / 2) - 16 - 32 * hl + 32 * h + 16 * h
 						}
 					}));
 
@@ -611,7 +616,7 @@ lychee.define('lychee.ui.Menu').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

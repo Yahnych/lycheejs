@@ -1,10 +1,12 @@
 
 lychee.define('game.app.sprite.Terrain').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _TEXTURE = attachments["png"];
-	var _CONFIG  = attachments["json"].buffer;
+	const _Entity  = lychee.import('lychee.app.Entity');
+	const _Sprite  = lychee.import('lychee.app.Sprite');
+	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments["json"].buffer;
 
 
 
@@ -12,28 +14,28 @@ lychee.define('game.app.sprite.Terrain').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		settings.texture = _TEXTURE;
 		settings.map     = _CONFIG.map;
 		settings.width   = _CONFIG.width;
 		settings.height  = _CONFIG.height;
-		settings.shape   = lychee.app.Entity.SHAPE.rectangle;
+		settings.shape   = _Entity.SHAPE.rectangle;
 		settings.states  = _CONFIG.states;
 		settings.state   = 'default';
 
 
-		lychee.app.Sprite.call(this, settings);
+		_Sprite.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -41,7 +43,7 @@ lychee.define('game.app.sprite.Terrain').includes([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Sprite.prototype.serialize.call(this);
 			data['constructor'] = 'game.app.sprite.Terrain';
 
 
@@ -52,7 +54,7 @@ lychee.define('game.app.sprite.Terrain').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

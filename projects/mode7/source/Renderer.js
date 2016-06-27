@@ -4,36 +4,74 @@ lychee.define('game.Renderer').includes([
 ]).requires([
 	'game.Camera',
 	'game.Compositor'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Camera     = lychee.import('game.Camera');
+	const _Compositor = lychee.import('game.Compositor');
+	const _Renderer   = lychee.import('lychee.Renderer');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 		this.camera     = null;
 		this.compositor = null;
 
 
-		lychee.Renderer.call(this, settings);
+		this.setCamera(settings.camera);
+		this.setCompositor(settings.compositor);
+
+		delete settings.camera;
+		delete settings.compositor;
+
+
+		_Renderer.call(this, settings);
 
 		settings = null;
 
 	};
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
+		deserialize: function(blob) {
+
+			let camera = lychee.deserialize(blob.camera);
+			if (camera !== null) {
+				this.setCamera(camera);
+			}
+
+			let compositor = lychee.deserialize(blob.compositor);
+			if (compositor !== null) {
+				this.setCompositor(compositor);
+			}
+
+		},
+
 		serialize: function() {
 
-			var data = lychee.Renderer.prototype.serialize.call(this);
+			let data = _Renderer.prototype.serialize.call(this);
 			data['constructor'] = 'game.Renderer';
+
+			let settings = (data['arguments'][0] || {});
+			let blob     = (data['blob'] || {});
+
+
+			if (this.camera !== null)     blob.camera     = lychee.serialize(this.camera);
+			if (this.compositor !== null) blob.compositor = lychee.serialize(this.compositor);
+
+
+			data['arguments'][0] = settings;
+			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 
 			return data;
@@ -48,7 +86,7 @@ lychee.define('game.Renderer').includes([
 
 		setCamera: function(camera) {
 
-			camera = camera instanceof game.Camera ? camera : null;
+			camera = camera instanceof _Camera ? camera : null;
 
 
 			if (camera !== null) {
@@ -66,7 +104,7 @@ lychee.define('game.Renderer').includes([
 
 		setCompositor: function(compositor) {
 
-			compositor = compositor instanceof game.Compositor ? compositor : null;
+			compositor = compositor instanceof _Compositor ? compositor : null;
 
 
 			if (compositor !== null) {
@@ -86,15 +124,12 @@ lychee.define('game.Renderer').includes([
 
 			if (typeof entity.render === 'function') {
 
-				var camera     = this.camera;
-				var compositor = this.compositor;
-
 				entity.render(
 					this,
 					offsetX || 0,
 					offsetY || 0,
-					camera,
-					compositor
+					this.camera,
+					this.compositor
 				);
 
 			}
@@ -104,7 +139,7 @@ lychee.define('game.Renderer').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

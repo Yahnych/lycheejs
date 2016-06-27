@@ -1,10 +1,11 @@
 
 lychee.define('app.entity.Midground').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _TEXTURE = attachments["png"];
-	var _CONFIG  = {
+	const _Sprite  = lychee.import('lychee.app.Sprite');
+	const _TEXTURE = attachments["png"];
+	const _CONFIG  = {
 		states: { 'default': 0 },
 		map:    { 'default': [{ x: 0, y: 0, w: 2048, h: 2048 }] }
 	};
@@ -15,9 +16,9 @@ lychee.define('app.entity.Midground').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		settings.repeat  = false;
@@ -27,14 +28,14 @@ lychee.define('app.entity.Midground').includes([
 		settings.position = { x: 0, y: 0};
 
 
-		lychee.app.Sprite.call(this, settings);
+		_Sprite.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -42,7 +43,7 @@ lychee.define('app.entity.Midground').includes([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Sprite.prototype.serialize.call(this);
 			data['constructor'] = 'app.entity.Midground';
 
 
@@ -53,7 +54,7 @@ lychee.define('app.entity.Midground').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

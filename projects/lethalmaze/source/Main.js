@@ -5,11 +5,20 @@ lychee.define('game.Main').requires([
 	'game.state.Game'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var Class = function(data) {
+	const _game   = lychee.import('game');
+	const _Main   = lychee.import('lychee.app.Main');
 
-		var settings = lychee.extend({
+
+
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Composite = function(data) {
+
+		let settings = Object.assign({
 
 			input: {
 				delay:       0,
@@ -39,7 +48,7 @@ lychee.define('game.Main').requires([
 		}, data);
 
 
-		lychee.app.Main.call(this, settings);
+		_Main.call(this, settings);
 
 
 		this.bind('load', function(oncomplete) {
@@ -56,19 +65,19 @@ lychee.define('game.Main').requires([
 
 		this.bind('init', function() {
 
-			var gameclient = this.settings.gameclient;
+			let gameclient = this.settings.gameclient;
 			if (gameclient !== null) {
 
-				this.client = new game.net.Client(gameclient, this);
+				this.client = new _game.net.Client(gameclient);
 				this.client.bind('connect', function() {
 					this.changeState('game');
 				}, this);
 
 			}
 
-			var gameserver = this.settings.gameserver;
+			let gameserver = this.settings.gameserver;
 			if (gameserver !== null) {
-				this.server = new game.net.Server(gameserver, this);
+				this.server = new _game.net.Server(gameserver);
 			}
 
 
@@ -76,14 +85,14 @@ lychee.define('game.Main').requires([
 			this.viewport.unbind('hide');
 
 
-			this.setState('game', new game.state.Game(this));
+			this.setState('game', new _game.state.Game(this));
 
 		}, this, true);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -93,11 +102,11 @@ lychee.define('game.Main').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.Main.prototype.serialize.call(this);
+			let data = _Main.prototype.serialize.call(this);
 			data['constructor'] = 'game.Main';
 
-			var settings = data['arguments'][0] || {};
-			var blob     = data['blob'] || {};
+			let settings = data['arguments'][0] || {};
+			let blob     = data['blob'] || {};
 
 
 			if (this.settings.gameclient !== null) { settings.client = this.defaults.client; }
@@ -115,6 +124,6 @@ lychee.define('game.Main').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });

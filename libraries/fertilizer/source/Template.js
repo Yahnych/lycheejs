@@ -1,14 +1,14 @@
 
 lychee.define('fertilizer.Template').requires([
-	'lychee.data.JSON',
-	'fertilizer.data.Filesystem',
+	'lychee.Stash',
 	'fertilizer.data.Shell'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, fertilizer, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _JSON      = lychee.data.JSON;
-	var _lychee_fs = new fertilizer.data.Filesystem('/libraries/lychee/build');
+	const _Flow  = lychee.import('lychee.event.Flow');
+	const _Stash = lychee.import('lychee.Stash');
+	const _Shell = lychee.import('fertilizer.data.Shell');
 
 
 
@@ -16,33 +16,35 @@ lychee.define('fertilizer.Template').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.environment = null;
-		this.filesystem  = null;
+		this.sandbox     = '';
 		this.settings    = {};
 		this.profile     = null;
-		this.shell       = null;
+		this.shell       = new _Shell();
+		this.stash       = new _Stash({
+			type: _Stash.TYPE.persistent
+		});
 
 
 		this.setEnvironment(settings.environment);
-		this.setFilesystem(settings.filesystem);
 		this.setProfile(settings.profile);
+		this.setSandbox(settings.sandbox);
 		this.setSettings(settings.settings);
-		this.setShell(settings.shell);
 
 
-		lychee.event.Flow.call(this);
+		_Flow.call(this);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -50,41 +52,42 @@ lychee.define('fertilizer.Template').requires([
 
 		deserialize: function(blob) {
 
-			var environment = lychee.deserialize(blob.environment);
-			var filesystem  = lychee.deserialize(blob.filesystem);
-			var shell       = lychee.deserialize(blob.shell);
+			let environment = lychee.deserialize(blob.environment);
+			let shell       = lychee.deserialize(blob.shell);
+			let stash       = lychee.deserialize(blob.stash);
 
 			if (environment !== null) {
 				this.setEnvironment(environment);
 			}
 
-			if (filesystem !== null) {
-				this.setFilesystem(filesystem);
+			if (shell !== null) {
+				this.shell = shell;
 			}
 
-			if (shell !== null) {
-				this.setShell(shell);
+			if (stash !== null) {
+				this.stash = stash;
 			}
 
 		},
 
 		serialize: function() {
 
-			var data = lychee.event.Flow.prototype.serialize.call(this);
+			let data = _Flow.prototype.serialize.call(this);
 			data['constructor'] = 'fertilizer.Template';
 
 
-			var settings = data['arguments'][0] || {};
-			var blob     = data['blob'] || {};
+			let settings = data['arguments'][0] || {};
+			let blob     = data['blob'] || {};
 
 
 			if (this.profile !== null)                 settings.profile  = this.profile;
+			if (this.sandbox !== '')                   settings.sandbox  = this.sandbox;
 			if (Object.keys(this.settings).length > 0) settings.settings = this.settings;
 
 
 			if (this.environment !== null) blob.environment = lychee.serialize(this.environment);
-			if (this.filesystem !== null)  blob.filesystem  = lychee.serialize(this.filesystem);
 			if (this.shell !== null)       blob.shell       = lychee.serialize(this.shell);
+			if (this.stash !== null)       blob.stash       = lychee.serialize(this.stash);
 
 
 			data['arguments'][0] = settings;
@@ -101,124 +104,6 @@ lychee.define('fertilizer.Template').requires([
 		 * CUSTOM API
 		 */
 
-		replace: function(template, object) {
-
-			template = typeof template === 'string' ? template : '';
-			object   = object instanceof Object     ? object   : null;
-
-
-			if (object !== null) {
-
-				var buffer = '' + template;
-				var keys   = Object.keys(object);
-				var values = Object.values(object);
-
-
-				keys.forEach(function(key, k) {
-
-					var value    = values[k];
-					var pointers = [];
-					var pointer  = buffer.indexOf('${' + key + '}');
-
-					while (pointer !== -1) {
-						pointers.push(pointer);
-						pointer = buffer.indexOf('${' + key + '}', pointer + 1);
-					}
-
-
-					var offset = 0;
-
-					pointers.forEach(function(index) {
-						buffer  = buffer.substr(0, index + offset) + value + buffer.substr(index + offset + key.length + 3);
-						offset += (value.length - (key.length + 3));
-					});
-
-				});
-
-
-				return buffer;
-
-			}
-
-
-			return template;
-
-		},
-
-		getCore: function(variant) {
-
-			variant = typeof variant === 'string' ? variant : null;
-
-
-			if (variant !== null ){
-
-				var core = _lychee_fs.read('/' + variant + '/core.js');
-				if (core !== null) {
-					return core.toString();
-				}
-
-			}
-
-
-			return null;
-
-		},
-
-		getInfo: function(full) {
-
-			full = full === true;
-
-
-			var year  = new Date().getFullYear();
-			var lines = [];
-
-
-			lines.push('/*');
-			lines.push(' * lycheeJS v' + lychee.VERSION);
-			lines.push(' * http://lycheejs.org');
-			lines.push(' * ');
-			lines.push(' * (c) 2012-' + year + ' Artificial-Engineering');
-			lines.push(' * MIT / Expat License');
-			lines.push(' * ');
-
-			var env = this.environment;
-			if (env !== null && full === true) {
-
-				lines.push(' * ');
-				lines.push(' * Build:');
-				lines.push(' * \t' + env.build);
-				lines.push(' * ');
-				lines.push(' * Tags:');
-				lines.push(' * \t' + _JSON.encode(env.tags));
-				lines.push(' * ');
-				lines.push(' * Definitions:');
-
-				var definitions = Object.keys(env.definitions);
-				if (definitions.length > 0) {
-
-					definitions.sort(function(a, b) {
-						if (a < b) return -1;
-						if (a > b) return  1;
-						return 0;
-					});
-
-					definitions.forEach(function(id) {
-						lines.push(' * \t' + id);
-					});
-
-				}
-
-				lines.push(' * ');
-
-			}
-
-
-			lines.push(' */');
-
-			return lines.join('\n');
-
-		},
-
 		setEnvironment: function(environment) {
 
 			environment = environment instanceof lychee.Environment ? environment : null;
@@ -227,24 +112,6 @@ lychee.define('fertilizer.Template').requires([
 			if (environment !== null) {
 
 				this.environment = environment;
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		setFilesystem: function(filesystem) {
-
-			filesystem = filesystem instanceof fertilizer.data.Filesystem ? filesystem : null;
-
-
-			if (filesystem !== null) {
-
-				this.filesystem = filesystem;
 
 				return true;
 
@@ -273,6 +140,25 @@ lychee.define('fertilizer.Template').requires([
 
 		},
 
+		setSandbox: function(sandbox) {
+
+			sandbox = typeof sandbox === 'string' ? sandbox : null;
+
+
+			if (sandbox !== null) {
+
+				this.sandbox = sandbox;
+
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
 		setSettings: function(settings) {
 
 			settings = settings instanceof Object ? settings : null;
@@ -289,30 +175,12 @@ lychee.define('fertilizer.Template').requires([
 
 			return false;
 
-		},
-
-		setShell: function(shell) {
-
-			shell = shell instanceof fertilizer.data.Shell ? shell : null;
-
-
-			if (shell !== null) {
-
-				this.shell = shell;
-
-				return true;
-
-			}
-
-
-			return false;
-
 		}
 
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

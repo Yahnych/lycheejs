@@ -3,7 +3,8 @@ lychee.define('lychee.ui.entity.Label').includes([
 	'lychee.ui.Entity'
 ]).exports(function(lychee, global, attachments) {
 
-	var _FONT = attachments["fnt"];
+	const _Entity = lychee.import('lychee.ui.Entity');
+	const _FONT   = attachments["fnt"];
 
 
 
@@ -11,9 +12,9 @@ lychee.define('lychee.ui.entity.Label').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.font  = _FONT;
@@ -29,28 +30,17 @@ lychee.define('lychee.ui.entity.Label').includes([
 
 		settings.width  = typeof settings.width === 'number'  ? settings.width  : this.width;
 		settings.height = typeof settings.height === 'number' ? settings.height : this.height;
-		settings.shape  = lychee.ui.Entity.SHAPE.rectangle;
+		settings.shape  = _Entity.SHAPE.rectangle;
 
 
-		lychee.ui.Entity.call(this, settings);
-
-
-
-		/*
-		 * INITIALIZATION
-		 */
-
-		// this.bind('touch', function() {
-		// 	this.trigger('change', [ this.value ]);
-		// }, this);
-
+		_Entity.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -58,7 +48,7 @@ lychee.define('lychee.ui.entity.Label').includes([
 
 		deserialize: function(blob) {
 
-			var font = lychee.deserialize(blob.font);
+			let font = lychee.deserialize(blob.font);
 			if (font !== null) {
 				this.setFont(font);
 			}
@@ -67,11 +57,11 @@ lychee.define('lychee.ui.entity.Label').includes([
 
 		serialize: function() {
 
-			var data = lychee.ui.Entity.prototype.serialize.call(this);
+			let data = _Entity.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.ui.entity.Label';
 
-			var settings = data['arguments'][0];
-			var blob     = (data['blob'] || {});
+			let settings = data['arguments'][0];
+			let blob     = (data['blob'] || {});
 
 
 			if (this.value !== '') settings.value = this.value;
@@ -92,15 +82,15 @@ lychee.define('lychee.ui.entity.Label').includes([
 			if (this.visible === false) return;
 
 
-			var alpha    = this.alpha;
-			var position = this.position;
+			let alpha    = this.alpha;
+			let position = this.position;
 
-			var x = position.x + offsetX;
-			var y = position.y + offsetY;
+			let x = position.x + offsetX;
+			let y = position.y + offsetY;
 
 
-			var font  = this.font;
-			var value = this.value;
+			let font  = this.font;
+			let value = this.value;
 
 
 			if (alpha !== 1) {
@@ -110,13 +100,33 @@ lychee.define('lychee.ui.entity.Label').includes([
 
 			if (font !== null) {
 
-				renderer.drawText(
-					x,
-					y,
-					value,
-					font,
-					true
-				);
+				let cur = font.measure(value);
+				let max = this.width;
+
+				if (cur.realwidth <= max) {
+
+					renderer.drawText(
+						x,
+						y,
+						value,
+						font,
+						true
+					);
+
+				} else {
+
+					let len = (max / cur.realwidth * value.length) | 0;
+					let str = value.substr(0, len);
+
+					renderer.drawText(
+						x,
+						y,
+						str,
+						font,
+						true
+					);
+
+				}
 
 			}
 
@@ -163,10 +173,10 @@ lychee.define('lychee.ui.entity.Label').includes([
 
 			if (value !== null) {
 
-				var font = this.font;
+				let font = this.font;
 				if (font !== null) {
 
-					var dim = font.measure(value);
+					let dim = font.measure(value);
 
 					this.width  = dim.realwidth;
 					this.height = dim.realheight;
@@ -188,7 +198,7 @@ lychee.define('lychee.ui.entity.Label').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

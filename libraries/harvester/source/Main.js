@@ -1,44 +1,44 @@
 
 lychee.define('harvester.Main').requires([
 	'lychee.Input',
-	'lychee.data.JSON',
-	'harvester.data.Host',
+	'harvester.net.Admin',
 	'harvester.net.Server',
 	'harvester.mod.Fertilizer',
-	'harvester.mod.Package',
+	'harvester.mod.Packager',
 	'harvester.mod.Server',
-	'harvester.serve.API',
-	'harvester.serve.File',
-	'harvester.serve.Redirect'
+//	'harvester.mod.Strainer',
+	'harvester.mod.Updater'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, harvester, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _JSON = lychee.data.JSON;
+	const _harvester   = lychee.import('harvester');
+	const _mod         = {
+		Fertilizer: lychee.import('harvester.mod.Fertilizer'),
+		Packager:   lychee.import('harvester.mod.Packager'),
+		Server:     lychee.import('harvester.mod.Server'),
+		Strainer:   lychee.import('harvester.mod.Strainer'),
+		Updater:    lychee.import('harvester.mod.Updater')
+	};
+	const _setInterval = global.setInterval;
+	const _setTimeout  = global.setTimeout;
+	const _Emitter     = lychee.import('lychee.event.Emitter');
+	const _LIBRARIES   = {};
+	const _PROJECTS    = {};
+	const _PUBLIC_IPS  = (function() {
 
-
-
-	/*
-	 * HELPERS
-	 */
-
-	var _LIBRARIES  = {};
-	var _PROJECTS   = {};
-	var _PUBLIC_IPS = (function() {
-
-		var os = null;
+		let os = null;
 
 		try {
 			os = require('os');
-		} catch(e) {
+		} catch(err) {
 		}
 
 
 		if (os !== null) {
 
 
-			var candidates = [];
-
+			let candidates = [];
 
 			Object.values(os.networkInterfaces()).forEach(function(iface) {
 
@@ -47,7 +47,7 @@ lychee.define('harvester.Main').requires([
 					if (alias.internal === false) {
 
 						if (alias.family === 'IPv6' && alias.scopeid === 0) {
-							candidates.push('[' + alias.address + ']');
+							candidates.push(alias.address);
 						} else if (alias.family === 'IPv4') {
 							candidates.push(alias.address);
 						}
@@ -58,7 +58,6 @@ lychee.define('harvester.Main').requires([
 
 			});
 
-
 			return candidates.unique();
 
 		}
@@ -68,138 +67,127 @@ lychee.define('harvester.Main').requires([
 
 	})();
 
-	var _process_admin = function(data, ready) {
-
-		var host = this.getHost('admin');
-		var url  = data.headers.url || null;
-
-		if (host !== null && url !== null) {
-
-			var parameters = {};
-
-			if (data.headers.method.match(/PUT|POST/)) {
-				parameters = _JSON.decode(data.payload) || {};
-			}
 
 
-			var tmp = data.headers.url.split('?')[1] || '';
-			if (tmp.length > 0) {
+	/*
+	 * HELPERS
+	 */
 
-				url = data.headers.url.split('?')[0];
-				tmp.split('&').forEach(function(value) {
+	const _initialize = function(sandbox) {
 
-					var key = value.split('=')[0];
-					var val = value.split('=')[1];
-
-
-					if (!isNaN(parseInt(val, 10))) {
-						parameters[key] = parseInt(val, 10);
-					} else if (val === 'true') {
-						parameters[key] = true;
-					} else if (val === 'false') {
-						parameters[key] = false;
-					} else if (val === 'null') {
-						parameters[key] = null;
-					} else {
-						parameters[key] = val;
-					}
-
-				});
-
-			}
+		let libraries  = Object.values(_LIBRARIES);
+		let projects   = Object.values(_PROJECTS);
+		let Fertilizer = _mod.Fertilizer;
+		let Packager   = _mod.Packager;
+		let Server     = _mod.Server;
+		let Strainer   = _mod.Strainer;
+		let Updater    = _mod.Updater;
 
 
-			if (Object.keys(parameters).length > 0) {
-				data.headers.parameters = parameters;
-			}
+		if (sandbox === true) {
 
+			console.info('harvester: SANDBOX mode active');
+			console.info('harvester: Software bots disabled');
+			console.log('\n\n');
 
-			if (harvester.serve.API.can(host, url) === true) {
+			Fertilizer = null;
+			Strainer   = null;
+			Updater    = null;
 
-				harvester.serve.API.process(host, url, data, ready);
-				return true;
+		} else {
 
-			}
+			console.info('harvester: SANDBOX mode inactive');
+			console.info('harvester: Software bots enabled');
+			console.log('\n\n');
 
 		}
 
 
-		ready(null);
 
-		return false;
+		/*
+		 * BOOTUP: LIBRARIES
+		 */
 
-	};
+		libraries.forEach(function(library, l) {
 
-	var _process_server = function(data, ready) {
-
-		if (data.headers.host === 'admin') {
-			ready(null);
-			return false;
-		}
-
-
-		var host = this.getHost(data.headers.host);
-		var url  = data.headers.url || null;
-
-		if (host !== null && url !== null) {
-
-			var parameters = {};
-
-			var tmp = data.headers.url.split('?')[1] || '';
-			if (tmp.length > 0) {
-
-				url = data.headers.url.split('?')[0];
-				tmp.split('&').forEach(function(value) {
-
-					var key = value.split('=')[0];
-					var val = value.split('=')[1];
-
-
-					if (!isNaN(parseInt(val, 10))) {
-						parameters[key] = parseInt(val, 10);
-					} else if (val === 'true') {
-						parameters[key] = true;
-					} else if (val === 'false') {
-						parameters[key] = false;
-					} else if (val === 'null') {
-						parameters[key] = null;
-					} else {
-						parameters[key] = val;
-					}
-
-				});
-
+			if (Packager !== null && Packager.can(library) === true) {
+				Packager.process(library);
 			}
 
-
-			if (Object.keys(parameters).length > 0) {
-				data.headers.parameters = parameters;
+			if (Server !== null && Server.can(library) === true) {
+				Server.process(library);
 			}
 
-
-			if (harvester.serve.API.can(host, url) === true) {
-
-				harvester.serve.API.process(host, url, data, ready);
-				return true;
-
-			} else if (harvester.serve.File.can(host, url) === true) {
-
-				harvester.serve.File.process(host, url, data, ready);
-				return true;
-
-			} else if (harvester.serve.Redirect.can(host, url) === true) {
-
-				harvester.serve.Redirect.process(host, url, data, ready);
-				return true;
-
+			if (Updater !== null && Updater.can(library) === true) {
+				Updater.process(library);
 			}
 
-		}
+			if (Fertilizer !== null && Fertilizer.can(library) === true) {
+				Fertilizer.process(library);
+			}
+
+		});
 
 
-		ready(null);
 
-		return false;
+		/*
+		 * BOOTUP: PROJECTS
+		 */
+
+		_setTimeout(function() {
+
+			projects.forEach(function(project, p) {
+
+				if (Packager !== null && Packager.can(project) === true) {
+					Packager.process(project);
+				}
+
+				if (Server !== null && Server.can(project) === true) {
+					Server.process(project);
+				}
+
+				if (Updater !== null && Updater.can(project) === true) {
+					Updater.process(project);
+				}
+
+				if (Fertilizer !== null && Fertilizer.can(project) === true) {
+
+					_setTimeout(function() {
+						Fertilizer.process(project);
+					}, p * 2000);
+
+				}
+
+			});
+
+		}, 3000);
+
+
+
+		/*
+		 * INTERVAL
+		 */
+
+		_setInterval(function() {
+
+			libraries.forEach(function(library) {
+
+				if (Packager !== null && Packager.can(library) === true) {
+					Packager.process(library);
+				}
+
+			});
+
+			projects.forEach(function(project) {
+
+				if (Packager !== null && Packager.can(project) === true) {
+					Packager.process(project);
+				}
+
+			});
+
+		}, 30000);
+
 
 	};
 
@@ -209,61 +197,48 @@ lychee.define('harvester.Main').requires([
 	 * FEATURE DETECTION
 	 */
 
-	var _defaults = {
-
-		port:   null,
-		hosts:  null,
-
-		server: {
-			host: null,
-			port: 8080
-		}
-
-	};
-
-
 	(function(libraries, projects) {
 
-		var filesystem = new harvester.data.Filesystem();
+		let filesystem = new _harvester.data.Filesystem();
 
 
 		filesystem.dir('/libraries').filter(function(value) {
-			return !value.match(/README\.md/);
+			return /README\.md/.test(value) === false;
 		}).map(function(value) {
 			return '/libraries/' + value;
 		}).forEach(function(identifier) {
 
-			var info1 = filesystem.info(identifier + '/lychee.pkg');
+			let info1 = filesystem.info(identifier + '/lychee.pkg');
 			if ((info1 !== null && info1.type === 'file')) {
-				libraries[identifier] = new harvester.data.Project(identifier);
+				libraries[identifier] = new _harvester.data.Project(identifier);
 			}
 
 		});
 
 		filesystem.dir('/projects').filter(function(value) {
-			return !value.match(/cultivator|README\.md/);
+			return /cultivator|README\.md/.test(value) === false;
 		}).map(function(value) {
 			return '/projects/' + value;
 		}).forEach(function(identifier) {
 
-			var info1 = filesystem.info(identifier + '/index.html');
-			var info2 = filesystem.info(identifier + '/lychee.pkg');
+			let info1 = filesystem.info(identifier + '/index.html');
+			let info2 = filesystem.info(identifier + '/lychee.pkg');
 			if ((info1 !== null && info1.type === 'file') || (info2 !== null && info2.type === 'file')) {
-				projects[identifier] = new harvester.data.Project(identifier);
+				projects[identifier] = new _harvester.data.Project(identifier);
 			}
 
 		});
 
 		filesystem.dir('/projects/cultivator').filter(function(value) {
-			return !value.match(/design|index\.html|robots\.txt/);
+			return /design|index\.html|robots\.txt/.test(value) === false;
 		}).map(function(value) {
 			return '/projects/cultivator/' + value;
 		}).forEach(function(identifier) {
 
-			var info1 = filesystem.info(identifier + '/index.html');
-			var info2 = filesystem.info(identifier + '/lychee.pkg');
+			let info1 = filesystem.info(identifier + '/index.html');
+			let info2 = filesystem.info(identifier + '/lychee.pkg');
 			if ((info1 !== null && info1.type === 'file') || (info2 !== null && info2.type === 'file')) {
-				projects[identifier] = new harvester.data.Project(identifier);
+				projects[identifier] = new _harvester.data.Project(identifier);
 			}
 
 		});
@@ -276,48 +251,27 @@ lychee.define('harvester.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(settings) {
+	let Composite = function(settings) {
 
-		this.settings = lychee.extendunlink({}, _defaults, settings);
-		this.defaults = lychee.extendunlink({}, this.settings);
-
-		this.hosts     = {};
-		this.modules   = {};
-		this.server    = null;
+		this.settings = lychee.assignunlink({ host: null, port: null, sandbox: false }, settings);
+		this.defaults = lychee.assignunlink({}, this.settings);
 
 
-		if (settings.hosts instanceof Object) {
-
-			for (var id in settings.hosts) {
-
-				var project = settings.hosts[id];
-				if (project === null) {
-
-					this.setHost(id, null, null);
-
-				} else {
-
-					var cache = _PROJECTS[project] || null;
-					if (cache !== null) {
-						this.setHost(id, null, [ cache ]);
-					}
-
-				}
-
-			}
-
-		}
+		this.admin  = null;
+		this.server = null;
 
 
-		if (typeof settings.port === 'number') {
-			this.settings.server.port = (settings.port | 0);
-		}
+		this._libraries = _LIBRARIES;
+		this._projects  = _PROJECTS;
 
 
-		this.setHost('admin', null, null);
+		settings.host    = typeof settings.host === 'string' ? settings.host       : null;
+		settings.port    = typeof settings.port === 'number' ? (settings.port | 0) : 8080;
+		settings.sandbox = settings.sandbox === true;
 
 
-		lychee.event.Emitter.call(this);
+		_Emitter.call(this);
+
 
 
 		/*
@@ -326,189 +280,45 @@ lychee.define('harvester.Main').requires([
 
 		this.bind('load', function() {
 
-			var settings = this.settings.server || null;
-			if (settings !== null) {
+			this.admin  = new _harvester.net.Admin({
+				host: 'localhost',
+				port: 4848
+			});
 
-				this.admin  = new harvester.net.Server({ port: 4848 });
-				this.server = new harvester.net.Server(settings);
-
-				this.admin.bind('serve', function(data, ready) {
-					_process_admin.call(this, data, ready);
-				}, this);
-
-				this.server.bind('serve', function(data, ready) {
-					_process_server.call(this, data, ready);
-				}, this);
-
-			}
+			this.server = new _harvester.net.Server({
+				host: settings.host === 'localhost' ? null : settings.host,
+				port: settings.port
+			});
 
 		}, this, true);
 
 		this.bind('init', function() {
 
-			var settings = this.settings.server || null;
-			if (settings !== null) {
-
-				this.admin.connect();
-				this.server.connect();
+			this.admin.connect();
+			this.server.connect();
 
 
-				var port  = this.server.port;
-				var hosts = Object.keys(this.hosts).filter(function(host) {
-					return host !== 'admin';
-				}).map(function(host) {
-
-					if (host.indexOf(':') !== -1) {
-						return 'http://[' + host + ']:' + port;
-					} else {
-						return 'http://' + host + ':' + port;
-					}
-
-				});
-
-				console.log('\n\n');
-				console.log('Open your web browser and surf to one of the following hosts:');
-				console.log('\n');
-				hosts.forEach(function(host) {
-					console.log(host);
-				});
-				console.log('\n\n');
-
-			}
+			console.log('\n');
+			console.info('+-------------------------------------------------------+');
+			console.info('| Open one of these URLs with a Blink-based Web Browser |');
+			console.info('+-------------------------------------------------------+');
+			console.log('\n');
+			this.getHosts().forEach(function(host) {
+				console.log(host);
+			});
+			console.log('\n\n');
 
 		}, this, true);
 
 
-		if (settings.integration === true) {
-
-			(function(libraries, projects) {
-
-				libraries.forEach(function(library, l) {
-
-					if (harvester.mod.Package.can(library) === true) {
-						harvester.mod.Package.process(library);
-					}
-
-					if (harvester.mod.Fertilizer.can(library) === true) {
-						harvester.mod.Fertilizer.process(library);
-					}
-
-				});
-
-				setTimeout(function() {
-
-					projects.forEach(function(project, p) {
-
-						if (harvester.mod.Package.can(project) === true) {
-							harvester.mod.Package.process(project);
-						}
-
-						if (harvester.mod.Server.can(project) === true) {
-							harvester.mod.Server.process(project);
-						}
-
-
-						if (harvester.mod.Fertilizer.can(project) === true) {
-
-							setTimeout(function() {
-								harvester.mod.Fertilizer.process(project);
-							}, p * 2000);
-
-						}
-
-					});
-
-				}, libraries.length * 1000);
-
-			})(Object.values(_LIBRARIES), Object.values(_PROJECTS));
-
-		} else {
-
-			(function(libraries, projects) {
-
-				libraries.forEach(function(library, l) {
-
-					if (harvester.mod.Package.can(library) === true) {
-						harvester.mod.Package.process(library);
-					}
-
-				});
-
-				setTimeout(function() {
-
-					projects.forEach(function(project, p) {
-
-						if (harvester.mod.Package.can(project) === true) {
-							harvester.mod.Package.process(project);
-						}
-
-						if (harvester.mod.Server.can(project) === true) {
-							harvester.mod.Server.process(project);
-						}
-
-					});
-
-				}, libraries.length * 1000);
-
-			})(Object.values(_LIBRARIES), Object.values(_PROJECTS));
-
-		}
-
-
-
-		/*
-		 * INITIALIZATION: DEVELOPMENT MODE
-		 */
-
-		if (settings.hosts['localhost'] === null) {
-
-			this.bind('init', function() {
-
-				if (this.server !== null) {
-
-					this.server.bind('serve', function(data, ready) {
-
-						var host = this.getHost(data.headers.host);
-						if (host === null) {
-							this.setHost(data.headers.host, null, null);
-						}
-
-					}, this);
-
-				}
-
-			}, this);
-
-			_PUBLIC_IPS.forEach(function(ip) {
-				this.setHost(ip, null, null);
-			}.bind(this));
-
-			setInterval(function() {
-
-				Object.values(_LIBRARIES).forEach(function(library) {
-
-					if (harvester.mod.Package.can(library) === true) {
-						harvester.mod.Package.process(library);
-					}
-
-				});
-
-				Object.values(_PROJECTS).forEach(function(project) {
-
-					if (harvester.mod.Package.can(project) === true) {
-						harvester.mod.Package.process(project);
-					}
-
-				});
-
-			}.bind(this), 30000);
-
-		}
+		this.bind('init', function() {
+			_initialize.call(this, settings.sandbox);
+		}, this, true);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -516,14 +326,13 @@ lychee.define('harvester.Main').requires([
 
 		deserialize: function(blob) {
 
-			var admin  = lychee.deserialize(blob.admin);
-			var server = lychee.deserialize(blob.server);
-
-
+			let admin = lychee.deserialize(blob.admin);
 			if (admin !== null) {
 				this.admin = admin;
 			}
 
+
+			let server = lychee.deserialize(blob.server);
 			if (server !== null) {
 				this.server = server;
 			}
@@ -532,12 +341,12 @@ lychee.define('harvester.Main').requires([
 
 		serialize: function() {
 
-			var data = lychee.event.Emitter.prototype.serialize.call(this);
+			let data = _Emitter.prototype.serialize.call(this);
 			data['constructor'] = 'harvester.Main';
 
 
-			var settings = lychee.extendunlink({}, this.settings);
-			var blob     = data['blob'] || {};
+			let settings = lychee.assignunlink({}, this.settings);
+			let blob     = data['blob'] || {};
 
 
 			if (this.admin !== null)  blob.admin  = lychee.serialize(this.admin);
@@ -567,9 +376,9 @@ lychee.define('harvester.Main').requires([
 
 		destroy: function() {
 
-			for (var identifier in _PROJECTS) {
+			for (let identifier in _PROJECTS) {
 
-				var project = _PROJECTS[identifier];
+				let project = _PROJECTS[identifier];
 				if (project.server !== null) {
 
 					if (typeof project.server.destroy === 'function') {
@@ -580,6 +389,11 @@ lychee.define('harvester.Main').requires([
 
 			}
 
+
+			if (this.admin !== null) {
+				this.admin.disconnect();
+				this.admin = null;
+			}
 
 			if (this.server !== null) {
 				this.server.disconnect();
@@ -597,57 +411,45 @@ lychee.define('harvester.Main').requires([
 		 * CUSTOM API
 		 */
 
-		getHost: function(identifier) {
+		getHosts: function() {
 
-			var id = (identifier || '');
-			if (id.match(/\[.*\]+/g)) {
-				id = id.match(/([0-9a-f\:]+)/g)[0];
-			} else if (id.indexOf(':')) {
-				id = id.split(':')[0];
-			}
+			let hosts  = [];
+			let server = this.server;
 
+			if (server !== null) {
 
-			return this.hosts[id] || null;
+				let host = server.host || null;
+				let port = server.port;
 
-		},
-
-		setHost: function(identifier, libraries, projects) {
-
-			identifier = typeof identifier === 'string' ? identifier : null;
-			libraries  = libraries instanceof Array     ? libraries  : Object.values(_LIBRARIES);
-			projects   = projects instanceof Array      ? projects   : Object.values(_PROJECTS);
-
-
-			if (identifier !== null) {
-
-				var id = (identifier || '');
-				if (id.match(/\[.*\]+/g)) {
-					id = id.match(/([0-9a-f\:]+)/g)[0];
-				} else if (id.indexOf(':')) {
-					id = id.split(':')[0];
+				if (host === null) {
+					hosts.push.apply(hosts, _PUBLIC_IPS);
+					hosts.push('localhost');
+				} else {
+					hosts.push(host);
 				}
 
 
-				this.hosts[id] = new harvester.data.Host({
-					cultivator: projects.length > 1,
-					libraries:  libraries,
-					projects:   projects
+				hosts = hosts.map(function(host) {
+
+					if (host.indexOf(':') !== -1) {
+						return 'http://[' + host + ']:' + port;
+					} else {
+						return 'http://' + host + ':' + port;
+					}
+
 				});
-
-
-				return true;
 
 			}
 
 
-			return false;
+			return hosts;
 
 		}
 
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

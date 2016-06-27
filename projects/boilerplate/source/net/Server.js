@@ -1,23 +1,26 @@
 
 lychee.define('app.net.Server').requires([
-	'lychee.data.BitON',
 	'app.net.remote.Ping'
 ]).includes([
 	'lychee.net.Server'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Ping   = lychee.import('app.net.remote.Ping');
+	const _Server = lychee.import('lychee.net.Server');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
-			codec: lychee.data.BitON
+		let settings = Object.assign({
 		}, data);
 
 
-		lychee.net.Server.call(this, settings);
+		_Server.call(this, settings);
 
 
 
@@ -29,7 +32,7 @@ lychee.define('app.net.Server').requires([
 
 			console.log('app.net.Server: Remote connected (' + remote.host + ':' + remote.port + ')');
 
-			remote.addService(new app.net.remote.Ping(remote));
+			remote.addService(new _Ping(remote));
 
 		}, this);
 
@@ -45,7 +48,7 @@ lychee.define('app.net.Server').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -55,7 +58,7 @@ lychee.define('app.net.Server').requires([
 
 		serialize: function() {
 
-			var data = lychee.net.Server.prototype.serialize.call(this);
+			let data = _Server.prototype.serialize.call(this);
 			data['constructor'] = 'app.net.Server';
 
 
@@ -66,7 +69,7 @@ lychee.define('app.net.Server').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

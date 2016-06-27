@@ -2,6 +2,7 @@
 lychee.define('app.state.Chat').requires([
 	'lychee.effect.Color',
 	'lychee.effect.Offset',
+	'lychee.app.sprite.Background',
 	'lychee.ui.entity.Button',
 	'lychee.ui.entity.Select',
 	'lychee.ui.entity.Slider',
@@ -11,10 +12,13 @@ lychee.define('app.state.Chat').requires([
 	'app.ui.sprite.Avatar'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _BLOB   = attachments["json"].buffer;
-	var _SOUNDS = {
+	const _Color  = lychee.import('lychee.effect.Color');
+	const _Offset = lychee.import('lychee.effect.Offset');
+	const _State  = lychee.import('lychee.app.State');
+	const _BLOB   = attachments["json"].buffer;
+	const _SOUNDS = {
 		join_empty: attachments["join_empty.snd"],
 		join_full:  attachments["join_full.snd"],
 		message:    attachments["message.snd"]
@@ -26,9 +30,9 @@ lychee.define('app.state.Chat').requires([
 	 * HELPERS
 	 */
 
-	var _get_user_diff = function(users) {
+	const _get_user_diff = function(users) {
 
-		var raw = this.__cache.users;
+		let raw = this.__cache.users;
 
 
 		return users.filter(function(usr) {
@@ -43,16 +47,16 @@ lychee.define('app.state.Chat').requires([
 
 	};
 
-	var _on_sync = function(room) {
+	const _on_sync = function(room) {
 
-		var background = this.queryLayer('background', 'background');
+		let background = this.queryLayer('background', 'background');
 		if (background !== null) {
 
 			if (background.effects.length === 0) {
 
 				background.color = '#32afe5',
-				background.addEffect(new lychee.effect.Color({
-					type:     lychee.effect.Color.TYPE.easeout,
+				background.addEffect(new _Color({
+					type:     _Color.TYPE.easeout,
 					duration: 300,
 					color:    '#405050'
 				}));
@@ -62,8 +66,8 @@ lychee.define('app.state.Chat').requires([
 		}
 
 
-		var channel = '#home';
-		var entity  = this.queryLayer('ui', 'channel');
+		let channel = '#home';
+		let entity  = this.queryLayer('ui', 'channel');
 		if (entity !== null) {
 			channel = entity.value;
 		}
@@ -92,15 +96,35 @@ lychee.define('app.state.Chat').requires([
 		}
 
 
-		var user_diff = _get_user_diff.call(this, room.users);
+		let user_diff = _get_user_diff.call(this, room.users);
 		if (user_diff.length > 0) {
 			this.__cache.users = room.users;
 		}
 
 
-		room.messages.forEach(function(obj) {
-			this.__cache.messages.push(obj);
-		}.bind(this));
+		for (let m = 0, ml = room.messages.length; m < ml; m++) {
+
+			let user    = room.messages[m].user;
+			let message = room.messages[m].message;
+
+			if (user !== null && message !== null) {
+
+				let found = this.__cache.messages.find(function(other) {
+					return other.user === user && other.message === message;
+				}) || null;
+
+				if (found === null) {
+
+					this.__cache.messages.push({
+						user:    user,
+						message: message
+					});
+
+				}
+
+			}
+
+		}
 
 
 		this.jukebox.play(_SOUNDS.message);
@@ -117,9 +141,9 @@ lychee.define('app.state.Chat').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(main) {
+	let Composite = function(main) {
 
-		lychee.app.State.call(this, main);
+		_State.call(this, main);
 
 
 		this.__cache = {
@@ -127,10 +151,10 @@ lychee.define('app.state.Chat').requires([
 			users:    [],
 			messages: [{
 				user:    'system',
-				message: 'Welcome to the lycheeJS Anonymous Chat.'
+				message: 'Welcome to the lychee.js Anonymous Chat.'
 			}, {
 				user:    'system',
-				message: 'Touch on lycheeJS logo to randomize username.'
+				message: 'Touch on lychee.js Logo to randomize username.'
 			}]
 		};
 
@@ -143,24 +167,24 @@ lychee.define('app.state.Chat').requires([
 		 * INITIALIZATION
 		 */
 
-		var viewport = this.viewport;
+		let viewport = this.viewport;
 		if (viewport !== null) {
 
 			viewport.bind('reshape', function(orientation, rotation) {
 
-				var renderer = this.renderer;
+				let renderer = this.renderer;
 				if (renderer !== null) {
 
-					var entity = null;
-					var width  = renderer.width;
-					var height = renderer.height;
+					let entity = null;
+					let width  = renderer.width;
+					let height = renderer.height;
 
 
-					entity = this.getLayer('background');
+					entity = this.getLayer('bg');
 					entity.width  = width;
 					entity.height = height;
 
-					entity = this.queryLayer('background', 'background');
+					entity = this.queryLayer('bg', 'background');
 					entity.width     = width;
 					entity.height    = height;
 					entity.__isDirty = true;
@@ -204,7 +228,7 @@ lychee.define('app.state.Chat').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * STATE API
@@ -212,7 +236,7 @@ lychee.define('app.state.Chat').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.State.prototype.serialize.call(this);
+			let data = _State.prototype.serialize.call(this);
 			data['constructor'] = 'app.state.Chat';
 
 
@@ -222,21 +246,21 @@ lychee.define('app.state.Chat').requires([
 
 		deserialize: function(blob) {
 
-			lychee.app.State.prototype.deserialize.call(this, blob);
+			_State.prototype.deserialize.call(this, blob);
 
 
-			var entity = null;
+			let entity = null;
 
 
 			entity = this.queryLayer('ui', 'channel');
 			entity.bind('change', function(value) {
 
-				var service = this.client.getService('chat');
+				let service = this.client.getService('chat');
 				if (service !== null) {
 					service.setRoom(value);
 				}
 
-				var slider = this.queryLayer('ui', 'slider');
+				let slider = this.queryLayer('ui', 'slider');
 				if (slider !== null) {
 					slider.setValue(100);
 					slider.trigger('change', [ slider.value ]);
@@ -247,7 +271,7 @@ lychee.define('app.state.Chat').requires([
 			entity = this.queryLayer('ui',  'avatar');
 			entity.bind('change', function(value) {
 
-				var service = this.client.getService('chat');
+				let service = this.client.getService('chat');
 				if (service !== null) {
 					service.setUser(value);
 				}
@@ -257,8 +281,8 @@ lychee.define('app.state.Chat').requires([
 			entity = this.queryLayer('ui',  'button');
 			entity.bind('touch', function() {
 
-				var message = this.queryLayer('ui', 'message');
-				var service = this.client.getService('chat');
+				let message = this.queryLayer('ui', 'message');
+				let service = this.client.getService('chat');
 
 				if (message !== null && service !== null) {
 
@@ -279,13 +303,13 @@ lychee.define('app.state.Chat').requires([
 			entity = this.queryLayer('ui', 'slider');
 			entity.bind('change', function(value) {
 
-				var index = (100 - value) / 100;
-				var layer = this.queryLayer('ui', 'messages');
+				let index = (100 - value) / 100;
+				let layer = this.queryLayer('ui', 'messages');
 
 				if (layer !== null) {
 
-					layer.addEffect(new lychee.effect.Offset({
-						type:     lychee.effect.Offset.TYPE.easeout,
+					layer.addEffect(new _Offset({
+						type:     _Offset.TYPE.easeout,
 						duration: 500,
 						offset: {
 							y: index * (this.__cache.messages.length * 32 - layer.height)
@@ -299,20 +323,20 @@ lychee.define('app.state.Chat').requires([
 
 		update: function(clock, delta) {
 
-			lychee.app.State.prototype.update.call(this, clock, delta);
+			_State.prototype.update.call(this, clock, delta);
 
 		},
 
 		enter: function(oncomplete) {
 
-			lychee.app.State.prototype.enter.call(this, oncomplete);
+			_State.prototype.enter.call(this, oncomplete);
 
 
-			var service = this.client.getService('chat');
+			let service = this.client.getService('chat');
 			if (service !== null) {
 
-				var user = this.queryLayer('ui', 'avatar').value;
-				var room = this.queryLayer('ui', 'channel').value;
+				let user = this.queryLayer('ui', 'avatar').value;
+				let room = this.queryLayer('ui', 'channel').value;
 
 				service.setUser(user);
 				service.setRoom(room);
@@ -324,19 +348,19 @@ lychee.define('app.state.Chat').requires([
 
 		leave: function(oncomplete) {
 
-			var service = this.client.getService('chat');
+			let service = this.client.getService('chat');
 			if (service !== null) {
 				service.unbind('sync', _on_sync, this);
 			}
 
 
-			lychee.app.State.prototype.leave.call(this, oncomplete);
+			_State.prototype.leave.call(this, oncomplete);
 
 		}
 
 	};
 
 
-	return Class;
+	return Composite;
 
 });

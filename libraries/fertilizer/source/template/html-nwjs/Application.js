@@ -1,16 +1,14 @@
 
-lychee.define('fertilizer.template.html-nwjs.Application').requires([
-	'lychee.data.JSON',
-	'fertilizer.data.Filesystem'
-]).includes([
+lychee.define('fertilizer.template.html-nwjs.Application').includes([
 	'fertilizer.Template'
-]).exports(function(lychee, fertilizer, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _JSON      = lychee.data.JSON;
-	var _templates = {
-		config: attachments["config.tpl"].buffer,
-		icon:   attachments["icon.png"].buffer,
-		index:  attachments["index.tpl"].buffer
+	const _Template  = lychee.import('fertilizer.Template');
+	const _TEMPLATES = {
+		config: attachments["config.tpl"],
+		core:   null,
+		icon:   attachments["icon.png"],
+		index:  attachments["index.tpl"]
 	};
 
 
@@ -19,13 +17,15 @@ lychee.define('fertilizer.template.html-nwjs.Application').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		fertilizer.Template.call(this, data);
+		_Template.call(this, data);
 
-		this.__config = _templates['config'].toString();
-		this.__icon   = _templates['icon'];
-		this.__index  = _templates['index'].toString();
+
+		this.__config = lychee.deserialize(lychee.serialize(_TEMPLATES.config));
+		this.__core   = lychee.deserialize(lychee.serialize(_TEMPLATES.core));
+		this.__icon   = lychee.deserialize(lychee.serialize(_TEMPLATES.icon));
+		this.__index  = lychee.deserialize(lychee.serialize(_TEMPLATES.index));
 
 
 
@@ -35,88 +35,111 @@ lychee.define('fertilizer.template.html-nwjs.Application').requires([
 
 		this.bind('configure', function(oncomplete) {
 
-			var fs = this.filesystem;
-			if (fs !== null) {
+			console.log('fertilizer: CONFIGURE');
 
-				console.log('fertilizer: CONFIGURE');
+			let that   = this;
+			let load   = 3;
+			let config = this.stash.read('./package.json');
+			let core   = this.stash.read('/libraries/lychee/build/html-nwjs/core.js');
+			let icon   = this.stash.read('./icon.png');
 
+			if (config !== null) {
 
-				var tmp        = new fertilizer.data.Filesystem(fs.root + '/../../..');
-				var has_config = tmp.info('/package.json');
-				var has_icon   = tmp.info('/icon.png');
-				var has_index  = tmp.info('/index.html');
+				config.onload = function(result) {
 
-				if (has_config !== null) {
-					this.__config = tmp.read('/package.json').toString();
-				}
-
-				if (has_icon !== null) {
-					this.__icon = tmp.read('/icon.png');
-				}
-
-				if (has_index !== null) {
-
-					this.__index = tmp.read('/index.html').toString();
-					this.__index = this.__index.replace('/libraries/lychee/build/html/core.js', './core.js');
-
-					var tmp1 = this.__index.indexOf('<script>');
-					var tmp2 = this.__index.indexOf('</script>', tmp1);
-					var tmp3 = _templates['index'].indexOf('<script>');
-					var tmp4 = _templates['index'].indexOf('</script>', tmp3);
-
-					if (tmp1 !== -1 && tmp2 !== -1 && tmp3 !== -1 && tmp4 !== -1) {
-						var inject   = _templates['index'].substr(tmp3, tmp4 - tmp3 + 9);
-						this.__index = this.__index.substr(0, tmp1) + inject + this.__index.substr(tmp2 + 9);
+					if (result === true) {
+						that.__config = this;
 					}
 
-				}
+					if ((--load) === 0) {
+						oncomplete(true);
+					}
+
+				};
+
+				config.load();
 
 			}
 
-			oncomplete(true);
+			if (core !== null) {
+
+				core.onload = function(result) {
+
+					if (result === true) {
+						that.__core = this;
+					}
+
+					if ((--load) === 0) {
+						oncomplete(true);
+					}
+
+				};
+
+				core.load();
+
+			}
+
+			if (icon !== null) {
+
+				icon.onload = function(result) {
+
+					if (result === true) {
+						that.__icon = this;
+					}
+
+					if ((--load) === 0) {
+						oncomplete(true);
+					}
+
+				};
+
+				icon.load();
+
+			}
+
+
+			if (config === null && core === null && icon === null) {
+				oncomplete(false);
+			}
 
 		}, this);
 
 		this.bind('build', function(oncomplete) {
 
-			var env = this.environment;
-			var fs  = this.filesystem;
+			let env   = this.environment;
+			let stash = this.stash;
 
-			if (env !== null && fs !== null) {
+
+			if (env !== null && stash !== null) {
 
 				console.log('fertilizer: BUILD ' + env.id);
 
-				var id      = env.id;
-				var version = ('' + lychee.VERSION);
 
-				var profile = _JSON.encode(this.profile);
-				var blob    = _JSON.encode(env.serialize());
-				var core    = this.getCore('html-nwjs');
-				var info    = this.getInfo(true);
-
-				var icon    = this.__icon;
-				var config  = this.__config;
-				var index   = this.__index;
+				let sandbox = this.sandbox;
+				let config  = this.__config;
+				let core    = this.__core;
+				let icon    = this.__icon;
+				let index   = this.__index;
 
 
-				config = this.replace(config, {
-					debug:   env.debug === true ? 'true' : 'false',
-					id:      id,
-					version: version
+				config.buffer = config.buffer.replaceObject({
+					debug:   env.debug,
+					id:      env.id,
+					version: lychee.VERSION
 				});
-				core   = this.getInfo(false) + '\n\n' + core;
-				index  = this.replace(index, {
-					blob:    blob,
-					id:      id,
-					info:    info,
-					profile: profile
+
+				index.buffer = index.buffer.replaceObject({
+					blob:    env.serialize(),
+					id:      env.id,
+					profile: this.profile
 				});
 
 
-				fs.write('/icon.png',     icon);
-				fs.write('/package.json', config);
-				fs.write('/core.js',      core);
-				fs.write('/index.html',   index);
+				stash.write(sandbox + '/package.json', config);
+				stash.write(sandbox + '/core.js',      core);
+				stash.write(sandbox + '/icon.png',     icon);
+				stash.write(sandbox + '/index.html',   index);
+
 
 				oncomplete(true);
 
@@ -130,34 +153,34 @@ lychee.define('fertilizer.template.html-nwjs.Application').requires([
 
 		this.bind('package', function(oncomplete) {
 
-			var runtime_fs = new fertilizer.data.Filesystem('/bin/runtime/html-nwjs');
-			var runtime_sh = new fertilizer.data.Shell('/bin/runtime/html-nwjs');
-			var project_fs = this.filesystem;
-			var project_id = this.environment.id.split('/').pop();
+			let name    = this.environment.id.split('/')[2];
+			let sandbox = this.sandbox;
+			let shell   = this.shell;
 
-			if (project_fs !== null) {
+			if (name === 'cultivator') {
+				name = this.environment.id.split('/')[3];
+			}
 
-				console.log('fertilizer: PACKAGE ' + project_fs.root + ' ' + project_id);
 
-				if (runtime_fs.info('/package.sh') !== null) {
+			if (sandbox !== '') {
 
-					var result = runtime_sh.exec('/package.sh ' + project_fs.root + ' ' + project_id);
+				console.log('fertilizer: PACKAGE ' + sandbox + ' ' + name);
+
+
+				shell.exec('/bin/runtime/html-nwjs/package.sh ' + sandbox + ' ' + name, function(result) {
+
 					if (result === true) {
 
 						oncomplete(true);
 
 					} else {
 
-						runtime_sh.trace();
+						shell.trace();
 						oncomplete(false);
 
 					}
 
-				} else {
-
-					oncomplete(false);
-
-				}
+				});
 
 			} else {
 
@@ -170,15 +193,17 @@ lychee.define('fertilizer.template.html-nwjs.Application').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
+		// deserialize: function(blob) {},
+
 		serialize: function() {
 
-			var data = fertilizer.Template.prototype.serialize.call(this);
+			let data = _Template.prototype.serialize.call(this);
 			data['constructor'] = 'fertilizer.template.html-nwjs.Application';
 
 
@@ -189,7 +214,7 @@ lychee.define('fertilizer.template.html-nwjs.Application').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

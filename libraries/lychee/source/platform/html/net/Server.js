@@ -3,32 +3,25 @@ lychee.define('lychee.net.Server').tags({
 	platform: 'html'
 }).requires([
 	'lychee.Storage',
-	'lychee.data.JSON',
+	'lychee.codec.JSON',
 	'lychee.net.Remote'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).supports(function(lychee, global) {
 
-	var _JSON = lychee.data.JSON;
+	// TODO: Feature Detection of Raw TCP Socket API
 
+	return true;
 
+}).exports(function(lychee, global, attachments) {
 
-	/*
-	 * HELPERS
-	 */
-
-	// TODO: WebSocket Upgrade
-	// TODO: WebSocket Handshake
-
-
-
-	/*
-	 * IMPLEMENTATION
-	 */
-
-	var _storage = new lychee.Storage({
+	const _Emitter = lychee.import('lychee.event.Emitter');
+	const _JSON    = lychee.import('lychee.codec.JSON');
+	const _Remote  = lychee.import('lychee.net.Remote');
+	const _Storage = lychee.import('lychee.Storage');
+	const _storage = new _Storage({
 		id:    'server',
-		type:  lychee.Storage.TYPE.persistent,
+		type:  _Storage.TYPE.persistent,
 		model: {
 			id:   '::ffff:1337',
 			host: '::ffff',
@@ -37,20 +30,34 @@ lychee.define('lychee.net.Server').tags({
 	});
 
 
-	var Class = function(data) {
 
-		var settings = lychee.extend({}, data);
+	/*
+	 * IMPLEMENTATION
+	 */
 
+	let Composite = function(data) {
 
-		this.codec = lychee.interfaceof(settings.codec, _JSON) ? settings.codec : _JSON;
-		this.host  = 'localhost';
-		this.port  = 1337;
-
-
-		this.__socket = null;
+		let settings = Object.assign({}, data);
 
 
-		lychee.event.Emitter.call(this);
+		this.codec  = _JSON;
+		this.host   = null;
+		this.port   = 1337;
+		this.remote = _Remote;
+		this.type   = Composite.TYPE.WS;
+
+
+		this.__isConnected = false;
+		this.__server      = null;
+
+
+		this.setCodec(settings.codec);
+		this.setHost(settings.host);
+		this.setPort(settings.port);
+		this.setType(settings.type);
+
+
+		_Emitter.call(this);
 
 		settings = null;
 
@@ -61,8 +68,8 @@ lychee.define('lychee.net.Server').tags({
 
 		this.bind('connect', function(remote) {
 
-			var id  = remote.host + ':' + remote.port;
-			var obj = _storage.create();
+			let id  = remote.host + ':' + remote.port;
+			let obj = _storage.create();
 			if (obj !== null) {
 
 				obj.id   = id;
@@ -77,8 +84,8 @@ lychee.define('lychee.net.Server').tags({
 
 		this.bind('disconnect', function(remote) {
 
-			var id  = remote.host + ':' + remote.port;
-			var obj = _storage.read(id);
+			let id  = remote.host + ':' + remote.port;
+			let obj = _storage.read(id);
 			if (obj !== null) {
 				_storage.remove(id);
 			}
@@ -88,7 +95,14 @@ lychee.define('lychee.net.Server').tags({
 	};
 
 
-	Class.prototype = {
+	Composite.TYPE = {
+		WS:   0,
+		HTTP: 1,
+		TCP:  2
+	};
+
+
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -98,15 +112,17 @@ lychee.define('lychee.net.Server').tags({
 
 		serialize: function() {
 
-			var data = lychee.event.Emitter.prototype.serialize.call(this);
+			let data = _Emitter.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.net.Server';
 
-			var settings = {};
+			let settings = {};
 
 
-			if (this.codec !== _JSON)      settings.codec = lychee.serialize(this.codec);
-			if (this.host !== 'localhost') settings.host  = this.host;
-			if (this.port !== 1337)        settings.port  = this.port;
+			if (this.codec !== _JSON)            settings.codec  = lychee.serialize(this.codec);
+			if (this.host !== 'localhost')       settings.host   = this.host;
+			if (this.port !== 1337)              settings.port   = this.port;
+			if (this.remote !== _Remote)         settings.remote = lychee.serialize(this.remote);
+			if (this.type !== Composite.TYPE.WS) settings.type   = this.type;
 
 
 			data['arguments'][0] = settings;
@@ -124,17 +140,58 @@ lychee.define('lychee.net.Server').tags({
 
 		connect: function() {
 
-			if (this.__socket === null) {
+			if (this.__isConnected === false) {
 
 				if (lychee.debug === true) {
-//					console.log('lychee.net.Server: Connected to ' + this.host + ':' + this.port);
+					console.log('lychee.net.Server: Connected to ' + this.host + ':' + this.port);
 				}
 
 
-				var that = this;
-
-
 				// TODO: Setup HTTP Server
+
+				let that      = this;
+				// let server = new _net.Server();
+
+
+				// server.on('connection', function(socket) {
+
+				// 	let host   = socket.remoteAddress || socket.server._connectionKey.split(':')[1];
+				// 	let port   = socket.remotePort    || socket.server._connectionKey.split(':')[2];
+				// 	let remote = new that.remote({
+				// 		codec: that.codec,
+				// 		host:  host,
+				// 		port:  port,
+				// 		type:  that.type
+				// 	});
+
+
+				// 	remote.bind('connect', function() {
+				// 		that.trigger('connect', [ this ]);
+				// 	});
+
+				// 	remote.bind('disconnect', function() {
+				// 		that.trigger('disconnect', [ this ]);
+				// 	});
+
+
+				// 	remote.connect(socket);
+
+				// });
+
+				// server.on('error', function() {
+				// 	this.close();
+				// });
+
+				// server.on('close', function() {
+				// 	that.__isConnected = false;
+				// 	that.__server      = null;
+				// });
+
+				// server.listen(this.port, this.host);
+
+
+				// this.__server      = server;
+				// this.__isConnected = true;
 
 
 				return true;
@@ -148,8 +205,9 @@ lychee.define('lychee.net.Server').tags({
 
 		disconnect: function() {
 
-			if (this.__socket !== null) {
-				this.__socket.close();
+			let server = this.__server;
+			if (server !== null) {
+				server.close();
 			}
 
 
@@ -162,6 +220,36 @@ lychee.define('lychee.net.Server').tags({
 		/*
 		 * TUNNEL API
 		 */
+
+		setCodec: function(codec) {
+
+			codec = lychee.interfaceof(_JSON, codec) ? codec : null;
+
+
+			if (codec !== null) {
+
+				let oldcodec = this.codec;
+				if (oldcodec !== codec) {
+
+					this.codec = codec;
+
+
+					if (this.__isConnected === true) {
+						this.disconnect();
+						this.connect();
+					}
+
+				}
+
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
 
 		setHost: function(host) {
 
@@ -197,12 +285,72 @@ lychee.define('lychee.net.Server').tags({
 
 			return false;
 
+		},
+
+		setRemote: function(remote) {
+
+			remote = lychee.interfaceof(_Remote, remote) ? remote : null;
+
+
+			if (remote !== null) {
+
+				let oldremote = this.remote;
+				if (oldremote !== remote) {
+
+					this.remote = remote;
+
+
+					if (this.__isConnected === true) {
+						this.disconnect();
+						this.connect();
+					}
+
+				}
+
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setType: function(type) {
+
+			type = lychee.enumof(Composite.TYPE, type) ? type : null;
+
+
+			if (type !== null) {
+
+				let oldtype = this.type;
+				if (oldtype !== type) {
+
+					this.type = type;
+
+
+					if (this.__isConnected === true) {
+						this.disconnect();
+						this.connect();
+					}
+
+				}
+
+
+				return true;
+
+			}
+
+
+			return false;
+
 		}
 
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

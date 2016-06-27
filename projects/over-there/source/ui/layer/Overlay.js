@@ -1,32 +1,41 @@
 
 lychee.define('app.ui.layer.Overlay').requires([
+	'lychee.app.Entity',
 	'lychee.effect.Alpha',
 	'app.ui.entity.Bubble'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Alpha  = lychee.import('lychee.effect.Alpha');
+	const _Entity = lychee.import('lychee.app.Entity');
+	const _Bubble = lychee.import('app.ui.entity.Bubble');
+	const _Layer  = lychee.import('lychee.ui.Layer');
+	const _SOUND  = attachments["snd"];
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.__entity = null;
 		this.__orbit  = null;
 
 
-		lychee.ui.Layer.call(this, settings);
+		_Layer.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -34,7 +43,7 @@ lychee.define('app.ui.layer.Overlay').requires([
 
 		serialize: function() {
 
-			var data = lychee.ui.Layer.prototype.serialize.call(this);
+			let data = _Layer.prototype.serialize.call(this);
 			data['constructor'] = 'app.ui.layer.Overlay';
 
 
@@ -44,24 +53,24 @@ lychee.define('app.ui.layer.Overlay').requires([
 
 		update: function(clock, delta) {
 
-			lychee.ui.Layer.prototype.update.call(this, clock, delta);
+			_Layer.prototype.update.call(this, clock, delta);
 
 
 
-			var entity = this.__entity;
+			let entity = this.__entity;
 			if (entity !== null) {
 
 				this.position.x = entity.position.x;
 				this.position.y = entity.position.y;
 
-				var entities = this.entities;
-				var pi2  = 2 * Math.PI / entities.length;
-				var sec  = clock / 4000;
-				var dist = this.__orbit + 64;
+				let entities = this.entities;
+				let pi2  = 2 * Math.PI / entities.length;
+				let sec  = clock / 1300;
+				let dist = this.__orbit + 64;
 
-				for (var e = 0, el = entities.length; e < el; e++) {
+				for (let e = 0, el = entities.length; e < el; e++) {
 
-					var other = entities[e];
+					let other = entities[e];
 
 					other.setPosition({
 						x: Math.sin(sec + e * pi2) * dist,
@@ -76,10 +85,10 @@ lychee.define('app.ui.layer.Overlay').requires([
 
 		render: function(renderer, offsetX, offsetY) {
 
-			var orbit = this.__orbit;
+			let orbit = this.__orbit;
 			if (orbit !== null) {
 
-				var position = this.position;
+				let position = this.position;
 
 				renderer.setAlpha(0.6);
 
@@ -97,7 +106,7 @@ lychee.define('app.ui.layer.Overlay').requires([
 			}
 
 
-			lychee.ui.Layer.prototype.render.call(this, renderer, offsetX, offsetY);
+			_Layer.prototype.render.call(this, renderer, offsetX, offsetY);
 
 		},
 
@@ -109,27 +118,27 @@ lychee.define('app.ui.layer.Overlay').requires([
 
 		setEntity: function(entity) {
 
-			entity = lychee.interfaceof(entity, lychee.app.Entity) ? entity : null;
+			entity = lychee.interfaceof(entity, _Entity) ? entity : null;
 
 
 			if (entity !== null) {
 
-				var properties = entity.properties || null;
+				let properties = entity.properties || null;
 				if (properties !== null) {
 
-					var entities = [];
+					let entities = [];
 
-					for (var key in properties) {
+					for (let key in properties) {
 
-						var bubble = new app.ui.entity.Bubble({
+						let bubble = new _Bubble({
 							key:   key,
 							value: properties[key]
 						});
 
 
 						bubble.alpha = 0;
-						bubble.addEffect(new lychee.effect.Alpha({
-							type:     lychee.effect.Alpha.TYPE.easeout,
+						bubble.addEffect(new _Alpha({
+							type:     _Alpha.TYPE.easeout,
 							duration: 600,
 							delay:    entities.length * 200
 						}));
@@ -147,12 +156,14 @@ lychee.define('app.ui.layer.Overlay').requires([
 				}
 
 
+				_SOUND.play();
 				this.__entity = entity;
 				this.__orbit  = 64;
 
 			} else {
 
-				this.__orbit = null;
+				this.__entity = null;
+				this.__orbit  = null;
 
 			}
 
@@ -161,7 +172,7 @@ lychee.define('app.ui.layer.Overlay').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

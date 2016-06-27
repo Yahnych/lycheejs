@@ -1,59 +1,36 @@
 
 lychee.define('harvester.net.Remote').requires([
-	'lychee.net.protocol.HTTP'
+	'lychee.codec.BENCODE',
+	'lychee.codec.BITON',
+	'lychee.codec.JSON'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, harvester, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Tunnel  = lychee.import('lychee.net.Tunnel');
+	const _BENCODE = lychee.import('lychee.codec.BENCODE');
+	const _BITON   = lychee.import('lychee.codec.BITON');
+	const _JSON    = lychee.import('lychee.codec.JSON');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
-
-
-		this.__socket      = null;
-		this.__isConnected = false;
+		let settings = Object.assign({}, data);
 
 
-		settings.codec = {
-			encode: function(data) { return data; },
-			decode: function(data) { return data; }
-		};
-
-
-		lychee.net.Tunnel.call(this, settings);
+		_Tunnel.call(this, settings);
 
 		settings = null;
-
-
-
-		/*
-		 * INITIALIZATION
-		 */
-
-		this.bind('connect', function() {
-			this.__isConnected = true;
-		}, this);
-
-		this.bind('disconnect', function() {
-			this.__isConnected = false;
-		}, this);
-
-		this.bind('send', function(blob) {
-
-			if (this.__socket !== null) {
-				this.__socket.send(blob.headers, blob.payload);
-			}
-
-		}, this);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -63,7 +40,7 @@ lychee.define('harvester.net.Remote').requires([
 
 		serialize: function() {
 
-			var data = lychee.net.Tunnel.prototype.serialize.call(this);
+			let data = _Tunnel.prototype.serialize.call(this);
 			data['constructor'] = 'harvester.net.Remote';
 
 
@@ -77,58 +54,55 @@ lychee.define('harvester.net.Remote').requires([
 		 * CUSTOM API
 		 */
 
-		connect: function(socket) {
+		send: function(data, headers) {
 
-			if (this.__isConnected === false) {
-
-				var that = this;
+			headers = headers instanceof Object ? headers : {};
 
 
-				this.__socket = new lychee.net.protocol.HTTP(socket, lychee.net.protocol.HTTP.TYPE.remote);
+			if (data instanceof Object) {
 
-				this.__socket.ondata = function(headers, payload) {
-
-					that.receive({
-						headers: headers,
-						payload: payload
-					});
-
-				};
-
-				this.__socket.onclose = function(code) {
-					that.__socket = null;
-					that.trigger('disconnect', [ code ]);
-				};
+				headers['access-control-allow-origin'] = '*';
+				headers['content-control']             = 'no-transform';
 
 
-				if (lychee.debug === true) {
-					console.log('harvester.net.Remote: Connected to ' + this.host + ':' + this.port);
+				let codec = this.codec;
+				if (codec === _BENCODE) {
+					headers['content-type'] = 'application/bencode; charset=utf-8';
+				} else if (codec === _BITON) {
+					headers['content-type'] = 'application/biton; charset=binary';
+				} else if (codec === _JSON) {
+					headers['content-type'] = 'application/json; charset=utf-8';
 				}
 
 
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		disconnect: function() {
-
-			if (this.__isConnected === true) {
-
-				if (lychee.debug === true) {
-					console.log('harvester.net.Remote: Disconnected from ' + this.host + ':' + this.port);
-				}
-
-				if (this.__socket !== null) {
-					this.__socket.close();
+				let event = headers['event'] || null;
+				if (event === 'error') {
+					headers['status'] = '400 Bad Request';
 				}
 
 
-				return true;
+				if (/@plug|@unplug/g.test(headers.method) === false) {
+					return _Tunnel.prototype.send.call(this, data, headers);
+				}
+
+			} else {
+
+				let payload = null;
+
+				if (typeof data === 'string') {
+					payload = new Buffer(data, 'utf8');
+				} else if (data instanceof Buffer) {
+					payload = data;
+				}
+
+
+				if (payload instanceof Buffer) {
+
+					this.trigger('send', [ payload, headers ]);
+
+					return true;
+
+				}
 
 			}
 
@@ -140,7 +114,7 @@ lychee.define('harvester.net.Remote').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

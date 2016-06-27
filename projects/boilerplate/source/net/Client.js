@@ -1,24 +1,29 @@
 
 lychee.define('app.net.Client').requires([
-	'lychee.data.BitON',
 	'app.net.client.Ping'
 ]).includes([
 	'lychee.net.Client'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Client = lychee.import('lychee.net.Client');
+	const _Ping   = lychee.import('app.net.client.Ping');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
-			codec:     lychee.data.BitON,
+		let settings = Object.assign({
 			reconnect: 10000
 		}, data);
 
 
-		lychee.net.Client.call(this, settings);
+		_Client.call(this, settings);
+
+		settings = null;
 
 
 
@@ -28,7 +33,7 @@ lychee.define('app.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new app.net.client.Ping(this));
+			this.addService(new _Ping(this));
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote connected');
@@ -50,7 +55,7 @@ lychee.define('app.net.Client').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -60,7 +65,7 @@ lychee.define('app.net.Client').requires([
 
 		serialize: function() {
 
-			var data = lychee.net.Client.prototype.serialize.call(this);
+			let data = _Client.prototype.serialize.call(this);
 			data['constructor'] = 'app.net.Client';
 
 
@@ -71,7 +76,7 @@ lychee.define('app.net.Client').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

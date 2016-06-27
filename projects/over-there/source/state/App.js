@@ -11,9 +11,15 @@ lychee.define('app.state.App').requires([
 	'app.ui.layer.Overlay'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _BLOB = attachments["json"].buffer;
+	const _Alpha     = lychee.import('lychee.effect.Alpha');
+	const _Astronaut = lychee.import('app.entity.Astronaut');
+	const _Position  = lychee.import('lychee.effect.Position');
+	const _Room      = lychee.import('app.entity.Room');
+	const _State     = lychee.import('lychee.app.State');
+	const _BLOB      = attachments["json"].buffer;
+	const _MUSIC     = attachments["msc"];
 
 
 
@@ -21,10 +27,10 @@ lychee.define('app.state.App').requires([
 	 * HELPERS
 	 */
 
-	var _get_room = function(name) {
+	const _get_room = function(name) {
 
-		var entities = this.queryLayer('foreground', 'ship').entities.filter(function(val) {
-			return val instanceof app.entity.Room && val.state === name;
+		let entities = this.queryLayer('foreground', 'ship').entities.filter(function(val) {
+			return val instanceof _Room && val.state === name;
 		});
 
 
@@ -37,7 +43,7 @@ lychee.define('app.state.App').requires([
 
 	};
 
-	var _animate_astronaut = function(astronaut) {
+	const _animate_astronaut = function(astronaut) {
 
 		// sleeping ... zZzZz
 		if (astronaut.state === 'default') {
@@ -45,14 +51,14 @@ lychee.define('app.state.App').requires([
 		}
 
 
-		var room = astronaut.room || null;
+		let room = astronaut.room || null;
 		if (room !== null) {
 
-			var rw = room.width  - 16;
-			var rh = room.height - 16;
+			let rw = room.width  - 16;
+			let rh = room.height - 16;
 
-			var target_x = room.position.x - (rw / 2) + (Math.random() * rw);
-			var target_y = room.position.y - (rh / 2) + (Math.random() * rh);
+			let target_x = room.position.x - (rw / 2) + (Math.random() * rw);
+			let target_y = room.position.y - (rh / 2) + (Math.random() * rh);
 
 			if (target_x > astronaut.position.x) {
 				astronaut.state = 'working-right';
@@ -61,8 +67,8 @@ lychee.define('app.state.App').requires([
 			}
 
 
-			astronaut.addEffect(new lychee.effect.Position({
-				type:     lychee.effect.Position.TYPE.linear,
+			astronaut.addEffect(new _Position({
+				type:     _Position.TYPE.linear,
 				duration: 6000,
 				origin:   {
 					x: astronaut.position.x,
@@ -84,9 +90,9 @@ lychee.define('app.state.App').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(main) {
+	let Composite = function(main) {
 
-		lychee.app.State.call(this, main);
+		_State.call(this, main);
 
 
 		this.__entity = null;
@@ -98,17 +104,17 @@ lychee.define('app.state.App').requires([
 		 * INITIALIZATION
 		 */
 
-		var viewport = this.viewport;
+		let viewport = this.viewport;
 		if (viewport !== null) {
 
 			viewport.bind('reshape', function(orientation, rotation) {
 
-				var renderer = this.renderer;
+				let renderer = this.renderer;
 				if (renderer !== null) {
 
-					var entity = null;
-					var width  = renderer.width;
-					var height = renderer.height;
+					let entity = null;
+					let width  = renderer.width;
+					let height = renderer.height;
 
 
 					entity = this.queryLayer('background', 'background');
@@ -132,7 +138,7 @@ lychee.define('app.state.App').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -140,7 +146,7 @@ lychee.define('app.state.App').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.State.prototype.serialize.call(this);
+			let data = _State.prototype.serialize.call(this);
 			data['constructor'] = 'app.state.App';
 
 
@@ -150,11 +156,11 @@ lychee.define('app.state.App').requires([
 
 		deserialize: function(blob) {
 
-			lychee.app.State.prototype.deserialize.call(this, blob);
+			_State.prototype.deserialize.call(this, blob);
 
 
-			var entity = null;
-			var client = this.client;
+			let entity = null;
+			let client = this.client;
 
 			/*
 			 * HELP LAYER
@@ -166,8 +172,8 @@ lychee.define('app.state.App').requires([
 			entity = this.getLayer('ui');
 			entity.bind('touch', function(id, position, delta) {
 
-				var entity = null;
-				var target = this.queryLayer('foreground', 'ship').getEntity(null, position);
+				let entity = null;
+				let target = this.queryLayer('foreground', 'ship').getEntity(null, position);
 
 
 				if (target !== null) {
@@ -179,8 +185,8 @@ lychee.define('app.state.App').requires([
 
 					entity = this.queryLayer('midground', 'midground');
 					entity.alpha = 1.0;
-					entity.addEffect(new lychee.effect.Alpha({
-						type:     lychee.effect.Alpha.TYPE.easeout,
+					entity.addEffect(new _Alpha({
+						type:     _Alpha.TYPE.easeout,
 						alpha:    0.1,
 						duration: 300
 					}));
@@ -190,16 +196,16 @@ lychee.define('app.state.App').requires([
 
 						if (other !== target) {
 
-							other.addEffect(new lychee.effect.Alpha({
-								type:     lychee.effect.Alpha.TYPE.easeout,
+							other.addEffect(new _Alpha({
+								type:     _Alpha.TYPE.easeout,
 								alpha:    0.1,
 								duration: 300
 							}));
 
 						} else {
 
-							other.addEffect(new lychee.effect.Alpha({
-								type:     lychee.effect.Alpha.TYPE.easeout,
+							other.addEffect(new _Alpha({
+								type:     _Alpha.TYPE.easeout,
 								alpha:    1.0,
 								duration: 300
 							}));
@@ -216,8 +222,8 @@ lychee.define('app.state.App').requires([
 
 					entity = this.queryLayer('midground', 'midground');
 					entity.alpha = 0.1;
-					entity.addEffect(new lychee.effect.Alpha({
-						type:     lychee.effect.Alpha.TYPE.easeout,
+					entity.addEffect(new _Alpha({
+						type:     _Alpha.TYPE.easeout,
 						alpha:    1.0,
 						duration: 500
 					}));
@@ -225,8 +231,8 @@ lychee.define('app.state.App').requires([
 					entity = this.queryLayer('foreground', 'ship');
 					entity.entities.forEach(function(other) {
 
-						other.addEffect(new lychee.effect.Alpha({
-							type:     lychee.effect.Alpha.TYPE.easeout,
+						other.addEffect(new _Alpha({
+							type:     _Alpha.TYPE.easeout,
 							alpha:    1.0,
 							duration: 300
 						}));
@@ -242,7 +248,7 @@ lychee.define('app.state.App').requires([
 
 				client.bind('sensor', function(name, property, value) {
 
-					var room = _get_room.call(this, name);
+					let room = _get_room.call(this, name);
 					if (room !== null) {
 						room.properties[property] = value;
 					}
@@ -253,29 +259,29 @@ lychee.define('app.state.App').requires([
 
 
 			this.queryLayer('foreground', 'ship').entities.filter(function(val) {
-				return val instanceof app.entity.Room;
+				return val instanceof _Room;
 			}).forEach(function(room) {
 				room.properties['name'] = room.state;
 			});
 
 
 
-			var astronauts      = [];
-			var astronaut_index = 0;
+			let astronauts      = [];
+			let astronaut_index = 0;
 
 			if (client !== null) {
 
 				client.bind('astronaut', function(data) {
 
-					var room     = _get_room.call(this, data.room);
-					var state    = data.activity === 'sleep' ? 'default' : (Math.random() > 0.5 ? 'working-right' : 'working-left');
-					var position = {
+					let room     = _get_room.call(this, data.room);
+					let state    = data.activity === 'sleep' ? 'default' : (Math.random() > 0.5 ? 'working-right' : 'working-left');
+					let position = {
 						x: room.position.x,
 						y: room.position.y,
 						z: 2
 					};
 
-					var astronaut = new app.entity.Astronaut({
+					let astronaut = new _Astronaut({
 						state:      state,
 						position:   position,
 						properties: {
@@ -290,12 +296,12 @@ lychee.define('app.state.App').requires([
 
 					astronaut.room  = room;
 					astronaut.alpha = 0.0;
-					astronaut.addEffect(new lychee.effect.Alpha({
-						type:     lychee.effect.Alpha.TYPE.easeout,
+					astronaut.addEffect(new _Alpha({
+						type:     _Alpha.TYPE.easeout,
 						alpha:    1.0,
 						duration: 600,
 						delay:    astronauts.length * 300
-					}))
+					}));
 
 
 					astronauts.push(astronaut);
@@ -312,7 +318,7 @@ lychee.define('app.state.App').requires([
 				astronaut_index++;
 				astronaut_index %= astronauts.length;
 
-				var astronaut = astronauts[astronaut_index] || null;
+				let astronaut = astronauts[astronaut_index] || null;
 				if (astronaut !== null) {
 					_animate_astronaut.call(this, astronaut);
 				}
@@ -329,7 +335,7 @@ lychee.define('app.state.App').requires([
 
 		update: function(clock, delta) {
 
-			var background = this.queryLayer('background', 'background');
+			let background = this.queryLayer('background', 'background');
 			if (background !== null) {
 
 				background.setOrigin({
@@ -339,46 +345,37 @@ lychee.define('app.state.App').requires([
 			}
 
 
-			lychee.app.State.prototype.update.call(this, clock, delta);
+			_State.prototype.update.call(this, clock, delta);
 
 		},
 
 		render: function(clock, delta) {
 
-			lychee.app.State.prototype.render.call(this, clock, delta);
+			_State.prototype.render.call(this, clock, delta);
 
-/*
-			var entity   = this.__entity;
-			var renderer = this.renderer;
+		},
 
-			if (entity !== null) {
+		enter: function(oncomplete, data) {
 
-				renderer.clear();
+			_State.prototype.enter.call(this, oncomplete, data);
 
-				renderer.setAlpha(0.5);
-				this.getLayer('background').render(renderer, 0, 0);
+			this.jukebox.play(_MUSIC);
 
-				renderer.setAlpha(0.5);
-				this.getLayer('midground').render(renderer, 0, 0);
+			oncomplete(true);
 
-				renderer.setAlpha(0.5);
-				this.getLayer('foreground').render(renderer, 0, 0);
+		},
 
-				renderer.setAlpha(1);
-				this.getLayer('ui').render(renderer, 0, 0);
+		leave: function(oncomplete) {
 
-				renderer.flush();
+			_State.prototype.leave.call(this, oncomplete);
 
-			}
-
-*/
-
+			this.jukebox.stop(_MUSIC);
 
 		}
 
 	};
 
 
-	return Class;
+	return Composite;
 
 });

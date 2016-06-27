@@ -1,24 +1,29 @@
 
 lychee.define('game.net.Client').requires([
-	'lychee.data.BitON',
 	'game.net.client.Control'
 ]).includes([
 	'lychee.net.Client'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Client  = lychee.import('lychee.net.Client');
+	const _Control = lychee.import('game.net.client.Control');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data, main) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
-			codec:     lychee.data.BitON,
+		let settings = Object.assign({
 			reconnect: 10000
 		}, data);
 
 
-		lychee.net.Client.call(this, settings);
+		_Client.call(this, settings);
+
+		settings = null;
 
 
 
@@ -28,7 +33,7 @@ lychee.define('game.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new game.net.client.Control(this));
+			this.addService(new _Control(this));
 
 			if (lychee.debug === true) {
 				console.log('game.net.Client: Remote connected');
@@ -46,7 +51,7 @@ lychee.define('game.net.Client').requires([
 
 		this.bind('receive', function(data) {
 
-			var service = this.getService('control');
+			let service = this.getService('control');
 			if (service !== null) {
 				service.setSid(data.sid);
 			}
@@ -59,7 +64,7 @@ lychee.define('game.net.Client').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -67,7 +72,7 @@ lychee.define('game.net.Client').requires([
 
 		serialize: function() {
 
-			var data = lychee.net.Client.prototype.serialize.call(this);
+			let data = _Client.prototype.serialize.call(this);
 			data['constructor'] = 'game.net.Client';
 
 
@@ -78,7 +83,7 @@ lychee.define('game.net.Client').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

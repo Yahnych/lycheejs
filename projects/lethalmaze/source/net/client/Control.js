@@ -1,11 +1,19 @@
 
 lychee.define('game.net.client.Control').includes([
 	'lychee.net.client.Session'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var Class = function(client) {
+	const _Session = lychee.import('lychee.net.client.Session');
 
-		var settings = {};
+
+
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Composite = function(client) {
+
+		let settings = {};
 
 
 		settings.autostart = false;
@@ -15,7 +23,10 @@ lychee.define('game.net.client.Control').includes([
 		settings.sid       = 'wait-for-init';
 
 
-		lychee.net.client.Session.call(this, 'control', client, settings);
+		_Session.call(this, 'control', client, settings);
+
+		settings = null;
+
 
 
 		/*
@@ -32,7 +43,7 @@ lychee.define('game.net.client.Control').includes([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -40,8 +51,8 @@ lychee.define('game.net.client.Control').includes([
 
 		serialize: function() {
 
-			var data = lychee.net.remote.Session.prototype.serialize.call(this);
-			data['constructor'] = 'app.net.client.Control';
+			let data = _Session.prototype.serialize.call(this);
+			data['constructor'] = 'game.net.client.Control';
 
 
 			return data;
@@ -81,7 +92,7 @@ lychee.define('game.net.client.Control').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

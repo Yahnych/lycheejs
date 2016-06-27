@@ -3,7 +3,10 @@ lychee.define('app.ui.layer.Control').includes([
 	'lychee.ui.Layer'
 ]).requires([
 	'lychee.ui.entity.Helper'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Helper = lychee.import('lychee.ui.entity.Helper');
+	const _Layer  = lychee.import('lychee.ui.Layer');
 
 
 
@@ -11,10 +14,10 @@ lychee.define('app.ui.layer.Control').includes([
 	 * HELPERS
 	 */
 
-	var _on_change = function(value) {
+	const _on_change = function(value) {
 
-		var action   = value.split('=')[0];
-		var resource = value.split('=')[1];
+		let action   = value.split('=')[0];
+		let resource = value.split('=')[1];
 
 		if (action === 'start') {
 
@@ -30,16 +33,16 @@ lychee.define('app.ui.layer.Control').includes([
 
 	};
 
-	var _on_relayout = function() {
+	const _on_relayout = function() {
 
-		var label = this.label;
-		var value = this.value;
+		let label = this.label;
+		let value = this.value;
 
 		if (label.length === value.length) {
 
 			if (this.entities.length !== label.length) {
 
-				for (var e = 0, el = this.entities.length; e < el; e++) {
+				for (let e = 0, el = this.entities.length; e < el; e++) {
 					this.entities[e].unbind('change');
 				}
 
@@ -47,9 +50,9 @@ lychee.define('app.ui.layer.Control').includes([
 				this.entities = [];
 
 
-				for (var l = 0, ll = label.length; l < ll; l++) {
+				for (let l = 0, ll = label.length; l < ll; l++) {
 
-					var helper = new lychee.ui.entity.Helper();
+					let helper = new _Helper();
 
 					helper.bind('change', _on_change, helper);
 
@@ -59,15 +62,15 @@ lychee.define('app.ui.layer.Control').includes([
 			}
 
 
-			var x1         = -1/2 * this.width;
-			var y1         = -1/2 * this.height;
-			var horizontal = this.width > this.height;
-			var offset     = 0;
+			let x1         = -1/2 * this.width;
+			let y1         = -1/2 * this.height;
+			let horizontal = this.width > this.height;
+			let offset     = 0;
 
 
-			for (var v = 0, vl = value.length; v < vl; v++) {
+			for (let v = 0, vl = value.length; v < vl; v++) {
 
-				var entity = this.entities[v];
+				let entity = this.entities[v];
 
 				entity.setLabel(label[v]);
 				entity.setValue(value[v]);
@@ -101,9 +104,9 @@ lychee.define('app.ui.layer.Control').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.label = [];
@@ -113,7 +116,7 @@ lychee.define('app.ui.layer.Control').includes([
 		settings.relayout = false;
 
 
-		lychee.ui.Layer.call(this, settings);
+		_Layer.call(this, settings);
 
 		settings = null;
 
@@ -129,7 +132,7 @@ lychee.define('app.ui.layer.Control').includes([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -137,7 +140,7 @@ lychee.define('app.ui.layer.Control').includes([
 
 		serialize: function() {
 
-			var data = lychee.ui.Layer.prototype.serialize.call(this);
+			let data = _Layer.prototype.serialize.call(this);
 			data['constructor'] = 'app.ui.layer.Control';
 
 
@@ -198,7 +201,7 @@ lychee.define('app.ui.layer.Control').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

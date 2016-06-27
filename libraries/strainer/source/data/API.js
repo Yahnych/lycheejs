@@ -1,20 +1,23 @@
 
-lychee.define('strainer.data.API').requires([
-	'lychee.data.JSON'
-]).tags({
-	platform: 'html'
-}).exports(function(lychee, tool, global, attachments) {
+lychee.define('strainer.data.API').exports(function(lychee, global, attachments) {
+
+	const _JSON = {
+		encode: JSON.stringify,
+		decode: JSON.parse
+	};
+
+
 
 	/*
 	 * HELPERS
 	 */
 
-	var _WHITESPACE = new Array(513).join(' ');
+	const _WHITESPACE = new Array(513).join(' ');
 
-	var _readable_params = function(params) {
+	const _readable_params = function(params) {
 
-		var opt = -1;
-		var str = '';
+		let opt = -1;
+		let str = '';
 
 
 		params.forEach(function(param, i) {
@@ -41,9 +44,9 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _readable_values = function(properties, force) {
+	const _readable_values = function(properties, force) {
 
-		var that = this;
+		let that = this;
 
 
 		if (properties.length > 0) {
@@ -59,12 +62,12 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _readable_value = function(property, force) {
+	const _readable_value = function(property, force) {
 
 		force = force === true;
 
 
-		var val = undefined;
+		let val = undefined;
 
 
 		switch (property.type) {
@@ -75,11 +78,11 @@ lychee.define('strainer.data.API').requires([
 					val = property.values[0];
 				} else {
 
-					var enam = this.enums[property.name.toUpperCase()];
+					let enam = this.enums[property.name.toUpperCase()];
 					if (enam !== undefined) {
 
-						var vals = [].slice.call(enam.values, 1);
-						var rand = vals[Math.floor(Math.random() * vals.length)] || null;
+						let vals = [].slice.call(enam.values, 1);
+						let rand = vals[Math.floor(Math.random() * vals.length)] || null;
 						if (rand !== null) {
 							val = this.identifier + '.' + property.name.toUpperCase() + '.' + rand.name;
 						}
@@ -112,14 +115,14 @@ lychee.define('strainer.data.API').requires([
 					val = property.values[0];
 				} else {
 
-					val = lychee.extend({}, property.values[0]);
+					val = Object.assign({}, property.values[0]);
 
 					Object.keys(val).forEach(function(key, k) {
 
-						var number_values = [ 1337, 137, 13.37, 133.7 ];
-						var string_values = [ 'foo', 'bar', 'qux', 'doo' ];
+						let number_values = [ 1337, 137, 13.37, 133.7 ];
+						let string_values = [ 'foo', 'bar', 'qux', 'doo' ];
 
-						var org = val[key];
+						let org = val[key];
 						if (typeof org === 'number') {
 							val[key] = number_values[k];
 						} else if (typeof org === 'string') {
@@ -131,7 +134,7 @@ lychee.define('strainer.data.API').requires([
 
 				}
 
-				val = JSON.stringify(val);
+				val = _JSON.encode(val);
 
 			break;
 
@@ -174,7 +177,7 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _readable_types = function(raw) {
+	const _readable_types = function(raw) {
 
 		if (raw instanceof Array) {
 
@@ -195,7 +198,7 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _readable_type = function(raw) {
+	const _readable_type = function(raw) {
 
 		if (typeof raw === 'string') {
 			return raw;
@@ -206,9 +209,9 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _dynamic_type = function(raw) {
+	const _dynamic_type = function(raw) {
 
-		var typ = undefined;
+		let typ = undefined;
 
 		if (raw === 'null') {
 			typ = 'null';
@@ -232,9 +235,9 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _dynamic_value = function(raw) {
+	const _dynamic_value = function(raw) {
 
-		var val = undefined;
+		let val = undefined;
 
 		if (raw === 'null') {
 			val = null;
@@ -266,24 +269,266 @@ lychee.define('strainer.data.API').requires([
 
 		} else if (raw.substr(0, 1) === '\'') {
 			val = raw.substr(1, raw.indexOf('\'', 1) - 1);
+		} else if (raw.substr(0, 3) === 'new') {
+
+			let construct = raw.substr(0, raw.indexOf('(')).split(' ')[1].trim();
+			if (/Buffer|Font|Music|Sound|Texture|Stuff|/g.test(construct)) {
+				val = construct;
+			}
+
 		}
 
 		return val;
 
 	};
 
-	var _parse_enums = function(code) {
+	const _parse_head_identifier = function(code){
 
-		var that = this;
-		var i1   = code.indexOf('\n\tvar Class = ') + 14;
-		var i2   = code.indexOf('\n\t};', i1 + 14)  +  4;
-		var i3   = code.indexOf('\n\tClass.prototype = {');
-
-		var enam   = '';
-		var values = [];
+		let that = this;
+		let i1   = code.indexOf('lychee.define(') + 14;
+		let i2   = code.indexOf(')', i1);
+		let id   = null;
 
 
-		if (i1 > 14 && i2 > i1 && i3 > i2) {
+		if (i1 > 14 && i2 > i1) {
+
+			id = code.substr(i1, i2 - i1);
+
+			if (id.charAt(0) === '\'') {
+				id = id.substr(1, id.length - 2);
+			} else if (id.charAt(0) === '"') {
+				id = id.substr(1, id.length - 2);
+			} else {
+				id = null;
+			}
+
+		}
+
+
+		if (id !== null) {
+			that.identifier = id;
+		}
+
+	};
+
+	const _parse_head_attaches = function(code) {
+
+		let that = this;
+		let i1   = code.indexOf('.attaches(') + 10;
+		let i2   = code.indexOf(')', i1);
+
+
+		let attaches = {};
+
+
+		if (Object.keys(attaches).length > 0) {
+			that.attaches = attaches;
+		}
+
+	};
+
+	const _parse_head_tags = function(code) {
+
+		let that = this;
+		let i1   = code.indexOf('.tags(') + 6;
+		let i2   = code.indexOf(')', i1);
+
+
+		let tags = {};
+
+
+		if (i1 > 6 && i2 > i1) {
+			code = code.substr(i1, i2 - i1);
+		} else {
+			code = '';
+		}
+
+
+		if (code !== '') {
+
+			code.split('\n').map(function(line) {
+
+				line = line.replace('{', '');
+				line = line.replace('}', '');
+
+
+				let tmp = line.trim();
+				if (tmp.indexOf(':') !== -1) {
+
+					let key = tmp.split(':')[0].trim();
+					let val = tmp.split(':')[1].trim();
+
+					if (val.substr(-1) === ',') {
+						val = val.substr(0, val.length - 1);
+					}
+
+
+					let k0 = key.substr(0, 1);
+					let k1 = key.substr(-1);
+					let v0 = val.substr(0, 1);
+					let v1 = val.substr(-1);
+
+					if (k0 === '\'' && k1 === '\'') {
+						key = key.substr(1, key.length - 2);
+					} else if (k0 === '"' && k1 === '"') {
+						key = key.substr(1, key.length - 2);
+					}
+
+					if (v0 === '\'' && v1 === '\'') {
+						val = val.substr(1, val.length - 2);
+					} else if (v0 === '"' && v1 === '"') {
+						val = val.substr(1, val.length - 2);
+					}
+
+
+					return {
+						key: key,
+						val: val
+					};
+
+				} else {
+
+					return null;
+
+				}
+
+			}).filter(function(obj) {
+				return obj !== null;
+			}).forEach(function(obj) {
+
+				tags[obj.key] = obj.val;
+
+			});
+
+		}
+
+
+		if (Object.keys(tags).length > 0) {
+			that.tags = tags;
+		}
+
+	};
+
+	const _parse_head_requires = function(code) {
+
+		let that = this;
+		let i1   = code.indexOf('.requires(') + 10;
+		let i2   = code.indexOf(')', i1);
+
+
+		let requires = [];
+
+
+		if (i1 > 10 && i2 > i1) {
+			code = code.substr(i1, i2 - i1);
+		} else {
+			code = '';
+		}
+
+
+		code.split('\n').filter(function(line) {
+
+			let tmp = line.trim();
+			if (tmp === '[' || tmp === ']') {
+				return false;
+			} else if (tmp.substr(0, 2) === '//') {
+				return false;
+			}
+
+
+			return true;
+
+		}).forEach(function(line) {
+
+			let tmp = line.trim();
+			if (tmp.substr(tmp.length - 1, 1) === ',') {
+				tmp = tmp.substr(0, tmp.length - 1);
+			}
+
+			if (tmp.charAt(0) === '\'') {
+				tmp = tmp.substr(1, tmp.length - 2);
+			} else if (tmp.charAt(0) === '"') {
+				tmp = tmp.substr(1, tmp.length - 2);
+			}
+
+
+			if (tmp !== '' && requires.indexOf(tmp) === -1) {
+				requires.push(tmp);
+			}
+
+		});
+
+
+		that.requires = requires;
+
+	};
+
+	const _parse_head_includes = function(code) {
+
+		let that = this;
+		let i1   = code.indexOf('.includes(') + 10;
+		let i2   = code.indexOf(')', i1);
+
+
+		let includes = [];
+
+
+		if (i1 > 10 && i2 > i1) {
+			code = code.substr(i1, i2 - i1);
+		} else {
+			code = '';
+		}
+
+
+		code.split('\n').filter(function(line) {
+
+			let tmp = line.trim();
+			if (tmp === '[' || tmp === ']') {
+				return false;
+			} else if (tmp.substr(0, 2) === '//') {
+				return false;
+			}
+
+
+			return true;
+
+		}).forEach(function(line) {
+
+			let tmp = line.trim();
+			if (tmp.substr(tmp.length - 1, 1) === ',') {
+				tmp = tmp.substr(0, tmp.length - 1);
+			}
+
+			if (tmp.charAt(0) === '\'') {
+				tmp = tmp.substr(1, tmp.length - 2);
+			} else if (tmp.charAt(0) === '"') {
+				tmp = tmp.substr(1, tmp.length - 2);
+			}
+
+
+			if (tmp !== '' && includes.indexOf(tmp) === -1) {
+				includes.push(tmp);
+			}
+
+		});
+
+
+		that.includes = includes;
+
+	};
+
+	const _parse_body_enums = function(code) {
+
+		let that = this;
+		let i1   = code.indexOf('\n\tlet Composite = ') + 18;
+		let i2   = code.indexOf('\n\t};', i1 + 14) + 4;
+		let i3   = code.indexOf('\n\tComposite.prototype = {');
+
+		let enam   = '';
+		let values = [];
+
+
+		if (i1 > 18 && i2 > i1 && i3 > i2) {
 			code = code.substr(i2, i3 - i2);
 		} else {
 			code = '';
@@ -292,7 +537,7 @@ lychee.define('strainer.data.API').requires([
 
 		code.split('\n').filter(function(line) {
 
-			if (line.substr(0, 7) === '\tClass.') {
+			if (line.substr(0, 11) === '\tComposite.') {
 				return true;
 			}
 
@@ -305,14 +550,14 @@ lychee.define('strainer.data.API').requires([
 
 		}).forEach(function(line) {
 
-			if (line.substr(0, 7) === '\tClass.') {
+			if (line.substr(0, 11) === '\tComposite.') {
 
-				enam   = line.split('=')[0].split('Class.')[1].trim();
+				enam   = line.split('=')[0].split('Composite.')[1].trim();
 				values = [];
 
 			} else if (line.substr(0, 2) === '\t\t' && line.indexOf(':') !== -1) {
 
-				var key, typ, val;
+				let key, typ, val;
 
 				key = line.substr(0, line.indexOf(':')).trim();
 				val = line.split(':')[1].trim();
@@ -347,21 +592,21 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _parse_events = function(code) {
+	const _parse_body_events = function(code) {
 
-		var that = this;
+		let that = this;
 
 
 		code.split('\n').filter(function(line) {
 			return line.indexOf('this.trigger(\'') !== -1;
 		}).forEach(function(line) {
 
-			var event  = line.split('this.trigger(\'')[1].split('\'')[0];
-			var params = [];
+			let event  = line.split('this.trigger(\'')[1].split('\'')[0];
+			let params = [];
 
 			if (line.indexOf('[') !== -1 && line.indexOf(']') !== -1) {
 
-				var params = line.substr(line.indexOf('[') + 1, line.indexOf(']') - line.indexOf('[') - 1).split(',').map(function(value) {
+				let params = line.substr(line.indexOf('[') + 1, line.indexOf(']') - line.indexOf('[') - 1).split(',').map(function(value) {
 
 					return {
 						name:   value.trim(),
@@ -388,17 +633,16 @@ lychee.define('strainer.data.API').requires([
 
 		});
 
-
 	};
 
-	var _parse_properties = function(code) {
+	const _parse_body_properties = function(code) {
 
-		var that = this;
-		var i1   = code.indexOf('\n\tvar Class = ') + 14;
-		var i2   = code.indexOf('\n\t};', i1)       +  3;
+		let that = this;
+		let i1   = code.indexOf('\n\tlet Composite = ') + 18;
+		let i2   = code.indexOf('\n\t};', i1) + 3;
 
 
-		if (i1 > 14 && i2 > i1) {
+		if (i1 > 18 && i2 > i1) {
 			code = code.substr(i1, i2 - i1);
 		} else {
 			code = '';
@@ -409,16 +653,16 @@ lychee.define('strainer.data.API').requires([
 
 			if (line.substr(0, 7) === '\t\tthis\.' && line.indexOf('=') !== -1) {
 
-				var i     = line.indexOf('=');
-				var key   = line.substr(7, i - 7).trim();
-				var value = line.substr(i + 1, line.indexOf(';', i + 1) - i - 1).trim();
-				var val   = undefined;
-				var typ   = undefined;
+				let i     = line.indexOf('=');
+				let key   = line.substr(7, i - 7).trim();
+				let value = line.substr(i + 1, line.indexOf(';', i + 1) - i - 1).trim();
+				let val   = undefined;
+				let typ   = undefined;
 
 				if (key.substr(0, 2) !== '__') {
 
-					var val = _dynamic_value(value);
-					var typ = _dynamic_type(value);
+					let val = _dynamic_value(value);
+					let typ = _dynamic_type(value);
 
 					if (val === undefined) {
 
@@ -427,7 +671,7 @@ lychee.define('strainer.data.API').requires([
 							typ = 'Font';
 						}
 
-						if (value === '_texture') {
+						if (value === '_TEXTURE') {
 							val = 'Texture';
 							typ = 'Texture';
 						}
@@ -439,7 +683,7 @@ lychee.define('strainer.data.API').requires([
 							val = line.split(':')[1].split(';')[0].trim();
 							val = _dynamic_value(val);
 
-						} else if (value.substr(0, 6) === 'Class.') {
+						} else if (value.substr(0, 10) === 'Composite.') {
 
 							typ = 'Enum';
 							val = value;
@@ -465,21 +709,21 @@ lychee.define('strainer.data.API').requires([
 
 	};
 
-	var _parse_methods = function(code) {
+	const _parse_body_methods = function(code) {
 
-		var that = this;
-		var i1   = code.indexOf('\n\tClass.prototype = {') + 21;
-		var i2   = code.indexOf('\n\t};', i1)              +  4;
-		var i3   = code.indexOf('\n\tvar Module = {')      + 16;
-		var i4   = code.indexOf('\n\t};', i3)              +  4;
+		let that = this;
+		let i1   = code.indexOf('\n\tComposite.prototype = {') + 25;
+		let i2   = code.indexOf('\n\t};', i1) + 4;
+		let i3   = code.indexOf('\n\tlet Module = {') + 16;
+		let i4   = code.indexOf('\n\t};', i3) + 4;
 
-		var method = '';
-		var params = [];
-		var types  = [];
-		var values = [];
+		let method = '';
+		let params = [];
+		let types  = [];
+		let values = [];
 
 
-		if (i1 > 21 && i2 > i1) {
+		if (i1 > 25 && i2 > i1) {
 			code = code.substr(i1, i2 - i1);
 		} else if (i3 > 16 && i4 > i3) {
 			code = code.substr(i3, i4 - i3);
@@ -532,14 +776,24 @@ lychee.define('strainer.data.API').requires([
 
 			} else if (line.substr(0, 3) === '\t\t\t' && line.indexOf('return') !== -1) {
 
-				var value = line.trim().split('return')[1].split(';')[0].trim();
+				let value = line.trim().split('return')[1].split(';')[0].trim();
 				if (value.substr(0, 5) === 'this.') {
 
 					// TODO: Resolver for properties?
 
+					console.info(method, value);
+
+				} else if (value.substr(0, 1) === '_') {
+
+					values.push(true);
+					values.push(false);
+					types.push('Boolean');
+
 				} else if (value !== '') {
+
 					values.push(_dynamic_value(value));
 					types.push(_dynamic_type(value));
+
 				} else {
 					values.push(undefined);
 					types.push('void');
@@ -547,7 +801,7 @@ lychee.define('strainer.data.API').requires([
 
 			} else if (line.substr(0, 3) === '\t\t\t' && line.indexOf('=') !== -1) {
 
-				var key, typ, val;
+				let key, typ, val;
 
 				params.forEach(function(param) {
 
@@ -556,6 +810,7 @@ lychee.define('strainer.data.API').requires([
 						key = line.substr(0, line.indexOf('=')).trim();
 						val = undefined;
 						typ = undefined;
+
 
 						if (line.indexOf('typeof') !== -1) {
 
@@ -595,10 +850,28 @@ lychee.define('strainer.data.API').requires([
 							typ = 'Object';
 							val = line.split(':')[1].split(';')[0].trim();
 
-						} else {
+						}
 
-							if (lychee.debug === true) {
-								console.error('parse method param', method, key, line);
+
+						if (typ === undefined && val === undefined) {
+							console.warn(method, param.name, line);
+						}
+
+					}
+
+
+					if (typ !== undefined && val !== undefined) {
+
+						let data = params.find(function(value) {
+							return value.name === key;
+						}) || null;
+
+						if (data !== null) {
+
+							data.type = typ;
+
+							if (data.values.indexOf(val) === -1) {
+								data.values.push(val);
 							}
 
 						}
@@ -606,25 +879,6 @@ lychee.define('strainer.data.API').requires([
 					}
 
 				});
-
-
-				if (typ !== undefined && val !== undefined) {
-
-					var param = params.find(function(value) {
-						return value.name === key;
-					}) || null;
-
-					if (param !== null) {
-
-						param.type = typ;
-
-						if (param.values.indexOf(val) === -1) {
-							param.values.push(val);
-						}
-
-					}
-
-				}
 
 			}
 
@@ -647,451 +901,130 @@ lychee.define('strainer.data.API').requires([
 
 
 	/*
-	 * IMPLEMENTATION
+	 * ENCODER AND DECODER
 	 */
 
-	var Class = function(identifier, code) {
+	const _encode = function() {
 
-		identifier = typeof identifier === 'string'                ? identifier : '';
-		code       = code.trim().substr(0, 13) === 'lychee.define' ? code       : '';
+// TODO: Encoding from object to string
 
+	};
 
-		this.identifier = identifier;
+	const _decode = function(stream) {
 
-		this.enums      = {};
-		this.events     = {};
-		this.properties = {};
-		this.methods    = {};
+		stream = stream.trim().substr(0, 13) === 'lychee.define' ? stream : '';
 
 
-		_parse_enums.call(this,      code);
-		_parse_events.call(this,     code);
-		_parse_properties.call(this, code);
-		_parse_methods.call(this,    code);
+		let object = {
+			TYPE: null,
+			HEAD: {
+				identifier: null,
+				tags:       {},
+				requires:   [],
+				includes:   [],
+				attaches:   [],
+				supports:   [],
+				exports:    null
+			},
+			BODY: {
+				enums:      {},
+				events:     {},
+				properties: {},
+				methods:    {}
+			}
+		};
+
+
+		if (stream.indexOf('return Composite;') !== -1) {
+			object.TYPE = 'Composite';
+		} else if (stream.indexOf('return Module;') !== -1) {
+			object.TYPE = 'Module';
+		}
+
+
+		if (stream.length > 0) {
+
+			_parse_head_identifier.call(object.HEAD, stream);
+			_parse_head_tags.call(      object.HEAD, stream);
+			_parse_head_requires.call(  object.HEAD, stream);
+			_parse_head_includes.call(  object.HEAD, stream);
+			_parse_head_attaches.call(  object.HEAD, stream);
+
+// TODO: Parser for supports/exports
+//			_parse_head_supports.call(  object.HEAD, stream);
+//			_parse_head_exports.call(   object.HEAD, stream);
+
+			_parse_body_enums.call(     object.BODY, stream);
+			_parse_body_events.call(    object.BODY, stream);
+			_parse_body_properties.call(object.BODY, stream);
+			_parse_body_methods.call(   object.BODY, stream);
+
+		}
+
+
+		return object;
 
 	};
 
 
-	Class.prototype = {
 
-		toJSON: function() {
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Module = {
+
+		// deserialize: function(blob) {},
+
+		serialize: function() {
+
+			return {
+				'reference': 'strainer.data.API',
+				'blob':      null
+			};
 
 		},
 
-		toMD: function() {
+		encode: function(data) {
 
-			var identifier = this.identifier;
-			var that       = this;
-			var markdown   = [];
-			var data       = {
-				introduction: '',
-				enums:        {},
-				events:       {},
-				properties:   {},
-				methods:      {}
-			};
+			data = data instanceof Object ? data : null;
 
 
-			(function() {
+			if (data !== null) {
 
-				var code     = '={constructor}\n';
-				var settings = Object.values(that.properties).filter(function(property) {
-					return property.setting === true;
-				});
+				// TODO: This is object to string
+				// return stream.toString();
 
-
-				if (settings.length > 0) {
-
-					code += '\n';
-					code += '```javascript-constructor\n';
-					code += 'new ' + identifier + '(settings);\n';
-					code += '```\n';
-					code += '\n';
-
-					code += 'This implementation returns an instance of `' + identifier + '`.\n';
-					code += 'The `settings` object consists of the following properties:\n';
-					code += '\n';
-
-					code += '\n' + settings.map(function(property) {
-
-						var chunk  = '- `(' + property.type + ') ' + property.name + '`';
-						var method = 'set' + property.name.charAt(0).toUpperCase() + property.name.substr(1);
-
-						if (property.method === true) {
-							chunk += ' which will be passed to [' + method + '](#methods-' + method + ')';
-						}
-
-						return chunk + '.';
-
-					}).join('\n') + '\n';
+			}
 
 
-					var example_settings = settings.map(function(property) {
+			return null;
 
-						return {
-							name:  property.name,
-							value: _readable_value.call(that, property, true)
-						};
+		},
 
-					});
+		decode: function(data) {
 
-					var pretty_length = Math.max.apply(null, example_settings.map(function(property) {
-						return property.name.length;
-					}));
+			data = typeof data === 'string' ? data : null;
 
 
-					code += '\n';
-					code += '```javascript\n';
-					code += 'var settings = {\n';
-					code += example_settings.map(function(setting) {
-						var ws = _WHITESPACE.slice(0, pretty_length - setting.name.length);
-						return '\t' + setting.name + ': ' + ws + setting.value;
-					}).join(',\n') + '\n';
-					code += '};\n';
-					code += 'var instance = new ' + identifier + '(settings);\n';
-					code += '```\n';
-					code += '\n';
+			if (data !== null) {
 
-				} else {
-
-					code += '```javascript-constructor\n';
-					code += '' + identifier + ';\n';
-					code += '```\n';
-					code += '\n';
-
-					code += 'This implementation is a Module and has no constructor.\n';
-					code += '\n';
-
-					code += '\n';
-					code += '```javascript\n';
-					code += '' + identifier + '; // ' + identifier + ' reference\n';
-					code += '```\n';
-					code += '\n';
-
+				let object = _decode(data);
+				if (object !== undefined) {
+					return object;
 				}
 
+			}
 
-				code += '\n';
-				code += '#### Implementation Notes\n';
-				code += '\n';
-				code += 'TODO: IMPLEMENTATION NOTES\n';
 
-
-				data.introduction = code;
-
-			})();
-
-			Object.values(this.enums).forEach(function(enam) {
-
-				var code = '={enums-' + enam.name + '}\n';
-
-				code += '\n';
-				code += '```javascript-enum\n';
-				code += '(Enum) ' + identifier + '.' + enam.name + ';\n';
-				code += '```\n';
-				code += '\n';
-
-				code += 'The `(Enum) ' + enam.name + '` enum consists of the following properties:\n';
-				code += '\n';
-
-				code += '\n' + enam.values.map(function(value) {
-					return '- `(' + value.type + ') ' + value.name + '` reflects (TODO: DESCRIPTION).';
-				}).join('\n') + '\n';
-
-
-				code += '\n';
-				code += 'If the instance is set to (TODO: DESCRIPTION).\n';
-
-
-				data.enums[enam.name] = code;
-
-			});
-
-			Object.values(this.events).forEach(function(event) {
-
-				var params = _readable_params(event.params) || 'void';
-				var code   = '={events-' + event.name + '}\n';
-
-				code += '\n';
-				code += '```javascript-event\n';
-				code += 'new ' + identifier + '().bind(\'' + event.name + '\', function(' + params + ') {}, scope);\n';
-				code += '```\n';
-				code += '\n';
-
-				code += 'The `' + event.name + '` event is triggered on (TODO: CALLS).\n';
-				code += '\n';
-
-				code += '\n' + event.params.map(function(param) {
-					return '- `(' + param.type + ') ' + param.name + '` is the (TODO: DESCRIPTION).';
-				}).join('\n') + '\n';
-
-
-				code += '\n';
-				code += 'If the instance is set to (TODO: DESCRIPTION).\n';
-
-				code += '\n';
-				code += '```javascript\n';
-				code += 'var instance = new ' + identifier + '();\n';
-				code += '\n';
-				code += 'instance.bind(function(' + params + ') {\n';
-				code += '\tconsole.log(' + params + ');\n';
-				code += '}, this);\n';
-				code += '```\n';
-
-
-				data.events[event.name] = code;
-
-			});
-
-			Object.values(this.properties).forEach(function(property) {
-
-				var enam   = that.enums[property.name.toUpperCase()] || null;
-				var event  = that.events[property.name] || null;
-				var method = that.methods['set' + property.name.charAt(0).toUpperCase() + property.name.substr(1)] || null;
-				var type   = _readable_type(property.type) || 'void';
-				var code   = '={properties-' + property.name + '}\n';
-
-
-				code += '\n';
-				code += '```javascript-property\n';
-				code += '(' + type + ') new ' + identifier + '().' + property.name + ';\n';
-				code += '```\n';
-				code += '\n';
-
-				code += 'The `(' + property.type + ') ' + property.name + '` property is (TODO: DESCRIPTION).\n';
-				code += '\n';
-
-
-				if (enam !== null) {
-					code += 'It is part of the [' + enam.name + '](#enums-' + enam.name + ') enum.\n';
-					code += '\n';
-				}
-
-				if (event !== null) {
-					code += 'It influences the [' + event.name + '](#events-' + event.name + ') event.\n';
-					code += '\n';
-				}
-
-
-				var default_value = _readable_value.call(that, property, true);
-				var example_value = _readable_value.call(that, property, false);
-
-
-				if (property.setting === true && property.method === true) {
-
-					code += 'It is set via `settings.' + property.name + '` in the [constructor](#constructor) or via [' + method.name + '](#methods-' + method.name + ').\n';
-					code += '\n';
-
-					code += '```javascript\n';
-					code += 'var instance = new ' + identifier + '({\n';
-					code += '\t' + property.name + ': ' + default_value + '\n';
-					code += '});\n';
-					code += '\n';
-					code += 'instance.' + property.name + '; // ' + default_value + '\n';
-					code += 'instance.' + method.name + '(' + example_value + '); // true\n';
-					code += 'instance.' + property.name + '; // ' + example_value + '\n';
-					code += '```\n';
-
-				} else if (property.setting === true) {
-
-					code += 'It is set via `settings.' + property.name + '` in the [constructor](#constructor).\n';
-					code += '\n';
-
-					code += '```javascript\n';
-					code += 'var instance = new ' + identifier + '({\n';
-					code += '\t' + property.name + ': ' + default_value + '\n';
-					code += '});\n';
-					code += '\n';
-					code += 'instance.' + property.name + '; // ' + default_value + '\n';
-					code += 'instance.' + property.name + ' = ' + example_value + ';\n';
-					code += 'instance.' + property.name + '; // ' + example_value + '\n';
-					code += '```\n';
-
-				} else if (property.method === true) {
-
-					code += 'It is set via via [' + method.name + '()](#methods-' + method.name + ').\n';
-					code += '\n';
-
-					code += '```javascript\n';
-					code += 'var instance = new ' + identifier + '();\n';
-					code += '\n';
-					code += 'instance.' + property.name + '; // ' + default_value + '\n';
-					code += 'instance.' + method.name + '(' + example_value + '); // true\n';
-					code += 'instance.' + property.name + '; // ' + example_value + '\n';
-					code += '```\n';
-
-				} else {
-
-					code += '```javascript\n';
-					code += 'var instance = new ' + identifier + '();\n';
-					code += '\n';
-					code += '// TODO: DEMO CODE\n';
-					code += '```\n';
-
-				}
-
-
-				data.properties[property.name] = code;
-
-			});
-
-			Object.values(this.methods).forEach(function(method) {
-
-				var params = _readable_params(method.params) || 'void';
-				var types  = _readable_types(method.types)   || 'void';
-				var code   = '={methods-' + method.name + '}\n';
-
-
-				code += '\n';
-				code += '```javascript-method\n';
-				code += '(' + types + ') ' + identifier + '.prototype.' + method.name + '(' + params + ');\n';
-				code += '```\n';
-				code += '\n';
-
-
-				var params_list = method.params.map(function(param) {
-
-					var chunk = '- `(' + param.type + ') ' + param.name + '`';
-
-					if (param.type !== undefined) {
-
-						if (param.type.match(/Array|Object/)) {
-							chunk += ' is an `' + param.type + ' instance`.';
-						} else if (param.type.match(/(lychee\.*)/)) {
-							chunk += ' is an `[' + param.type + '](' + param.type + ')` instance.';
-						} else if (param.type === 'Boolean') {
-							chunk += ' is a flag. If set to `true`, the method will (TODO: DESCRIPTION).';
-						} else if (param.type === 'Enum') {
-							chunk += ' is an `Enum value` of the `[' + param.name.toUpperCase() + '](#enums-' + param.name.toUpperCase() + ')` enum.';
-						} else if (param.type === 'Number') {
-							chunk += ' is a number.';
-						} else if (param.type === 'String') {
-							chunk += ' is a string.';
-						}
-
-					}
-
-					if (param.values.length > 0) {
-						chunk += ' It is defaulted with `' + param.values[0] + '`.';
-					}
-
-					return chunk;
-
-				});
-
-
-				if (params_list.length !== 0) {
-					code += params_list.join('\n') + '\n';
-				} else {
-					code += '- This method has no arguments\n';
-				}
-
-
-				code += '\n';
-
-				if (types === 'void') {
-
-					code += 'This method returns nothing.\n';
-					code += '\n';
-
-				} else if (types === 'Boolean') {
-
-					code += 'This method returns `true` on success and `false` on failure.\n';
-					code += '\n';
-
-				} else if (types.indexOf('||') !== -1) {
-
-					var tmp = types.split('||').map(function(val) { return val.trim(); });
-					code += 'This method returns `' + tmp[0] +'` on success and `' + tmp[1] + '` on failure.\n';
-					code += '\n';
-
-				} else if (method.name.match(/serialize|deserialize/g)) {
-
-					code += 'This method is not intended for direct usage.\n';
-					code += 'You can serialize an instance using the [lychee.serialize](lychee#methods-serialize) method.\n';
-					code += '\n';
-
-				} else {
-
-					code += 'This method returns `TODO` on success and `TODO` on failure.\n';
-					code += '\n';
-
-					if (lychee.debug === true) {
-						console.error('describe method', method);
-					}
-
-				}
-
-
-				var example_params = JSON.parse(JSON.stringify(method.params));
-
-				if (method.name.substr(0, 3) === 'set') {
-
-					example_params.forEach(function(param) {
-
-						if (param.type === 'Object') {
-
-							var property = that.properties[param.name] || null;
-							if (property !== null) {
-								param.values = property.values;
-							}
-
-						}
-
-					});
-
-				}
-
-				var example_values = _readable_values.call(that, example_params, false);
-
-
-				code += '```javascript\n';
-				code += 'var instance = new ' + identifier + '();\n';
-				code += '\n';
-				code += 'instance.' + method.name + '(' + example_values + '); // true\n';
-				code += '```\n';
-
-
-				data.methods[method.name] = code;
-
-			});
-
-
-			markdown.push(data.introduction);
-
-			markdown.push.apply(markdown, Object.keys(this.enums).sort().map(function(id) {
-				return data.enums[id] || '';
-			}));
-
-			markdown.push.apply(markdown, Object.keys(this.events).sort().map(function(id) {
-				return data.events[id] || '';
-			}));
-
-			markdown.push.apply(markdown, Object.keys(this.properties).sort().map(function(id) {
-				return data.properties[id] || '';
-			}));
-
-			markdown.push.apply(markdown, [ 'deserialize', 'serialize', 'update', 'render' ].map(function(id) {
-				return data.methods[id] || '';
-			}));
-
-			markdown.push.apply(markdown, Object.keys(this.methods).filter(function(id) {
-				return id.match(/deserialize|serialize|update|render/g) ? false : true;
-			}).sort().map(function(id) {
-				return data.methods[id] || '';
-			}));
-
-
-			return markdown.filter(function(val) {
-				return val !== '';
-			}).join('\n\n\n\n');
+			return null;
 
 		}
 
 	};
 
 
-	return Class;
+	return Module;
 
 });
 

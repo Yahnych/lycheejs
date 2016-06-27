@@ -1,21 +1,29 @@
 
 lychee.define('app.ui.entity.Status').includes([
 	'lychee.ui.entity.Label'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var Class = function(data) {
-
-		var settings = lychee.extend({}, data);
+	const _Label = lychee.import('lychee.ui.entity.Label');
 
 
-		lychee.ui.entity.Label.call(this, settings);
+
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Composite = function(data) {
+
+		let settings = Object.assign({}, data);
+
+
+		_Label.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -23,7 +31,7 @@ lychee.define('app.ui.entity.Status').includes([
 
 		serialize: function() {
 
-			var data = lychee.ui.entity.Label.prototype.serialize.call(this);
+			let data = _Label.prototype.serialize.call(this);
 			data['constructor'] = 'app.ui.entity.Status';
 
 
@@ -70,7 +78,7 @@ lychee.define('app.ui.entity.Status').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

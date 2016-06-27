@@ -1,24 +1,27 @@
 
 lychee.define('app.net.Client').requires([
-	'lychee.data.BitON',
 	'lychee.net.client.Chat'
 ]).includes([
 	'lychee.net.Client'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Chat   = lychee.import('lychee.net.client.Chat');
+	const _Client = lychee.import('lychee.net.Client');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
-			codec:     lychee.data.BitON,
+		let settings = Object.assign({
 			reconnect: 10000
 		}, data);
 
 
-		lychee.net.Client.call(this, settings);
+		_Client.call(this, settings);
 
 
 
@@ -28,7 +31,7 @@ lychee.define('app.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new lychee.net.client.Chat('chat', this));
+			this.addService(new _Chat('chat', this));
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote connected');
@@ -50,17 +53,15 @@ lychee.define('app.net.Client').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
-		// deserialize: function(blob) {},
-
 		serialize: function() {
 
-			var data = lychee.net.Client.prototype.serialize.call(this);
+			let data = _Client.prototype.serialize.call(this);
 			data['constructor'] = 'app.net.Client';
 
 
@@ -71,7 +72,7 @@ lychee.define('app.net.Client').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

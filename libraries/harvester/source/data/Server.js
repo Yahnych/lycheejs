@@ -1,13 +1,13 @@
 
-lychee.define('harvester.data.Server').exports(function(lychee, harvester, global, attachments) {
+lychee.define('harvester.data.Server').exports(function(lychee, global, attachments) {
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	var Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		var settings = Object.assign({}, data);
 
 
 		this.host = settings.host || null;
@@ -21,7 +21,7 @@ lychee.define('harvester.data.Server').exports(function(lychee, harvester, globa
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -72,7 +72,7 @@ lychee.define('harvester.data.Server').exports(function(lychee, harvester, globa
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

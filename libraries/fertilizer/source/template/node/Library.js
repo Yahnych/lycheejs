@@ -1,12 +1,10 @@
 
-lychee.define('fertilizer.template.node.Library').requires([
-	'lychee.data.JSON'
-]).includes([
+lychee.define('fertilizer.template.node.Library').includes([
 	'fertilizer.Template'
-]).exports(function(lychee, fertilizer, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _JSON     = lychee.data.JSON;
-	var _template = attachments["tpl"].buffer;
+	const _Template = lychee.import('fertilizer.Template');
+	const _TEMPLATE = attachments["tpl"];
 
 
 
@@ -14,9 +12,12 @@ lychee.define('fertilizer.template.node.Library').requires([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		fertilizer.Template.call(this, data);
+		_Template.call(this, data);
+
+
+		this.__index = lychee.deserialize(lychee.serialize(_TEMPLATE));
 
 
 
@@ -25,36 +26,32 @@ lychee.define('fertilizer.template.node.Library').requires([
 		 */
 
 		this.bind('configure', function(oncomplete) {
+			console.log('fertilizer: CONFIGURE');
 			oncomplete(true);
 		}, this);
 
 		this.bind('build', function(oncomplete) {
 
-			var env = this.environment;
-			var fs  = this.filesystem;
+			let env   = this.environment;
+			let stash = this.stash;
 
-			if (env !== null && fs !== null) {
+			if (env !== null && stash !== null) {
 
 				console.log('fertilizer: BUILD ' + env.id);
 
-				var id      = env.id;
-				var version = ('' + lychee.VERSION);
 
-				var profile = this.profile;
-				var blob    = _JSON.encode(env.serialize());
-				var info    = this.getInfo(true);
-
-				var index   = _template.toString();
+				let sandbox = this.sandbox;
+				let index   = this.__index;
 
 
-				index = this.replace(index, {
-					blob: blob,
-					id:   id,
-					info: info
+				index.buffer = index.buffer.replaceObject({
+					blob: env.serialize(),
+					id:   env.id
 				});
 
 
-				fs.write('/index.js', index);
+				stash.write(sandbox + '/index.js', index);
+
 
 				oncomplete(true);
 
@@ -67,21 +64,24 @@ lychee.define('fertilizer.template.node.Library').requires([
 		}, this);
 
 		this.bind('package', function(oncomplete) {
+			console.log('fertilizer: PACKAGE');
 			oncomplete(true);
 		}, this);
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
+		// deserialize: function(blob) {},
+
 		serialize: function() {
 
-			var data = fertilizer.Template.prototype.serialize.call(this);
+			let data = _Template.prototype.serialize.call(this);
 			data['constructor'] = 'fertilizer.template.node.Library';
 
 
@@ -92,7 +92,7 @@ lychee.define('fertilizer.template.node.Library').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

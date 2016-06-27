@@ -8,10 +8,9 @@ OS=`lowercase \`uname\``;
 ARCH=`lowercase \`uname -m\``;
 
 LYCHEEJS_NODE="";
-LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
-HARVESTER_PID="$LYCHEEJS_ROOT/bin/harvester.pid";
-HARVESTER_LOG="/var/log/harvester.log";
-HARVESTER_ERR="/var/log/harvester.err";
+LYCHEEJS_ROOT="/opt/lycheejs";
+HARVESTER_LOG="/var/log/lycheejs-harvester.log";
+HARVESTER_ERR="/var/log/lycheejs-harvester.err";
 HARVESTER_USER=`whoami`;
 
 
@@ -31,11 +30,21 @@ fi;
 if [ "$OS" == "darwin" ]; then
 
 	OS="osx";
+	LYCHEEJS_ROOT=$(cd "$(dirname "$(greadlink -f "$0")")/../"; pwd);
 	LYCHEEJS_NODE="$LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node";
 
 elif [ "$OS" == "linux" ]; then
 
 	OS="linux";
+	LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
+	LYCHEEJS_NODE="$LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node";
+
+elif [ "$OS" == "freebsd" ] || [ "$OS" == "netbsd" ]; then
+
+	# XXX: BSD requires Linux binary compatibility
+
+	OS="bsd";
+	LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
 	LYCHEEJS_NODE="$LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node";
 
 fi;
@@ -54,86 +63,8 @@ if [ ! -f "./libraries/lychee/build/node/core.js" ]; then
 fi;
 
 
+cd $LYCHEEJS_ROOT;
+$LYCHEEJS_NODE ./bin/harvester.js "$1" "$2" "$3" "$4";
 
-case "$1" in
-
-	start)
-
-		INTEGRATION_FLAG="";
-		if [ "$3" == "--no-integration" ]; then
-			INTEGRATION_FLAG="--no-integration";
-		fi;
-
-
-		cd $LYCHEEJS_ROOT;
-
-		if [ "$HARVESTER_USER" == "root" ] || [ "$HARVESTER_USER" == "lycheejs-harvester" ]; then
-			$LYCHEEJS_NODE --expose-gc ./bin/harvester.js start "$2" "$INTEGRATION_FLAG" >> $HARVESTER_LOG 2>> $HARVESTER_ERR
-		else
-			$LYCHEEJS_NODE --expose-gc ./bin/harvester.js start "$2" "$INTEGRATION_FLAG"
-		fi;
-
-	;;
-
-	status)
-
-		if [ -f "$HARVESTER_PID" ]; then
-
-			harvester_pid=$(cat $HARVESTER_PID);
-			harvester_status=$(ps -e | grep $harvester_pid | grep -v grep);
-
-			if [ "$harvester_status" != "" ]; then
-				echo -e "Running";
-				exit 0;
-			else
-				echo -e "Not running";
-				exit 1;
-			fi;
-
-		else
-
-			echo -e "Not running";
-			exit 1;
-
-		fi;
-
-	;;
-
-	stop)
-
-		cd $LYCHEEJS_ROOT;
-
-		$LYCHEEJS_NODE ./bin/harvester.js stop;
-
-	;;
-
-	restart)
-
-		INTEGRATION_FLAG="";
-		if [ "$3" == "--no-integration" ]; then
-			INTEGRATION_FLAG="--no-integration";
-		fi;
-
-
-		cd $LYCHEEJS_ROOT;
-
-		$LYCHEEJS_NODE ./bin/harvester.js stop;
-
-		if [ "$HARVESTER_USER" == "root" ] || [ "$HARVESTER_USER" == "lycheejs-harvester" ]; then
-			$LYCHEEJS_NODE --expose-gc ./bin/harvester.js start "$2" "$INTEGRATION_FLAG" >> $HARVESTER_LOG 2>> $HARVESTER_ERR
-		else
-			$LYCHEEJS_NODE --expose-gc ./bin/harvester.js start "$2" "$INTEGRATION_FLAG"
-		fi;
-
-	;;
-
-	*)
-
-		cd $LYCHEEJS_ROOT;
-
-		$LYCHEEJS_NODE ./bin/harvester.js help;
-
-	;;
-
-esac;
+exit $?;
 

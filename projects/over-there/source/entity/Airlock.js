@@ -1,10 +1,11 @@
 
 lychee.define('app.entity.Airlock').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _CONFIG  = attachments["json"].buffer;
-	var _TEXTURE = attachments["png"];
+	const _Sprite  = lychee.import('lychee.app.Sprite');
+	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments["png"];
 
 
 
@@ -12,9 +13,9 @@ lychee.define('app.entity.Airlock').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		settings.width   = 0;
@@ -25,14 +26,14 @@ lychee.define('app.entity.Airlock').includes([
 		settings.texture = _TEXTURE;
 
 
-		lychee.app.Sprite.call(this, settings);
+		_Sprite.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -40,7 +41,7 @@ lychee.define('app.entity.Airlock').includes([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Sprite.prototype.serialize.call(this);
 			data['constructor'] = 'app.entity.Airlock';
 
 
@@ -51,7 +52,7 @@ lychee.define('app.entity.Airlock').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

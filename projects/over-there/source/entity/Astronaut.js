@@ -1,11 +1,12 @@
 
 lychee.define('app.entity.Astronaut').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _id       = 0;
-	var _CONFIG   = attachments["json"].buffer;
-	var _TEXTURES = [
+	let   _id       = 0;
+	const _Sprite   = lychee.import('lychee.app.Sprite');
+	const _CONFIG   = attachments["json"].buffer;
+	const _TEXTURES = [
 		attachments["blue.png"],
 		attachments["light.png"],
 		attachments["green.png"],
@@ -22,9 +23,9 @@ lychee.define('app.entity.Astronaut').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.properties = {};
@@ -44,14 +45,14 @@ lychee.define('app.entity.Astronaut').includes([
 		delete settings.properties;
 
 
-		lychee.app.Sprite.call(this, settings);
+		_Sprite.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -59,7 +60,7 @@ lychee.define('app.entity.Astronaut').includes([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Sprite.prototype.serialize.call(this);
 			data['constructor'] = 'app.entity.Astronaut';
 
 
@@ -95,7 +96,7 @@ lychee.define('app.entity.Astronaut').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

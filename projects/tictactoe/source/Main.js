@@ -3,15 +3,20 @@ lychee.define('game.Main').requires([
 	'game.state.Game'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, game, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _game = lychee.import('game');
+	const _Main = lychee.import('lychee.app.Main');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
+		let settings = Object.assign({
 
 			client: null,
 			server: null,
@@ -43,7 +48,7 @@ lychee.define('game.Main').requires([
 		}, data);
 
 
-		lychee.app.Main.call(this, settings);
+		_Main.call(this, settings);
 
 
 
@@ -57,7 +62,7 @@ lychee.define('game.Main').requires([
 
 		this.bind('init', function() {
 
-			this.setState('game', new game.state.Game(this));
+			this.setState('game', new _game.state.Game(this));
 
 
 			this.changeState('game');
@@ -67,7 +72,7 @@ lychee.define('game.Main').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -77,7 +82,7 @@ lychee.define('game.Main').requires([
 
 		serialize: function() {
 
-			var data = lychee.app.Main.prototype.serialize.call(this);
+			let data = _Main.prototype.serialize.call(this);
 			data['constructor'] = 'game.Main';
 
 
@@ -88,6 +93,6 @@ lychee.define('game.Main').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });

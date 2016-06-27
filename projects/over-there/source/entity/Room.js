@@ -1,10 +1,12 @@
 
 lychee.define('app.entity.Room').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var _config  = attachments["json"].buffer;
-	var _texture = attachments["png"];
+	const _Entity  = lychee.import('lychee.app.Entity');
+	const _Sprite  = lychee.import('lychee.app.Sprite');
+	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments["png"];
 
 
 
@@ -12,21 +14,21 @@ lychee.define('app.entity.Room').includes([
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({}, data);
+		let settings = Object.assign({}, data);
 
 
 		this.properties = {};
 
 
-		settings.texture = _texture;
 		settings.width   = 0;
 		settings.height  = 0;
-		settings.map     = _config.map;
-		settings.shape   = lychee.app.Entity.SHAPE.rectangle;
+		settings.map     = _CONFIG.map;
+		settings.shape   = _Entity.SHAPE.rectangle;
 		settings.state   = settings.state || 'default';
-		settings.states  = _config.states;
+		settings.states  = _CONFIG.states;
+		settings.texture = _TEXTURE;
 
 
 		this.setProperties(settings.properties);
@@ -34,14 +36,14 @@ lychee.define('app.entity.Room').includes([
 		delete settings.properties;
 
 
-		lychee.app.Sprite.call(this, settings);
+		_Sprite.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -49,7 +51,7 @@ lychee.define('app.entity.Room').includes([
 
 		serialize: function() {
 
-			var data = lychee.app.Sprite.prototype.serialize.call(this);
+			let data = _Sprite.prototype.serialize.call(this);
 			data['constructor'] = 'app.entity.Room';
 
 
@@ -85,7 +87,7 @@ lychee.define('app.entity.Room').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

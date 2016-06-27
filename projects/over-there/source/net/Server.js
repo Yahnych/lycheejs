@@ -1,22 +1,24 @@
 
 lychee.define('app.net.Server').requires([
-	'lychee.data.BitON'
 ]).includes([
 	'lychee.net.Server'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
+
+	const _Server = lychee.import('lychee.net.Server');
+
+
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	var Class = function(data) {
+	let Composite = function(data) {
 
-		var settings = lychee.extend({
-			codec: lychee.data.BitON
+		let settings = Object.assign({
 		}, data);
 
 
-		lychee.net.Server.call(this, settings);
+		_Server.call(this, settings);
 
 
 
@@ -42,17 +44,15 @@ lychee.define('app.net.Server').requires([
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
 		 */
 
-		// deserialize: function(blob) {},
-
 		serialize: function() {
 
-			var data = lychee.net.Server.prototype.serialize.call(this);
+			let data = _Server.prototype.serialize.call(this);
 			data['constructor'] = 'app.net.Server';
 
 
@@ -63,7 +63,7 @@ lychee.define('app.net.Server').requires([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

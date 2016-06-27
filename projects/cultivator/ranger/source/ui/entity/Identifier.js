@@ -1,21 +1,29 @@
 
 lychee.define('app.ui.entity.Identifier').includes([
 	'lychee.ui.entity.Label'
-]).exports(function(lychee, app, global, attachments) {
+]).exports(function(lychee, global, attachments) {
 
-	var Class = function(data) {
-
-		var settings = lychee.extend({}, data);
+	const _Label = lychee.import('lychee.ui.entity.Label');
 
 
-		lychee.ui.entity.Label.call(this, settings);
+
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	let Composite = function(data) {
+
+		let settings = Object.assign({}, data);
+
+
+		_Label.call(this, settings);
 
 		settings = null;
 
 	};
 
 
-	Class.prototype = {
+	Composite.prototype = {
 
 		/*
 		 * ENTITY API
@@ -23,7 +31,7 @@ lychee.define('app.ui.entity.Identifier').includes([
 
 		serialize: function() {
 
-			var data = lychee.ui.entity.Label.prototype.serialize.call(this);
+			let data = _Label.prototype.serialize.call(this);
 			data['constructor'] = 'app.ui.entity.Identifier';
 
 
@@ -36,18 +44,18 @@ lychee.define('app.ui.entity.Identifier').includes([
 			if (this.visible === false) return;
 
 
-			var alpha    = this.alpha;
-			var position = this.position;
+			let alpha    = this.alpha;
+			let position = this.position;
 
 
-			var x = position.x + offsetX;
-			var y = position.y + offsetY;
+			let x = position.x + offsetX;
+			let y = position.y + offsetY;
 
 
-			var font    = this.font;
-			var value   = this.value;
-			var hwidth  = this.width  / 2;
-			var hheight = this.height / 2;
+			let font    = this.font;
+			let value   = this.value;
+			let hwidth  = this.width  / 2;
+			let hheight = this.height / 2;
 
 
 			if (alpha !== 1) {
@@ -102,7 +110,7 @@ lychee.define('app.ui.entity.Identifier').includes([
 	};
 
 
-	return Class;
+	return Composite;
 
 });
 

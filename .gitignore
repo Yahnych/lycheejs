@@ -1,5 +1,6 @@
 
 # Auto-built applications
+/lychee.store
 /bin/editor
 /bin/ranger
 /bin/runtime
@@ -12,6 +13,7 @@
 
 /projects/*
 /projects/*/lychee.store
+/projects/cultivator/*/lychee.store
 !/projects/README.md
 
 
@@ -33,6 +35,11 @@
 /projects/cultivator/ranger/build
 
 
+# GitHub Integration
+.github/TOKEN
+.github/ISSUES
+
 # Well, yeah. Fuck these guys
+/__TODO__
 .DS_Store
 
