@@ -4,7 +4,7 @@
 This folder contains all libraries made with lychee.js. It
 already contains the core libraries of all lychee.js software
 bots but allows the easy deployment and installation of
-additional libraries from the `Bot Peer Cloud`.
+additional libraries from the `Harvester Cloud`.
 
 The libraries of the lychee.js ecosystem and the automatic
 build/deploy/test system is available at [harvester.artificial.engineering](https://harvester.artificial.engineering).
@@ -21,9 +21,9 @@ libraries as dependencies.
 ```bash
 cd /opt/lycheejs;
 mkdir ./libraries/my-library;
-cd ./libraries/my-library;
 
 # Initialize a Library Boilerplate
+cd ./libraries/my-library;
 lycheejs-breeder init;
 ```
 
@@ -40,9 +40,9 @@ to its original codebase.
 ```bash
 cd /opt/lycheejs;
 mkdir ./libraries/my-library;
-cd ./libraries/my-library;
 
 # Fork the harvester library
+cd ./libraries/my-library;
 lycheejs-breeder fork /libraries/harvester;
 ```
 
@@ -58,15 +58,27 @@ bots to learn from your awesome codebase immediately.
 
 ```bash
 cd /opt/lycheejs;
-cd ./libraries/my-library;
 
 # Push (publish) the my-library library
+cd ./libraries/my-library;
 lycheejs-breeder push;
 ```
 
 
+# IMPORTANT
 
-# RULES for a Library
+Please read the [Codestyle Guide](../guides/CODESTYLE.md) before
+creating a lychee.js Library, so that you benefit from all
+automations and conventions.
+
+All conventions are documented in the [Project Architecture chapter](https://github.com/Artificial-Engineering/lycheejs-guide#project-architecture)
+of the lychee.js Guide.
+
+Always remember, all libraries can be used as projects and all
+projects can be used as libraries.
+
+
+# Package rules for a Library
 
 - All libraries must have a `*/dist` build target in the `lychee.pkg`
 - All libraries must have proper `platform` tags if they use platform-specific APIs

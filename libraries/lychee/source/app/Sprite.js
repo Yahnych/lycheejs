@@ -122,9 +122,6 @@ lychee.define('lychee.app.Sprite').includes([
 
 		render: function(renderer, offsetX, offsetY) {
 
-			_Entity.prototype.render.call(this, renderer, offsetX, offsetY);
-
-
 			let texture = this.texture;
 			if (texture !== null) {
 
@@ -175,6 +172,9 @@ lychee.define('lychee.app.Sprite').includes([
 				}
 
 			}
+
+
+			_Entity.prototype.render.call(this, renderer, offsetX, offsetY);
 
 		},
 
@@ -266,7 +266,7 @@ lychee.define('lychee.app.Sprite').includes([
 			id = typeof id === 'string' ? id : null;
 
 
-			let result = lychee.app.Entity.prototype.setState.call(this, id);
+			let result = _Entity.prototype.setState.call(this, id);
 			if (result === true) {
 
 				let map = this.__map[this.state] || null;

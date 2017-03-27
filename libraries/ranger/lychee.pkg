@@ -1,0 +1,120 @@
+{
+	"api": {
+		"files": {}
+	},
+	"build": {
+		"environments": {
+			"html-nwjs/main": {
+				"build": "ranger.Main",
+				"debug": false,
+				"packages": [
+					[
+						"ranger",
+						"./lychee.pkg"
+					],
+					[
+						"harvester",
+						"/libraries/harvester/lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html-nwjs",
+						"html"
+					]
+				},
+				"variant": "application"
+			},
+			"html-webview/main": {
+				"build": "ranger.Main",
+				"debug": false,
+				"packages": [
+					[
+						"ranger",
+						"./lychee.pkg"
+					],
+					[
+						"harvester",
+						"/libraries/harvester/lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html-webview",
+						"html"
+					]
+				},
+				"variant": "application"
+			},
+			"html/main": {
+				"build": "ranger.Main",
+				"debug": false,
+				"packages": [
+					[
+						"ranger",
+						"./lychee.pkg"
+					],
+					[
+						"harvester",
+						"/libraries/harvester/lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"variant": "application"
+			}
+		},
+		"files": {}
+	},
+	"source": {
+		"environments": {},
+		"files": {
+			"Main": [
+				"js"
+			],
+			"state": {
+				"Console": [
+					"js",
+					"json"
+				],
+				"Profile": [
+					"js",
+					"json"
+				],
+				"Welcome": [
+					"js",
+					"json"
+				]
+			},
+			"ui": {
+				"entity": {
+					"Console": [
+						"fnt",
+						"js"
+					],
+					"Identifier": [
+						"js"
+					],
+					"Status": [
+						"js"
+					]
+				},
+				"layer": {
+					"Control": [
+						"js"
+					],
+					"Web": [
+						"js"
+					]
+				}
+			}
+		},
+		"tags": {}
+	}
+}

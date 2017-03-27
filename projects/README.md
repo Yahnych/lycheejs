@@ -61,8 +61,20 @@ lycheejs-breeder pull /libraries/lychee;
 ```
 
 
+# IMPORTANT
 
-# RULES for a Project
+Please read the [Codestyle Guide](../guides/CODESTYLE.md) before
+creating a lychee.js Library, so that you benefit from all
+automations and conventions.
+
+All conventions are documented in the [Project Architecture chapter](https://github.com/Artificial-Engineering/lycheejs-guide#project-architecture)
+of the lychee.js Guide.
+
+Always remember, all libraries can be used as projects and all
+projects can be used as libraries.
+
+
+# Package rules for a Library
 
 - All projects must have a `*/main` build target in the `lychee.pkg`
 - All projects must have proper `platform` tags if they use platform-specific APIs

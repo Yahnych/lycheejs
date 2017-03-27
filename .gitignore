@@ -2,10 +2,9 @@
 # Runtime Caches
 
 /lychee.store
-/bin/editor
-/bin/ranger
 /bin/runtime
 /bin/harvester.pid
+/libraries/studio/index.html
 
 # GitHub Integration
 
@@ -16,8 +15,16 @@
 
 /node_modules
 /__TODO__
-/.idea
+.fuse_hidden*
+.directory
+.AppleDouble
 .DS_Store
+.LSOverride
+._*
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
 
 
 
@@ -33,8 +40,11 @@
 !/libraries/breeder
 !/libraries/fertilizer
 !/libraries/harvester
+!/libraries/legacy
 !/libraries/lychee
+!/libraries/ranger
 !/libraries/strainer
+!/libraries/studio
 
 
 
@@ -48,21 +58,13 @@
 
 !/projects/boilerplate
 !/projects/cultivator
+!/projects/flappy
+!/projects/flappy-bnn
 !/projects/lethalmaze
 !/projects/mode7
 !/projects/over-there
 !/projects/pong
+!/projects/pong-bnn
 !/projects/text-chat
 !/projects/tictactoe
-
-
-
-# Cultivator Projects
-
-/projects/cultivator/editor/api
-/projects/cultivator/editor/build
-/projects/cultivator/editor/lychee.store
-/projects/cultivator/ranger/api
-/projects/cultivator/ranger/build
-/projects/cultivator/ranger/lychee.store
 

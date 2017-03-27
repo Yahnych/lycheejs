@@ -420,7 +420,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 			lychee:  '/opt/lycheejs',
 			project: null
 		},
-		VERSION:      "2016-Q4",
+		VERSION:      "2017-Q1",
 
 
 
@@ -577,7 +577,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 		interfaceof: function(template, instance) {
 
-			if (instance === undefined) {
+			if (instance === null || instance === undefined) {
 				return false;
 			}
 

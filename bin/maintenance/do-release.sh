@@ -20,18 +20,23 @@ _get_version () {
 
 }
 
-USER_WHO=`whoami`;
-USER_LOG=`logname 2>/dev/null`;
 
-
-LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
-LYCHEEJS_FOLDER="/tmp/lycheejs";
-LYCHEEJS_BRANCH=$(cd $LYCHEEJS_ROOT && git symbolic-ref HEAD 2>/dev/null | cut -d"/" -f 3);
-OLD_VERSION=$(cd $LYCHEEJS_ROOT && cat ./libraries/lychee/source/core/lychee.js | grep VERSION | cut -d\" -f2);
+OLD_FOLDER=$(cd "$(dirname "$0")/../../"; pwd);
+NEW_FOLDER="/tmp/lycheejs";
+LYCHEEJS_FERTILIZER="$NEW_FOLDER/libraries/fertilizer/bin/fertilizer.sh";
+OLD_VERSION=$(cd $OLD_FOLDER && cat ./libraries/lychee/source/core/lychee.js | grep VERSION | cut -d\" -f2);
 NEW_VERSION=$(_get_version);
 
-
+GITHUB_TOKEN=$(cat /opt/lycheejs/.github/TOKEN);
 NPM_BIN=`which npm`;
+
+
+if [ "$GITHUB_TOKEN" == "" ]; then
+	echo "Please setup GitHub Token first.";
+	echo "";
+	echo "echo \"YOUR-GITHUB-TOKEN\" > /opt/lycheejs/.github/TOKEN";
+	exit 1;
+fi;
 
 
 if [ "$NPM_BIN" == "" ]; then
@@ -40,37 +45,23 @@ if [ "$NPM_BIN" == "" ]; then
 fi;
 
 
-if [ "$USER_WHO" == "root" ]; then
-
-	echo "You are root.";
-	echo "Use \"$0\" without sudo.";
-
-	exit 1;
-
-elif [[ "$USER_WHO" == "root" && "$USER_LOG" == "root" ]]; then
-
-	echo "You are root.";
-	echo "Please exit su shell and use \"$0\" without sudo.";
-
-	exit 1;
-
-elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 
 	echo "";
-	echo "lychee.js Release Tool";
+	echo -e "\e[37m\e[42m lychee.js Release Tool \e[0m";
 	echo "";
-	echo "All your data are belong to us.";
-	echo "This tool creates a new lychee.js release.";
-	echo "";
-	echo "You need to be member of the Artificial-Engineering";
-	echo "organization and you will be questioned again when";
-	echo "the release is ready for publishing.";
-	echo "";
-	echo "lychee.js Folder: $LYCHEEJS_ROOT and $LYCHEEJS_FOLDER";
-	echo "lychee.js Branch: $LYCHEEJS_BRANCH";
-	echo "";
-	echo "Old lychee.js Version: $OLD_VERSION";
-	echo "New lychee.js Version: $NEW_VERSION";
+	echo " All your data are belong to us.                     ";
+	echo " This tool creates a new lychee.js release.          ";
+	echo "                                                     ";
+	echo " You need to be member of the Artificial-Engineering ";
+	echo " organization and you will be questioned again when  ";
+	echo " the release is ready for publishing.                ";
+	echo "                                                     ";
+	echo " Old lychee.js Folder:  $OLD_FOLDER                  ";
+	echo " Old lychee.js Version: $OLD_VERSION                 ";
+	echo "                                                     ";
+	echo " New lychee.js Version: $NEW_VERSION                 ";
+	echo " New lychee.js Folder:  $NEW_FOLDER                  ";
 	echo "";
 
 	read -p "Continue (y/n)? " -r
@@ -87,37 +78,37 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# INIT lycheejs
 	#
 
-	if [ -d $LYCHEEJS_FOLDER ]; then
-		rm -rf $LYCHEEJS_FOLDER;
+	if [ -d $NEW_FOLDER ]; then
+		rm -rf $NEW_FOLDER;
 	fi;
 
-	mkdir $LYCHEEJS_FOLDER;
-	git clone git@github.com:Artificial-Engineering/lycheejs.git $LYCHEEJS_FOLDER;
+	mkdir $NEW_FOLDER;
+	git clone git@github.com:Artificial-Engineering/lycheejs.git $NEW_FOLDER;
 
 
 	DOWNLOAD_URL=$(curl -s https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest | grep browser_download_url | grep lycheejs-runtime | head -n 1 | cut -d'"' -f4);
 
 	if [ "$DOWNLOAD_URL" != "" ]; then
 
-		cd $LYCHEEJS_FOLDER/bin;
-		curl -sSL $DOWNLOAD_URL > $LYCHEEJS_FOLDER/bin/runtime.zip;
+		cd $NEW_FOLDER/bin;
+		curl -sSL $DOWNLOAD_URL > $NEW_FOLDER/bin/runtime.zip;
 
-		mkdir $LYCHEEJS_FOLDER/bin/runtime;
-		git clone --single-branch --branch master --depth 1 git@github.com:Artificial-Engineering/lycheejs-runtime.git $LYCHEEJS_FOLDER/bin/runtime;
+		mkdir $NEW_FOLDER/bin/runtime;
+		git clone --single-branch --branch master --depth 1 git@github.com:Artificial-Engineering/lycheejs-runtime.git $NEW_FOLDER/bin/runtime;
 
-		cd $LYCHEEJS_FOLDER/bin/runtime;
+		cd $NEW_FOLDER/bin/runtime;
 		unzip -nq ../runtime.zip;
 
-		chmod +x $LYCHEEJS_FOLDER/bin/runtime/bin/*.sh;
-		chmod +x $LYCHEEJS_FOLDER/bin/runtime/*/update.sh;
-		chmod +x $LYCHEEJS_FOLDER/bin/runtime/*/package.sh;
+		chmod +x $NEW_FOLDER/bin/runtime/bin/*.sh;
+		chmod +x $NEW_FOLDER/bin/runtime/*/update.sh;
+		chmod +x $NEW_FOLDER/bin/runtime/*/package.sh;
 
-		rm $LYCHEEJS_FOLDER/bin/runtime.zip;
+		rm $NEW_FOLDER/bin/runtime.zip;
 
 	fi;
 
 
-	cd $LYCHEEJS_FOLDER;
+	cd $NEW_FOLDER;
 	git checkout development;
 
 	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$NEW_VERSION'|g' ./README.md;
@@ -128,8 +119,8 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	git commit -m "lychee.js $NEW_VERSION release";
 
 
-	cd $LYCHEEJS_FOLDER;
-	$LYCHEEJS_FOLDER/bin/configure.sh --sandbox;
+	cd $NEW_FOLDER;
+	$NEW_FOLDER/bin/configure.sh --sandbox;
 
 
 
@@ -137,8 +128,12 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# BUILD AND UPDATE lycheejs-runtime
 	#
 
-	cd $LYCHEEJS_FOLDER/bin/runtime;
+	cd $NEW_FOLDER/bin/runtime;
 	./bin/do-update.sh;
+
+	# XXX: lycheejs-bundle requires new runtimes
+	# cd $NEW_FOLDER/bin/runtime;
+	# ./bin/do-release.sh;
 
 
 
@@ -146,9 +141,10 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# BUILD AND PACKAGE lycheejs-harvester
 	#
 
-	cd $LYCHEEJS_FOLDER;
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-harvester.git $LYCHEEJS_FOLDER/projects/lycheejs-harvester;
-	$LYCHEEJS_FOLDER/bin/fertilizer.sh node/main /projects/lycheejs-harvester;
+	cd $NEW_FOLDER;
+	export LYCHEEJS_ROOT="$NEW_FOLDER";
+	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-harvester.git $NEW_FOLDER/projects/lycheejs-harvester;
+	$LYCHEEJS_FERTILIZER node/main /projects/lycheejs-harvester;
 
 
 
@@ -156,9 +152,10 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# BUILD AND PACKAGE lycheejs-library
 	#
 
-	cd $LYCHEEJS_FOLDER;
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-library.git $LYCHEEJS_FOLDER/projects/lycheejs-library;
-	$LYCHEEJS_FOLDER/bin/fertilizer.sh auto /projects/lycheejs-library;
+	cd $NEW_FOLDER;
+	export LYCHEEJS_ROOT="$NEW_FOLDER";
+	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-library.git $NEW_FOLDER/projects/lycheejs-library;
+	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-library;
 
 
 
@@ -166,30 +163,22 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# BUILD AND PACKAGE lycheejs-bundle
 	#
 
- 	cd $LYCHEEJS_FOLDER;
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-bundle.git $LYCHEEJS_FOLDER/projects/lycheejs-bundle;
-	$LYCHEEJS_FOLDER/bin/fertilizer.sh auto /projects/lycheejs-bundle;
+	cd $NEW_FOLDER;
+	export LYCHEEJS_ROOT="$NEW_FOLDER";
+	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-bundle.git $NEW_FOLDER/projects/lycheejs-bundle;
+	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
 
 
 
-	#
-	# BUILD AND PACKAGE lycheejs-website
-	#
-
-	cd $LYCHEEJS_FOLDER;
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-website.git $LYCHEEJS_FOLDER/projects/lycheejs-website;
-	$LYCHEEJS_FOLDER/bin/fertilizer.sh html/main /projects/lycheejs-website;
-
-
-
-	echo "";
-	echo "Somebody set us up the bomb.";
-	echo "";
-	echo "If no error occured, you can push the lychee.js release to GitHub now.";
-	echo "";
-	echo "WARNING: This is irreversible.";
-	echo "WARNING: It is wise to manually check /tmp/lycheejs now.";
-	echo "";
+	echo "                                                     ";
+	echo " Somebody set us up the bomb.                        ";
+	echo "                                                     ";
+	echo " If no error has occured, you can now publish the    ";
+	echo " lychee.js release to GitHub and the peer cloud.     ";
+	echo "                                                     ";
+	echo -e "\e[37m\e[43m This is irreversible. It is wise to \e[0m ";
+	echo -e "\e[37m\e[43m manually check /tmp/lycheejs now.   \e[0m ";
+	echo "                                                     ";
 
 	read -p "Continue (y/n)? " -r
 
@@ -205,10 +194,10 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs
 	#
 
-	cd $LYCHEEJS_FOLDER;
+	cd $NEW_FOLDER;
 	git push origin development;
 	git checkout master;
-	git merge --squash development;
+	git merge --squash --no-commit development;
 	git commit -m "lychee.js $NEW_VERSION release";
 	git push origin master;
 
@@ -218,7 +207,7 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs-runtime
 	#
 
-	cd $LYCHEEJS_FOLDER/bin/runtime;
+	cd $NEW_FOLDER/bin/runtime;
 	./bin/do-release.sh;
 
 
@@ -227,7 +216,7 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs-harvester
 	#
 
-	cd $LYCHEEJS_FOLDER/projects/lycheejs-harvester;
+	cd $NEW_FOLDER/projects/lycheejs-harvester;
 	./bin/publish.sh;
 
 
@@ -236,28 +225,20 @@ elif [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs-library
 	#
 
-	cd $LYCHEEJS_FOLDER/projects/lycheejs-library;
-	./bin/publish.sh;
-
-
-	#
-	# PUBLISH lycheejs-website
-	#
-
-	cd $LYCHEEJS_FOLDER/projects/lycheejs-website;
+	cd $NEW_FOLDER/projects/lycheejs-library;
 	./bin/publish.sh;
 
 
 
 	echo "";
 	echo "";
-	echo "~ ~ ~ ~ ~ ~ ~ ~ ~ SUCCESS ~ ~ ~ ~ ~ ~ ~ ~ ~";
+	echo -e "\e[37m\e[42m SUCCESS \e[0m";
 	echo "";
-	echo "Manual Steps required to do now:";
-	echo "";
-	echo "- Create the $NEW_VERSION release in the lychee.js Bundle repository.";
-	echo "- Upload and attach the builds of it to the release.";
-	echo "";
+	echo " Manual Steps required to do now:                              ";
+	echo "                                                               ";
+	echo " - Create $NEW_VERSION release of lycheejs-bundle repository.  ";
+	echo " - Create $NEW_VERSION release of lycheejs-website repository. ";
+	echo "                                                               ";
 
 	exit 0;
 

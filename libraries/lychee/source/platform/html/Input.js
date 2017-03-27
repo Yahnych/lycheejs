@@ -323,10 +323,7 @@ lychee.define('Input').tags({
 		120: 'f9',
 		121: 'f10',
 		122: 'f11',
-		123: 'f12',
-
-//		144: 'numlock',
-		145: 'scroll'
+		123: 'f12'
 
 	};
 
@@ -391,11 +388,11 @@ lychee.define('Input').tags({
 		}
 
 
-		let key  = null;
-		let name = null;
-		let tmp  = null;
+		let key     = null;
+		let name    = null;
+		let tmp     = null;
 		let handled = false;
-		let delta = Date.now() - this.__clock.key;
+		let delta   = Date.now() - this.__clock.key;
 
 		if (delta < this.delay) {
 			return true;
@@ -404,7 +401,7 @@ lychee.define('Input').tags({
 		}
 
 
-		// 0. Computation: Special Characters
+		// 0. Computation of Special Characters
 		if (_SPECIALMAP[code] !== undefined) {
 
 			tmp  = _SPECIALMAP[code];
@@ -417,7 +414,7 @@ lychee.define('Input').tags({
 
 			name += tmp[0];
 
-		// 0. Computation: Normal Characters
+		// 0. Computation of Normal Characters
 		} else if (_KEYMAP[code] !== undefined) {
 
 			key  = _KEYMAP[code];
@@ -515,7 +512,7 @@ lychee.define('Input').tags({
 		}
 
 
-		// 0. Computation: Swipe Functionality
+		// 0. Computation of Swipe
 		if (this.__swipes[id] !== null) {
 
 			// FIX for touchend events

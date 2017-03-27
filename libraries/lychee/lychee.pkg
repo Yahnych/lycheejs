@@ -137,6 +137,9 @@
 					"js"
 				],
 				"bnn": {
+					"Agent": [
+						"js"
+					],
 					"Brain": [
 						"js"
 					]
@@ -149,8 +152,20 @@
 						"js"
 					]
 				},
-				"qnn": {
+				"neat": {
+					"Agent": [
+						"js"
+					],
 					"Brain": [
+						"js"
+					],
+					"Gene": [
+						"js"
+					],
+					"Genome": [
+						"js"
+					],
+					"Pool": [
 						"js"
 					]
 				}
@@ -256,6 +271,11 @@
 					"js"
 				]
 			},
+			"data": {
+				"Tree": [
+					"js"
+				]
+			},
 			"effect": {
 				"Alpha": [
 					"js"
@@ -270,6 +290,9 @@
 					"js"
 				],
 				"Height": [
+					"js"
+				],
+				"Music": [
 					"js"
 				],
 				"Offset": [
@@ -308,6 +331,9 @@
 					"js"
 				],
 				"Queue": [
+					"js"
+				],
+				"Router": [
 					"js"
 				]
 			},
@@ -519,10 +545,46 @@
 				}
 			},
 			"policy": {
+				"Alpha": [
+					"js"
+				],
+				"Color": [
+					"js"
+				],
+				"Depth": [
+					"js"
+				],
+				"Height": [
+					"js"
+				],
+				"Music": [
+					"js"
+				],
+				"Offset": [
+					"js"
+				],
 				"Position": [
 					"js"
 				],
+				"Radius": [
+					"js"
+				],
+				"Shake": [
+					"js"
+				],
+				"Sound": [
+					"js"
+				],
+				"State": [
+					"js"
+				],
 				"Velocity": [
+					"js"
+				],
+				"Visible": [
+					"js"
+				],
+				"Width": [
 					"js"
 				]
 			},

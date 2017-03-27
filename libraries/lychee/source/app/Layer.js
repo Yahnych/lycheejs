@@ -776,7 +776,6 @@ lychee.define('lychee.app.Layer').requires([
 
 			}
 
-
 			return all;
 
 		},

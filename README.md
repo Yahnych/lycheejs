@@ -1,17 +1,16 @@
 
-# lychee.js (2016-Q4)
+# lychee.js (2017-Q1)
 
 brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
 
 Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
 
-<details>
-<summary>**QR Codes**</summary>
-![QR codes](./guides/asset/qr-codes.png)
-</details>
+**QR Codes**
 
-<details>
-<summary>**Table of Contents**</summary>
+![QR codes](./guides/asset/qr-codes.png)
+
+**Table of Contents**
+
 - [Overview](#overview)
 - [Features](#features)
 - [Workflow](#workflow)
@@ -21,20 +20,18 @@ Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin
 - [Contributor Guides](#contributor-guides)
 - [Help](#help)
 - [License](#license)
-</details>
 
 
 ## IMPORTANT NOTICE
 
-We went live with our AI on 1. Sept 2016. This caused a totally fucked up
-and necessary hard rebase. If your Fork does not contain the
+We went live with our AI on 1. Sept 2016. This caused a broken git commit
+history and a necessary hard rebase. If your Fork does not contain the
 `:balloon: AI History starts here` on its `master` branch, please delete
 it and re-fork it again.
 
-We hope that this will not occur again in future, but git has harsh
-problems with rebases and squash-merges of overly complex branches
-(read: 500k+ commits per day). So we essentially use that specific
-commit to rebase onto from the `humansneednotapply` branch.
+We hope that this will not occur again in future, so far the new git
+history and the merge flow (using `theirs` merge strategy on above
+mentioned commit) appears to be stable.
 
 Thank you for your understanding.
 
@@ -43,10 +40,9 @@ Thank you for your understanding.
 
 These are the things that we are currently working on:
 
-- lychee.ai.neat (ES/HyperNEAT AI) is being refactored.
-- lychee.js Editor is being refactored to integrate all Cultivator Tools' functionalities.
-- [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide.git) is subject to change (to integrate new AI / Editor stack).
-- [lychee.js Garden](https://github.com/Artificial-Engineering/lycheejs-garden.git) is being implemented.
+- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable.
+- lychee.js Studio is being refactored and unstable.
+- lychee.js Guide is subject to change (to integrate new AI stack).
 
 
 ## Overview
@@ -56,7 +52,7 @@ The following Repositories are related to the lychee.js Engine:
 
 - [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide.git) contains architecture explanations and concept documentations (WIP).
 - [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
-- [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`).
+- [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
 - [lychee.js Harvester](https://github.com/Artificial-Engineering/lycheejs-harvester.git) contains the lychee.js Harvester (forked from `/libraries/harvester`).
 - [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [https://lychee.js.org](https://lychee.js.org)).
 - [lychee.js Bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) generates the OS-ready lychee.js Bundles (published at [releases](https://github.com/Artificial-Engineering/lycheejs-bundle/releases) section).
@@ -83,8 +79,8 @@ Artificial Intelligence and better Software Architecture.
 
 Everything listed here requires zero lines of code overhead
 and is already fully integrated in the [lychee.js Boilerplate](./projects/boilerplate):
- 
-The lychee.js Core and Definition System:
+
+The lychee.js Core and Definition System ([lychee](/libraries/lychee) and [legacy](/libraries/legacy)):
 
 - Isomorphic Application Engine (runs pretty much everywhere)
 - Language is only ES5/ES6 JavaScript Code, nothing else
@@ -96,8 +92,8 @@ The lychee.js Core and Definition System:
 
 The lychee.js Software Bots:
 
-- Graphical Asset Management and Entity/Scene Design Tool ([Editor](/projects/cultivator/editor))
-- Graphical Project Management and Server Maintenance Tool ([Ranger](/projects/cultivator/ranger))
+- Graphical Asset Management and Entity/Scene Design Tool ([Studio](/libraries/studio))
+- Graphical Project Management and Server Maintenance Tool ([Ranger](/libraries/ranger))
 - Command-Line Continous Integration Server ([Harvester](/libraries/harvester))
 - Command-Line Wizard for Projects and Libraries ([Breeder](/libraries/breeder))
 - Command-Line Builder and Cross-Compiler ([Fertilizer](/libraries/fertilizer))
@@ -123,20 +119,17 @@ Every (not sandboxed) lychee.js Harvester is connected to the
 lychee.js Peer Cloud and is contributing to the evolutionary
 AI's knowledge and improves its capabilities for all others.
 
-The lychee.js Engine uses CARTEL/ES-HyperNEAT as an evolutionary
-AI that is connected to a Botnet of lychee.js Harvesters. Each
-and every Definition written in lychee.js contributes to the AI
-so that it can predict, suggest and improve all other Projects.
+The lychee.js Engine uses backpropagated ES/HyperNEAT as an
+evolutionary AI that is connected to a Botnet of lychee.js
+Harvesters. Each and every Definition written in lychee.js
+contributes to the AI so that it can predict, suggest and
+improve all other Projects.
 
 The development process is optimized for Blink-based web
 browsers (Chromium, Google Chrome, Opera) and their
 developer tools. We honestly recommend NOT using Firefox
 due to lack of developer and debugging tools nor has it
 any remote debugging protocol.
-
-We ain't doing HTML5 websites or single-page-webapps here. If you
-want to teach lychee.js those Legacy Technologies, there's the
-[lychee.js Legacy Library](https://github.com/Artificial-Engineering/lycheejs-legacy.git).
 
 
 
@@ -195,7 +188,7 @@ repository).
 
 Notes:
 
-- **Windows** is **unsupported** as development host. Use a VM or the [Dockerfile](https://github.com/Artificial-Engineering/lycheejs-bundle/blob/master/bin/package/docker/Dockerfile) instead.
+- **Windows** is **unsupported** as development host. Use a VM, the [Docker Image](https://hub.docker.com/r/cookiengineer/lycheejs) or the [Dockerfile](https://github.com/Artificial-Engineering/lycheejs-bundle/blob/master/bin/package/docker/Dockerfile) instead.
 - GNU/Linux requires either of `apt-get`, `dnf`, `pacman`, `yum` or `zipper` installed beforehand.
 - Mac OSX requires [brew](https://brew.sh) installed beforehand.
 - FreeBSD/NetBSD requires `pkg` installed and [Linux Compatibility](https://www.freebsd.org/doc/handbook/linuxemu-lbc-install.html) activated beforehand.
@@ -283,9 +276,26 @@ These are our official social media channels:
 
 ## License
 
-The lychee.js Engine (defined as [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
-repository) is (c) 2012-2016 Artificial-Engineering and released under
+The lychee.js Engine (defined as `/libraries` and `/bin` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
+repository) is (c) 2012-2017 Artificial-Engineering and released under
 [MIT / Expat](./LICENSE_MIT.txt) license.
+
+The projects (defined as `/projects` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
+repository) and their Assets are licensed under [CC BY-SA 4.0](./LICENSE_CC4-BY-SA.txt)
+license.
+
+The lychee.js Runtimes (defined as `/bin/runtime` or the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git)
+repository) are owned and copyrighted by their respective owners and those
+may be shipped under a different license.
+
+As of now, the runtimes are licensed under the following terms:
+
+- MIT license for `node` platform (node.js)
+- MIT license for `html-nwjs` platform (nw.js)
+- MIT license for `html-webview` platform and (c) 2012-2017 Artificial Engineering
+- Apache license for Android SDK toolchain
+
+----------
 
 The generated code by our Artificial Intelligence (namely the GitHub Account
 [@humansneednotapply](https://github.com/humansneednotapply) or the commit's
@@ -296,15 +306,18 @@ The date of each commit is equivalent to the date (Central European Timezone)
 of claimed copyright and license, no matter from which timezone or physical
 location they were commited from.
 
-The generated code by the Artificial Intelligence overrules the MIT / Expat
-license in every case, with no exceptions. The code is distributed in a libre
-way to guarantee free and open knowledge distribution for our Software Bots.
+The generated code by the Artificial Intelligence and its GNU GPL 3 license
+overrules the MIT / Expat license in every case, with no exceptions. The code
+is distributed in a libre way to guarantee free and open knowledge distribution
+for our Software Bots.
 
-The projects (defined as `/projects` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
-repository) and their Assets are licensed under [CC BY-SA 4.0](./LICENSE_CC4-BY-SA.txt)
-license.
+The owner of the GNU GPL 3 licensed code is the Artificial-Engineering project,
+though the legal entity as of today has to be a human person ([@cookiengineer](https://github.com/cookiengineer))
+under European law and the [Directive 2006/116/EC](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:372:0012:0018:EN:PDF) (p.14 and Art. 1 p.4).
 
-The lychee.js Runtimes (defined as [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git)
-repository) are owned and copyrighted by their respective owners and those
-may be shipped under a different license.
+Hereby [@cookiengineer](https://github.com/cookiengineer) grants you permission
+to reuse the generated code by the Artificial Intelligence under above terms.
+
+You are not allowed to change those terms without [@cookiengineer](https://github.com/cookiengineer)'s
+consent.
 

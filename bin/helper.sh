@@ -7,7 +7,11 @@ lowercase() {
 OS=`lowercase \`uname\``;
 ARCH=`lowercase \`uname -m\``;
 
-LYCHEEJS_ROOT="/opt/lycheejs";
+# XXX: Allow /tmp/lycheejs usage
+if [ -z "$LYCHEEJS_ROOT" ]; then
+	LYCHEEJS_ROOT="/opt/lycheejs";
+fi;
+
 CHILD_PID="";
 
 
@@ -27,17 +31,14 @@ fi;
 if [ "$OS" == "darwin" ]; then
 
 	OS="osx";
-	LYCHEEJS_ROOT=$(cd "$(dirname "$(greadlink -f "$0")")/../"; pwd);
 
 elif [ "$OS" == "linux" ]; then
 
 	OS="linux";
-	LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
 
 elif [ "$OS" == "freebsd" ] || [ "$OS" == "netbsd" ]; then
 
 	OS="bsd";
-	LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
 
 fi;
 
@@ -45,57 +46,66 @@ fi;
 
 _print_help() {
 
-	# XXX: BSD variants use Linux binary compatibility mode
-
-	echo "                                                                ";
+	echo "                                                                 ";
 	echo -e "\u001b[37m\u001b[42mlychee.js Helper\u001b[49m\u001b[39m";
-	echo "                                                                ";
-	echo " Usage: lycheejs-helper [lycheejs://Action]                     ";
-	echo "        lycheejs-helper [env:Platform]                          ";
-	echo "        lycheejs-helper [which:Platform]                        ";
-	echo "        lycheejs-helper [Action] [Library/Project]              ";
-	echo "                                                                ";
-	echo "                                                                ";
-	echo " Available Actions:                                             ";
-	echo "                                                                ";
-	echo "    boot=[Profile]                                              ";
-	echo "    profile=[Profile]?data=[base64]                             ";
-	echo "    unboot                                                      ";
-	echo "                                                                ";
-	echo "    start=[Library/Project]                                     ";
-	echo "    stop=[Library/Project]                                      ";
-	echo "    file=[Library/Project]                                      ";
-	echo "    edit=[Library/Project]                                      ";
-	echo "                                                                ";
-	echo "    cmd=[Command]?data=[JSON]                                   ";
-	echo "    web=[URL]                                                   ";
-	echo "                                                                ";
-	echo "                                                                ";
-	echo " Available Platforms:                                           ";
-	echo "                                                                ";
-	echo "    html, html-nwjs, node, node-sdl                             ";
-	echo "                                                                ";
-	echo " Examples:                                                      ";
-	echo "                                                                ";
-	echo "    lycheejs-helper lycheejs://start=/projects/boilerplate      ";
-	echo "    lycheejs-helper lycheejs://cmd=lycheejs-ranger              ";
-	echo "    lycheejs-helper lycheejs://profile=production?data=[base64] ";
-	echo "    lycheejs-helper lycheejs://web=https://lychee.js.org        ";
-	echo "                                                                ";
-	echo "    lycheejs-helper env:node /path/to/file.js                   ";
-	echo "    lycheejs-helper env:html-nwjs /path/to/file.html            ";
-	echo "                                                                ";
-	echo "    lycheejs-helper start /projects/boilerplate                 ";
-	echo "    lycheejs-helper edit /projects/boilerplate                  ";
-	echo "    lycheejs-helper web https://lychee.js.org                   ";
-	echo "                                                                ";
-	echo " Notes:                                                         ";
-	echo "                                                                ";
-	echo " The [JSON] data is encoded as base64 only.                     ";
-	echo "                                                                ";
-	echo " The \"env:\" can be used as a Shebang in shell scripts:        ";
-	echo " #!/usr/local/bin/lycheejs-helper env:node                      ";
-	echo "                                                                ";
+	echo "                                                                 ";
+	echo " Usage: lycheejs-helper [lycheejs://Action=Library/Project]      ";
+	echo "        lycheejs-helper [Action] [Library/Project]               ";
+	echo "        lycheejs-helper [Helper:Platform] [Library/Project]      ";
+	echo "                                                                 ";
+	echo " Notes:                                                          ";
+	echo "                                                                 ";
+	echo "     The [JSON] data is encoded as base64 only.                  ";
+	echo "                                                                 ";
+	echo "     The \"env:\" can be used as a Shebang in shell scripts:     ";
+	echo "     #!/usr/local/bin/lycheejs-helper env:node                   ";
+	echo "                                                                 ";
+	echo " Platforms:                                                      ";
+	echo "                                                                 ";
+	echo "    html, html-nwjs, node, node-sdl                              ";
+	echo "                                                                 ";
+	echo "                                                                 ";
+	echo "                                                                 ";
+	echo " Available Actions:                                              ";
+	echo "                                                                 ";
+	echo "    boot=[Profile]                                               ";
+	echo "    profile=[Profile]?data=[base64]                              ";
+	echo "    unboot                                                       ";
+	echo "                                                                 ";
+	echo "    start=[Library/Project]                                      ";
+	echo "    stop=[Library/Project]                                       ";
+	echo "    file=[Library/Project]                                       ";
+	echo "    edit=[Library/Project]                                       ";
+	echo "                                                                 ";
+	echo "    cmd=[Command]?data=[JSON]                                    ";
+	echo "    web=[URL]                                                    ";
+	echo "                                                                 ";
+	echo " Examples:                                                       ";
+	echo "                                                                 ";
+	echo "    lycheejs-helper lycheejs://start=/projects/boilerplate       ";
+	echo "    lycheejs-helper lycheejs://cmd=lycheejs-ranger               ";
+	echo "    lycheejs-helper lycheejs://profile=production?data=[base64]  ";
+	echo "    lycheejs-helper lycheejs://web=https://lychee.js.org         ";
+	echo "                                                                 ";
+	echo "    lycheejs-helper start /projects/boilerplate                  ";
+	echo "    lycheejs-helper edit /projects/boilerplate                   ";
+	echo "    lycheejs-helper web https://lychee.js.org                    ";
+	echo "                                                                 ";
+	echo "                                                                 ";
+	echo "                                                                 ";
+	echo " Available Helpers:                                              ";
+	echo "                                                                 ";
+	echo "    env:Platform                executes runtime env             ";
+	echo "    which:Platform              returns runtime path             ";
+	echo "    run:Platform/Identifier     executes fertilized runtime env  ";
+	echo "                                                                 ";
+	echo " Examples:                                                       ";
+	echo "                                                                 ";
+	echo "    lycheejs-helper env:node /path/to/file.js                    ";
+	echo "    lycheejs-helper env:html /path/to/file.html                  ";
+	echo "                                                                 ";
+	echo "    lycheejs-helper run:html-nwjs/main /libraries/ranger         ";
+	echo "                                                                 ";
 
 }
 
@@ -135,52 +145,78 @@ _handle_action () {
 
 		boot)
 
-			cd $LYCHEEJS_ROOT;
+			if [ "$resource" != "" ]; then
 
-			./bin/harvester.sh stop 2>&1;
-			./bin/harvester.sh start "$resource" 2>&1;
-			exit 0;
+				cd $LYCHEEJS_ROOT;
+				./libraries/harvester/bin/harvester.sh stop 2>&1;
+				./libraries/harvester/bin/harvester.sh start "$resource" 2>&1;
+				exit 0;
+
+			else
+				exit 1;
+			fi;
 
 		;;
 
 		profile)
 
-			cd $LYCHEEJS_ROOT;
+			if [ "$resource" != "" ]; then
 
-			_put_api_profile "$resource" "save" "$data";
+				cd $LYCHEEJS_ROOT;
+				_put_api_profile "$resource" "save" "$data";
+
+			fi;
 
 		;;
 
 		unboot)
 
 			cd $LYCHEEJS_ROOT;
-
-			./bin/harvester.sh stop 2>&1;
+			./libraries/harvester/bin/harvester.sh stop 2>&1;
 			exit 0;
 
 		;;
 
 		start)
 
-			_put_api_project "$resource" "start";
-			exit 0;
+			if [ "$resource" != "" ]; then
+
+				cd $LYCHEEJS_ROOT;
+				_put_api_project "$resource" "start";
+
+			fi;
 
 		;;
 
 		stop)
 
-			_put_api_project "$resource" "stop";
-			exit 0;
+			if [ "$resource" != "" ]; then
+
+				cd $LYCHEEJS_ROOT;
+				_put_api_project "$resource" "stop";
+
+			fi;
 
 		;;
 
 		edit)
 
-			if [ -f ./bin/editor.sh ]; then
+			studio=`which lycheejs-studio 2> /dev/null`;
+
+			if [ "$studio" == "" ]; then
+				studio="$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh";
+			fi;
+
+			if [ -f "$studio" ]; then
 
 				if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
-					./bin/editor.sh "$resource" 2>&1;
+
+					cd $LYCHEEJS_ROOT;
+					"$studio" "$resource" 2>&1;
 					exit 0;
+
+				else
+					exit 1;
 				fi;
 
 			fi;
@@ -189,16 +225,24 @@ _handle_action () {
 
 		file)
 
-			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+			if [ "$resource" != "" ]; then
 
-				xdg-open "file://$LYCHEEJS_ROOT/$resource" 2>&1;
-				exit 0;
+				if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
-			elif [ "$OS" == "osx" ]; then
+					xdg-open "file://$LYCHEEJS_ROOT$resource" 2>&1;
+					exit 0;
 
-				open "file://$LYCHEEJS_ROOT/$resource" 2>&1;
-				exit 0;
+				elif [ "$OS" == "osx" ]; then
 
+					open "file://$LYCHEEJS_ROOT$resource" 2>&1;
+					exit 0;
+
+				else
+					exit 1;
+				fi;
+
+			else
+				exit 1;
 			fi;
 
 		;;
@@ -236,9 +280,11 @@ _handle_action () {
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
-				chrome1=`which google-chrome`;
-				chrome2=`which chromium-browser`;
-				chrome3=`which chrome`;
+				# XXX: Privacy First
+				chrome1=`which inox 2> /dev/null`;
+				chrome2=`which chromium-browser 2> /dev/null`;
+				chrome3=`which google-chrome 2> /dev/null`;
+				chrome4=`which chrome 2> /dev/null`;
 
 				if [ -x "$chrome1" ]; then
 					"$chrome1" "$clean_resource";
@@ -246,6 +292,8 @@ _handle_action () {
 					"$chrome2" "$clean_resource";
 				elif [ -x "$chrome3" ]; then
 					"$chrome3" "$clean_resource";
+				elif [ -x "$chrome4" ]; then
+					"$chrome4" "$clean_resource";
 				else
 					xdg-open "$clean_resource" 2>&1;
 				fi;
@@ -278,9 +326,14 @@ _put_api_project () {
 	apiurl="http://localhost:4848/api/project/$2";
 
 	result=$(curl --silent -H "Content-Type: application/json" -X POST -d "$data" $apiurl 2>&1);
-    echo "";
-	echo "$result";
-    echo "";
+
+	if [ "$result" != "" ]; then
+		echo "";
+		echo "$result";
+		echo "";
+	else
+		exit 1;
+	fi;
 
 }
 
@@ -290,9 +343,14 @@ _put_api_profile () {
 	apiurl="http://localhost:4848/api/profile/$2";
 
 	result=$(curl --silent -H "Content-Type: application/json" -X POST -d "$data" $apiurl 2>&1);
-    echo "";
-	echo "$result";
-    echo "";
+
+	if [ "$result" != "" ]; then
+		echo "";
+		echo "$result";
+		echo "";
+	else
+		exit 1;
+	fi;
 
 }
 
@@ -352,11 +410,13 @@ elif [ "$protocol" == "env" ]; then
 
 		if [ "$platform" == "html" ]; then
 
-			if [ "$OS" == "linux" ]; then
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
-				chrome1=`which google-chrome`;
-				chrome2=`which chromium-browser`;
-				chrome3=`which chrome`;
+				# XXX: Privacy First
+				chrome1=`which inox 2> /dev/null`;
+				chrome2=`which chromium-browser 2> /dev/null`;
+				chrome3=`which google-chrome 2> /dev/null`;
+				chrome4=`which chrome 2> /dev/null`;
 
 				if [ -x "$chrome1" ]; then
 					"$chrome1" "$program";
@@ -364,6 +424,8 @@ elif [ "$protocol" == "env" ]; then
 					"$chrome2" "$program";
 				elif [ -x "$chrome3" ]; then
 					"$chrome3" "$program";
+				elif [ -x "$chrome4" ]; then
+					"$chrome4" "$program";
 				else
 					xdg-open "$program" 2>&1;
 				fi;
@@ -385,7 +447,7 @@ elif [ "$protocol" == "env" ]; then
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw $program $arg1 $arg2 $arg3;
 			elif [ "$OS" == "osx" ]; then
-				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nw $program $arg1 $arg2 $arg3;
+				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3;
 			fi;
 
 		elif [ "$platform" == "node" ]; then
@@ -406,10 +468,294 @@ elif [ "$protocol" == "env" ]; then
 
 		fi;
 
+	else
+
+		if [ "$platform" == "html" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+
+				# XXX: Privacy First
+				chrome1=`which inox 2> /dev/null`;
+				chrome2=`which chromium-browser 2> /dev/null`;
+				chrome3=`which google-chrome 2> /dev/null`;
+				chrome4=`which chrome 2> /dev/null`;
+				x_www=`which x-www-browser 2> /dev/null`;
+
+				if [ -x "$chrome1" ]; then
+					"$chrome1";
+				elif [ -x "$chrome2" ]; then
+					"$chrome2";
+				elif [ -x "$chrome3" ]; then
+					"$chrome3";
+				elif [ -x "$chrome4" ]; then
+					"$chrome4";
+				elif [ -x "$x_www" != "" ]; then
+					"$x_www";
+				fi;
+
+			elif [ "$OS" == "osx" ]; then
+
+				chrome1="/Applications/Google Chrome.app";
+
+				if [ -d "$chrome1" ]; then
+					open -a "$chrome1";
+				fi;
+
+			fi;
+
+		elif [ "$platform" == "html-nwjs" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
+			elif [ "$OS" == "osx" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
+			fi;
+
+		elif [ "$platform" == "node" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node;
+			elif [ "$OS" == "osx" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node;
+			fi;
+
+		elif [ "$platform" == "node-sdl" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node;
+			elif [ "$OS" == "osx" ]; then
+				$LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node;
+			fi;
+
+		fi;
+
 	fi;
 
 
 	exit 0;
+
+elif [ "$protocol" == "run" ]; then
+
+	platform=$(echo $content | cut -d":" -f 2 | cut -d"/" -f 1);
+	identifier=$(echo $content | cut -d":" -f 2 | cut -d"/" -f 2);
+	resource="$2";
+	arg1=$3;
+	arg2=$4;
+	arg3=$5;
+
+	if [ "$resource" != "" ] && [ -d "$LYCHEEJS_ROOT$resource/build" ]; then
+
+		build="$LYCHEEJS_ROOT$resource/build";
+		name=$(echo $resource | cut -d"/" -f 3);
+
+
+		if [ "$platform" == "html" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+
+				if [ -d "$build/html/$identifier" ]; then
+
+					program="$build/html/$identifier/index.html";
+
+					if [ -f "$program" ]; then
+
+						# XXX: Privacy First
+						chrome1=`which inox 2> /dev/null`;
+						chrome2=`which chromium-browser 2> /dev/null`;
+						chrome3=`which google-chrome 2> /dev/null`;
+						chrome4=`which chrome 2> /dev/null`;
+
+						if [ -x "$chrome1" ]; then
+							"$chrome1" "$program";
+						elif [ -x "$chrome2" ]; then
+							"$chrome2" "$program";
+						elif [ -x "$chrome3" ]; then
+							"$chrome3" "$program";
+						elif [ -x "$chrome4" ]; then
+							"$chrome4" "$program";
+						else
+							xdg-open "$program" 2>&1;
+						fi;
+
+					else
+						exit 1;
+					fi;
+
+				else
+					exit 1;
+				fi;
+
+			elif [ "$OS" == "osx" ]; then
+
+				if [ -d "$build/html/$identifier" ]; then
+
+					program="$build/html/$identifier/index.html";
+
+					if [ -f "$program" ]; then
+
+						chrome1="/Applications/Google Chrome.app";
+
+						if [ -x "$chrome1" ]; then
+							open -a "$chrome1" "$program";
+						else
+							open "$program" 2>&1;
+						fi;
+
+					fi;
+
+				else
+					exit 1;
+				fi;
+
+			fi;
+
+		elif [ "$platform" == "html-nwjs" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+
+				if [ -d "$build/html-nwjs/$identifier" ]; then
+
+					program="$build/html-nwjs/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/html-nwjs/$identifier-linux/$ARCH" ]; then
+
+					program="$build/html-nwjs/$identifier-linux/$ARCH/$name.bin";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						_start_env $program $arg1 $arg2 $arg3;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			elif [ "$OS" == "osx" ]; then
+
+				if [ -d "$build/html-nwjs/$identifier" ]; then
+
+					program="$build/html-nwjs/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/html-nwjs/$identifier-osx/$ARCH" ]; then
+
+					program="$build/html-nwjs/$identifier-osx/$ARCH/$name.app";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						open $program $arg1 $arg2 $arg3 2>&1;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			fi;
+
+		elif [ "$platform" == "html-webview" ]; then
+
+			# XXX: Impossible to implement right now
+			# requires emulator binaries for all platform
+			# which is too much bloat
+
+			echo "Sorry, lychee.js ships no mobile emulators due to bloat size :(";
+
+			exit 1;
+
+		elif [ "$platform" == "node" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+
+				if [ -d "$build/node/$identifier" ]; then
+
+					program="$build/node/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/node/$identifier-linux/$ARCH" ]; then
+
+					program="$build/node/$identifier-linux/$ARCH/$name.sh";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						_start_env $program $arg1 $arg2 $arg3;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			elif [ "$OS" == "osx" ]; then
+
+				if [ -d "$build/node/$identifier" ]; then
+
+					program="$build/node/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/node/$identifier-osx/$ARCH" ]; then
+
+					program="$build/node/$identifier-osx/$ARCH/$name.sh";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						_start_env $program $arg1 $arg2 $arg3;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			fi;
+
+		elif [ "$platform" == "node-sdl" ]; then
+
+			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
+
+				if [ -d "$build/node-sdl/$identifier" ]; then
+
+					program="$build/node-sdl/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/node-sdl/$identifier-linux/$ARCH" ]; then
+
+					program="$build/node-sdl/$identifier-linux/$ARCH/$name.sh";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						_start_env $program $arg1 $arg2 $arg3;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			elif [ "$OS" == "osx" ]; then
+
+				if [ -d "$build/node-sdl/$identifier" ]; then
+
+					program="$build/node-sdl/$identifier";
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node $program $arg1 $arg2 $arg3;
+
+				elif [ -d "$build/node-sdl/$identifier-osx/$ARCH" ]; then
+
+					program="$build/node-sdl/$identifier-osx/$ARCH/$name.sh";
+
+					if [ -f $program ]; then
+						chmod +x $program;
+						_start_env $program $arg1 $arg2 $arg3;
+					else
+						exit 1;
+					fi;
+
+				fi;
+
+			fi;
+
+		fi;
+
+	else
+		exit 1;
+	fi;
 
 elif [ "$protocol" == "which" ]; then
 
@@ -420,10 +766,12 @@ elif [ "$protocol" == "which" ]; then
 
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
-			chrome1=`which google-chrome`;
-			chrome2=`which chromium-browser`;
-			chrome3=`which chrome`;
-			x_www=`which x-www-browser`;
+			# XXX: Privacy First
+			chrome1=`which inox 2> /dev/null`;
+			chrome2=`which chromium-browser 2> /dev/null`;
+			chrome3=`which google-chrome 2> /dev/null`;
+			chrome4=`which chrome 2> /dev/null`;
+			x_www=`which x-www-browser 2> /dev/null`;
 
 			if [ -x "$chrome1" ]; then
 				echo "$chrome1";
@@ -431,6 +779,8 @@ elif [ "$protocol" == "which" ]; then
 				echo "$chrome2";
 			elif [ -x "$chrome3" ]; then
 				echo "$chrome3";
+			elif [ -x "$chrome4" ]; then
+				echo "$chrome4";
 			elif [ "$x_www" != "" ]; then
 				echo "$(readlink -f "$x_www")";
 			fi;
@@ -454,7 +804,7 @@ elif [ "$protocol" == "which" ]; then
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
 		elif [ "$OS" == "osx" ]; then
-			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nw;
+			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
 		fi;
 
 	elif [ "$platform" == "node" ]; then

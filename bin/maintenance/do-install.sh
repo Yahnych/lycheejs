@@ -14,6 +14,12 @@ LYCHEEJS_NODE="";
 LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
 LYCHEEJS_VERSION=$(cd $LYCHEEJS_ROOT && cat ./libraries/lychee/source/core/lychee.js | grep VERSION | cut -d\" -f2);
 
+ALWAYS_YES="false";
+
+if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
+	ALWAYS_YES="true";
+fi;
+
 
 
 _install() {
@@ -48,14 +54,14 @@ fi;
 
 
 
-if [[ "$USER_WHO" != "root" ]]; then
+if [ "$USER_WHO" != "root" ]; then
 
 	echo "You are not root.";
 	echo "Use \"sudo $0\".";
 
 	exit 1;
 
-elif [[ "$USER_WHO" == "root" && "$USER_LOG" == "root" ]]; then
+elif [ "$OS" == "osx" ] && [ "$USER_WHO" == "root" ] && [ "$USER_LOG" == "root" ]; then
 
 	echo "You are root.";
 	echo "Please exit su shell and use \"sudo $0\".";
@@ -64,32 +70,41 @@ elif [[ "$USER_WHO" == "root" && "$USER_LOG" == "root" ]]; then
 
 else
 
-	echo "";
-	echo "lychee.js Install Tool";
-	echo "";
-	echo "All your data are belong to us.";
-	echo "This tool integrates lychee.js with the operating system.";
-	echo "";
-	echo "No projects are harmed or modified, so after executing this script";
-	echo "your lychee.js installation is still available in sandboxed mode.";
-	echo "";
-	echo "Please select the installation channel:";
-	echo "";
-	echo "1) minimal + optional dependencies";
-	echo "   Required for mobile device support.";
-	echo "";
-	echo "2) minimal dependencies";
-	echo "   No mobile device support.";
-	echo "";
+	if [ "$ALWAYS_YES" == "true" ]; then
 
-	read -p "Continue (1/2)? " -r
-
-	if [[ $REPLY =~ ^[1]$ ]]; then
-		SELECTION="optional";
-	elif [[ $REPLY =~ ^[2]$ ]]; then
 		SELECTION="required";
+
 	else
-		exit 1;
+
+		echo "";
+		echo -e "\e[37m\e[42m lychee.js Install Tool \e[0m";
+		echo "";
+		echo " All your data are belong to us.                           ";
+		echo " This tool integrates lychee.js with the operating system. ";
+		echo "                                                           ";
+		echo " No projects are harmed or modified by executing this      ";
+		echo " script. This will only update all software packages.      ";
+		echo "                                                           ";
+		echo " Please select the installation channel:                   ";
+		echo "                                                           ";
+		echo " 1) minimal + optional dependencies                        ";
+		echo "    Required for mobile device support.                    ";
+		echo "                                                           ";
+		echo " 2) minimal dependencies                                   ";
+		echo "    No mobile device support.                              ";
+		echo "                                                           ";
+
+
+		read -p "Continue (1/2)? " -r
+
+		if [[ $REPLY =~ ^[1]$ ]]; then
+			SELECTION="optional";
+		elif [[ $REPLY =~ ^[2]$ ]]; then
+			SELECTION="required";
+		else
+			exit 1;
+		fi;
+
 	fi;
 
 
@@ -119,7 +134,8 @@ else
 
 		# Arch
 		elif [[ -x "/usr/bin/pacman" ]]; then
-			REQUIRED_LIST="bash binutils arm-none-eabi-binutils coreutils libicns sed zip unzip tar curl git";
+			# XXX: libicns package not available (only AUR)
+			REQUIRED_LIST="bash binutils arm-none-eabi-binutils coreutils sed zip unzip tar curl git";
 			REQUIRED_CMD="pacman -S --noconfirm --needed $REQUIRED_LIST";
 			OPTIONAL_LIST="lib32-glibc lib32-libstdc++5 lib32-ncurses lib32-zlib";
 			OPTIONAL_CMD="pacman -S --noconfirm --needed $OPTIONAL_LIST";
@@ -208,14 +224,17 @@ else
 			echo "";
 
 
-			cp ./bin/helper/linux/editor.desktop /usr/share/applications/lycheejs-editor.desktop;
-			cp ./bin/helper/linux/helper.desktop /usr/share/applications/lycheejs-helper.desktop;
-			cp ./bin/helper/linux/ranger.desktop /usr/share/applications/lycheejs-ranger.desktop;
 			cp ./bin/helper/linux/lycheejs.svg /usr/share/icons/lycheejs.svg;
-
-			sed -i 's|__ROOT__|'$LYCHEEJS_ROOT'|g' "/usr/share/applications/lycheejs-editor.desktop";
+			cp ./bin/helper/linux/helper.desktop /usr/share/applications/lycheejs-helper.desktop;
 			sed -i 's|__ROOT__|'$LYCHEEJS_ROOT'|g' "/usr/share/applications/lycheejs-helper.desktop";
-			sed -i 's|__ROOT__|'$LYCHEEJS_ROOT'|g' "/usr/share/applications/lycheejs-ranger.desktop";
+
+			cp "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.desktop" /usr/share/applications/lycheejs-ranger.desktop;
+			ranger_root="$LYCHEEJS_ROOT/libraries/ranger";
+			sed -i 's|__ROOT__|'$ranger_root'|g' /usr/share/applications/lycheejs-ranger.desktop;
+
+			cp "$LYCHEEJS_ROOT/libraries/studio/bin/studio.desktop" /usr/share/applications/lycheejs-studio.desktop;
+			studio_root="$LYCHEEJS_ROOT/libraries/studio";
+			sed -i 's|__ROOT__|'$studio_root'|g' /usr/share/applications/lycheejs-studio.desktop;
 
 
 			update_desktop=`which update-desktop-database`;
@@ -243,21 +262,21 @@ else
 			echo "";
 
 
-			rm /usr/local/bin/lycheejs-breeder 2> /dev/null;
-			rm /usr/local/bin/lycheejs-editor 2> /dev/null;
+			rm /usr/local/bin/lycheejs-breeder    2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer 2> /dev/null;
-			rm /usr/local/bin/lycheejs-harvester 2> /dev/null;
-			rm /usr/local/bin/lycheejs-helper 2> /dev/null;
-			rm /usr/local/bin/lycheejs-ranger 2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer 2> /dev/null;
+			rm /usr/local/bin/lycheejs-harvester  2> /dev/null;
+			rm /usr/local/bin/lycheejs-helper     2> /dev/null;
+			rm /usr/local/bin/lycheejs-ranger     2> /dev/null;
+			rm /usr/local/bin/lycheejs-strainer   2> /dev/null;
+			rm /usr/local/bin/lycheejs-studio     2> /dev/null;
 
-			ln -s "$LYCHEEJS_ROOT/bin/breeder.sh" /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/bin/editor.sh" /usr/local/bin/lycheejs-editor;
-			ln -s "$LYCHEEJS_ROOT/bin/fertilizer.sh" /usr/local/bin/lycheejs-fertilizer;
-			ln -s "$LYCHEEJS_ROOT/bin/harvester.sh" /usr/local/bin/lycheejs-harvester;
-			ln -s "$LYCHEEJS_ROOT/bin/helper.sh" /usr/local/bin/lycheejs-helper;
-			ln -s "$LYCHEEJS_ROOT/bin/ranger.sh" /usr/local/bin/lycheejs-ranger;
-			ln -s "$LYCHEEJS_ROOT/bin/strainer.sh" /usr/local/bin/lycheejs-strainer;
+			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                          /usr/local/bin/lycheejs-helper;
+			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"       /usr/local/bin/lycheejs-breeder;
+			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh" /usr/local/bin/lycheejs-fertilizer;
+			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"   /usr/local/bin/lycheejs-harvester;
+			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"         /usr/local/bin/lycheejs-ranger;
+			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh"     /usr/local/bin/lycheejs-strainer;
+			ln -s "$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh"         /usr/local/bin/lycheejs-studio;
 
 
 			echo "> DONE";
@@ -293,21 +312,21 @@ else
 			fi;
 
 
-			rm /usr/local/bin/lycheejs-breeder 2> /dev/null;
-			rm /usr/local/bin/lycheejs-editor 2> /dev/null;
+			rm /usr/local/bin/lycheejs-breeder    2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer 2> /dev/null;
-			rm /usr/local/bin/lycheejs-harvester 2> /dev/null;
-			rm /usr/local/bin/lycheejs-helper 2> /dev/null;
-			rm /usr/local/bin/lycheejs-ranger 2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer 2> /dev/null;
+			rm /usr/local/bin/lycheejs-harvester  2> /dev/null;
+			rm /usr/local/bin/lycheejs-helper     2> /dev/null;
+			rm /usr/local/bin/lycheejs-ranger     2> /dev/null;
+			rm /usr/local/bin/lycheejs-strainer   2> /dev/null;
+			rm /usr/local/bin/lycheejs-studio     2> /dev/null;
 
-			ln -s "$LYCHEEJS_ROOT/bin/breeder.sh" /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/bin/editor.sh" /usr/local/bin/lycheejs-editor;
-			ln -s "$LYCHEEJS_ROOT/bin/fertilizer.sh" /usr/local/bin/lycheejs-fertilizer;
-			ln -s "$LYCHEEJS_ROOT/bin/harvester.sh" /usr/local/bin/lycheejs-harvester;
-			ln -s "$LYCHEEJS_ROOT/bin/helper.sh" /usr/local/bin/lycheejs-helper;
-			ln -s "$LYCHEEJS_ROOT/bin/ranger.sh" /usr/local/bin/lycheejs-ranger;
-			ln -s "$LYCHEEJS_ROOT/bin/strainer.sh" /usr/local/bin/lycheejs-strainer;
+			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                          /usr/local/bin/lycheejs-helper;
+			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"       /usr/local/bin/lycheejs-breeder;
+			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh" /usr/local/bin/lycheejs-fertilizer;
+			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"   /usr/local/bin/lycheejs-harvester;
+			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"         /usr/local/bin/lycheejs-ranger;
+			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh"     /usr/local/bin/lycheejs-strainer;
+			ln -s "$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh"         /usr/local/bin/lycheejs-studio;
 
 
 			echo "> DONE";

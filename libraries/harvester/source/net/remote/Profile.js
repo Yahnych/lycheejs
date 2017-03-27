@@ -9,7 +9,7 @@ lychee.define('harvester.net.remote.Profile').requires([
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Service    = lychee.import('lychee.net.Service');
 	const _CACHE      = {};
-	const _FILESYSTEM = new _Filesystem('/bin/harvester');
+	const _FILESYSTEM = new _Filesystem('/libraries/harvester/profiles');
 	const _JSON       = lychee.import('lychee.codec.JSON');
 
 
@@ -155,12 +155,7 @@ lychee.define('harvester.net.remote.Profile').requires([
 			let tunnel = this.tunnel;
 			if (tunnel !== null) {
 
-				let profiles = Object.values(_CACHE).filter(function(profile) {
-					return /cultivator/g.test(profile.identifier) === false;
-				}).map(_serialize);
-
-
-				tunnel.send(profiles, {
+				tunnel.send(Object.values(_CACHE).map(_serialize), {
 					id:    this.id,
 					event: 'sync'
 				});

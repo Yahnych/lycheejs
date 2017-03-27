@@ -18,7 +18,7 @@ if [ "$USER_WHO" == "root" ]; then
 
 	exit 1;
 
-elif [[ "$USER_WHO" == "root" && "$USER_LOG" == "root" ]]; then
+elif [ "$OS" == "osx" ] && [ "$USER_WHO" == "root" ] && [ "$USER_LOG" == "root" ]; then
 
 	echo "You are root.";
 	echo "Please exit su shell and use \"$0\" without sudo.";
@@ -28,25 +28,25 @@ elif [[ "$USER_WHO" == "root" && "$USER_LOG" == "root" ]]; then
 elif [ "$LYCHEEJS_CHANGE" == "" ]; then
 
 	echo "";
-	echo "lychee.js Update Tool";
+	echo -e "\e[37m\e[42m lychee.js Update Tool \e[0m";
 	echo "";
-	echo "All your data are belong to us.";
-	echo "This tool updates your lychee.js installation.";
-	echo "";
-	echo "";
-	echo "Please select the update channel:";
-	echo "";
-	echo "Note that our software bots work on and improve";
-	echo "the development branch in a minutely cycle.";
-	echo "";
-	echo "1) development branch";
-	echo "   Recommended default setup, more unstable,";
-	echo "   more improvements in shorter time spans.";
-	echo "";
-	echo "2) master branch";
-	echo "   Quaterly release cycles, more stable,";
-	echo "   long latencies until bug fixes arrive.";
-	echo "";
+	echo " All your data are belong to us.                ";
+	echo " This tool updates your lychee.js installation. ";
+	echo "                                                ";
+	echo "                                                ";
+	echo " Please select the update channel:              ";
+	echo "                                                ";
+	echo " Our software bots work on and improve the      ";
+	echo " development branch in a quarter-hourly cycle.  ";
+	echo "                                                ";
+	echo " 1) development branch                          ";
+	echo "    Recommended default setup, more unstable,   ";
+	echo "    more improvements in shorter time spans.    ";
+	echo "                                                ";
+	echo " 2) master branch                               ";
+	echo "    Quarterly release cycles, more stable,      ";
+	echo "    long latencies until bug fixes arrive.      ";
+	echo "                                                ";
 
 	read -p "Continue (1/2)? " -r
 
@@ -99,10 +99,12 @@ elif [ "$LYCHEEJS_CHANGE" == "" ]; then
 else
 
 	echo "";
-	echo "lychee.js Update Tool";
+	echo -e "\e[37m\e[42m lychee.js Update Tool \e[0m";
 	echo "";
-	echo "Cannot update lychee.js if you have local changes.";
-	echo "Please commit changes to prevent merge conflicts.";
+	echo -e "\e[37m\e[41m Cannot update if git has local changes. Please \e[0m";
+	echo -e "\e[37m\e[41m commit everything to prevent merge conflicts.  \e[0m";
+	echo "                                                ";
+
 	exit 1;
 
 fi;
