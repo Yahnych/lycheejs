@@ -162,7 +162,12 @@ lychee.define('lychee.ai.Agent').exports(function(lychee, global, attachments) {
 				this.trainings.push(training);
 				_train_brain.call(this);
 
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
@@ -181,13 +186,21 @@ lychee.define('lychee.ai.Agent').exports(function(lychee, global, attachments) {
 				this.trainings.push(training);
 				_train_brain.call(this);
 
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
 		setAlive: function(alive) {
 
-			if (alive === true || alive === false) {
+			alive = typeof alive === 'boolean' ? alive : null;
+
+
+			if (alive !== null) {
 
 				this.alive = alive;
 

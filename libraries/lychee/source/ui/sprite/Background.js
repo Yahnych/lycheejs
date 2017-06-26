@@ -41,7 +41,7 @@ lychee.define('lychee.ui.sprite.Background').includes([
 
 
 		let texture = this.texture;
-		let map     = this.getMap();
+		let map     = this.__map[this.state][this.frame] || null;
 		if (texture !== null && map !== null) {
 
 			if (map.w !== 0 && map.h !== 0 && (map.w <= this.width || map.h <= this.height)) {
@@ -254,7 +254,8 @@ lychee.define('lychee.ui.sprite.Background').includes([
 				this.origin.x = typeof origin.x === 'number' ? origin.x : this.origin.x;
 				this.origin.y = typeof origin.y === 'number' ? origin.y : this.origin.y;
 
-				let map = this.getMap();
+
+				let map = this.__map[this.state][this.frame] || null;
 				if (map !== null) {
 					this.origin.x %= map.w;
 					this.origin.y %= map.h;

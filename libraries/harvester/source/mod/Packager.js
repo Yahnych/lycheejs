@@ -1,15 +1,81 @@
 
 lychee.define('harvester.mod.Packager').requires([
-	'harvester.data.Package'
+	'harvester.data.Package',
+	'harvester.data.Project'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Package = lychee.import('harvester.data.Package');
+	const _Project = lychee.import('harvester.data.Project');
 
 
 
 	/*
 	 * HELPERS
 	 */
+
+	const _get_reasons = function(aobject, bobject, reasons, path) {
+
+		path = typeof path === 'string' ? path : '';
+
+
+		let akeys = Object.keys(aobject);
+		let bkeys = Object.keys(bobject);
+
+		if (akeys.length !== bkeys.length) {
+
+			for (let a = 0, al = akeys.length; a < al; a++) {
+
+				let aval = akeys[a];
+				let bval = bkeys.find(function(val) {
+					return val === aval;
+				});
+
+				if (bval === undefined) {
+					reasons.push(path + '/' + aval);
+				}
+
+			}
+
+			for (let b = 0, bl = bkeys.length; b < bl; b++) {
+
+				let bval = bkeys[b];
+				let aval = akeys.find(function(val) {
+					return val === bval;
+				});
+
+				if (aval === undefined) {
+					reasons.push(path + '/' + bval);
+				}
+
+			}
+
+		} else {
+
+			for (let a = 0, al = akeys.length; a < al; a++) {
+
+				let key = akeys[a];
+
+				if (bobject[key] !== undefined) {
+
+					if (aobject[key] !== null && bobject[key] !== null) {
+
+						if (aobject[key] instanceof Object && bobject[key] instanceof Object) {
+							_get_reasons(aobject[key], bobject[key], reasons, path + '/' + key);
+						} else if (typeof aobject[key] !== typeof bobject[key]) {
+							reasons.push(path + '/' + key);
+						}
+
+					}
+
+				} else {
+					reasons.push(path + '/' + key);
+				}
+
+			}
+
+		}
+
+	};
 
 	const _serialize = function(project) {
 
@@ -53,6 +119,9 @@ lychee.define('harvester.mod.Packager').requires([
 		json.build.files  = _sort_recursive(json.build.files);
 		json.source.files = _sort_recursive(json.source.files);
 
+		json.build.tags   = _walk_tags(json.build.files);
+		json.source.tags  = _walk_tags(json.source.files);
+
 
 		return {
 			api:    json.api,
@@ -84,6 +153,24 @@ lychee.define('harvester.mod.Packager').requires([
 
 	};
 
+	const _walk_tags = function(files) {
+
+		let tags = {};
+
+		if (files.platform instanceof Object) {
+
+			tags.platform = {};
+
+			for (let id in files.platform) {
+				tags.platform[id] = 'platform/' + id;
+			}
+
+		}
+
+		return tags;
+
+	};
+
 	const _walk_directory = function(pointer, path) {
 
 		let that = this;
@@ -100,12 +187,12 @@ lychee.define('harvester.mod.Packager').requires([
 				// Music and Sound asset have a trailing mp3 or ogg
 				// extension which is dynamically chosen at runtime
 				let ext = attachment.split('.').pop();
-				if (/mp3|ogg/.test(ext)) {
+				if (/(mp3|ogg)$/.test(ext)) {
 					attachment = attachment.split('.').slice(0, -1).join('.');
 					ext        = attachment.split('.').pop();
 				}
 
-				if (/msc|snd|js|json|fnt|png|md|tpl/.test(ext) || path.substr(0, 7) === '/source') {
+				if (/(msc|snd|js|json|fnt|png|md|tpl)$/.test(ext) || path.substr(0, 7) === '/source') {
 
 					if (pointer[identifier] instanceof Array) {
 
@@ -164,12 +251,19 @@ lychee.define('harvester.mod.Packager').requires([
 
 		can: function(project) {
 
-			if (project.identifier.indexOf('__') === -1 && project.package !== null && project.filesystem !== null) {
+			project = project instanceof _Project ? project : null;
 
-				let diff_a = JSON.stringify(project.package.json);
-				let diff_b = JSON.stringify(_serialize(project));
-				if (diff_a !== diff_b) {
-					return true;
+
+			if (project !== null) {
+
+				if (project.identifier.indexOf('__') === -1 && project.package !== null && project.filesystem !== null) {
+
+					let diff_a = JSON.stringify(project.package.json);
+					let diff_b = JSON.stringify(_serialize(project));
+					if (diff_a !== diff_b) {
+						return true;
+					}
+
 				}
 
 			}
@@ -181,16 +275,37 @@ lychee.define('harvester.mod.Packager').requires([
 
 		process: function(project) {
 
-			if (project.package !== null) {
+			project = project instanceof _Project ? project : null;
 
-				let data = _serialize(project);
-				let blob = JSON.stringify(data, null, '\t');
-				if (blob !== null) {
-					project.filesystem.write('/lychee.pkg', blob);
-					project.package = new _Package(new Buffer(blob, 'utf8'));
+
+			let reasons = [];
+
+			if (project !== null) {
+
+				if (project.package !== null) {
+
+					let data = _serialize(project);
+					let blob = JSON.stringify(data, null, '\t');
+
+
+					_get_reasons(data, project.package.json, reasons);
+
+
+					if (blob !== null) {
+
+						project.filesystem.write('/lychee.pkg', blob);
+						project.package = null;
+						project.package = new _Package({
+							buffer: new Buffer(blob, 'utf8')
+						});
+
+					}
+
 				}
 
 			}
+
+			return reasons;
 
 		}
 

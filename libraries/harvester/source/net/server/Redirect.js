@@ -11,6 +11,8 @@ lychee.define('harvester.net.server.Redirect').exports(function(lychee, global, 
 		 * MODULE API
 		 */
 
+		// deserialize: function(blob) {},
+
 		serialize: function() {
 
 			return {
@@ -27,6 +29,10 @@ lychee.define('harvester.net.server.Redirect').exports(function(lychee, global, 
 		 */
 
 		receive: function(payload, headers) {
+
+			payload = payload instanceof Buffer ? payload : null;
+			headers = headers instanceof Object ? headers : {};
+
 
 			let tunnel = this.tunnel;
 			let url    = headers['url'];

@@ -188,19 +188,34 @@ lychee.define('lychee.ui.entity.Slider').includes([
 
 				if (type === Composite.TYPE.horizontal) {
 
-					if (key === 'a' || key === 'arrow-left')  val -= step;
-					if (key === 'd' || key === 'arrow-right') val += step;
+					if (key === 'a' || key === 'arrow-left') {
+						val -= step;
+					}
+
+					if (key === 'd' || key === 'arrow-right') {
+						val += step;
+					}
 
 				} else if (type === Composite.TYPE.vertical) {
 
-					if (key === 'w' || key === 'arrow-up')    val -= step;
-					if (key === 's' || key === 'arrow-down')  val += step;
+					if (key === 'w' || key === 'arrow-up') {
+						val -= step;
+					}
+
+					if (key === 's' || key === 'arrow-down') {
+						val += step;
+					}
 
 				}
 
 
-				if (key === 'space') val = this.min;
-				if (key === 'enter') val = this.max;
+				if (key === 'space') {
+					val = this.min;
+				}
+
+				if (key === 'enter') {
+					val = this.max;
+				}
 
 
 				let result = this.setValue(val);
@@ -571,30 +586,37 @@ lychee.define('lychee.ui.entity.Slider').includes([
 
 		setState: function(id) {
 
-			let result = _Entity.prototype.setState.call(this, id);
-			if (result === true) {
-
-				let cursor = this.__cursor;
-				let pulse  = this.__pulse;
+			id = typeof id === 'string' ? id : null;
 
 
-				if (id === 'active') {
+			if (id !== null) {
 
-					cursor.start  = null;
-					cursor.active = true;
+				let result = _Entity.prototype.setState.call(this, id);
+				if (result === true) {
 
-					pulse.alpha   = 1.0;
-					pulse.start   = null;
-					pulse.active  = true;
+					let cursor = this.__cursor;
+					let pulse  = this.__pulse;
 
-				} else {
 
-					cursor.active = false;
+					if (id === 'active') {
+
+						cursor.start  = null;
+						cursor.active = true;
+
+						pulse.alpha   = 1.0;
+						pulse.start   = null;
+						pulse.active  = true;
+
+					} else {
+
+						cursor.active = false;
+
+					}
+
+
+					return true;
 
 				}
-
-
-				return true;
 
 			}
 

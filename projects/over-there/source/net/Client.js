@@ -1,12 +1,22 @@
 
-lychee.define('app.net.Client').requires([
-]).includes([
+lychee.define('app.net.Client').includes([
 	'lychee.net.Client'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Client  = lychee.import('lychee.net.Client');
-	const _CONFIG  = attachments["json"].buffer;
-	const _ROOMS   = [ 'node1', 'fgb', 'node0', 'sm', 'node3', 'crewlock', 'destiny', 'harmony', 'columbus', 'jem' ];
+	const _Client = lychee.import('lychee.net.Client');
+	const _CONFIG = attachments["json"].buffer;
+	const _ROOMS  = [
+		'node1',
+		'fgb',
+		'node0',
+		'sm',
+		'node3',
+		'crewlock',
+		'destiny',
+		'harmony',
+		'columbus',
+		'jem'
+	];
 	const _SENSORS = {
 		destiny: {
 			pressure:    'USLAB000058',
@@ -117,6 +127,8 @@ lychee.define('app.net.Client').requires([
 		/*
 		 * ENTITY API
 		 */
+
+		// deserialize: function(blob) {},
 
 		serialize: function() {
 

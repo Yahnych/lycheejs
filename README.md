@@ -1,48 +1,90 @@
 
-# lychee.js (2017-Q1)
+# lychee.js (2017-Q2)
+
+<img src="./guides/asset/qr-codes.png" align="right" width="500px">
 
 brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
 
 Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
 
-**QR Codes**
 
-![QR codes](./guides/asset/qr-codes.png)
+**IMPORTANT NOTICE**
 
-**Table of Contents**
-
-- [Overview](#overview)
-- [Features](#features)
-- [Workflow](#workflow)
-- [Platform Support](#platform--fertilizer-support)
-- [Quickstart](#quickstart)
-- [Developer Guides](#developer-guides)
-- [Contributor Guides](#contributor-guides)
-- [Help](#help)
-- [License](#license)
+AI went live on 1. Sept 2016. Make sure that `:balloon: AI History starts here`
+is on your `master` branch so that the `./bin/maintenance` auto-update integration
+works fine. Otherwise re-fork your fork or force-pull from upstream.
 
 
-## IMPORTANT NOTICE
-
-We went live with our AI on 1. Sept 2016. This caused a broken git commit
-history and a necessary hard rebase. If your Fork does not contain the
-`:balloon: AI History starts here` on its `master` branch, please delete
-it and re-fork it again.
-
-We hope that this will not occur again in future, so far the new git
-history and the merge flow (using `theirs` merge strategy on above
-mentioned commit) appears to be stable.
-
-Thank you for your understanding.
-
-
-## Work-in-Progress (aka alpha)
+**Work-in-Progress (aka alpha)**
 
 These are the things that we are currently working on:
 
-- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable.
-- lychee.js Studio is being refactored and unstable.
+- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable (`feature/neat` branch).
+- lychee.net.protocol.MQTT is being implemented to support SCADA systems (`feature/mqtt` branch).
 - lychee.js Guide is subject to change (to integrate new AI stack).
+
+
+## ELI5 - What is lychee.js?
+
+Okay. I kind of failed to explain what lychee.js is because there's currently no
+words for something like it in our language. So I'm trying to explain why which
+feature was integrated and what benefits resulted in its history of development.
+
+First it was a Game / App Engine that had the idea to reuse components
+across all environments using so-called [Fertilizer Adapters](./libraries/lychee/source/platform)
+with a strong core definition system that allowed feature detection and automated
+isomorphic builds from and to every single platform it supports using the
+[lychee.js Fertilizer](./libraries/fertilizer).
+
+Then it got a strong serialization / deserialization concept that allowed
+simulations across all platforms. Errors could be reproduced everywhere, even
+network traffic and user interactions were put in event graphs and identified
+by neural networks to figure out what module (in the flow-based-programming
+sense) had corrupt data.
+
+Then it got an evolutionary [lychee.ai](./libraries/lychee/source/ai) Stack
+(backpropagated ES/HyperNEAT) that allowed an AI to learn combinations of all
+Definitions using a Module Pattern or Composite Pattern. Class Pattern failed,
+because Classes are a time abstraction so they suck in complexity. Deal with it :)
+
+Then it got a generic plug/play neural network support; so that the [lychee.policy](./libraries/lychee/source/policy)
+Stack allowed to generically translate _every property_ in all Composites into
+what neural networks can understand. As everything in lychee.js is serializable
+and uses a Composite Pattern, things like traffic sharding, automated layouting
+or animation learning and debugging of it got inclusive.
+
+Then it got an easier tool to create new boilerplates which allowed the possibility
+to reuse other projects as libraries and vice versa. Every single lychee.js
+Project or Library was fully isomorphic and could be forked, modified, back-merged,
+or included as a library using the [lychee.js Breeder](./libraries/breeder). Things
+like A/B testing new Composites or Definitions in-place now were a matter of
+literally seconds.
+
+Then the knowledge graph was reused to build a better fuzz-testing tool, the
+[lychee.js Strainer](./libraries/strainer), using some kind of tree that is similar
+to a multi-dimensional-quad-tree to identify similar data and behaviour for more
+efficient ANN testing and evaluation; so that ANNs were now able to learn what
+properties and methods and their relations (in the sense of states) mean and do.
+
+Then the [lychee.js Harvester](./libraries/harvester) got a peer-to-peer network
+infrastructure that allowed to share all knowledge graphs across the internet.
+That meant every single lychee.js Project on planet Earth now contributed to an
+AI learning how to build software and therefore helped auto-improving all written
+code that depends on each other using fuzz tests, flow graph tests and above
+Composite Pattern idea for evaluation of newly invented Composites.
+
+Then the [lychee.js Studio](./libraries/studio) was built, trying to use above
+suggestions so that developers have some kind of "Zen Coding"-like autocompletion
+for Definitions they want to build, leveraging the first intelligent auto-complete
+using a mix of reinforced evolutionary learning and bayesian learning.
+
+Oh, and it can compile, analyze, bugfix and improve itself, too. That's essentially
+what the [./bin/configure.sh](./bin/configure.sh) script does when it builds and
+distributes the lychee.js Library.
+
+Then I thought well, I guess I'm mad - and have no idea how to explain what this
+Engine has gotten to be. - @cookiengineer
+
 
 
 ## Overview
@@ -64,15 +106,7 @@ The following Accounts are related to the lychee.js Engine:
 - [@humansneednotapply](https://github.com/humansneednotapply) is the account used by our software bots.
 
 
-lychee.js is a [Next-Gen Isomorphic Application Engine](https://lychee.js.org/#!vision)
-that offers a complete solution for prototyping, development,
-maintenance and deployment of applications. The underlying
-technology stack does not matter (HTML5, WebGL, OpenGL,
-OpenGLES, libSDL) and is completely automated behind the
-scenes.
-
-
-## Features
+**Features**
 
 The lychee.js Engine aims to deliver Total Automation through
 Artificial Intelligence and better Software Architecture.
@@ -112,28 +146,7 @@ Features of the lychee.js Software Bots:
 - Automated Network Services and Traffic Balancing/Sharding
 
 
-
-## Workflow
-
-Every (not sandboxed) lychee.js Harvester is connected to the
-lychee.js Peer Cloud and is contributing to the evolutionary
-AI's knowledge and improves its capabilities for all others.
-
-The lychee.js Engine uses backpropagated ES/HyperNEAT as an
-evolutionary AI that is connected to a Botnet of lychee.js
-Harvesters. Each and every Definition written in lychee.js
-contributes to the AI so that it can predict, suggest and
-improve all other Projects.
-
-The development process is optimized for Blink-based web
-browsers (Chromium, Google Chrome, Opera) and their
-developer tools. We honestly recommend NOT using Firefox
-due to lack of developer and debugging tools nor has it
-any remote debugging protocol.
-
-
-
-## Platform / Fertilizer Support
+**Platform / Fertilizer Support**
 
 The target platforms are described as so-called Fertilizers.
 Those Fertilizers cross-compile everything automagically
@@ -158,106 +171,25 @@ due to XCode's gcc limitations. You can still create an own WebView
 iOS App and use the `html` platform adapter.
 
 
+## Quickstart Guide
 
-## Quickstart
-
-This is the it-works-failsafe guide of how to install the lychee.js
-Engine on your development machine. For everything related to Bundles,
-Dev Ops, Security, Deployments and Virtualization - please consult the
-[lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide.git).
-
-
-![Quickstart](./guides/asset/quickstart.gif)
-
-
-**1) Installation**
-
-The Net Installer automatically installs the lychee.js Engine
-on any UNIX-compatible machine (arm, x86 or amd64). The only
-requirements beforehand are working `bash`, `curl` and `git`.
-
-The lychee.js Engine installation requires at least 2GB of free
-memory space at `/opt/lycheejs`. 4GB are recommended to have a
-fully working AI knowledge integration.
-
-Depending on your internet connection speed, the installation
-will take a couple minutes (needs to download ca. 500MB zip
-file of runtime binaries which is hosted in the releases section
-of the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases)
-repository).
-
-Notes:
-
-- **Windows** is **unsupported** as development host. Use a VM, the [Docker Image](https://hub.docker.com/r/cookiengineer/lycheejs) or the [Dockerfile](https://github.com/Artificial-Engineering/lycheejs-bundle/blob/master/bin/package/docker/Dockerfile) instead.
-- GNU/Linux requires either of `apt-get`, `dnf`, `pacman`, `yum` or `zipper` installed beforehand.
-- Mac OSX requires [brew](https://brew.sh) installed beforehand.
-- FreeBSD/NetBSD requires `pkg` installed and [Linux Compatibility](https://www.freebsd.org/doc/handbook/linuxemu-lbc-install.html) activated beforehand.
-
-
-```bash
-# Install lychee.js Engine into /opt/lycheejs
-sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
-```
-
-
-**2) Bootup**
-
-The `lycheejs-harvester` integrates all projects with the
-Software Bots. Start the `development` profile and open
-`http://localhost:8080` in your Blink-based Browser.
-
-```bash
-cd /opt/lycheejs;
-
-# Bootup lychee.js Harvester
-lycheejs-harvester start development;
-```
-
-
-**3) Integration**
-
-The lychee.js Project is tightly integrated with our
-Artificial Intelligence, which is represented by the account
-[@humansneednotapply](https://github.com/humansneednotapply).
-
-If you want to have our AI to learn and improve from your project
-(read the LICENSE section for caveats first), you need to create a
-[Personal Access Token](https://github.com/settings/tokens)
-with `repo` rights and put the token in the `.github/TOKEN` file:
-
-```bash
-cd /opt/lycheejs;
-
-echo "MY-PERSONAL-ACCESS-TOKEN" > .github/TOKEN;
-```
-
-Then you must add the account [@humansneednotapply](https://github.com/humansneednotapply)
-to your lychee.js Project's repository collaborators in its
-`Settings > Collaborators & teams` section.
-
-![Collaborators Settings](./guides/asset/quickstart-collaborators.png)
-
-Notes:
-
-- You need to add @humansneednotapply to each of your lychee.js Projects' repositories.
-- You do **not** need to add @humansneednotapply to your lychee.js Fork.
-
-
-## Developer Guides
+If you want to install lychee.js, the best way is to follow
+through the [Install Guide](./guides/INSTALL.md) or the
+[lychee.js Guide's Quickstart section](https://github.com/Artificial-Engineering/lycheejs-guide#quickstart-guide).
 
 If you want to develop lychee.js Projects or Libraries, the
-`lychee.js Guide` helps you to get started easily.
+[lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide)
+helps you to get started easily.
 
 Please let us know if we can improve anything in these documents
 by opening up an [Issue](https://github.com/Artificial-Engineering/lycheejs/issues/new).
 
-- [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide)
 
+## Contributor Manuals
 
-## Contributor Guides
-
-- [Contribution Guide](./guides/CONTRIBUTION.md)
+- [Install Guide](./guides/INSTALL.md)
 - [Codestyle Guide](./guides/CODESTYLE.md)
+- [Contribution Guide](./guides/CONTRIBUTION.md)
 - [Release Guide](./guides/RELEASE.md)
 
 

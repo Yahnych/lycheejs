@@ -14,26 +14,20 @@ lychee.define('strainer.Main').requires([
 
 
 	/*
-	 * FEATURE DETECTION
-	 */
-
-	let _DEFAULTS = {
-
-		action:  null,
-		project: null
-
-	};
-
-
-
-	/*
 	 * IMPLEMENTATION
 	 */
 
 	let Composite = function(settings) {
 
-		this.settings = _lychee.assignunlink({}, _DEFAULTS, settings);
-		this.defaults = _lychee.assignunlink({}, this.settings);
+		this.settings = _lychee.assignunlink({
+			action:  null,
+			project: null
+		}, settings);
+
+		this.defaults = _lychee.assignunlink({
+			action:  null,
+			project: null
+		}, this.settings);
 
 
 		_Emitter.call(this);
@@ -61,7 +55,6 @@ lychee.define('strainer.Main').requires([
 
 				console.error('strainer: FAILURE ("' + project + '") at "load" event');
 
-
 				this.destroy(1);
 
 			}
@@ -85,6 +78,7 @@ lychee.define('strainer.Main').requires([
 
 				template.then('write-eslint');
 				template.then('write-api');
+				template.then('write-pkg');
 
 			} else if (action === 'stage') {
 
@@ -95,6 +89,7 @@ lychee.define('strainer.Main').requires([
 
 				template.then('write-eslint');
 				template.then('write-api');
+				template.then('write-pkg');
 
 				template.then('stage-eslint');
 				template.then('stage-api');
@@ -104,19 +99,49 @@ lychee.define('strainer.Main').requires([
 
 			template.bind('complete', function() {
 
-				if (lychee.debug === true) {
-					console.info('strainer: SUCCESS ("' + project + '")');
-				}
+				if (template.errors.length === 0) {
 
-				this.destroy(0);
+					console.info('strainer: SUCCESS ("' + project + '")');
+
+					this.destroy(0);
+
+				} else {
+
+					template.errors.forEach(function(err) {
+
+						let path = err.fileName;
+						let rule = err.ruleId  || 'parser-error';
+						let line = err.line    || 0;
+						let col  = err.column  || 0;
+						let msg  = err.message || 'Parsing error: unknown';
+						if (msg.endsWith('.') === false) {
+							msg = msg.trim() + '.';
+						}
+
+
+						let message = '';
+
+						message += path;
+						message += ':' + line;
+						message += ':' + col;
+						message += ': ' + msg;
+						message += ' [' + rule + ']';
+
+						console.error('strainer: ' + message);
+
+					});
+
+					console.error('strainer: FAILURE ("' + project + '")');
+
+					this.destroy(1);
+
+				}
 
 			}, this);
 
 			template.bind('error', function(event) {
 
-				if (lychee.debug === true) {
-					console.error('strainer: FAILURE ("' + project + '") at "' + event + '" template event');
-				}
+				console.error('strainer: FAILURE ("' + project + '") at "' + event + '" template event');
 
 				this.destroy(1);
 
@@ -169,6 +194,8 @@ lychee.define('strainer.Main').requires([
 
 			this.trigger('load');
 
+			return true;
+
 		},
 
 		destroy: function(code) {
@@ -177,6 +204,8 @@ lychee.define('strainer.Main').requires([
 
 
 			this.trigger('destroy', [ code ]);
+
+			return true;
 
 		}
 

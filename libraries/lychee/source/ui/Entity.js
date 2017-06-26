@@ -8,6 +8,30 @@ lychee.define('lychee.ui.Entity').includes([
 
 
 	/*
+	 * HELPERS
+	 */
+
+	const _validate_effect = function(effect) {
+
+		if (effect instanceof Object) {
+
+			if (
+				typeof effect.update === 'function'
+				&& typeof effect.render === 'function'
+			) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	};
+
+
+
+	/*
 	 * IMPLEMENTATION
 	 */
 
@@ -26,29 +50,14 @@ lychee.define('lychee.ui.Entity').includes([
 		this.effects   = [];
 		this.shape     = Composite.SHAPE.rectangle;
 		this.state     = 'default';
+		this.states    = { 'default': null, 'active': null };
 		this.position  = { x: 0, y: 0, z: 0 };
 		this.visible   = true;
-
-		this.__states  = { 'default': null, 'active': null };
-
-
-		if (settings.states instanceof Object) {
-
-			this.__states = { 'default': null, 'active': null };
-
-			for (let id in settings.states) {
-
-				if (settings.states.hasOwnProperty(id)) {
-					this.__states[id] = settings.states[id];
-				}
-
-			}
-
-		}
 
 
 		this.setAlpha(settings.alpha);
 		this.setShape(settings.shape);
+		this.setStates(settings.states);
 		this.setState(settings.state);
 		this.setPosition(settings.position);
 		this.setVisible(settings.visible);
@@ -105,7 +114,7 @@ lychee.define('lychee.ui.Entity').includes([
 			if (this.alpha !== 1)                          settings.alpha   = this.alpha;
 			if (this.shape !== Composite.SHAPE.rectangle)  settings.shape   = this.shape;
 			if (this.state !== 'default')                  settings.state   = this.state;
-			if (Object.keys(this.__states).length > 0)     settings.states  = this.__states;
+			if (Object.keys(this.states).length > 0)       settings.states  = this.states;
 			if (this.visible !== true)                     settings.visible = this.visible;
 
 
@@ -160,7 +169,10 @@ lychee.define('lychee.ui.Entity').includes([
 
 		isAtPosition: function(position) {
 
-			if (position instanceof Object) {
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
 
 				if (typeof position.x === 'number' && typeof position.y === 'number') {
 
@@ -201,6 +213,9 @@ lychee.define('lychee.ui.Entity').includes([
 
 		collidesWith: function(entity) {
 
+			entity = lychee.interfaceof(lychee.ui.Entity, entity) ? entity : null;
+
+
 			return false;
 
 		},
@@ -225,7 +240,7 @@ lychee.define('lychee.ui.Entity').includes([
 
 		addEffect: function(effect) {
 
-			effect = effect instanceof Object && typeof effect.update === 'function' ? effect : null;
+			effect = _validate_effect(effect) ? effect : null;
 
 
 			if (effect !== null) {
@@ -248,7 +263,7 @@ lychee.define('lychee.ui.Entity').includes([
 
 		removeEffect: function(effect) {
 
-			effect = effect instanceof Object && typeof effect.update === 'function' ? effect : null;
+			effect = _validate_effect(effect) ? effect : null;
 
 
 			if (effect !== null) {
@@ -290,7 +305,10 @@ lychee.define('lychee.ui.Entity').includes([
 
 		setPosition: function(position) {
 
-			if (position instanceof Object) {
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
 
 				this.position.x = typeof position.x === 'number' ? position.x : this.position.x;
 				this.position.y = typeof position.y === 'number' ? position.y : this.position.y;
@@ -322,8 +340,38 @@ lychee.define('lychee.ui.Entity').includes([
 
 		},
 
-		getStateMap: function() {
-			return this.__states[this.state];
+		setStates: function(states) {
+
+			states = states instanceof Object ? states : null;
+
+
+			if (states !== null) {
+
+				this.states = {
+					'default': null,
+					'active':  null
+				};
+
+				for (let id in states) {
+
+					if (states.hasOwnProperty(id)) {
+
+						let state = states[id];
+						if (state instanceof Object) {
+							this.states[id] = states[id];
+						}
+
+					}
+
+				}
+
+				return true;
+
+			}
+
+
+			return false;
+
 		},
 
 		setState: function(id) {
@@ -331,7 +379,7 @@ lychee.define('lychee.ui.Entity').includes([
 			id = typeof id === 'string' ? id : null;
 
 
-			if (id !== null && this.__states[id] !== undefined) {
+			if (id !== null && this.states[id] !== undefined) {
 
 				this.state = id;
 
@@ -346,7 +394,10 @@ lychee.define('lychee.ui.Entity').includes([
 
 		setVisible: function(visible) {
 
-			if (visible === true || visible === false) {
+			visible = typeof visible === 'boolean' ? visible : null;
+
+
+			if (visible !== null) {
 
 				this.visible = visible;
 

@@ -20,43 +20,35 @@
 	 * CONSOLE POLYFILL
 	 */
 
-	const _log          = console.log;
-	const _error        = console.error;
 	const _INDENT       = '    ';
 	const _INDENT_PLAIN = '           ';
 	const _WHITESPACE   = new Array(512).fill(' ').join('');
 
 	const _console_log = function(value) {
 
-		let line = ('  (L) ' + value).replace(/\t/g, _INDENT).trimRight();
-		let maxl = process.stdout.columns - 4;
+		let line = ('(L) ' + value).replace(/\t/g, _INDENT).trimRight();
+		let maxl = process.stdout.columns - 2;
 		if (line.length > maxl) {
 			line = line.substr(0, maxl);
 		} else {
 			line = line + _WHITESPACE.substr(0, maxl - line.length);
 		}
 
-		_log.call(console, line);
+		process.stdout.write('\u001b[49m\u001b[97m ' + line + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 	};
 
 	const _console_error = function(value) {
 
 		let line = ('(E) ' + value).replace(/\t/g, _INDENT).trimRight();
-		let maxl = process.stdout.columns - 4;
+		let maxl = process.stdout.columns - 2;
 		if (line.length > maxl) {
 			line = line.substr(0, maxl);
 		} else {
 			line = line + _WHITESPACE.substr(0, maxl - line.length);
 		}
 
-		_error.call(console,
-			'\u001b[37m',
-			'\u001b[41m',
-			line,
-			'\u001b[49m',
-			'\u001b[39m'
-		);
+		process.stderr.write('\u001b[41m\u001b[97m ' + line + ' \u001b[39m\u001b[49m\u001b[0m\n');
 
 	};
 
@@ -316,7 +308,7 @@
 
 		let errors = 0;
 
-		console.log('  (L) Checking Environment');
+		_console_log('Checking Environment');
 
 
 		if (libraries.indexOf('./libraries/lychee') !== -1) {

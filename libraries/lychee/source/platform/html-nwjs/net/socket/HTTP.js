@@ -171,7 +171,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 				if (connection !== null) {
 
-					protocol = new _Protocol(_Protocol.TYPE.remote);
+					protocol = new _Protocol({
+						type: _Protocol.TYPE.remote
+					});
 
 					connection.allowHalfOpen = true;
 					connection.setTimeout(0);
@@ -186,7 +188,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 				} else {
 
-					protocol   = new _Protocol(_Protocol.TYPE.client);
+					protocol   = new _Protocol({
+						type: _Protocol.TYPE.client
+					});
 					connection = new _net.Socket({
 						readable: true,
 						writable: true
@@ -209,7 +213,13 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 				}
 
+
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
@@ -231,14 +241,21 @@ lychee.define('lychee.net.socket.HTTP').tags({
 					let enc   = binary === true ? 'binary' : 'utf8';
 
 					if (chunk !== null) {
+
 						// XXX: nwjs has global scope problems
 						// XXX: Internal Buffer is not our global.Buffer interface
 						connection.write(chunk.toString(enc), enc);
+
+						return true;
+
 					}
 
 				}
 
 			}
+
+
+			return false;
 
 		},
 

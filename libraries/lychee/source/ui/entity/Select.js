@@ -104,12 +104,22 @@ lychee.define('lychee.ui.entity.Select').includes([
 				let option = null;
 				let q      = this.options.indexOf(this.value);
 
-				if (key === 'w' || key === 'arrow-up')   option = this.options[--q] || this.options[0];
-				if (key === 's' || key === 'arrow-down') option = this.options[++q] || this.options[this.options.length - 1];
+				if (key === 'w' || key === 'arrow-up') {
+					option = this.options[--q] || this.options[0];
+				}
+
+				if (key === 's' || key === 'arrow-down') {
+					option = this.options[++q] || this.options[this.options.length - 1];
+				}
 
 
-				if (key === 'space') option = this.options[0];
-				if (key === 'enter') option = this.options[this.options.length - 1];
+				if (key === 'space') {
+					option = this.options[0];
+				}
+
+				if (key === 'enter') {
+					option = this.options[this.options.length - 1];
+				}
 
 
 				let result = this.setValue(option);
@@ -448,30 +458,37 @@ lychee.define('lychee.ui.entity.Select').includes([
 
 		setState: function(id) {
 
-			let result = _Entity.prototype.setState.call(this, id);
-			if (result === true) {
-
-				let cursor = this.__cursor;
-				let pulse  = this.__pulse;
+			id = typeof id === 'string' ? id : null;
 
 
-				if (id === 'active') {
+			if (id !== null) {
 
-					cursor.start  = null;
-					cursor.active = true;
+				let result = _Entity.prototype.setState.call(this, id);
+				if (result === true) {
 
-					pulse.alpha   = 1.0;
-					pulse.start   = null;
-					pulse.active  = true;
+					let cursor = this.__cursor;
+					let pulse  = this.__pulse;
 
-				} else {
 
-					cursor.active = false;
+					if (id === 'active') {
+
+						cursor.start  = null;
+						cursor.active = true;
+
+						pulse.alpha   = 1.0;
+						pulse.start   = null;
+						pulse.active  = true;
+
+					} else {
+
+						cursor.active = false;
+
+					}
+
+
+					return true;
 
 				}
-
-
-				return true;
 
 			}
 

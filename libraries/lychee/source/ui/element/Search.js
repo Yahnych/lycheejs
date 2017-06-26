@@ -21,25 +21,16 @@ lychee.define('lychee.ui.element.Search').requires([
 		let settings = Object.assign({}, data);
 
 
-		this.data     = [];
-		this.value    = '';
-
-		this.__search = null;
-		this.__select = null;
+		this.data  = [];
+		this.value = '';
 
 
-		this.setData(settings.data);
-
-		delete settings.data;
-
-
-		settings.label   = 'Search';
-		settings.options = [];
+		settings.label    = 'Search';
+		settings.options  = [];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);
-
-		settings = null;
 
 
 
@@ -47,40 +38,46 @@ lychee.define('lychee.ui.element.Search').requires([
 		 * INITIALIZATION
 		 */
 
-		this.__search = new _Input({
+		let input = new _Input({
 			type:  _Input.TYPE.text,
 			value: ''
 		});
 
-		this.__search.bind('change', function(value) {
+		input.bind('change', function(value) {
 
-			let filtered = this.data.filter(function(other) {
-				return other.indexOf(value) !== -1;
-			});
+			let select = this.getEntity('select');
+			if (select !== null) {
 
-			if (filtered.length === 0) {
+				let filtered = this.data.filter(function(other) {
+					return other.indexOf(value) !== -1;
+				});
 
-				this.__select.setOptions([ '- No matches -' ]);
-				this.trigger('relayout');
+				if (filtered.length === 0) {
 
-				this.trigger('change', [ value ]);
+					select.setOptions([ '- No matches -' ]);
+					this.trigger('relayout');
 
-			} else {
+					this.value = value;
+					this.trigger('change', [ value ]);
 
-				this.__select.setOptions(filtered);
-				this.trigger('relayout');
+				} else {
+
+					select.setOptions(filtered);
+					this.trigger('relayout');
+
+				}
 
 			}
 
 		}, this);
 
-		this.__select = new _Select({
+		let select = new _Select({
 			options: this.data,
 			value:   this.data[0],
 			height:  this.height - 128
 		});
 
-		this.__select.bind('change', function(value) {
+		select.bind('change', function(value) {
 
 			if (value !== '- No matches -') {
 				this.value = value;
@@ -89,13 +86,22 @@ lychee.define('lychee.ui.element.Search').requires([
 
 		}, this);
 
-		this.__select.unbind('relayout');
-		this.__select.bind('relayout', function() {
-			this.__select.height = this.height - 128;
+		select.unbind('relayout');
+		select.bind('relayout', function() {
+			select.height = this.height - 128;
 		}, this);
 
-		this.addEntity(this.__search);
-		this.addEntity(this.__select);
+
+		this.addEntity(input);
+		this.addEntity(select);
+
+
+		// XXX: This must be done afterwards
+
+		this.setData(settings.data);
+		delete settings.data;
+
+		settings = null;
 
 	};
 
@@ -124,6 +130,23 @@ lychee.define('lychee.ui.element.Search').requires([
 		 * CUSTOM API
 		 */
 
+		getEntity: function(id, position) {
+
+			id        = typeof id === 'string'    ? id       : null;
+			position = position instanceof Object ? position : null;
+
+
+			if (id === 'search') {
+				return this.entities[3] || null;
+			} else if (id === 'select') {
+				return this.entities[5] || null;
+			}
+
+
+			return _Element.prototype.getEntity.call(this, id, position);
+
+		},
+
 		setData: function(data) {
 
 			data = data instanceof Array ? data : null;
@@ -136,12 +159,30 @@ lychee.define('lychee.ui.element.Search').requires([
 				}).sort();
 
 
-				let select = this.__select;
+				let select = this.getEntity('select');
 				if (select !== null) {
 					select.setOptions(this.data);
 					this.trigger('relayout');
 				}
 
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setValue: function(value) {
+
+			value = typeof value === 'string' ? value : null;
+
+
+			if (value !== null) {
+
+				this.value = value;
 
 				return true;
 

@@ -23,21 +23,10 @@ lychee.define('lychee.net.remote.Stash').includes([
 
 		this.bind('sync', function(data) {
 
-			let main = global.MAIN || null;
-			if (main !== null) {
-
-				let stash = main.stash || null;
-				if (stash !== null) {
-
-					stash.deserialize({
-						assets: data.assets
-					});
-
-					stash.sync(true);
-
-				}
-
-			}
+			this.broadcast(data, {
+				id:    this.id,
+				event: 'sync'
+			});
 
 		}, this);
 

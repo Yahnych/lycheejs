@@ -48,22 +48,20 @@ lychee.define('app.state.Welcome').includes([
 			_State.prototype.deserialize.call(this, blob);
 
 
-			this.queryLayer('ui', 'menu').setHelpers([
-				'refresh'
-			]);
+			let menu = this.query('ui > menu');
+			if (menu !== null) {
+
+				menu.setHelpers([
+					'refresh'
+				]);
 
 
-			this.queryLayer('ui', 'welcome > dialog').bind('change', function(value) {
-
-				let menu = this.queryLayer('ui', 'menu');
-				if (menu !== null) {
-
+				this.query('ui > welcome > dialog').bind('change', function(value) {
 					menu.setValue(value);
 					menu.trigger('change', [ value ]);
+				}, this);
 
-				}
-
-			}, this);
+			}
 
 		}
 

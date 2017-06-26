@@ -232,6 +232,7 @@ lychee.define('breeder.Template').requires([
 
 					_ASSET + '/harvester.js',
 					_ASSET + '/icon.png',
+					_ASSET + '/icon.svg',
 					_ASSET + '/index.html',
 					_ASSET + '/lychee.pkg',
 

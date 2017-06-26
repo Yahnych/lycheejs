@@ -49,7 +49,7 @@ lychee.define('app.state.Chat').requires([
 
 	const _on_sync = function(room) {
 
-		let background = this.queryLayer('background', 'background');
+		let background = this.query('bg > background');
 		if (background !== null) {
 
 			if (background.effects.length === 0) {
@@ -67,7 +67,7 @@ lychee.define('app.state.Chat').requires([
 
 
 		let channel = '#home';
-		let entity  = this.queryLayer('ui', 'channel');
+		let entity  = this.query('ui > channel');
 		if (entity !== null) {
 			channel = entity.value;
 		}
@@ -83,7 +83,7 @@ lychee.define('app.state.Chat').requires([
 
 
 			this.loop.setTimeout(100, function() {
-				this.queryLayer('ui', 'slider').setValue(100);
+				this.query('ui > slider').setValue(100);
 			}, this);
 
 
@@ -130,7 +130,7 @@ lychee.define('app.state.Chat').requires([
 		this.jukebox.play(_SOUNDS.message);
 
 
-		entity = this.queryLayer('ui', 'messages');
+		entity = this.query('ui > messages');
 		entity.trigger('relayout');
 
 	};
@@ -184,36 +184,36 @@ lychee.define('app.state.Chat').requires([
 					entity.width  = width;
 					entity.height = height;
 
-					entity = this.queryLayer('bg', 'background');
+					entity = this.query('bg > background');
 					entity.width     = width;
 					entity.height    = height;
 					entity.__isDirty = true;
 
 
-					entity = this.queryLayer('ui', 'background');
+					entity = this.query('ui > background');
 					entity.width      = width;
 					entity.position.y = 1 / 2 * height - entity.height / 2;
 					entity.__isDirty  = true;
 
-					entity = this.queryLayer('ui', 'channel');
+					entity = this.query('ui > channel');
 					entity.position.y = 1 / 2 * height - 32 - entity.height / 2;
 
-					entity = this.queryLayer('ui', 'message');
+					entity = this.query('ui > message');
 					entity.position.y = 1 / 2 * height - 32 - entity.height / 2;
 
-					entity = this.queryLayer('ui',  'avatar');
+					entity = this.query('ui > avatar');
 					entity.position.y = 1 / 2 * height - 128;
 
-					entity = this.queryLayer('ui',  'button');
+					entity = this.query('ui > button');
 					entity.position.y = 1 / 2 * height - 64;
 
-					entity = this.queryLayer('ui', 'messages');
+					entity = this.query('ui > messages');
 					entity.width      = width;
 					entity.height     = height - 192;
 					entity.position.y = -192 / 2;
 					entity.__isDirty  = true;
 
-					entity = this.queryLayer('ui', 'slider');
+					entity = this.query('ui > slider');
 					entity.height = height - 192;
 					entity.position.x = 1 / 2 * width - entity.width - 16;
 					entity.position.y = -192 / 2;
@@ -252,7 +252,7 @@ lychee.define('app.state.Chat').requires([
 			let entity = null;
 
 
-			entity = this.queryLayer('ui', 'channel');
+			entity = this.query('ui > channel');
 			entity.bind('change', function(value) {
 
 				let service = this.client.getService('chat');
@@ -260,7 +260,7 @@ lychee.define('app.state.Chat').requires([
 					service.setRoom(value);
 				}
 
-				let slider = this.queryLayer('ui', 'slider');
+				let slider = this.query('ui > slider');
 				if (slider !== null) {
 					slider.setValue(100);
 					slider.trigger('change', [ slider.value ]);
@@ -268,7 +268,7 @@ lychee.define('app.state.Chat').requires([
 
 			}, this);
 
-			entity = this.queryLayer('ui',  'avatar');
+			entity = this.query('ui > avatar');
 			entity.bind('change', function(value) {
 
 				let service = this.client.getService('chat');
@@ -278,10 +278,10 @@ lychee.define('app.state.Chat').requires([
 
 			}, this);
 
-			entity = this.queryLayer('ui',  'button');
+			entity = this.query('ui > button');
 			entity.bind('touch', function() {
 
-				let message = this.queryLayer('ui', 'message');
+				let message = this.query('ui > message');
 				let service = this.client.getService('chat');
 
 				if (message !== null && service !== null) {
@@ -296,15 +296,15 @@ lychee.define('app.state.Chat').requires([
 
 			}, this);
 
-			entity = this.queryLayer('ui', 'messages');
-			entity.setAvatar(this.queryLayer('ui', 'avatar'));
+			entity = this.query('ui > messages');
+			entity.setAvatar(this.query('ui > avatar'));
 			entity.setCache(this.__cache);
 
-			entity = this.queryLayer('ui', 'slider');
+			entity = this.query('ui > slider');
 			entity.bind('change', function(value) {
 
 				let index = (100 - value) / 100;
-				let layer = this.queryLayer('ui', 'messages');
+				let layer = this.query('ui > messages');
 
 				if (layer !== null) {
 
@@ -329,14 +329,14 @@ lychee.define('app.state.Chat').requires([
 
 		enter: function(oncomplete) {
 
-			_State.prototype.enter.call(this, oncomplete);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
 
 
 			let service = this.client.getService('chat');
 			if (service !== null) {
 
-				let user = this.queryLayer('ui', 'avatar').value;
-				let room = this.queryLayer('ui', 'channel').value;
+				let user = this.query('ui > avatar').value;
+				let room = this.query('ui > channel').value;
 
 				service.setUser(user);
 				service.setRoom(room);
@@ -344,9 +344,15 @@ lychee.define('app.state.Chat').requires([
 
 			}
 
+
+			return _State.prototype.enter.call(this, oncomplete);
+
 		},
 
 		leave: function(oncomplete) {
+
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
 
 			let service = this.client.getService('chat');
 			if (service !== null) {
@@ -354,7 +360,7 @@ lychee.define('app.state.Chat').requires([
 			}
 
 
-			_State.prototype.leave.call(this, oncomplete);
+			return _State.prototype.leave.call(this, oncomplete);
 
 		}
 

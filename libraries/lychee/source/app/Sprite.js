@@ -8,6 +8,42 @@ lychee.define('lychee.app.Sprite').includes([
 
 
 	/*
+	 * HELPERS
+	 */
+
+	const _start_animation = function(settings) {
+
+		let duration = typeof settings.duration === 'number' ? settings.duration : 1000;
+		let frame    = typeof settings.frame === 'number'    ? settings.frame    : 0;
+		let frames   = typeof settings.frames === 'number'   ? settings.frames   : 25;
+		let loop     = settings.loop === true;
+
+
+		let animation = this.__animation;
+
+		animation.start    = null;
+		animation.active   = true;
+		animation.duration = duration;
+		animation.frames   = frames;
+		animation.loop     = loop;
+
+		this.frame = frame;
+
+	};
+
+	const _stop_animation = function() {
+
+		let animation = this.__animation;
+
+		animation.active = false;
+
+		this.frame = 0;
+
+	};
+
+
+
+	/*
 	 * IMPLEMENTATION
 	 */
 
@@ -26,10 +62,11 @@ lychee.define('lychee.app.Sprite').includes([
 			duration: 0,
 			loop:     false
 		};
-		this.__map = {};
+		this.__map = {
+			'default': []
+		};
 
 
-		this.setAnimation(settings.animation);
 		this.setTexture(settings.texture);
 		this.setMap(settings.map);
 
@@ -57,6 +94,10 @@ lychee.define('lychee.app.Sprite').includes([
 				this.setTexture(texture);
 			}
 
+			if (blob.animation instanceof Object) {
+				_start_animation.call(this, blob.animation);
+			}
+
 		},
 
 		serialize: function() {
@@ -68,28 +109,17 @@ lychee.define('lychee.app.Sprite').includes([
 			let blob     = (data['blob'] || {});
 
 
-			if (this.__animation.active === true) {
-
-				settings.animation = {};
-
-				if (this.__animation.duration !== 1000) settings.animation.duration = this.__animation.duration;
-				if (this.frame !== 0)                   settings.animation.frame    = this.frame;
-				if (this.__animation.frames !== 25)     settings.animation.frames   = this.__animation.frames;
-				if (this.__animation.loop !== false)    settings.animation.loop     = true;
-
-			}
-
 			if (Object.keys(this.__map).length > 0) {
 
 				settings.map = {};
 
 
-				for (let stateId in this.__map) {
+				for (let state in this.__map) {
 
-					settings.map[stateId] = [];
+					settings.map[state] = [];
 
 
-					let frames = this.__map[stateId];
+					let frames = this.__map[state];
 					for (let f = 0, fl = frames.length; f < fl; f++) {
 
 						let frame  = frames[f];
@@ -101,7 +131,7 @@ lychee.define('lychee.app.Sprite').includes([
 						if (frame.h !== 0) sframe.h = frame.h;
 
 
-						settings.map[stateId].push(sframe);
+						settings.map[state].push(sframe);
 
 					}
 
@@ -109,6 +139,17 @@ lychee.define('lychee.app.Sprite').includes([
 
 			}
 
+
+			if (this.__animation.active === true) {
+
+				blob.animation = {};
+
+				if (this.__animation.duration !== 1000) blob.animation.duration = this.__animation.duration;
+				if (this.frame !== 0)                   blob.animation.frame    = this.frame;
+				if (this.__animation.frames !== 25)     blob.animation.frames   = this.__animation.frames;
+				if (this.__animation.loop !== false)    blob.animation.loop     = true;
+
+			}
 
 			if (this.texture !== null) blob.texture = lychee.serialize(this.texture);
 
@@ -137,7 +178,7 @@ lychee.define('lychee.app.Sprite').includes([
 				}
 
 
-				let map = this.getMap();
+				let map = this.__map[this.state][this.frame] || null;
 				if (map !== null) {
 
 					x1 = position.x + offsetX - map.w / 2;
@@ -184,8 +225,6 @@ lychee.define('lychee.app.Sprite').includes([
 
 
 			let animation = this.__animation;
-
-			// 1. Animation (Interpolation)
 			if (animation.active === true) {
 
 				if (animation.start === null) {
@@ -222,45 +261,6 @@ lychee.define('lychee.app.Sprite').includes([
 		 * CUSTOM API
 		 */
 
-		setAnimation: function(settings) {
-
-			settings = settings instanceof Object ? settings : null;
-
-
-			if (settings !== null) {
-
-				let duration = typeof settings.duration === 'number' ? settings.duration : 1000;
-				let frame    = typeof settings.frame === 'number'    ? settings.frame    : 0;
-				let frames   = typeof settings.frames === 'number'   ? settings.frames   : 25;
-				let loop     = settings.loop === true;
-
-
-				let animation = this.__animation;
-
-				animation.start    = null;
-				animation.active   = true;
-				animation.duration = duration;
-				animation.frames   = frames;
-				animation.loop     = loop;
-
-				this.frame = frame;
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		clearAnimation: function() {
-
-			this.__animation.active = false;
-			this.frame = 0;
-
-		},
-
 		setState: function(id) {
 
 			id = typeof id === 'string' ? id : null;
@@ -274,14 +274,14 @@ lychee.define('lychee.app.Sprite').includes([
 
 					if (map instanceof Array) {
 
-						let statemap = this.getStateMap();
-						if (statemap !== null && statemap instanceof Object) {
+						let statemap = this.states[this.state] || null;
+						if (statemap !== null) {
 
-							this.clearAnimation();
+							_stop_animation.call(this);
 
 							if (statemap.animation === true) {
 
-								this.setAnimation({
+								_start_animation.call(this, {
 									duration: statemap.duration || 1000,
 									frame:    0,
 									frames:   map.length,
@@ -330,20 +330,6 @@ lychee.define('lychee.app.Sprite').includes([
 
 		},
 
-		getMap: function() {
-
-			let state = this.state;
-			let frame = this.frame;
-
-			if (this.__map[state] instanceof Array && this.__map[state][frame] !== undefined) {
-				return this.__map[state][frame];
-			}
-
-
-			return null;
-
-		},
-
 		setMap: function(map) {
 
 			map = map instanceof Object ? map : null;
@@ -353,12 +339,12 @@ lychee.define('lychee.app.Sprite').includes([
 
 			if (map !== null) {
 
-				for (let stateId in map) {
+				for (let state in map) {
 
-					let frames = map[stateId];
+					let frames = map[state];
 					if (frames instanceof Array) {
 
-						this.__map[stateId] = [];
+						this.__map[state] = [];
 
 
 						for (let f = 0, fl = frames.length; f < fl; f++) {
@@ -372,7 +358,7 @@ lychee.define('lychee.app.Sprite').includes([
 								frame.h = typeof frame.h === 'number' ? frame.h : 0;
 
 
-								this.__map[stateId].push(frame);
+								this.__map[state].push(frame);
 
 							}
 

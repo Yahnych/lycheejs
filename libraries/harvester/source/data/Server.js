@@ -10,8 +10,8 @@ lychee.define('harvester.data.Server').exports(function(lychee, global, attachme
 		let settings = Object.assign({}, data);
 
 
-		this.host = settings.host || null;
-		this.port = settings.port || null;
+		this.host = typeof settings.host === 'string' ? settings.host : null;
+		this.port = typeof settings.port === 'number' ? settings.port : null;
 
 		this.__process = settings.process || null;
 
@@ -66,6 +66,9 @@ lychee.define('harvester.data.Server').exports(function(lychee, global, attachme
 
 			this.host = null;
 			this.port = null;
+
+
+			return true;
 
 		}
 

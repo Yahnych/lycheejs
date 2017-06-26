@@ -20,6 +20,36 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
+## [2017-Q2] - 2017-06-28
+
+- **Changed**: Libraries and Projects refactor to match lychee.js Strainer's expectations.
+- **Changed**: lychee.js Strainer supports mutations, traces and dynamic memory lookups.
+- **Changed**: All helper scripts support `--autocomplete` syntax.
+- **Changed**: lychee.js Harvester synchronizes platform tags.
+- **Added**: lychee.js Harvester supports `git fetch` and `git checkout`.
+- **Added**: lychee.js Studio supports Font and Sprite generation.
+- **Added**: lychee.js Helper supports bash autocompletion.
+- **Added**: Integration of `nidium` platform.
+- Changed: lychee.app.Entity supports `setStates()` method.
+- Changed: lychee.ui.Entity supports `setStates()` method.
+- Changed: lychee.app.State `query()` handles invalid queries correctly.
+- Changed: lychee.Renderer `drawBuffer()` handles `map` and rotations.
+- Changed: lychee.net.protocol.WS detects fragments dynamically.
+- Removed: lychee.app.Entity deprecates `getStateMap()` method.
+- Removed: lychee.ui.Entity deprecates `getStateMap()` method.
+- Removed: lychee.app.Sprite deprecates `getMap()` method.
+- Removed: lychee.ui.Sprite deprecates `getMap()` method.
+- Added: lychee.js Fertilizer supports `*/target` and `platform/*` syntax.
+- Added: lychee.js Strainer supports `quickfix mode` syntax.
+- Added: lychee.app.Main supports auto-sync of Stash and Storage instances.
+- Added: Project Immune as an RTS Game demo.
+- Added: lychee.app.Layer `query()` method.
+- Added: `lychee.data.tree` Stack implementation.
+- Fixed: `lychee.inject()` and `lychee.define()` supports proper mappings of packages.
+- Fixed: `lychee.ui.entity.Upload` supports file dialog correctly (Browser-Bug).
+- Fixed: `Font.prototype.measure()` improves cache usage and temporary usage.
+
+
 ## [2017-Q1] - 2017-03-28
 
 - **Changed**: Each Project and Library can have binaries (`./bin`).

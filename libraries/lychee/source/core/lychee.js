@@ -420,7 +420,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 			lychee:  '/opt/lycheejs',
 			project: null
 		},
-		VERSION:      "2017-Q1",
+		VERSION:      "2017-Q2",
 
 
 
@@ -430,40 +430,50 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 		diff: function(aobject, bobject) {
 
-			let akeys = Object.keys(aobject);
-			let bkeys = Object.keys(bobject);
+			if (aobject instanceof Object && bobject instanceof Object) {
 
-			if (akeys.length !== bkeys.length) {
-				return true;
-			}
+				let akeys = Object.keys(aobject);
+				let bkeys = Object.keys(bobject);
+
+				if (akeys.length !== bkeys.length) {
+					return true;
+				}
 
 
-			for (let a = 0, al = akeys.length; a < al; a++) {
+				for (let a = 0, al = akeys.length; a < al; a++) {
 
-				let key = akeys[a];
+					let key = akeys[a];
 
-				if (bobject[key] !== undefined) {
+					if (bobject[key] !== undefined) {
 
-					if (aobject[key] !== null && bobject[key] !== null) {
+						if (aobject[key] !== null && bobject[key] !== null) {
 
-						if (aobject[key] instanceof Object && bobject[key] instanceof Object) {
+							if (aobject[key] instanceof Object && bobject[key] instanceof Object) {
 
-							if (lychee.diff(aobject[key], bobject[key]) === true) {
+								if (lychee.diff(aobject[key], bobject[key]) === true) {
 
-								// Allows aobject[key].builds = {} and bobject[key].builds = { stuff: {}}
-								if (Object.keys(aobject[key]).length > 0) {
-									return true;
+									// Allows aobject[key].builds = {} and bobject[key].builds = { stuff: {}}
+									if (Object.keys(aobject[key]).length > 0) {
+										return true;
+									}
+
 								}
 
+							} else if (typeof aobject[key] !== typeof bobject[key]) {
+								return true;
 							}
 
-						} else if (typeof aobject[key] !== typeof bobject[key]) {
-							return true;
 						}
 
+					} else {
+						return true;
 					}
 
-				} else {
+				}
+
+			} else {
+
+				if (aobject !== bobject) {
 					return true;
 				}
 
@@ -919,7 +929,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 				definition.exports = function(callback) {
 
 					lychee.Definition.prototype.exports.call(this, callback);
-					that.environment.define(this);
+					that.environment.define(this, false);
 
 				};
 
@@ -1013,7 +1023,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 				if (_environment !== null) {
 
 					Object.values(_environment.definitions).forEach(function(definition) {
-						environment.define(definition);
+						environment.define(definition, true);
 					});
 
 				}
@@ -1088,7 +1098,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 								if (_environment !== null) {
 
 									Object.values(_environment.definitions).forEach(function(definition) {
-										environment.define(definition);
+										environment.define(definition, true);
 									});
 
 								}
@@ -1162,7 +1172,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 					let that = this;
 
 					Object.values(environment.definitions).forEach(function(definition) {
-						that.environment.define(definition);
+						that.environment.define(definition, true);
 					});
 
 					let build_old = this.environment.definitions[this.environment.build] || null;

@@ -109,17 +109,17 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 		let content_type = headers['content-type'] || 'text/plain';
 		if (/text\//g.test(content_type) === true) {
 
-			buffer = new Buffer(headers_length + payload_length + 2);
+			buffer = new Buffer(headers_length + payload_length + 4);
 			buffer.write(headers_data, 0, headers_length, 'utf8');
 			payload_data.copy(buffer, headers_length, 0, payload_length);
-			buffer.write('\r\n', headers_length + payload_length, 2, 'utf8');
+			buffer.write('\r\n\r\n', headers_length + payload_length, 4, 'utf8');
 
 		} else {
 
-			buffer = new Buffer(headers_length + payload_length + 2);
+			buffer = new Buffer(headers_length + payload_length + 4);
 			buffer.write(headers_data, 0, headers_length, 'utf8');
 			payload_data.copy(buffer, headers_length, 0, payload_length);
-			buffer.write('\r\n', headers_length + payload_length, 2, 'utf8');
+			buffer.write('\r\n\r\n', headers_length + payload_length, 4, 'utf8');
 
 		}
 
@@ -145,13 +145,16 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 		}
 
 
-		let headers_length = buffer.indexOf('\r\n\r\n');
+		let headers_length = buffer.indexOf('\r\n\r\n') + 4;
 		let headers_data   = buffer.substr(0, headers_length);
-		let payload_data   = buffer.substr(headers_length + 4);
+		let payload_data   = buffer.substr(headers_length);
+		let payload_length = payload_data.length;
+
 
 		let i_end = payload_data.indexOf('\r\n\r\n');
 		if (i_end !== -1) {
-			payload_data = payload_data.substr(0, i_end);
+			payload_data   = payload_data.substr(0, i_end);
+			payload_length = payload_data.length + 4;
 		}
 
 
@@ -269,36 +272,40 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 				});
 
 
-				chunk.bytes   = headers_data.length + payload_data.length + 4;
+				chunk.bytes   = headers_length + payload_length;
 				chunk.payload = new Buffer(JSON.stringify(tmp6), 'utf8');
 
 			} else {
 
-				chunk.bytes   = headers_data.length + payload_data.length + 4;
+				chunk.bytes   = headers_length + payload_length;
 				chunk.payload = new Buffer('', 'utf8');
 
 			}
 
 		} else if (check === 'OPTIONS') {
 
-			chunk.bytes   = headers_data.length + payload_data.length + 4;
+			chunk.bytes   = headers_length + payload_length;
 			chunk.payload = new Buffer('', 'utf8');
 
 		} else if (check === 'POST') {
 
-			chunk.bytes   = headers_data.length + payload_data.length + 4;
+			chunk.bytes   = headers_length + payload_length;
 			chunk.payload = new Buffer(payload_data, 'utf8');
 
 		} else {
 
 			let status = chunk.headers['status'] || null;
 			if (status !== null) {
-				chunk.bytes   = buffer.length;
+
+				chunk.bytes   = headers_length + payload_length;
 				chunk.payload = new Buffer(payload_data, 'utf8');
+
 			} else {
+
 				chunk.bytes   = buffer.length;
 				chunk.headers = null;
 				chunk.payload = null;
+
 			}
 
 		}
@@ -314,9 +321,12 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(type) {
+	let Composite = function(data) {
 
-		this.type = lychee.enumof(Composite.TYPE, type) ? type : null;
+		let settings = Object.assign({}, data);
+
+
+		this.type = lychee.enumof(Composite.TYPE, settings.type) ? settings.type : null;
 
 		this.__buffer   = new Buffer(0);
 		this.__isClosed = false;
@@ -329,6 +339,8 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 			}
 
 		}
+
+		settings = null;
 
 	};
 

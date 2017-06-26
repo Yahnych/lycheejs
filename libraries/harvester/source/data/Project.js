@@ -3,11 +3,8 @@ lychee.define('harvester.data.Project').requires([
 	'harvester.data.Filesystem',
 	'harvester.data.Package',
 	'harvester.data.Server'
-]).includes([
-	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Emitter    = lychee.import('lychee.event.Emitter');
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Package    = lychee.import('harvester.data.Package');
 	const _Server     = lychee.import('harvester.data.Server');
@@ -18,24 +15,34 @@ lychee.define('harvester.data.Project').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(identifier) {
+	let Composite = function(data) {
 
-		identifier = typeof identifier === 'string' ? identifier : null;
+		let settings = Object.assign({}, data);
 
 
-		this.identifier = identifier;
-		this.filesystem = new _Filesystem(identifier);
-		this.package    = new _Package(this.filesystem.read('/lychee.pkg'));
+		this.identifier = typeof settings.identifier === 'string' ? settings.identifier : '/projects/boilerplate';
+		this.filesystem = new _Filesystem({
+			root: this.identifier
+		});
+		this.package    = new _Package({
+			buffer: this.filesystem.read('/lychee.pkg')
+		});
 		this.server     = null;
-		this.harvester  = this.filesystem.info('/harvester.js') !== null;
+		this.harvester  = false;
 
 
 		if (Object.keys(this.package.source).length === 0) {
-			console.error('harvester.data.Project: Invalid package at "' + identifier + '/lychee.pkg".');
+			console.error('harvester.data.Project: Invalid package at "' + this.identifier + '/lychee.pkg".');
 		}
 
 
-		_Emitter.call(this);
+		let check = this.filesystem.info('/harvester.js');
+		if (check !== null) {
+			this.harvester = true;
+		}
+
+
+		settings = null;
 
 	};
 
@@ -52,11 +59,7 @@ lychee.define('harvester.data.Project').requires([
 
 		serialize: function() {
 
-			let data = _Emitter.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.data.Project';
-
-
-			let blob = data['blob'] || {};
+			let blob = {};
 
 
 			if (this.filesystem !== null) blob.filesystem = lychee.serialize(this.filesystem);
@@ -64,11 +67,11 @@ lychee.define('harvester.data.Project').requires([
 			if (this.server !== null)     blob.server     = lychee.serialize(this.server);
 
 
-			data['arguments'] = [ this.identifier ];
-			data['blob']      = Object.keys(blob).length > 0 ? blob : null;
-
-
-			return data;
+			return {
+				'constructor': 'harvester.data.Project',
+				'arguments':   [ this.identifier ],
+				'blob':        Object.keys(blob).length > 0 ? blob : null
+			};
 
 		},
 

@@ -100,5 +100,20 @@
 				"h": 64
 			}
 		]
-	}
+	},
+	"shape": 1,
+	"states": {
+		"default": {
+			"animation": true,
+			"duration": 250,
+			"loop": true
+		},
+		"fire": {
+			"animation": true,
+			"duration": 250,
+			"loop": true
+		}
+	},
+	"width": 64,
+	"height": 64
 }

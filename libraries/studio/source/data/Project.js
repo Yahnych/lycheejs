@@ -143,13 +143,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 	};
 
-	const _write_package = function() {
-
-		// TODO: Implement write package
-
-	};
-
-	const _read_package = function() {
+	const _parse_package = function() {
 
 		let environments = this.config.buffer.build.environments;
 		let platforms    = Object.keys(this.platforms);
@@ -159,7 +153,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 		for (let p = 0, pl = platforms.length; p < pl; p++) {
 
 			let platform = platforms[p];
-            let settings = environments[platform + '/' + id];
+			let settings = environments[platform + '/' + id];
 
 			if (settings instanceof Object) {
 
@@ -210,11 +204,13 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(identifier) {
+	let Composite = function(data) {
 
-		this.identifier  = identifier;
-		this.config      = new Config(identifier + '/lychee.pkg');
-		this.icon        = new Texture(identifier + '/icon.png');
+		let settings = Object.assign({}, data);
+
+		this.identifier  = typeof settings.identifier === 'string' ? settings.identifier : '/projects/boilerplate';
+		this.config      = new Config(this.identifier + '/lychee.pkg');
+		this.icon        = new Texture(this.identifier + '/icon.png');
 		this.harvester   = true;
 		this.platforms   = {
 			'html':         true,
@@ -224,9 +220,12 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			'node-sdl':     true
 		};
 
-		this.__harvester = new Stuff(identifier + '/harvester.js', true);
+		this.__harvester = new Stuff(this.identifier + '/harvester.js', true);
 		this.__build     = null;
 		this.__packages  = [];
+
+
+		settings = null;
 
 	};
 
@@ -236,9 +235,68 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 		 * ENTITY API
 		 */
 
+		deserialize: function(blob) {
+
+			if (blob.config !== undefined) {
+				this.config = lychee.deserialize(blob.config);
+			}
+
+			if (blob.icon !== undefined) {
+				this.icon = lychee.deserialize(blob.icon);
+			}
+
+			if (blob.harvester !== undefined) {
+				this.__harvester = lychee.deserialize(blob.harvester);
+			}
+
+			if (blob.settings instanceof Object) {
+
+				if (blob.settings.harvester !== undefined) {
+					this.harvester = blob.settings.harvester;
+				}
+
+				if (blob.settings.platforms instanceof Object) {
+
+					for (let p in blob.settings.platforms) {
+						this.platforms[p] = blob.settings.platforms[p];
+					}
+
+				}
+
+			}
+
+		},
+
 		serialize: function() {
 
-			// TODO: Implement serialize() and deserialize() API
+			let blob = {};
+
+			if (this.harvester !== true) {
+
+				if (blob.settings === undefined) {
+					blob.settings = {};
+				}
+
+				blob.settings.harvester = this.harvester;
+
+			}
+
+			let platforms = Object.values(this.platforms);
+			if (platforms.includes(false) === true) {
+				blob.settings.platforms = lychee.serialize(this.platforms);
+			}
+
+
+			if (this.config.buffer !== null)      blob.config    = lychee.serialize(this.config);
+			if (this.icon.buffer !== null)        blob.icon      = lychee.serialize(this.icon);
+			if (this.__harvester.buffer !== null) blob.harvester = lychee.serialize(this.__harvester);
+
+
+			return {
+				'constructor': 'studio.data.Project',
+				'arguments':   [ this.identifier ],
+				'blob':        Object.keys(blob).length > 0 ? blob : null
+			};
 
 		},
 
@@ -256,7 +314,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			this.config.onload = function() {
 
 				if (this.buffer instanceof Object) {
-					_read_package.call(that);
+					_parse_package.call(that);
 				}
 
 			};
@@ -286,27 +344,53 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 			}
 
+
+			return true;
+
 		},
 
 		getAssets: function() {
 
-			return _package_files(this.config.buffer).filter(function(val) {
-				return val.substr(-3) !== '.js';
-			});
+			let filtered = [];
+			let files    = _package_files(this.config.buffer);
+
+			for (let f = 0, fl = files.length; f < fl; f++) {
+
+				let file = files[f];
+				if (file.substr(-3) !== '.js') {
+					filtered.push(file);
+				}
+
+			}
+
+			return filtered;
 
 		},
 
 		getEntities: function() {
 
-			return _package_files(this.config.buffer).filter(function(val) {
-				return val.substr(-3) === '.js';
-			});
+			let filtered = [];
+			let files    = _package_files(this.config.buffer);
+
+			for (let f = 0, fl = files.length; f < fl; f++) {
+
+				let file = files[f];
+				if (file.substr(-3) === '.js') {
+					filtered.push(file);
+				}
+
+			}
+
+			return filtered;
 
 		},
 
 		setHarvester: function(harvester) {
 
-			if (harvester === true || harvester === false) {
+			harvester = typeof harvester === 'boolean' ? harvester : null;
+
+
+			if (harvester !== null) {
 
 				this.harvester = harvester;
 

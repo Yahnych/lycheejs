@@ -12,7 +12,7 @@ lychee.define('harvester.net.client.Harvester').includes([
 	 * HELPERS
 	 */
 
-	const _on_id = function(data) {
+	const _on_handshake = function(data) {
 
 		if (typeof data.id === 'string') {
 			_ID = data.id;
@@ -41,7 +41,7 @@ lychee.define('harvester.net.client.Harvester').includes([
 
 		_Service.call(this, 'harvester', client, _Service.TYPE.client);
 
-		this.bind('id', _on_id, this);
+		this.bind('handshake', _on_handshake, this);
 
 	};
 
@@ -77,12 +77,19 @@ lychee.define('harvester.net.client.Harvester').includes([
 
 			if (main !== null && tunnel !== null) {
 
-				tunnel.send(_serialize(main), {
+				let result = tunnel.send(_serialize(main), {
 					id:    this.id,
 					event: 'connect'
 				});
 
+				if (result === true) {
+					return true;
+				}
+
 			}
+
+
+			return false;
 
 		},
 
@@ -93,14 +100,21 @@ lychee.define('harvester.net.client.Harvester').includes([
 
 			if (main !== null && tunnel !== null) {
 
-				tunnel.send({
+				let result = tunnel.send({
 					id: _ID
 				}, {
 					id:    this.id,
 					event: 'disconnect'
 				});
 
+				if (result === true) {
+					return true;
+				}
+
 			}
+
+
+			return false;
 
 		}
 

@@ -1,16 +1,36 @@
 
-lychee.define('strainer.api.Definition').exports(function(lychee, global, attachments) {
+lychee.define('strainer.api.Definition').requires([
+	'strainer.api.PARSER'
+]).exports(function(lychee, global, attachments) {
+
+	const _PARSER = lychee.import('strainer.api.PARSER');
+
+
 
 	/*
 	 * HELPERS
 	 */
 
+	const _validate_asset = function(asset) {
+
+		if (asset instanceof Object && typeof asset.serialize === 'function') {
+			return true;
+		}
+
+		return false;
+
+	};
+
 	const _parse_value = function(str) {
 
 		let val = undefined;
-		try {
-			val = eval('(' + str + ')');
-		} catch (err) {
+		if (/^(this|global)$/g.test(str) === false) {
+
+			try {
+				val = eval('(' + str + ')');
+			} catch (err) {
+			}
+
 		}
 
 		return val;
@@ -44,6 +64,26 @@ lychee.define('strainer.api.Definition').exports(function(lychee, global, attach
 				fileName: null,
 				message:  'No Definition identifier defined.'
 			});
+
+		}
+
+	};
+
+	const _parse_supports = function(supports, stream, errors) {
+
+		let i1 = stream.indexOf('supports(');
+		let i2 = stream.indexOf('})', i1);
+
+		if (i1 !== -1 && i2 !== -1) {
+
+			let body = stream.substr(i1 + 9, i2 - i1 - 8).trim();
+			if (body.length > 0) {
+
+				supports.body       = body;
+				supports.hash       = _PARSER.hash(body);
+				supports.parameters = _PARSER.parameters(body);
+
+			}
 
 		}
 
@@ -183,40 +223,49 @@ lychee.define('strainer.api.Definition').exports(function(lychee, global, attach
 
 		check: function(asset) {
 
-			let stream = asset.buffer.toString('utf8');
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
 			let errors = [];
 			let result = {
 				identifier: null,
 				attaches:   {},
 				tags:       {},
 				requires:   [],
-				includes:   []
+				includes:   [],
+				supports:   {}
 			};
 
+			if (asset !== null) {
 
-			_parse_identifier(result, stream, errors);
-			_parse_attaches(result.attaches, stream, errors);
-			_parse_tags(result.tags, stream, errors);
-			_parse_requires(result.requires, stream, errors);
-			_parse_includes(result.includes, stream, errors);
+				let stream = asset.buffer.toString('utf8');
 
+				_parse_identifier(result, stream, errors);
+				_parse_attaches(result.attaches, stream, errors);
+				_parse_tags(result.tags, stream, errors);
+				_parse_requires(result.requires, stream, errors);
+				_parse_includes(result.includes, stream, errors);
+				_parse_supports(result.supports, stream, errors);
 
-			let i1 = stream.indexOf('lychee.define(');
-			let i2 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+				// XXX: exports are unnecessary
+				// _parse_exports(result.exports, stream, errors);
 
-			if (i1 === -1 || i2 === -1) {
+				let i1 = stream.indexOf('lychee.define(');
+				let i2 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
 
-				errors.push({
-					ruleId:   'no-definition',
-					fileName: null,
-					message:  'No lychee.Definition found.'
-				});
+				if (i1 === -1 || i2 === -1) {
+
+					errors.push({
+						ruleId:   'no-definition',
+						fileName: null,
+						message:  'No lychee.Definition found.',
+						line:     0,
+						column:   0
+					});
+
+				}
 
 			}
-
-			// XXX: supports and exports are unnecessary
-			// _parse_supports(result.supports, stream, errors);
-			// _parse_exports(result.exports, stream, errors);
 
 
 			return {

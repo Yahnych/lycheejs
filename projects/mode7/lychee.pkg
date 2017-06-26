@@ -1,6 +1,36 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Camera": [
+				"json"
+			],
+			"Compositor": [
+				"json"
+			],
+			"Main": [
+				"json"
+			],
+			"Renderer": [
+				"json"
+			],
+			"app": {
+				"entity": {
+					"Background": [
+						"json"
+					]
+				}
+			},
+			"level": {
+				"Track": [
+					"json"
+				]
+			},
+			"state": {
+				"Game": [
+					"json"
+				]
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -59,7 +89,8 @@
 				"variant": "application"
 			}
 		},
-		"files": {}
+		"files": {},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
@@ -76,11 +107,15 @@
 			"Renderer": [
 				"js"
 			],
-			"entity": {
-				"Background": [
-					"js",
-					"png"
-				],
+			"app": {
+				"entity": {
+					"Background": [
+						"js",
+						"png"
+					]
+				}
+			},
+			"level": {
 				"Track": [
 					"circuit.json",
 					"js",

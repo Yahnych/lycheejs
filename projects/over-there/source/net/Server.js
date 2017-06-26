@@ -1,6 +1,5 @@
 
-lychee.define('app.net.Server').requires([
-]).includes([
+lychee.define('app.net.Server').includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
@@ -49,6 +48,8 @@ lychee.define('app.net.Server').requires([
 		/*
 		 * ENTITY API
 		 */
+
+		// deserialize: function(blob) {},
 
 		serialize: function() {
 

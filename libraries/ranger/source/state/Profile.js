@@ -27,30 +27,36 @@ lychee.define('ranger.state.Profile').requires([
 
 		if (profiles instanceof Array) {
 
-			let layer = this.queryLayer('ui', 'profile');
-			let that  = this;
+			let layer = this.query('ui > profile');
+			if (layer !== null) {
+
+				for (let p = 0, pl = profiles.length; p < pl; p++) {
+
+					let profile = profiles[p];
+					let entity  = this.query('ui > profile > ' + profile.identifier);
+
+					if (entity === null) {
+						entity = lychee.deserialize(lychee.serialize(this.query('ui > profile > development')));
+						entity.bind('#change', _on_change, this);
+						layer.setEntity(profile.identifier, entity);
+					}
+
+					if (entity !== null) {
+						entity.setLabel(profile.identifier);
+						entity.getEntity('host').setValue(profile.host);
+						entity.getEntity('port').setValue(profile.port);
+						entity.getEntity('debug').setValue(profile.debug === true ? 'on' : 'off');
+						entity.getEntity('sandbox').setValue(profile.sandbox === true ? 'on' : 'off');
+					}
 
 
-			profiles.forEach(function(profile) {
+					_CACHE[profile.identifier] = profile;
 
-				_CACHE[profile.identifier] = profile;
-
-
-				let entity = layer.getEntity(profile.identifier);
-				if (entity === null) {
-					entity = lychee.deserialize(lychee.serialize(layer.getEntity('development')));
-					entity.bind('#change', _on_change, that);
-					layer.setEntity(profile.identifier, entity);
 				}
 
+				layer.trigger('relayout');
 
-				entity.setLabel(profile.identifier);
-				entity.getEntity('host').setValue(profile.host);
-				entity.getEntity('port').setValue(profile.port);
-				entity.getEntity('debug').setValue(profile.debug === true ? 'on' : 'off');
-				entity.getEntity('sandbox').setValue(profile.sandbox === true ? 'on' : 'off');
-
-			});
+			}
 
 		}
 
@@ -116,7 +122,7 @@ lychee.define('ranger.state.Profile').requires([
 			_State.prototype.deserialize.call(this, blob);
 
 
-			let entity = this.queryLayer('ui', 'profile > development');
+			let entity = this.query('ui > profile > development');
 			if (entity !== null) {
 				entity.bind('#change', _on_change, this);
 			}
@@ -135,6 +141,10 @@ lychee.define('ranger.state.Profile').requires([
 
 		enter: function(oncomplete, data) {
 
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+			data       = typeof data === 'string'       ? data       : null;
+
+
 			let client = this.client;
 			if (client !== null) {
 
@@ -147,11 +157,14 @@ lychee.define('ranger.state.Profile').requires([
 			}
 
 
-			_State.prototype.enter.call(this, oncomplete, data);
+			return _State.prototype.enter.call(this, oncomplete, data);
 
 		},
 
 		leave: function(oncomplete) {
+
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
 
 			let client = this.client;
 			if (client !== null) {
@@ -164,7 +177,7 @@ lychee.define('ranger.state.Profile').requires([
 			}
 
 
-			_State.prototype.leave.call(this, oncomplete);
+			return _State.prototype.leave.call(this, oncomplete);
 
 		}
 

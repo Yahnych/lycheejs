@@ -2,21 +2,21 @@
 lychee.define('app.state.App').requires([
 	'lychee.effect.Alpha',
 	'lychee.effect.Position',
-	'app.entity.Background',
-	'app.entity.Astronaut',
-	'app.entity.Emblem',
-	'app.entity.Midground',
-	'app.entity.Airlock',
-	'app.entity.Room',
+	'app.sprite.Background',
+	'app.sprite.Astronaut',
+	'app.sprite.Emblem',
+	'app.sprite.Midground',
+	'app.sprite.Airlock',
+	'app.sprite.Room',
 	'app.ui.layer.Overlay'
 ]).includes([
 	'lychee.app.State'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Alpha     = lychee.import('lychee.effect.Alpha');
-	const _Astronaut = lychee.import('app.entity.Astronaut');
+	const _Astronaut = lychee.import('app.sprite.Astronaut');
 	const _Position  = lychee.import('lychee.effect.Position');
-	const _Room      = lychee.import('app.entity.Room');
+	const _Room      = lychee.import('app.sprite.Room');
 	const _State     = lychee.import('lychee.app.State');
 	const _BLOB      = attachments["json"].buffer;
 	const _MUSIC     = attachments["msc"];
@@ -29,7 +29,7 @@ lychee.define('app.state.App').requires([
 
 	const _get_room = function(name) {
 
-		let entities = this.queryLayer('foreground', 'ship').entities.filter(function(val) {
+		let entities = this.query('bg3 > ship').entities.filter(function(val) {
 			return val instanceof _Room && val.state === name;
 		});
 
@@ -117,15 +117,15 @@ lychee.define('app.state.App').requires([
 					let height = renderer.height;
 
 
-					entity = this.queryLayer('background', 'background');
+					entity = this.query('bg1 > background');
 					entity.width  = width;
 					entity.height = height;
 
-					entity = this.queryLayer('midground', 'midground');
+					entity = this.query('bg2 > midground');
 					entity.width  = width;
 					entity.height = height;
 
-					entity = this.queryLayer('midground', 'emblem');
+					entity = this.query('bg2 > emblem');
 					entity.position.x = 1 / 2 * width - 128;
 					entity.position.y = 1 / 2 * height - 32;
 
@@ -166,14 +166,14 @@ lychee.define('app.state.App').requires([
 			 * HELP LAYER
 			 */
 
-			this.__overlay = this.queryLayer('ui', 'overlay');
+			this.__overlay = this.query('ui > overlay');
 
 
 			entity = this.getLayer('ui');
 			entity.bind('touch', function(id, position, delta) {
 
 				let entity = null;
-				let target = this.queryLayer('foreground', 'ship').getEntity(null, position);
+				let target = this.query('bg3 > ship').getEntity(null, position);
 
 
 				if (target !== null) {
@@ -183,7 +183,7 @@ lychee.define('app.state.App').requires([
 					this.__overlay.setPosition(target.position);
 					this.__overlay.setVisible(true);
 
-					entity = this.queryLayer('midground', 'midground');
+					entity = this.query('bg2 > midground');
 					entity.alpha = 1.0;
 					entity.addEffect(new _Alpha({
 						type:     _Alpha.TYPE.easeout,
@@ -191,7 +191,7 @@ lychee.define('app.state.App').requires([
 						duration: 300
 					}));
 
-					entity = this.queryLayer('foreground', 'ship');
+					entity = this.query('bg3 > ship');
 					entity.entities.forEach(function(other) {
 
 						if (other !== target) {
@@ -220,7 +220,7 @@ lychee.define('app.state.App').requires([
 					this.__overlay.setEntity(null);
 					this.__overlay.setVisible(false);
 
-					entity = this.queryLayer('midground', 'midground');
+					entity = this.query('bg2 > midground');
 					entity.alpha = 0.1;
 					entity.addEffect(new _Alpha({
 						type:     _Alpha.TYPE.easeout,
@@ -228,7 +228,7 @@ lychee.define('app.state.App').requires([
 						duration: 500
 					}));
 
-					entity = this.queryLayer('foreground', 'ship');
+					entity = this.query('bg3 > ship');
 					entity.entities.forEach(function(other) {
 
 						other.addEffect(new _Alpha({
@@ -258,7 +258,7 @@ lychee.define('app.state.App').requires([
 			}
 
 
-			this.queryLayer('foreground', 'ship').entities.filter(function(val) {
+			this.query('bg3 > ship').entities.filter(function(val) {
 				return val instanceof _Room;
 			}).forEach(function(room) {
 				room.properties['name'] = room.state;
@@ -304,9 +304,11 @@ lychee.define('app.state.App').requires([
 					}));
 
 
-					astronauts.push(astronaut);
-
-					this.queryLayer('foreground', 'ship').addEntity(astronaut);
+					let ship = this.query('bg3 > ship');
+					if (ship !== null) {
+						astronauts.push(astronaut);
+						ship.addEntity(astronaut);
+					}
 
 				}, this);
 
@@ -335,7 +337,7 @@ lychee.define('app.state.App').requires([
 
 		update: function(clock, delta) {
 
-			let background = this.queryLayer('background', 'background');
+			let background = this.query('bg1 > background');
 			if (background !== null) {
 
 				background.setOrigin({
@@ -349,27 +351,28 @@ lychee.define('app.state.App').requires([
 
 		},
 
-		render: function(clock, delta) {
-
-			_State.prototype.render.call(this, clock, delta);
-
-		},
-
 		enter: function(oncomplete, data) {
 
-			_State.prototype.enter.call(this, oncomplete, data);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+			data       = data instanceof Object         ? data       : null;
+
 
 			this.jukebox.play(_MUSIC);
 
-			oncomplete(true);
+
+			return _State.prototype.enter.call(this, oncomplete);
 
 		},
 
 		leave: function(oncomplete) {
 
-			_State.prototype.leave.call(this, oncomplete);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
 
 			this.jukebox.stop(_MUSIC);
+
+
+			return _State.prototype.leave.call(this, oncomplete);
 
 		}
 

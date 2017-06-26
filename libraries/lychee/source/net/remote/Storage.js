@@ -23,21 +23,10 @@ lychee.define('lychee.net.remote.Storage').includes([
 
 		this.bind('sync', function(data) {
 
-			let main = global.MAIN || null;
-			if (main !== null) {
-
-				let storage = main.storage || null;
-				if (storage !== null) {
-
-					storage.deserialize({
-						objects: data.objects
-					});
-
-					storage.sync(true);
-
-				}
-
-			}
+			this.broadcast(data, {
+				id:    this.id,
+				event: 'sync'
+			});
 
 		}, this);
 

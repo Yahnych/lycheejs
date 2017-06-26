@@ -28,17 +28,18 @@ lychee.define('studio.codec.FONT').tags({
 	// const _Canvas  = global.require('canvas');
 	// const _CANVAS  = new _Canvas(300, 150);
 	// const _CONTEXT = _CANVAS.getContext('2d');
+	let   _FONT_ID = 0;
+
 
 	// XXX: Port this to canvas library
-	const _CONTEXT = {};
 	const _CANVAS  = {};
+	const _CONTEXT = {};
 
+	(function(context) {
 
-	// (function(context) {
+		context.antialias = 'subpixel';
 
-	// 	context.antialias = 'subpixel';
-
-	// })(_CONTEXT);
+	})(_CONTEXT);
 
 
 
@@ -85,7 +86,11 @@ lychee.define('studio.codec.FONT').tags({
 		});
 
 
-		measurements.baseline = baselines[0];
+		if (baselines.length > 0) {
+			measurements.baseline = baselines[0];
+		} else {
+			measurements.baseline = 0;
+		}
 
 	};
 
@@ -307,7 +312,7 @@ lychee.define('studio.codec.FONT').tags({
 
 	const _decode = function(font, data) {
 
-		let settings = Object.assign({});
+		let settings = {};
 		let tmp      = font.__font;
 
 
@@ -356,15 +361,15 @@ lychee.define('studio.codec.FONT').tags({
 			data = data instanceof Object ? data : null;
 
 
-			// if (data !== null) {
+			if (data !== null) {
 
-			// 	let font = new Font();
+				let font = new Font('/tmp/Font-' + (_FONT_ID++) + '.fnt');
 
-			// 	_encode(font, data);
+				_encode(font, data);
 
-			// 	return font;
+				return font;
 
-			// }
+			}
 
 
 			return null;

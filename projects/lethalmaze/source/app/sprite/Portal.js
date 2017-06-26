@@ -90,6 +90,8 @@ lychee.define('game.app.sprite.Portal').requires([
 		 * ENTITY API
 		 */
 
+		// deserialize: function(blob) {},
+
 		serialize: function() {
 
 			let data = _Sprite.prototype.serialize.call(this);
@@ -117,7 +119,7 @@ lychee.define('game.app.sprite.Portal').requires([
 				}
 
 
-				let map = this.getMap();
+				let map = this.__map[this.state][this.frame] || null;
 				if (map !== null) {
 
 					x1 = position.x + offsetX - map.w / 2;

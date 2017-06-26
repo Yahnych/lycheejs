@@ -2,8 +2,8 @@
 lychee.define('game.state.Game').requires([
 	'lychee.effect.Shake',
 	'lychee.app.sprite.Background',
-	'game.entity.Board',
-	'game.ui.Label'
+	'game.ui.layer.Board',
+	'game.ui.entity.Label'
 ]).includes([
 	'lychee.app.State'
 ]).exports(function(lychee, global, attachments) {
@@ -54,7 +54,7 @@ lychee.define('game.state.Game').requires([
 
 	const _is_game_draw = function() {
 
-		let empty = this.queryLayer('ui', 'board').entities.filter(function(tile) {
+		let empty = this.query('ui > board').entities.filter(function(tile) {
 			return tile.state === 'default';
 		});
 
@@ -69,8 +69,8 @@ lychee.define('game.state.Game').requires([
 
 	const _is_game_won = function(player) {
 
-		let tiles  = this.queryLayer('ui', 'board').entities;
-		let state  = 'active-' + player;
+		let tiles = this.query('ui > board').entities;
+		let state = 'active-' + player;
 
 
 		for (let y = 1; y <= 3; y++) {
@@ -121,7 +121,7 @@ lychee.define('game.state.Game').requires([
 		this.__player = 'x';
 
 
-		let board = this.queryLayer('ui', 'board');
+		let board = this.query('ui > board');
 		if (board !== null) {
 
 			board.entities.forEach(function(entity) {
@@ -158,7 +158,7 @@ lychee.define('game.state.Game').requires([
 		}
 
 
-		let score = this.queryLayer('ui', 'score');
+		let score = this.query('ui > score');
 		if (score !== null) {
 			score.setValue(this.__scores.x + ' : ' + this.__scores.o);
 		}
@@ -201,7 +201,7 @@ lychee.define('game.state.Game').requires([
 					let height = renderer.height;
 
 
-					entity = this.queryLayer('background', 'background');
+					entity = this.query('bg > background');
 					entity.width     = width;
 					entity.height    = height;
 					entity.__isDirty = true;
@@ -236,9 +236,12 @@ lychee.define('game.state.Game').requires([
 			_State.prototype.deserialize.call(this, blob);
 
 
-			this.queryLayer('ui', 'board').entities.forEach(function(entity) {
-				entity.bind('#touch', _on_touch, this);
-			}.bind(this));
+			let board = this.query('ui > board');
+			if (board !== null) {
+				board.entities.forEach(function(entity) {
+					entity.bind('#touch', _on_touch, this);
+				}.bind(this));
+			}
 
 		},
 
@@ -250,7 +253,7 @@ lychee.define('game.state.Game').requires([
 
 		enter: function(oncomplete) {
 
-			_State.prototype.enter.call(this, oncomplete);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
 
 
 			this.__player   = 'x';
@@ -261,26 +264,32 @@ lychee.define('game.state.Game').requires([
 			this.jukebox.play(_MUSIC);
 
 
-			let board = this.queryLayer('ui', 'board');
+			let board = this.query('ui > board');
 			if (board !== null) {
 				board.entities.forEach(function(entity) {
 					entity.setState('default');
 				});
 			}
 
-			let score = this.queryLayer('ui', 'score');
+			let score = this.query('ui > score');
 			if (score !== null) {
 				score.setValue('0 : 0');
 			}
+
+
+			return _State.prototype.enter.call(this, oncomplete);
 
 		},
 
 		leave: function(oncomplete) {
 
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
+
 			this.jukebox.stop(_MUSIC);
 
 
-			_State.prototype.leave.call(this, oncomplete);
+			return _State.prototype.leave.call(this, oncomplete);
 
 		}
 

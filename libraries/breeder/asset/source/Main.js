@@ -83,7 +83,7 @@ lychee.define('app.Main').requires([
 			this.setState('welcome', new _app.state.Welcome(this));
 
 
-			this.changeState('welcome');
+			this.changeState('welcome', 'welcome');
 
 		}, this, true);
 

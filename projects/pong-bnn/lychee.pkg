@@ -1,6 +1,45 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"ai": {
+				"Agent": [
+					"json"
+				]
+			},
+			"app": {
+				"sprite": {
+					"Ball": [
+						"json"
+					],
+					"Paddle": [
+						"json"
+					]
+				}
+			},
+			"policy": {
+				"Ball": [
+					"json"
+				],
+				"Paddle": [
+					"json"
+				]
+			},
+			"state": {
+				"Game": [
+					"json"
+				]
+			},
+			"ui": {
+				"sprite": {
+					"Background": [
+						"json"
+					]
+				}
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -40,7 +79,8 @@
 				"variant": "application"
 			}
 		},
-		"files": {}
+		"files": {},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
@@ -53,18 +93,20 @@
 					"js"
 				]
 			},
-			"entity": {
-				"Ball": [
-					"js",
-					"json",
-					"png"
-				],
-				"Paddle": [
-					"evil.png",
-					"good.png",
-					"js",
-					"json"
-				]
+			"app": {
+				"sprite": {
+					"Ball": [
+						"js",
+						"json",
+						"png"
+					],
+					"Paddle": [
+						"evil.png",
+						"good.png",
+						"js",
+						"json"
+					]
+				}
 			},
 			"policy": {
 				"Ball": [

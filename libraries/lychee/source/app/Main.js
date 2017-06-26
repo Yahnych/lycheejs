@@ -117,58 +117,72 @@ lychee.define('lychee.app.Main').requires([
 		if (settings.stash !== null) {
 
 			this.stash = new _Stash(settings.stash);
-			this.stash.bind('sync', function(data) {
+
+
+			// Give custom clients 1000ms to connect
+			setTimeout(function() {
 
 				let client = this.client;
 				if (client !== null) {
 
 					let service = client.getService('stash');
 					if (service !== null) {
-						service.sync(data);
+
+						service.bind('sync', function(data) {
+
+							this.stash.deserialize({
+								assets: data.assets
+							});
+
+							this.stash.sync(true);
+
+						}, this);
+
+						this.stash.bind('sync', function(assets) {
+							service.sync(assets);
+						}, this);
+
 					}
 
 				}
 
-				let server = this.server;
-				if (server !== null) {
-
-					let service = server.getService('stash');
-					if (service !== null) {
-						service.sync(data);
-					}
-
-				}
-
-			}, this);
+			}.bind(this), 1000);
 
 		}
 
 		if (settings.storage !== null) {
 
 			this.storage = new _Storage(settings.storage);
-			this.storage.bind('sync', function(data) {
+
+
+			// Give custom clients 1000ms to connect
+			setTimeout(function() {
 
 				let client = this.client;
 				if (client !== null) {
 
 					let service = client.getService('storage');
 					if (service !== null) {
-						service.sync(data);
+
+						service.bind('sync', function(data) {
+
+							this.storage.deserialize({
+								objects: data.objects
+							});
+
+							this.storage.sync(true);
+
+						}, this);
+
+						this.storage.bind('sync', function(objects) {
+							service.sync(objects);
+						}, this);
+
 					}
 
 				}
 
-				let server = this.server;
-				if (server !== null) {
-
-					let service = server.getService('storage');
-					if (service !== null) {
-						service.sync(data);
-					}
-
-				}
-
-			}, this);
+			}.bind(this), 1000);
 
 		}
 
@@ -486,6 +500,9 @@ lychee.define('lychee.app.Main').requires([
 
 			flow.init();
 
+
+			return true;
+
 		},
 
 		destroy: function() {
@@ -531,6 +548,9 @@ lychee.define('lychee.app.Main').requires([
 				this.viewport.destroy();
 				this.viewport = null;
 			}
+
+
+			return true;
 
 		},
 

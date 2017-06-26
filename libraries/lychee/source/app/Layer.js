@@ -14,6 +14,24 @@ lychee.define('lychee.app.Layer').requires([
 	 * HELPERS
 	 */
 
+	const _validate_effect = function(effect) {
+
+		if (effect instanceof Object) {
+
+			if (
+				typeof effect.update === 'function'
+				&& typeof effect.render === 'function'
+			) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	};
+
 	const _validate_entity = function(entity) {
 
 		if (entity instanceof Object) {
@@ -416,15 +434,8 @@ lychee.define('lychee.app.Layer').requires([
 
 			let entities = this.entities;
 			for (let en = 0, enl = entities.length; en < enl; en++) {
-
-				entities[en].render(
-					renderer,
-					ox,
-					oy
-				);
-
+				entities[en].render(renderer, ox, oy);
 			}
-
 
 			let effects = this.effects;
 			for (let ef = 0, efl = effects.length; ef < efl; ef++) {
@@ -439,19 +450,17 @@ lychee.define('lychee.app.Layer').requires([
 
 			if (lychee.debug === true) {
 
-				ox = position.x + offsetX;
-				oy = position.y + offsetY;
-
-
+				let bx      = position.x + offsetX;
+				let by      = position.y + offsetY;
 				let hwidth  = this.width  / 2;
 				let hheight = this.height / 2;
 
 
 				renderer.drawBox(
-					ox - hwidth,
-					oy - hheight,
-					ox + hwidth,
-					oy + hheight,
+					bx - hwidth,
+					by - hheight,
+					bx + hwidth,
+					by + hheight,
 					'#ffff00',
 					false,
 					1
@@ -488,9 +497,44 @@ lychee.define('lychee.app.Layer').requires([
 		 * CUSTOM API
 		 */
 
+		query: function(query) {
+
+			query = typeof query === 'string' ? query : null;
+
+
+			if (query !== null) {
+
+				let tmp    = query.split(' > ');
+				let entity = this.getEntity(tmp[0].trim());
+				if (entity !== null) {
+
+					for (let t = 1, tl = tmp.length; t < tl; t++) {
+
+						entity = entity.getEntity(tmp[t].trim());
+
+						if (entity === null) {
+							break;
+						}
+
+					}
+
+				}
+
+				return entity;
+
+			}
+
+
+			return null;
+
+		},
+
 		isAtPosition: function(position) {
 
-			if (position instanceof Object) {
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
 
 				if (typeof position.x === 'number' && typeof position.y === 'number') {
 
@@ -531,12 +575,12 @@ lychee.define('lychee.app.Layer').requires([
 
 		setAlpha: function(alpha) {
 
-			alpha = (typeof alpha === 'number' && alpha >= 0 && alpha <= 1) ? alpha : null;
+			alpha = typeof alpha === 'number' ? alpha : null;
 
 
 			if (alpha !== null) {
 
-				this.alpha = alpha;
+				this.alpha = Math.min(Math.max(alpha, 0), 1);
 
 				return true;
 
@@ -549,7 +593,7 @@ lychee.define('lychee.app.Layer').requires([
 
 		addEffect: function(effect) {
 
-			effect = effect instanceof Object && typeof effect.update === 'function' ? effect : null;
+			effect = _validate_effect(effect) ? effect : null;
 
 
 			if (effect !== null) {
@@ -572,7 +616,7 @@ lychee.define('lychee.app.Layer').requires([
 
 		removeEffect: function(effect) {
 
-			effect = effect instanceof Object && typeof effect.update === 'function' ? effect : null;
+			effect = _validate_effect(effect) ? effect : null;
 
 
 			if (effect !== null) {
@@ -628,7 +672,6 @@ lychee.define('lychee.app.Layer').requires([
 						this.trigger('relayout');
 					}
 
-
 					return true;
 
 				}
@@ -649,13 +692,14 @@ lychee.define('lychee.app.Layer').requires([
 			if (id !== null && entity !== null && this.__map[id] === undefined) {
 
 				this.__map[id] = entity;
+				this.entities.push(entity);
 
-				let result = this.addEntity(entity);
-				if (result === true) {
-					return true;
-				} else {
-					delete this.__map[id];
+				if (this.__relayout === true) {
+					this.trigger('relayout');
 				}
+
+
+				return true;
 
 			}
 
@@ -765,13 +809,24 @@ lychee.define('lychee.app.Layer').requires([
 
 			if (entities !== null) {
 
+				let filtered = [];
+
 				for (let e = 0, el = entities.length; e < el; e++) {
 
-					let result = this.addEntity(entities[e]);
-					if (result === false) {
+					let entity = entities[e];
+					let index  = filtered.indexOf(entity);
+					if (index === -1) {
+						filtered.push(entity);
+					} else {
 						all = false;
 					}
 
+				}
+
+				this.entities = filtered;
+
+				if (this.__relayout === true) {
+					this.trigger('relayout');
 				}
 
 			}
@@ -786,8 +841,7 @@ lychee.define('lychee.app.Layer').requires([
 
 			for (let e = 0, el = entities.length; e < el; e++) {
 
-				this.removeEntity(entities[e]);
-
+				entities.splice(e, 1);
 				el--;
 				e--;
 
@@ -799,7 +853,10 @@ lychee.define('lychee.app.Layer').requires([
 
 		setGrid: function(grid) {
 
-			if (grid instanceof Object) {
+			grid = grid instanceof Object ? grid : null;
+
+
+			if (grid !== null) {
 
 				this.grid.width  = typeof grid.width === 'number'  ? grid.width  : this.grid.width;
 				this.grid.height = typeof grid.height === 'number' ? grid.height : this.grid.height;
@@ -816,7 +873,10 @@ lychee.define('lychee.app.Layer').requires([
 
 		setOffset: function(offset) {
 
-			if (offset instanceof Object) {
+			offset = offset instanceof Object ? offset : null;
+
+
+			if (offset !== null) {
 
 				this.offset.x = typeof offset.x === 'number' ? offset.x : this.offset.x;
 				this.offset.y = typeof offset.y === 'number' ? offset.y : this.offset.y;
@@ -838,7 +898,10 @@ lychee.define('lychee.app.Layer').requires([
 
 		setPosition: function(position) {
 
-			if (position instanceof Object) {
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
 
 				this.position.x = typeof position.x === 'number' ? position.x : this.position.x;
 				this.position.y = typeof position.y === 'number' ? position.y : this.position.y;
@@ -873,7 +936,10 @@ lychee.define('lychee.app.Layer').requires([
 
 		setRelayout: function(relayout) {
 
-			if (relayout === true || relayout === false) {
+			relayout = typeof relayout === 'boolean' ? relayout : null;
+
+
+			if (relayout !== null) {
 
 				this.__relayout = relayout;
 
@@ -888,7 +954,10 @@ lychee.define('lychee.app.Layer').requires([
 
 		setVisible: function(visible) {
 
-			if (visible === true || visible === false) {
+			visible = typeof visible === 'boolean' ? visible : null;
+
+
+			if (visible !== null) {
 
 				this.visible = visible;
 

@@ -33,7 +33,7 @@ lychee.define('Storage').tags({
 	const _PERSISTENT = {
 		data: {},
 		read: function() {
-			return null;
+			return false;
 		},
 		write: function() {
 			return false;
@@ -42,14 +42,7 @@ lychee.define('Storage').tags({
 	const _TEMPORARY  = {
 		data: {},
 		read: function() {
-
-			if (Object.keys(this.data).length > 0) {
-				return this.data;
-			}
-
-
-			return null;
-
+			return true;
 		},
 		write: function() {
 			return true;

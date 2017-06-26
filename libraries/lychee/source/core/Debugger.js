@@ -65,7 +65,9 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 	const _report_error = function(environment, data) {
 
+		let info = 'Report from ' + data.file + '#L' + data.line + ' in ' + data.method;
 		let main = environment.global.MAIN || null;
+
 		if (main !== null) {
 
 			let client = main.client || null;
@@ -73,7 +75,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 				let service = client.getService('debugger');
 				if (service !== null) {
-					service.report('lychee.Debugger: Report from ' + data.file + '#L' + data.line + ' in ' + data.method + '', data);
+					service.report('lychee.Debugger: ' + info, data);
 				}
 
 			}
@@ -81,8 +83,8 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 		}
 
 
-		console.error('lychee.Debugger: Report from ' + data.file + '#L' + data.line + ' in ' + data.method + '');
-		console.error('lychee.Debugger:             ' + data.definition + ' - "' + data.message + '"');
+		console.error('lychee.Debugger: ' + info);
+		console.error('lychee.Debugger: ' + data.message.trim());
 
 	};
 

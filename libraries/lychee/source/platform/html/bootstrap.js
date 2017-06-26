@@ -74,52 +74,61 @@
 
 	const _load_asset = function(settings, callback, scope) {
 
-		let path = lychee.environment.resolve(settings.url);
-		let xhr  = new XMLHttpRequest();
+		settings = settings instanceof Object   ? settings : null;
+		callback = callback instanceof Function ? callback : null;
+		scope    = scope !== undefined          ? scope    : null;
 
 
-		if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
-			xhr.open('GET', _protocol + '://' + path, true);
-		} else {
-			xhr.open('GET', path, true);
+		if (settings !== null && callback !== null && scope !== null) {
+
+			let path = lychee.environment.resolve(settings.url);
+			let xhr  = new XMLHttpRequest();
+
+
+			if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+				xhr.open('GET', _protocol + '://' + path, true);
+			} else {
+				xhr.open('GET', path, true);
+			}
+
+
+			if (settings.headers instanceof Object) {
+
+				for (let header in settings.headers) {
+					xhr.setRequestHeader(header, settings.headers[header]);
+				}
+
+			}
+
+
+			xhr.onload = function() {
+
+				try {
+					callback.call(scope, xhr.responseText || xhr.responseXML);
+				} catch (err) {
+					lychee.Debugger.report(lychee.environment, err, null);
+				} finally {
+					xhr = null;
+				}
+
+			};
+
+			xhr.onerror = xhr.ontimeout = function() {
+
+				try {
+					callback.call(scope, null);
+				} catch (err) {
+					lychee.Debugger.report(lychee.environment, err, null);
+				} finally {
+					xhr = null;
+				}
+
+			};
+
+
+			xhr.send(null);
+
 		}
-
-
-		if (settings.headers instanceof Object) {
-
-			for (let header in settings.headers) {
-				xhr.setRequestHeader(header, settings.headers[header]);
-			}
-
-		}
-
-
-		xhr.onload = function() {
-
-			try {
-				callback.call(scope, xhr.responseText || xhr.responseXML);
-			} catch (err) {
-				lychee.Debugger.report(lychee.environment, err, null);
-			} finally {
-				xhr = null;
-			}
-
-		};
-
-		xhr.onerror = xhr.ontimeout = function() {
-
-			try {
-				callback.call(scope, null);
-			} catch (err) {
-				lychee.Debugger.report(lychee.environment, err, null);
-			} finally {
-				xhr = null;
-			}
-
-		};
-
-
-		xhr.send(null);
 
 	};
 
@@ -142,6 +151,96 @@
 	let    _std_out = '';
 	let    _std_err = '';
 
+	const _INDENT         = '    ';
+	const _args_to_string = function(args) {
+
+		let output = [];
+
+		for (let a = 0, al = args.length; a < al; a++) {
+
+			let value = args[a];
+			let o     = 0;
+
+			if (value instanceof Object) {
+
+				let tmp = [];
+
+				try {
+
+					let cache = [];
+
+					tmp = JSON.stringify(value, function(key, value) {
+
+						if (value instanceof Object) {
+
+							if (cache.indexOf(value) === -1) {
+								cache.push(value);
+								return value;
+							} else {
+								return undefined;
+							}
+
+						} else {
+							return value;
+						}
+
+					}, _INDENT).split('\n');
+
+				} catch (err) {
+				}
+
+				if (tmp.length > 1) {
+
+					for (let t = 0, tl = tmp.length; t < tl; t++) {
+						output.push(tmp[t]);
+					}
+
+					o = output.length - 1;
+
+				} else {
+
+					let chunk = output[o];
+					if (chunk === undefined) {
+						output[o] = tmp[0].trim();
+					} else {
+						output[o] = (chunk + ' ' + tmp[0]).trim();
+					}
+
+				}
+
+			} else if (typeof value === 'string' && value.includes('\n')) {
+
+				let tmp = value.split('\n');
+
+				for (let t = 0, tl = tmp.length; t < tl; t++) {
+					output.push(tmp[t]);
+				}
+
+				o = output.length - 1;
+
+			} else {
+
+				let chunk = output[o];
+				if (chunk === undefined) {
+					output[o] = ('' + value).replace(/\t/g, _INDENT).trim();
+				} else {
+					output[o] = (chunk + (' ' + value).replace(/\t/g, _INDENT)).trim();
+				}
+
+			}
+
+		}
+
+
+		let ol = output.length;
+		if (ol > 1) {
+			return output.join('\n');
+		} else {
+			return output[0];
+		}
+
+	};
+
 
 	console.clear = function() {
 		_clear.call(console);
@@ -155,7 +254,8 @@
 			args.push(arguments[a]);
 		}
 
-		_std_out += args.join('\t') + '\n';
+		_std_out += _args_to_string(args) + '\n';
+
 		_log.apply(console, args);
 
 	};
@@ -168,7 +268,8 @@
 			args.push(arguments[a]);
 		}
 
-		_std_out += args.join('\t') + '\n';
+		_std_out += _args_to_string(args) + '\n';
+
 		_info.apply(console, args);
 
 	};
@@ -181,7 +282,8 @@
 			args.push(arguments[a]);
 		}
 
-		_std_out += args.join('\t') + '\n';
+		_std_out += _args_to_string(args) + '\n';
+
 		_warn.apply(console, args);
 
 	};
@@ -194,7 +296,8 @@
 			args.push(arguments[a]);
 		}
 
-		_std_err += args.join('\t') + '\n';
+		_std_err += _args_to_string(args) + '\n';
+
 		_error.apply(console, args);
 
 	};
@@ -300,8 +403,8 @@
 
 	(function() {
 
-		let _buffer_cache = {};
-		let _load_buffer  = function(url) {
+		const _buffer_cache = {};
+		const _load_buffer  = function(url) {
 
 			let cache = _buffer_cache[url] || null;
 			if (cache === null) {
@@ -1225,14 +1328,22 @@
 		}
 
 
+		_parse_font_characters.call(this);
+
+	};
+
+	const _parse_font_characters = function() {
+
+		let data = this.__buffer;
+		let url  = this.url;
+
+		if (_CHAR_CACHE[url] === undefined) {
+			_CHAR_CACHE[url] = {};
+		}
+
 		if (data.map instanceof Array) {
 
 			let offset = this.spacing;
-			let url    = this.url;
-
-			if (_CHAR_CACHE[url] === undefined) {
-				_CHAR_CACHE[url] = {};
-			}
 
 			for (let c = 0, cl = this.charset.length; c < cl; c++) {
 
@@ -1363,49 +1474,133 @@
 			text = typeof text === 'string' ? text : '';
 
 
-			let cache = _CHAR_CACHE[this.url] || null;
-			if (cache !== null) {
+			let buffer = this.__buffer;
+			if (buffer !== null) {
 
-				let tl = text.length;
-				if (tl === 1) {
+				// Cache Usage
+				if (this.__load === false) {
 
-					if (cache[text] !== undefined) {
-						return cache[text];
-					}
+					let cache = _CHAR_CACHE[this.url] || null;
+					if (cache !== null) {
 
-				} else if (tl > 1) {
+						let tl = text.length;
+						if (tl === 1) {
 
-					let data = cache[text] || null;
-					if (data === null) {
+							if (cache[text] !== undefined) {
+								return cache[text];
+							}
 
-						let width = 0;
+						} else if (tl > 1) {
 
-						for (let t = 0; t < tl; t++) {
-							let chr = this.measure(text[t]);
-							width  += chr.realwidth + this.kerning;
+							let data = cache[text] || null;
+							if (data === null) {
+
+								let width = 0;
+								let map   = buffer.map;
+
+								for (let t = 0; t < tl; t++) {
+
+									let m = this.charset.indexOf(text[t]);
+									if (m !== -1) {
+										width += map[m] + this.kerning;
+									}
+
+								}
+
+								if (width > 0) {
+
+									// TODO: Embedded Font ligatures will set x and y values based on settings.map
+									data = cache[text] = {
+										width:      width,
+										height:     this.lineheight,
+										realwidth:  width,
+										realheight: this.lineheight,
+										x:          0,
+										y:          0
+									};
+
+								}
+
+							}
+
+
+							return data;
+
 						}
 
 
-						// TODO: Embedded Font ligatures will set x and y values based on settings.map
+						return cache[''];
 
-						data = cache[text] = {
-							width:      width,
-							height:     this.lineheight,
-							realwidth:  width,
-							realheight: this.lineheight,
-							x:          0,
-							y:          0
-						};
+					}
+
+				// Temporary Usage
+				} else {
+
+					let tl = text.length;
+					if (tl === 1) {
+
+						let m = this.charset.indexOf(text);
+						if (m !== -1) {
+
+							let offset  = this.spacing;
+							let spacing = this.spacing;
+							let map     = buffer.map;
+
+							for (let c = 0; c < m; c++) {
+								offset += map[c] + spacing * 2;
+							}
+
+							return {
+								width:      map[m] + spacing * 2,
+								height:     this.lineheight,
+								realwidth:  map[m],
+								realheight: this.lineheight,
+								x:          offset - spacing,
+								y:          0
+							};
+
+						}
+
+					} else if (tl > 1) {
+
+						let width = 0;
+						let map   = buffer.map;
+
+						for (let t = 0; t < tl; t++) {
+
+							let m = this.charset.indexOf(text[t]);
+							if (m !== -1) {
+								width += map[m] + this.kerning;
+							}
+
+						}
+
+						if (width > 0) {
+
+							return {
+								width:      width,
+								height:     this.lineheight,
+								realwidth:  width,
+								realheight: this.lineheight,
+								x:          0,
+								y:          0
+							};
+
+						}
 
 					}
 
 
-					return data;
+					return {
+						width:      0,
+						height:     this.lineheight,
+						realwidth:  0,
+						realheight: this.lineheight,
+						x:          0,
+						y:          0
+					};
 
 				}
-
-
-				return cache[''];
 
 			}
 

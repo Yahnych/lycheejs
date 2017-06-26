@@ -2,20 +2,20 @@
 lychee.define('game.state.Game').requires([
 	'lychee.math.Mersenne',
 	'lychee.ui.entity.Label',
+	'game.app.sprite.Goal',
+	'game.app.sprite.Plane',
 	'game.effect.Explosion',
-	'game.entity.Goal',
-	'game.entity.Plane',
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Explosion  = lychee.import('game.effect.Explosion');
-	const _Goal       = lychee.import('game.entity.Goal');
-	const _Mersenne   = lychee.import('lychee.math.Mersenne');
-	const _Plane      = lychee.import('game.entity.Plane');
-	const _State      = lychee.import('lychee.app.State');
-	const _BLOB       = attachments["json"].buffer;
+	const _Explosion = lychee.import('game.effect.Explosion');
+	const _Goal      = lychee.import('game.app.sprite.Goal');
+	const _Mersenne  = lychee.import('lychee.math.Mersenne');
+	const _Plane     = lychee.import('game.app.sprite.Plane');
+	const _State     = lychee.import('lychee.app.State');
+	const _BLOB      = attachments["json"].buffer;
 
 
 
@@ -68,7 +68,9 @@ lychee.define('game.state.Game').requires([
 		stats.score     = 0;
 
 
-		this.twister = new _Mersenne(1337);
+		this.twister = new _Mersenne({
+			seed: 1337
+		});
 
 
 		_reset_goals.call(this, true);
@@ -151,7 +153,9 @@ lychee.define('game.state.Game').requires([
 		_State.call(this, main);
 
 
-		this.twister = new _Mersenne(1337);
+		this.twister = new _Mersenne({
+			seed: 1337
+		});
 
 
 		this.__cache = {
@@ -189,11 +193,11 @@ lychee.define('game.state.Game').requires([
 					let height = renderer.height;
 
 
-					entity = this.queryLayer('bg', 'background');
+					entity = this.query('bg > background');
 					entity.trigger('reshape', [ null, null, width, height ]);
 					this.__cache.background = entity;
 
-					entity = this.queryLayer('ui', 'info');
+					entity = this.query('ui > info');
 					entity.setPosition({
 						y: -1 / 2 * height + 32
 					});
@@ -263,6 +267,9 @@ lychee.define('game.state.Game').requires([
 
 		enter: function(oncomplete) {
 
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
+
 			_reset_game.call(this);
 
 
@@ -276,9 +283,15 @@ lychee.define('game.state.Game').requires([
 				oncomplete(true);
 			}
 
+
+			return true;
+
 		},
 
 		leave: function(oncomplete) {
+
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
 
 			let input = this.input;
 			if (input !== null) {
@@ -289,6 +302,9 @@ lychee.define('game.state.Game').requires([
 			if (oncomplete !== null) {
 				oncomplete(true);
 			}
+
+
+			return true;
 
 		},
 

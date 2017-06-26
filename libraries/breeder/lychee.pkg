@@ -1,6 +1,13 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"Template": [
+				"json"
+			]
+		}
 	},
 	"build": {
 		"environments": {
@@ -48,7 +55,8 @@
 					]
 				}
 			}
-		}
+		},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},

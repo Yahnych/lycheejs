@@ -27,7 +27,7 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 			-webkit-user-select: none;
-		} 
+		}
 	</style>
 
 </head>

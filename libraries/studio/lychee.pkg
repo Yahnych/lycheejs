@@ -1,6 +1,83 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"data": {
+				"Project": [
+					"json"
+				]
+			},
+			"net": {
+				"Client": [
+					"json"
+				],
+				"Server": [
+					"json"
+				]
+			},
+			"platform": {
+				"html": {
+					"codec": {
+						"FONT": [
+							"json"
+						],
+						"SPRITE": [
+							"json"
+						]
+					}
+				},
+				"node": {
+					"codec": {
+						"FONT": [
+							"json"
+						],
+						"SPRITE": [
+							"json"
+						]
+					}
+				}
+			},
+			"state": {
+				"Asset": [
+					"json"
+				],
+				"Project": [
+					"json"
+				]
+			},
+			"ui": {
+				"element": {
+					"modify": {
+						"Font": [
+							"json"
+						],
+						"Project": [
+							"json"
+						],
+						"Sprite": [
+							"json"
+						]
+					},
+					"preview": {
+						"Font": [
+							"json"
+						],
+						"Sprite": [
+							"json"
+						]
+					}
+				},
+				"entity": {
+					"input": {
+						"Font": [
+							"json"
+						]
+					}
+				}
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -30,6 +107,27 @@
 					"server": "http://localhost:4848/api/server/connect?identifier=/libraries/studio"
 				}
 			},
+			"html/dist": {
+				"build": "studio.Main",
+				"debug": false,
+				"packages": [
+					[
+						"studio",
+						"./lychee.pkg"
+					],
+					[
+						"harvester",
+						"/libraries/harvester/lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"variant": "library"
+			},
 			"html/main": {
 				"build": "studio.Main",
 				"debug": false,
@@ -52,8 +150,29 @@
 				"variant": "application",
 				"profile": {
 					"client": "http://localhost:4848/api/server/connect?identifier=/libraries/studio",
-					"server": "http://localhost:4848/api/server/connect?identifier=/libraries/studio"
+					"server": null
 				}
+			},
+			"node/dist": {
+				"build": "studio.Main",
+				"debug": false,
+				"packages": [
+					[
+						"studio",
+						"./lychee.pkg"
+					],
+					[
+						"harvester",
+						"/libraries/harvester/lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"variant": "library"
 			},
 			"node/main": {
 				"build": "studio.Main",
@@ -81,7 +200,23 @@
 				}
 			}
 		},
-		"files": {}
+		"files": {
+			"html": {
+				"dist": {
+					"index": [
+						"js"
+					]
+				}
+			},
+			"node": {
+				"dist": {
+					"index": [
+						"js"
+					]
+				}
+			}
+		},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
@@ -107,12 +242,18 @@
 					"codec": {
 						"FONT": [
 							"js"
+						],
+						"SPRITE": [
+							"js"
 						]
 					}
 				},
 				"node": {
 					"codec": {
 						"FONT": [
+							"js"
+						],
+						"SPRITE": [
 							"js"
 						]
 					}
@@ -136,11 +277,25 @@
 						],
 						"Project": [
 							"js"
+						],
+						"Sprite": [
+							"js"
 						]
 					},
 					"preview": {
 						"Font": [
 							"js"
+						],
+						"Sprite": [
+							"js"
+						]
+					}
+				},
+				"entity": {
+					"input": {
+						"Font": [
+							"js",
+							"json"
 						]
 					}
 				}

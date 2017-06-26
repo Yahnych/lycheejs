@@ -15,32 +15,6 @@ lychee.define('lychee.net.client.Storage').includes([
 
 		_Service.call(this, 'storage', client, _Service.TYPE.client);
 
-
-
-		/*
-		 * INITIALIZATION
-		 */
-
-		this.bind('sync', function(data) {
-
-			let main = global.MAIN || null;
-			if (main !== null) {
-
-				let storage = main.storage || null;
-				if (storage !== null) {
-
-					storage.deserialize({
-						objects: data.objects
-					});
-
-					storage.sync(true);
-
-				}
-
-			}
-
-		}, this);
-
 	};
 
 

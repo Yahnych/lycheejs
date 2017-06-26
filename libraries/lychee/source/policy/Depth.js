@@ -7,15 +7,8 @@ lychee.define('lychee.policy.Depth').exports(function(lychee, global, attachment
 
 	let Composite = function(settings) {
 
-		this.entity = null;
+		this.entity = settings.entity instanceof Object  ? settings.entity      : null;
 		this.limit  = typeof settings.limit === 'number' ? (settings.limit | 0) : Infinity;
-
-
-		// No data validation garbage allowed for policies
-
-		if (settings.entity instanceof Object) {
-			this.entity = settings.entity;
-		}
 
 	};
 
@@ -81,7 +74,12 @@ lychee.define('lychee.policy.Depth').exports(function(lychee, global, attachment
 
 				entity.depth = (values[0] * (hl * 2)) - hl;
 
+				return true;
+
 			}
+
+
+			return false;
 
 		}
 

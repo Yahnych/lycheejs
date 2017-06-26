@@ -78,8 +78,9 @@ lychee.define('lychee.ui.element.Jukebox').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Jukebox';
-		settings.options = [ 'Save' ];
+		settings.label    = 'Jukebox';
+		settings.options  = [ 'Save' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);

@@ -82,8 +82,9 @@ lychee.define('lychee.ui.element.Input').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Input';
-		settings.options = [ 'Save' ];
+		settings.label    = 'Input';
+		settings.options  = [ 'Save' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);

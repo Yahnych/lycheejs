@@ -1,11 +1,5 @@
 
-lychee.define('harvester.data.Package').includes([
-	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
-
-	const _Emitter = lychee.import('lychee.event.Emitter');
-
-
+lychee.define('harvester.data.Package').exports(function(lychee, global, attachments) {
 
 	/*
 	 * HELPERS
@@ -83,19 +77,19 @@ lychee.define('harvester.data.Package').includes([
 
 			node.forEach(function(ext) {
 
-				if (/msc|snd/.test(ext)) {
+				if (/(msc|snd)$/.test(ext)) {
 
 					if (files.indexOf(path + '.' + ext) === -1) {
 						files.push(path + '.' + ext);
 					}
 
-				} else if (/js|json|fnt|png/.test(ext)) {
+				} else if (/(js|json|fnt|png)$/.test(ext)) {
 
 					if (files.indexOf(path + '.' + ext) === -1) {
 						files.push(path + '.' + ext);
 					}
 
-				} else if (/md/.test(ext)) {
+				} else if (/(md|tpl)$/.test(ext)) {
 
 					if (files.indexOf(path + '.' + ext) === -1) {
 						files.push(path + '.' + ext);
@@ -121,7 +115,10 @@ lychee.define('harvester.data.Package').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(buffer) {
+	let Composite = function(data) {
+
+		let settings = Object.assign({}, data);
+
 
 		this.buffer = null;
 
@@ -131,10 +128,9 @@ lychee.define('harvester.data.Package').includes([
 		this.json   = {};
 
 
-		this.setBuffer(buffer);
+		this.setBuffer(settings.buffer);
 
-
-		_Emitter.call(this);
+		settings = null;
 
 	};
 
@@ -156,21 +152,17 @@ lychee.define('harvester.data.Package').includes([
 
 		serialize: function() {
 
-			let data = _Emitter.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.data.Package';
-
-
-			let blob = data['blob'] || {};
+			let blob = {};
 
 
 			if (this.buffer !== null) blob.buffer = lychee.serialize(this.buffer);
 
 
-			data['arguments'][0] = null;
-			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
-
-
-			return data;
+			return {
+				'constructor': 'harvester.data.Package',
+				'arguments':   [ null ],
+				'blob':        Object.keys(blob).length > 0 ? blob : null
+			};
 
 		},
 

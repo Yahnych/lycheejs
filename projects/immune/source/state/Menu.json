@@ -1,0 +1,352 @@
+{
+	"layers": {
+		"background": {
+			"constructor": "lychee.app.Layer",
+			"arguments": [
+				{}
+			],
+			"blob": {
+				"entities": [
+					{
+						"constructor": "lychee.app.sprite.Emblem",
+						"arguments": [
+							{}
+						]
+					}
+				],
+				"map": {
+					"emblem": 0
+				}
+			}
+		},
+		"game": {
+			"constructor": "lychee.app.Layer",
+			"arguments": [
+				{}
+			],
+			"blob": {
+				"entities": [
+					{
+						"constructor": "game.app.entity.Cell",
+						"arguments": [
+							{
+								"team": "immune",
+								"radius": 160,
+								"position": {
+									"x": -256,
+									"y": -128
+								}
+							}
+						],
+						"blob": {
+							"vesicles": [
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								null,
+								null,
+								null,
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": [
+										{
+											"team": "immune"
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"constructor": "game.app.entity.Cell",
+						"arguments": [
+							{
+								"team": "virus",
+								"radius": 160,
+								"position": {
+									"x": 256,
+									"y": 128
+								}
+							}
+						],
+						"blob": {
+							"vesicles": [
+								null,
+								null,
+								null,
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": [
+										{
+											"team": "virus"
+										}
+									]
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": []
+								}
+							]
+						}
+					},
+					{
+						"constructor": "game.app.entity.Cell",
+						"arguments": [
+							{
+								"team": "neutral",
+								"radius": 120,
+								"position": {
+									"x": -256,
+									"y": 256
+								}
+							}
+						],
+						"blob": {
+							"vesicles": [
+								null,
+								null,
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": [
+										{
+											"team": "neutral"
+										}
+									]
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": [
+										{
+											"team": "neutral"
+										}
+									]
+								},
+								{
+									"constructor": "game.app.entity.Vesicle",
+									"arguments": [
+										{
+											"team": "neutral"
+										}
+									]
+								},
+								null,
+								null,
+								null
+							]
+						}
+					},
+					{
+						"constructor": "game.app.entity.Unit",
+						"arguments": [
+							{
+								"team": "neutral",
+								"radius": 32,
+								"speed": 1000,
+								"position": {
+									"x": 0,
+									"y": 0
+								}
+							}
+						]
+					}
+				],
+				"map": {
+					"immune": 0,
+					"virus": 1,
+					"neutral": 2,
+					"unit": 3
+				}
+			}
+		},
+		"ui": {
+			"constructor": "lychee.ui.Layer",
+			"arguments": [
+				{}
+			],
+			"blob": {
+				"entities": [
+					{
+						"constructor": "lychee.ui.entity.Label",
+						"arguments": [
+							{
+								"value": "Welcome back, Commander.",
+								"position": {
+									"x": 0,
+									"y": -96
+								}
+							}
+						]
+					},
+					{
+						"constructor": "lychee.ui.entity.Label",
+						"arguments": [
+							{
+								"value": "Please select the Battlefield.",
+								"position": {
+									"x": 0,
+									"y": -64
+								}
+							}
+						]
+					},
+					{
+						"constructor": "lychee.ui.entity.Button",
+						"arguments": [
+							{
+								"width": 160,
+								"label": "DEPLOY TROOPS",
+								"position": {
+									"x": 0,
+									"y": 0
+								},
+								"visible": false
+							}
+						]
+					}
+				],
+				"map": {
+					"headline": 0,
+					"subtitle": 1,
+					"confirm": 2
+				}
+			}
+		}
+	},
+	"campaigns": {
+		"immune": [
+			{
+				"label": "Battlefield 1: First Contact",
+				"vesicle": 7,
+				"data": {
+					"level": "battlefield_1",
+					"player": "immune"
+				}
+			},
+			{
+				"label": "Battlefield 2: Revenge of the Fallen",
+				"vesicle": 0,
+				"data": {
+					"level": "battlefield_2",
+					"player": "immune"
+				}
+			},
+			{
+				"label": "Battlefield 3: Neutral Conflict",
+				"vesicle": 1,
+				"data": {
+					"level": "battlefield_3",
+					"player": "immune"
+				}
+			},
+			{
+				"label": "Battlefield 4: Right in the Heart",
+				"vesicle": 2,
+				"data": {
+					"level": "battlefield_4",
+					"player": "immune"
+				}
+			},
+			{
+				"label": "Battlefield 5: Reproduction Issues",
+				"vesicle": 3,
+				"data": {
+					"level": "battlefield_5",
+					"player": "immune"
+				}
+			}
+		],
+		"virus": [
+			{
+				"label": "Battlefield 1: First Contact",
+				"vesicle": 3,
+				"data": {
+					"level": "battlefield_1",
+					"player": "virus"
+				}
+			},
+			{
+				"label": "Battlefield 2: Revenge of the Fallen",
+				"vesicle": 4,
+				"data": {
+					"level": "battlefield_2",
+					"player": "virus"
+				}
+			},
+			{
+				"label": "Battlefield 3: Neutral Conflict",
+				"vesicle": 5,
+				"data": {
+					"level": "battlefield_3",
+					"player": "virus"
+				}
+			},
+			{
+				"label": "Battlefield 4: Right in the Heart",
+				"vesicle": 6,
+				"data": {
+					"level": "battlefield_4",
+					"player": "virus"
+				}
+			},
+			{
+				"label": "Battlefield 5: Reproduction Issues",
+				"vesicle": 7,
+				"data": {
+					"level": "battlefield_5",
+					"player": "virus"
+				}
+			}
+		],
+		"neutral": [
+			{
+				"label": "Battlefield 3: Neutral Conflict",
+				"vesicle": 2,
+				"data": {
+					"level": "battlefield_3",
+					"player": "neutral"
+				}
+			},
+			{
+				"label": "Battlefield 4: Right in the Heart",
+				"vesicle": 3,
+				"data": {
+					"level": "battlefield_4",
+					"player": "neutral"
+				}
+			},
+			{
+				"label": "Battlefield 5: Reproduction Issues",
+				"vesicle": 4,
+				"data": {
+					"level": "battlefield_5",
+					"player": "neutral"
+				}
+			}
+		]
+	}
+}
