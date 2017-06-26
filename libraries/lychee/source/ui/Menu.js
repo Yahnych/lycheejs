@@ -36,15 +36,15 @@ lychee.define('lychee.ui.Menu').requires([
 
 		this.font    = _FONT;
 		this.label   = 'MENU';
-		this.options = [ 'Welcome', 'Settings', 'About' ];
+		this.options = [ 'Settings' ];
 		this.helpers = [];
 		this.state   = 'default';
-		this.value   = 'Welcome';
+		this.states  = { 'default': null, 'active': null };
+		this.value   = 'Settings';
 
 		this.__boundary = 0;
 		this.__focus    = null;
 		this.__helpers  = [];
-		this.__states   = { 'default': null, 'active': null };
 
 
 		this.setState(settings.state);
@@ -244,9 +244,14 @@ lychee.define('lychee.ui.Menu').requires([
 
 		this.getEntity('@select').bind('change', function(value) {
 
-			let result = this.setValue(value);
-			if (result === true) {
-				this.trigger('change', [ value ]);
+			let oldvalue = this.value;
+			if (oldvalue !== value) {
+
+				let result = this.setValue(value);
+				if (result === true) {
+					this.trigger('change', [ value ]);
+				}
+
 			}
 
 		}, this);
@@ -294,9 +299,9 @@ lychee.define('lychee.ui.Menu').requires([
 			if (this.label !== 'MENU')     settings.label   = this.label;
 			if (this.helpers.length !== 0) settings.helpers = this.helpers.slice(0, this.helpers.length);
 			if (this.state !== 'default')  settings.state   = this.state;
-			if (this.value !== 'Welcome')  settings.value   = this.value;
+			if (this.value !== 'Settings') settings.value   = this.value;
 
-			if (this.options.join(',') !== 'Welcome,Settings,About') settings.options = this.options.slice(0, this.options.length);
+			if (this.options.join(',') !== 'Settings') settings.options = this.options.slice(0, this.options.length);
 
 
 			if (this.font !== null) blob.font = lychee.serialize(this.font);
@@ -516,7 +521,7 @@ lychee.define('lychee.ui.Menu').requires([
 			id = typeof id === 'string' ? id : null;
 
 
-			if (id !== null && this.__states[id] !== undefined) {
+			if (id !== null && id !== this.state && this.states[id] !== undefined) {
 
 				if (id === 'active') {
 
@@ -616,7 +621,18 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (value !== null) {
 
-				this.value = value;
+				let oldvalue = this.value;
+				if (oldvalue !== value) {
+
+					this.value = value;
+
+					let select = this.getEntity('@select');
+					if (select.value !== value) {
+						select.setValue(value);
+					}
+
+				}
+
 
 				return true;
 

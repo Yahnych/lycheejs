@@ -57,9 +57,9 @@ lychee.define('lychee.ui.Notice').requires([
 		this.label   = 'Changes applied.';
 		this.options = [ 'Undo' ];
 		this.state   = 'default';
+		this.states  = { 'default': null, 'active': null };
 
 		this.__boundary = 0;
-		this.__states   = { 'default': null, 'active': null };
 
 
 		this.setState(settings.state);
@@ -314,7 +314,7 @@ lychee.define('lychee.ui.Notice').requires([
 			id = typeof id === 'string' ? id : null;
 
 
-			if (id !== null && id !== this.state && this.__states[id] !== undefined) {
+			if (id !== null && id !== this.state && this.states[id] !== undefined) {
 
 				if (id === 'active') {
 

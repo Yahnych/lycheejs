@@ -39,14 +39,6 @@
 						"constructor": "lychee.ui.Blueprint",
 						"arguments": [
 							{
-								"visible": true
-							}
-						]
-					},
-					{
-						"constructor": "lychee.ui.Blueprint",
-						"arguments": [
-							{
 								"visible": false
 							}
 						],
@@ -96,10 +88,9 @@
 						"arguments": [
 							{
 								"options": [
-									"Welcome",
 									"Settings"
 								],
-								"value": "Welcome"
+								"value": "Settings"
 							}
 						]
 					},
@@ -113,10 +104,9 @@
 					}
 				],
 				"map": {
-					"welcome": 0,
-					"settings": 1,
-					"menu": 2,
-					"notice": 3
+					"settings": 0,
+					"menu": 1,
+					"notice": 2
 				}
 			}
 		}

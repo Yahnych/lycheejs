@@ -7,15 +7,9 @@ lychee.define('lychee.policy.Offset').exports(function(lychee, global, attachmen
 
 	let Composite = function(settings) {
 
-		this.entity = null;
+		this.entity = settings.entity instanceof Object ? settings.entity : null;
 		this.limit  = { x: Infinity, y: Infinity };
 
-
-		// No data validation garbage allowed for policies
-
-		if (settings.entity instanceof Object) {
-			this.entity = settings.entity;
-		}
 
 		if (settings.limit instanceof Object) {
 			this.limit.x = typeof settings.limit.x === 'number' ? (settings.limit.x | 0) : Infinity;
@@ -91,7 +85,12 @@ lychee.define('lychee.policy.Offset').exports(function(lychee, global, attachmen
 				entity.offset.x = (values[0] * (hlx * 2)) - hlx;
 				entity.offset.y = (values[1] * (hly * 2)) - hly;
 
+				return true;
+
 			}
+
+
+			return false;
 
 		}
 

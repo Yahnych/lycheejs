@@ -1,28 +1,45 @@
 
 lychee.define('strainer.api.Module').requires([
-	'lychee.crypto.MURMUR'
+	'strainer.api.PARSER'
 ]).exports(function(lychee, global, attachments) {
 
-	const _MURMUR = lychee.import('lychee.crypto.MURMUR');
-	const _CONFIG = [];
+	const _PARSER = lychee.import('strainer.api.PARSER');
 
 
 
 	/*
-	 * FEATURE DETECTION
+	 * CACHES
 	 */
 
-	(function(buffer) {
+	const _SERIALIZE = {
+		body:       'function() { return {}; }',
+		chunk:      'function() {',
+		hash:       _PARSER.hash('function() { return {}; }'),
+		parameters: [],
+		values:     [{
+			type: 'SerializationBlob',
+			value: {
+				'constructor': null,
+				'arguments':   [],
+				'blob':        null
+			}
+		}]
+	};
 
-		if (buffer instanceof Array) {
-
-			buffer.forEach(function(entry) {
-				_CONFIG.push(entry);
-			});
-
-		}
-
-	})(attachments["json"].buffer);
+	const _DESERIALIZE = {
+		body:       'function(blob) {}',
+		chunk:      'function(blob) {',
+		hash:       _PARSER.hash('function(blob) {}'),
+		parameters: [{
+			name:  'blob',
+			type:  'SerializationBlob',
+			value: {}
+		}],
+		values: [{
+			type:  'undefined',
+			value: undefined
+		}]
+	};
 
 
 
@@ -30,650 +47,272 @@ lychee.define('strainer.api.Module').requires([
 	 * HELPERS
 	 */
 
-	const _get_function_body = function(name, stream) {
+	const _validate_asset = function(asset) {
 
-		let i1   = stream.indexOf('\n\t\t' + name + ': function(');
-		let i2   = stream.indexOf(':', i1);
-		let i3   = stream.indexOf('\n\t\t}', i1);
-		let body = null;
-
-		if (i1 !== -1 && i2 !== -1 && i3 !== -1) {
-			body = stream.substr(i2 + 1, i3 - i2 + 3).trim();
+		if (asset instanceof Object && typeof asset.serialize === 'function') {
+			return true;
 		}
 
-		return body;
+		return false;
 
 	};
 
-	const _get_function_hash = function(str) {
+	const _find_reference = function(chunk, stream) {
 
-		let hash = new _MURMUR();
+		let ref = {
+			line:   0,
+			column: 0
+		};
 
-		hash.update(str);
-
-		return hash.digest().toString('hex');
-
-	};
-
-	const _clone_value = function(data) {
-
-		let clone = undefined;
-
-		if (data !== undefined) {
-
-			try {
-				data = JSON.parse(JSON.stringify(data));
-			} catch (err) {
-			}
-
-		}
-
-		return clone;
-
-	};
-
-	const _parse_value = function(str) {
-
-		let val = undefined;
-		try {
-			val = eval('(' + str + ')');
-		} catch (err) {
-		}
-
-		return val;
-
-	};
-
-	const _trace_variable = function(name, body) {
-
-		return body.split('\n').filter(function(line) {
-			return line.includes(name + ' = ');
-		}).map(function(line) {
-
-			let i1 = line.indexOf('=');
-			let i2 = line.indexOf(';', i1);
-			if (i2 === -1) {
-				i2 = line.length;
-			}
-
-			return line.substr(i1 + 2, i2 - i1 - 2);
-
-		}).map(function(value) {
-
-			return {
-				type:  _detect_type(value),
-				value: _detect_value(value)
-			};
-
-		}).filter(function(value) {
-			return value.type !== 'undefined';
+		let lines = stream.split('\n');
+		let line  = lines.findIndex(function(other) {
+			return other.trim() === chunk.trim();
 		});
 
-	};
+		if (line !== -1) {
 
-	const _detect_type = function(str) {
+			ref.line = line + 1;
 
-		let type = 'undefined';
-
-
-		if (str === 'undefined') {
-			type = 'undefined';
-		} else if (str === 'null') {
-			type = 'null';
-		} else if (str === 'true' || str === 'false') {
-			type = 'Boolean';
-		} else if (str.includes('===') && !str.includes('?')) {
-			type = 'Boolean';
-		} else if (str === '[]' || str.startsWith('[')) {
-			type = 'Array';
-		} else if (str === '{}' || str.startsWith('{')) {
-			type = 'Object';
-		} else if (str.startsWith('Composite.')) {
-			type = 'Enum';
-		} else if (str.startsWith('new Composite')) {
-			type = 'Composite';
-		} else if (str.startsWith('new ')) {
-
-			let tmp = str.substr(4);
-			let i1  = tmp.indexOf('(');
-			if (i1 !== -1) {
-				tmp = tmp.substr(0, i1);
-			}
-
-			type = tmp;
-
-		} else if (str.startsWith('\'') && str.endsWith('\'')) {
-			type = 'String';
-		} else if (str.startsWith('"') && str.endsWith('"')) {
-			type = 'String';
-		} else if (str.startsWith('\'\' +') || str.startsWith('"" +')) {
-			type = 'String';
-		} else if (str.includes('toString')) {
-			type = 'String';
-		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9\.]+$/g.test(str)) {
-			type = 'Number';
-		} else if (str === 'Infinity') {
-			type = 'Number';
-		} else if (str.startsWith('(') && str.endsWith(')')) {
-
-			if (str.includes(' + ') && (str.includes('\'') || str.includes('"'))) {
-				type = 'String';
-			} else if (str.includes(' * ') || str.includes(' / ') || str.includes(' + ') || str.includes(' - ')) {
-				type = 'Number';
-			}
-
-		} else {
-
-			if (str.includes('instanceof') && str.includes('?') && str.includes(':')) {
-
-				let tmp = str.split(/(.*)instanceof\s([A-Za-z_\.]+)([\s]+)(.*)\?/g);
-				if (tmp.length > 2) {
-					return tmp[2];
-				}
-
-			} else if (str.startsWith('typeof') && str.includes('?') && str.includes(':')) {
-
-				let tmp = str.split(/\(?typeof\s([a-z]+)\s===\s("|')(.*)("|')\s\)?\?(.*)/g);
-				if (tmp.length > 5) {
-
-
-					switch (tmp[3]) {
-						case 'undefined': type = 'undefined'; break;
-						case 'null':      type = 'null';      break;
-						case 'boolean':   type = 'Boolean';   break;
-						case 'number':    type = 'Number';    break;
-						case 'string':    type = 'String';    break;
-						case 'function':  type = 'Function';  break;
-						case 'object':    type = 'Object';    break;
-						default:          type = 'undefined'; break;
-					}
-
-				}
-
-
-				if (type === 'undefined') {
-
-					let tmp1 = str.split(':').pop();
-					if (tmp1.endsWith(';')) {
-						tmp1 = tmp1.substr(0, tmp1.length - 1);
-					}
-
-					return _detect_type(tmp1.trim());
-
-				}
-
-			} else if (str.includes('!== undefined') && str.includes('?') && str.includes(':')) {
-
-				return 'Object';
-
-			} else if (str.startsWith('lychee.interfaceof')) {
-
-				let tmp = str.split(/lychee.interfaceof\(([A-Za-z_\.]+),(.*)\)/g);
-				if (tmp.length > 1) {
-					return tmp[1];
-				}
-
-			} else if (str.startsWith('lychee.enumof')) {
-
-				return 'Enum';
-
-			} else if (str.startsWith('lychee.assignunlink')) {
-
-				return 'Object';
-
-			} else if (str.startsWith('lychee.diff')) {
-
-				return 'Object';
-
-			} else {
-
-				let entry = _CONFIG.find(function(val) {
-					return str.startsWith(val.name);
-				});
-
-				if (entry !== undefined) {
-					return _clone_value(entry.value);
-				}
-
+			let column = lines[line].indexOf(chunk);
+			if (column !== -1) {
+				ref.column = column + 1;
 			}
 
 		}
 
-
-		return type;
+		return ref;
 
 	};
 
-	const _detect_value = function(str) {
+	const _find_memory = function(key, stream) {
 
-		let value = undefined;
+		let str1 = 'const ' + key + ' = ';
+		let str2 = '\n\t};';
 
+		let i1 = stream.indexOf(str1);
+		let i2 = stream.indexOf(str2, i1);
 
-		if (str === 'undefined') {
-			value = undefined;
-		} else if (str === 'null') {
-			value = null;
-		} else if (str === 'true' || str === 'false') {
-			value = str === 'true';
-		} else if (str.includes('===') && !str.includes('?')) {
-			value = true;
-		} else if (str === '[]' || str.startsWith('[')) {
-			value = _parse_value(str);
-		} else if (str === '{}' || str.startsWith('{')) {
-			value = _parse_value(str);
-		} else if (str.startsWith('Composite.')) {
-			value = str;
-		} else if (str.startsWith('new Composite')) {
-			value = str;
-		} else if (str.startsWith('new ')) {
-
-			let tmp = str.substr(4);
-			let i1  = tmp.indexOf('(');
-			let i2  = tmp.indexOf(')', i1);
-
-			if (i1 !== -1 && i2 !== -1) {
-
-				tmp = tmp.substr(i1 + 1, i2 - i1 - 1);
-
-				if (tmp.includes(',') === false) {
-					value = _parse_value(tmp);
-				}
-
-			} else if (i1 !== -1) {
-				value = '<' + tmp.substr(0, i1) + '>';
-			}
-
-		} else if (str.startsWith('\'') && str.endsWith('\'')) {
-			value = str.substr(1, str.length - 2);
-		} else if (str.startsWith('"') && str.endsWith('"')) {
-			value = str.substr(1, str.length - 2);
-		} else if (str.includes('toString')) {
-			value = "<string value>";
-		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9\.]+$/g.test(str)) {
-			value = _parse_value(str);
-		} else if (str === 'Infinity') {
-			value = Infinity;
-		} else if (str.startsWith('(') && str.endsWith(')')) {
-
-			if (str.includes(' + ') && (str.includes('\'') || str.includes('"'))) {
-				value = "<string value>";
-			} else if (str.includes(' * ') || str.includes(' / ') || str.includes(' + ') || str.includes(' - ')) {
-				value = 1337;
-			}
-
-		} else {
-
-			if (str.includes('instanceof') && str.includes('?') && str.includes(':')) {
-
-				let tmp = str.split(':').pop();
-				if (tmp.endsWith(';')) {
-					tmp = tmp.substr(0, tmp.length - 1);
-				}
-
-				return _detect_value(tmp.trim());
-
-			} else if (str.startsWith('typeof') && str.includes('?') && str.includes(':')) {
-
-				let tmp = str.split(':').pop();
-				if (tmp.endsWith(';')) {
-					tmp = tmp.substr(0, tmp.length - 1);
-				}
-
-				return _detect_value(tmp.trim());
-
-			} else if (str.includes('!== undefined') && str.includes('?') && str.includes(':')) {
-
-				return {};
-
-			} else if (str.startsWith('lychee.interfaceof')) {
-
-				if (str.indexOf(':') !== -1) {
-
-					let tmp = str.split(':').pop();
-					if (tmp.endsWith(';')) {
-						tmp = tmp.substr(0, tmp.length - 1);
-					}
-
-					return _detect_value(tmp.trim());
-
-				} else {
-
-					let tmp = str.substr(19, str.indexOf(',') - 19).trim();
-					if (tmp.length > 0) {
-						value = tmp;
-					}
-
-				}
-
-			} else if (str.startsWith('lychee.enumof')) {
-
-				let tmp = str.split(/lychee\.enumof\(Composite\.([A-Z]+),(.*)\)/g);
-				if (tmp.length > 2) {
-					return 'Composite.' + tmp[1];
-				}
-
-			} else if (str.startsWith('lychee.assignunlink')) {
-
-				return {};
-
-			} else if (str.startsWith('lychee.diff')) {
-
-				return {};
-
-			} else {
-
-				let entry = _CONFIG.find(function(val) {
-					return str.startsWith(val.name);
-				});
-
-				if (entry !== undefined) {
-					return _clone_value(entry.value);
-				}
-
-			}
-
+		if (i1 !== -1 && i2 !== -1) {
+			return stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
 		}
 
-
-		return value;
+		return 'undefined';
 
 	};
 
-	const _parse_methods = function(methods, properties, stream, errors) {
+	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('\n\tconst Module =');
-		let i2 = stream.indexOf('\n\t};', i1);
-
+		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
+		let i2 = stream.indexOf('\n\tconst Module =');
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let last_line   = '';
-			let last_name   = null;
-			let last_method = null;
+			let body = stream.substr(i1 + 48, i2 - i1 - 48).trim();
+			if (body.length > 0) {
 
-			stream.substr(i1, i2 - i1 + 4).trim().split('\n').filter(function(line, l, self) {
+				body.split('\n')
+					.map(function(line) {
+						return line.trim();
+					}).filter(function(line) {
+						return line.startsWith('const ');
+					}).forEach(function(line) {
 
-				let tmp = line.trim();
-				if (tmp === '// deserialize: function(blob) {},') {
-					return true;
-				} else if (tmp === '' || tmp.startsWith('//')) {
-					return false;
-				} else if (tmp.startsWith('/*') || tmp.startsWith('*/') || tmp.startsWith('*')) {
-					return false;
-				}
+						let tmp = line.substr(6).trim();
+						let i1  = tmp.indexOf('=');
+						if (i1 !== -1) {
 
-				return true;
+							let key   = tmp.substr(0, i1).trim();
+							let chunk = tmp.substr(i1 + 1).trim();
 
-			}).slice(1, -1).forEach(function(line, l) {
+							if (key !== '' && chunk !== '') {
 
-				if (line.includes('function(')) {
+								if (chunk.startsWith('function(')) {
 
-					let tmp1 = line.trim();
-					if (tmp1.startsWith('//')) {
-						tmp1 = tmp1.substr(2).trim();
-					}
+									chunk = _find_memory(key, stream);
 
-					let tmp2 = tmp1.split(/"?'?([A-Za-z]+)"?'?:\sfunction\((.*)\)/g);
-					let tmp3 = tmp2.pop();
-
-					if (tmp3 === ' {' || tmp3 === ' {},') {
-
-						let body = _get_function_body(tmp2[1], stream);
-						let hash = null;
-						if (body !== null) {
-							hash = _get_function_hash(body);
-						}
-
-
-						if (tmp2[1] === 'serialize') {
-
-							methods['serialize'] = {
-								body:       body,
-								hash:       hash,
-								parameters: [],
-								values:     [{
-									type:  'SerializationBlob',
-									value: {
-										'constructor': null,
-										'arguments':   [],
-										'blob':        null
+									if (chunk.endsWith(';')) {
+										chunk = chunk.substr(0, chunk.length - 1);
 									}
-								}]
-							};
 
-						} else if (tmp2[1] === 'deserialize') {
-
-							methods['deserialize'] = {
-								body:       body,
-								hash:       hash,
-								parameters: [{
-									name:  'blob',
-									type:  'SerializationBlob',
-									value: {}
-								}],
-								values:     [{
-									type:  'undefined',
-									value: undefined
-								}]
-							};
-
-							if (tmp1 === 'deserialize: function(blob) {},') {
-								methods['deserialize'].body = 'function(blob) {}';
-								methods['deserialize'].hash = _get_function_hash(methods['deserialize'].body);
-							}
-
-						} else {
-
-							last_name = tmp2[1];
-
-							// last_method = methods['setWhatever'] = { parameters: [{ name: 'foo', type: 'String', value: null }] }
-							last_method = methods[tmp2[1]] = {
-								body:       body,
-								hash:       hash,
-								parameters: [],
-								values:     []
-							};
-
-
-							let tmp4 = tmp2[2].trim();
-							if (tmp4.length > 0) {
-
-								last_method.parameters = tmp4.split(',').map(function(val) {
-
-									return {
-										name:  val.trim(),
-										type:  'undefined',
-										value: undefined
+									memory[key] = {
+										body:       chunk,
+										hash:       _PARSER.hash(chunk),
+										parameters: _PARSER.parameters(chunk),
+										values:     _PARSER.values(chunk)
 									};
 
-								});
-
-							}
-
-						}
-
-					}
-
-				} else if (line === '\t\t},' || line === '\t\t}') {
-
-					last_name   = null;
-					last_method = null;
-
-				} else if (last_method !== null) {
-
-					let tmp1 = line.trim();
-					if (tmp1.startsWith('return') && tmp1.endsWith('{')) {
-
-						let has_object = last_method.values.find(function(val) {
-							return val.type === 'Object';
-						});
-
-						if (has_object === undefined) {
-							last_method.values.push({
-								type:  'Object',
-								value: {}
-							});
-						}
-
-					} else if (tmp1.startsWith('return') && tmp1.endsWith(';')) {
-
-						if ((last_line.includes('function(') || last_line.includes('=>')) && last_line.endsWith('{')) {
-							return;
-						}
-
-
-						let tmp2 = tmp1.substr(6, tmp1.length - 7).trim();
-						if (tmp2.includes('&&') || tmp2.includes('||')) {
-
-							let has_true = last_method.values.find(function(val) {
-								return val.value === true;
-							});
-
-							if (has_true === undefined) {
-								last_method.values.push({
-									type:  'Boolean',
-									value: true
-								});
-							}
-
-							let has_false = last_method.values.find(function(val) {
-								return val.value === false;
-							});
-
-							if (has_false === undefined) {
-								last_method.values.push({
-									type:  'Boolean',
-									value: false
-								});
-							}
-
-						} else if (tmp2.length > 0) {
-
-							let type  = _detect_type(tmp2);
-							let value = _detect_value(tmp2);
-
-							if (type === 'undefined' && value === undefined && tmp2 !== 'undefined') {
-
-								// XXX: Trace variable mutations
-								if (/^[A-Za-z0-9]+/g.test(tmp2) === true) {
-
-									let mutation = _trace_variable(tmp2, last_method.body).pop();
-									if (mutation !== undefined) {
-										type  = mutation.type;
-										value = mutation.value;
-									}
-
-								}
-
-
-								if (type === 'undefined') {
-
-									type  = 'undefined';
-									value = tmp2;
-
-									errors.push({
-										ruleId:     'no-return-value',
-										methodName: last_name,
-										fileName:   null,
-										message:    'Unguessable return "' + last_name + '()" ("' + tmp2 + '").'
-									});
-
-								}
-
-							}
-
-
-							let has_already = last_method.values.find(function(val) {
-
-								if (/Array|Object/g.test(val.type)) {
-									return JSON.stringify(val.value) === JSON.stringify(value);
 								} else {
-									return val.type === type && val.value === value;
+
+									memory[key] = _PARSER.detect(chunk);
+
 								}
-
-							});
-
-							if (has_already === undefined && value !== undefined) {
-
-								last_method.values.push({
-									type:  type,
-									value: value
-								});
 
 							}
 
 						}
 
-					} else {
+					});
 
-						Object.values(last_method.parameters).forEach(function(parameter) {
+			}
 
-							if (tmp1.startsWith(parameter.name + ' =')) {
+		}
 
-								let tmp2  = tmp1.substr(tmp1.indexOf('=') + 1).trim();
-								let type  = _detect_type(tmp2);
-								let value = _detect_value(tmp2);
+	};
 
-								if (type !== 'undefined') {
+	const _parse_methods = function(methods, stream, errors) {
 
-									if (parameter.type === type) {
+		let i1 = stream.indexOf('\n\tconst Module = {');
+		let i2 = stream.indexOf('\n\t};', i1);
 
-										if (parameter.value === undefined) {
-											parameter.value = value;
-										}
+		if (i1 !== -1 && i2 !== -1) {
 
-									} else if (parameter.type === 'undefined') {
+			stream.substr(i1 + 18, i2 - i1 - 18).trim().split('\n')
+				.filter(function(line) {
 
-										parameter.type  = type;
-										parameter.value = value;
+					let tmp = line.trim();
+					if (tmp.startsWith('// deserialize: function(blob) {}')) {
 
-									}
+						methods['deserialize'] = Object.assign({}, _DESERIALIZE);
+						return false;
 
-								}
+					} else if (
+						tmp === ''
+						|| tmp.startsWith('//')
+						|| tmp.startsWith('/*')
+						|| tmp.startsWith('*/')
+						|| tmp.startsWith('*')
+					) {
+						return false;
+					}
 
-							} else if (tmp1.includes(parameter.name)) {
+					return true;
 
-								if (tmp1.startsWith('this\.' + parameter.name)) {
+				})
+				.join('\n')
+				.split('\n\t\t}')
+				.filter(function(chunk) {
+					return chunk.trim() !== '';
+				}).map(function(body) {
 
-									let property = properties[parameter.name] || null;
-									if (property !== null) {
+					if (body.startsWith(',')) {
+						body = body.substr(1);
+					}
 
-										if (parameter.type === 'undefined') {
-											parameter.type = property.type;
-										}
+					return (body.trim() + '\n\t\t}');
 
-										if (parameter.value === null) {
-											parameter.value = _clone_value(property.value);
-										}
+				}).forEach(function(code) {
 
-									}
+					let name = code.split(':')[0].trim();
+					if (name !== '') {
 
-								}
+						let body  = code.split(':').slice(1).join(':').trim();
+						let chunk = code.split('\n')[0];
 
-							}
-
-						});
+						methods[name] = {
+							body:       body,
+							chunk:      chunk,
+							hash:       _PARSER.hash(body),
+							parameters: _PARSER.parameters(body),
+							values:     _PARSER.values(body)
+						};
 
 					}
 
-				}
+				});
 
 
-				last_line = line;
+			let deserialize = methods['deserialize'];
+			if (deserialize !== undefined) {
+				if (deserialize.parameters.length === 0) deserialize.parameters = lychee.assignunlink([], _DESERIALIZE.parameters);
+				if (deserialize.values.length === 0)     deserialize.values     = lychee.assignunlink([], _DESERIALIZE.values);
+			}
 
-			});
+			let serialize = methods['serialize'];
+			if (serialize !== undefined) {
+				if (serialize.parameters.length === 0) serialize.parameters = lychee.assignunlink([], _SERIALIZE.parameters);
+				if (serialize.values.length === 0)     serialize.values     = lychee.assignunlink([], _SERIALIZE.values);
+			}
 
 
 			for (let mid in methods) {
 
 				let method = methods[mid];
-				if (method.values.length === 0) {
+				let params = method.parameters;
+				let ref    = _find_reference(method.chunk, stream);
+				let values = method.values;
+
+
+				if (params.length > 0) {
+
+					let found = params.filter(function(other) {
+						return other.type === 'undefined' && other.value === undefined;
+					}).map(function(other) {
+						return other.name;
+					});
+
+					if (found.length > 0) {
+
+						if (/^(control|render|update|deserialize|serialize)$/g.test(mid) === false) {
+
+							let key = found[0];
+							let col = ref.chunk.indexOf(key);
+							if (col !== -1) {
+								col = col + 1;
+							} else {
+								col = ref.column;
+							}
+
+							errors.push({
+								ruleId:     'no-parameter-value',
+								methodName: mid,
+								fileName:   null,
+								message:    'Invalid parameter values for "' + found.join('", "') + '" for method "' + mid + '()".',
+								line:       ref.line,
+								column:     col
+							});
+
+						}
+
+					}
+
+				}
+
+				if (values.length === 0) {
+
+					errors.push({
+						ruleId:     'no-return-value',
+						methodName: mid,
+						fileName:   null,
+						message:    'Invalid return value for method "' + mid + '()".',
+						line:       ref.line,
+						column:     ref.column
+					});
+
 
 					method.values.push({
 						type:  'undefined',
 						value: undefined
 					});
 
+				} else if (values.length > 1) {
+
+					let found = values.find(function(other) {
+						return other.type === 'undefined' && other.value === undefined;
+					}) || null;
+
+					if (found !== null) {
+
+						errors.push({
+							ruleId:     'no-return-value',
+							methodName: mid,
+							fileName:   null,
+							message:    'No valid return values for method "' + mid + '()".',
+							line:       ref.line,
+							column:     ref.column
+						});
+
+					}
+
 				}
 
 			}
@@ -681,7 +320,6 @@ lychee.define('strainer.api.Module').requires([
 		}
 
 	};
-
 
 
 
@@ -704,44 +342,69 @@ lychee.define('strainer.api.Module').requires([
 
 		check: function(asset) {
 
-			let stream = asset.buffer.toString('utf8');
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
 			let errors = [];
+			let memory = {};
 			let result = {
-				settings:   {},
-				properties: {},
-				enums:      {},
-				events:     {},
-				methods:    {}
+				constructor: {},
+				settings:    {},
+				properties:  {},
+				enums:       {},
+				events:      {},
+				methods:     {}
 			};
 
+			if (asset !== null) {
 
-			_parse_methods(result.methods, result.properties, stream, errors);
+				let stream = asset.buffer.toString('utf8');
+
+				_parse_memory(memory, stream, errors);
+				_parse_methods(result.methods, stream, errors);
 
 
-			if (result.methods['serialize'] === undefined) {
+				if (
+					result.methods['serialize'] === undefined
+					|| result.methods['deserialize'] === undefined
+				) {
 
-				errors.push({
-					ruleId:     'no-serialize',
-					methodName: 'serialize',
-					fileName:   null,
-					message:    'No serialize() method defined.'
-				});
+					let ref = _find_reference('\n\tconst Module = {', stream);
+
+					if (result.methods['serialize'] === undefined) {
+
+						errors.push({
+							ruleId:     'no-serialize',
+							methodName: 'serialize',
+							fileName:   null,
+							message:    'No "serialize()" method.',
+							line:       ref.line,
+							column:     ref.column
+						});
+
+					}
+
+					if (result.methods['deserialize'] === undefined) {
+
+						errors.push({
+							ruleId:     'no-deserialize',
+							methodName: 'deserialize',
+							fileName:   null,
+							message:    'No "deserialize()" method.',
+							line:       ref.line,
+							column:     ref.column
+						});
+
+					}
+
+				}
 
 			}
 
-			if (result.methods['deserialize'] === undefined) {
-
-				errors.push({
-					ruleId:     'no-deserialize',
-					methodName: 'deserialize',
-					fileName:   null,
-					message:    'No deserialize() method defined.'
-				});
-
-			}
 
 			return {
 				errors: errors,
+				memory: memory,
 				result: result
 			};
 

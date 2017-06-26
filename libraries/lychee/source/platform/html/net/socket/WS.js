@@ -194,7 +194,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				if (connection !== null) {
 
-					protocol   = new _Protocol(_Protocol.TYPE.remote);
+					protocol   = new _Protocol({
+						type: _Protocol.TYPE.remote
+					});
 					connection = null;
 
 					// TODO: Remote Socket API
@@ -204,7 +206,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				} else {
 
-					protocol   = new _Protocol(_Protocol.TYPE.client);
+					protocol   = new _Protocol({
+						type: _Protocol.TYPE.client
+					});
 					connection = new _WebSocket(url, [ 'lycheejs' ]);
 
 
@@ -212,7 +216,13 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				}
 
+
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
@@ -259,11 +269,17 @@ lychee.define('lychee.net.socket.WS').tags({
 
 						}
 
+
+						return true;
+
 					}
 
 				}
 
 			}
+
+
+			return false;
 
 		},
 

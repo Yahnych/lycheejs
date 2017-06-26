@@ -1,6 +1,6 @@
 {
 	"layers": {
-		"background": {
+		"bg1": {
 			"constructor": "lychee.app.Layer",
 			"arguments": [
 				{}
@@ -8,7 +8,7 @@
 			"blob": {
 				"entities": [
 					{
-						"constructor": "app.entity.Background",
+						"constructor": "app.sprite.Background",
 						"arguments": [
 							{}
 						]
@@ -19,7 +19,7 @@
 				}
 			}
 		},
-		"midground": {
+		"bg2": {
 			"constructor": "lychee.app.Layer",
 			"arguments": [
 				{}
@@ -27,13 +27,13 @@
 			"blob": {
 				"entities": [
 					{
-						"constructor": "app.entity.Midground",
+						"constructor": "app.sprite.Midground",
 						"arguments": [
 							{}
 						]
 					},
 					{
-						"constructor": "app.entity.Emblem",
+						"constructor": "app.sprite.Emblem",
 						"arguments": [
 							{}
 						]
@@ -45,7 +45,7 @@
 				}
 			}
 		},
-		"foreground": {
+		"bg3": {
 			"constructor": "lychee.app.Layer",
 			"arguments": [
 				{}
@@ -60,7 +60,7 @@
 						"blob": {
 							"entities": [
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -72,7 +72,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -84,7 +84,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -96,7 +96,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -108,7 +108,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -120,7 +120,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -132,7 +132,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -144,7 +144,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -156,7 +156,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -168,7 +168,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -180,7 +180,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -192,7 +192,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -205,7 +205,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -217,7 +217,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -229,7 +229,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -241,7 +241,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -253,7 +253,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -265,7 +265,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -277,7 +277,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Airlock",
+									"constructor": "app.sprite.Airlock",
 									"arguments": [
 										{
 											"position": {
@@ -289,7 +289,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -301,7 +301,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -313,7 +313,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {
@@ -325,7 +325,7 @@
 									]
 								},
 								{
-									"constructor": "app.entity.Room",
+									"constructor": "app.sprite.Room",
 									"arguments": [
 										{
 											"position": {

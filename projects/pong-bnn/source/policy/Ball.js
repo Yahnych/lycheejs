@@ -17,8 +17,8 @@ lychee.define('game.policy.Ball').exports(function(lychee, global, attachments) 
 		}, data);
 
 
-		this.entity = settings.entity || null;
-		this.limit  = settings.limit;
+		this.entity = settings.entity instanceof Object ? settings.entity : null;
+		this.limit  = settings.limit instanceof Object  ? settings.limit  : { x: Infinity, y: Infinity, z: Infinity };
 
 		settings = null;
 
@@ -78,7 +78,11 @@ lychee.define('game.policy.Ball').exports(function(lychee, global, attachments) 
 		},
 
 		control: function(values) {
+
 			// XXX: Do nothing
+
+			return false;
+
 		}
 
 	};

@@ -6,8 +6,8 @@ lychee.define('harvester.Watcher').requires([
 	'harvester.mod.Fertilizer',
 	'harvester.mod.Harvester',
 	'harvester.mod.Packager',
-	'harvester.mod.Server'
-//	'harvester.mod.Strainer'
+	'harvester.mod.Server',
+	'harvester.mod.Strainer'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
@@ -72,7 +72,9 @@ lychee.define('harvester.Watcher').requires([
 					console.log('harvester.Watcher: Add Library "' + identifier + '"');
 				}
 
-				this.libraries[identifier] = new _Project(identifier);
+				this.libraries[identifier] = new _Project({
+					identifier: identifier
+				});
 
 			}
 
@@ -122,7 +124,9 @@ lychee.define('harvester.Watcher').requires([
 					console.log('harvester.Watcher: Add Project "' + identifier + '"');
 				}
 
-				this.projects[identifier] = new _Project(identifier);
+				this.projects[identifier] = new _Project({
+					identifier: identifier
+				});
 
 			}
 
@@ -141,13 +145,12 @@ lychee.define('harvester.Watcher').requires([
 
 		if (sandbox === true) {
 
+			Harvester  = null;
 			Fertilizer = null;
-			Strainer   = null;
 
 		} else {
 
-			// Fertilizer is disabled for now
-			// (Performance reasons)
+			// XXX: Fertilizer disabled for performance reasons
 			Fertilizer = null;
 
 		}
@@ -156,25 +159,39 @@ lychee.define('harvester.Watcher').requires([
 		for (let lid in this.libraries) {
 
 			let library = this.libraries[lid];
+			let reasons = [];
 
 			if (Packager !== null && Packager.can(library) === true) {
-				Packager.process(library);
+				reasons = Packager.process(library);
 			}
 
 			if (Server !== null && Server.can(library) === true) {
 				Server.process(library);
 			}
 
-			if (Harvester !== null && Harvester.can(library) === true) {
-				Harvester.process(library);
-			}
 
-			if (Strainer !== null && Strainer.can(library) === true) {
-				Strainer.process(library);
-			}
+			if (reasons.length > 0) {
 
-			if (Fertilizer !== null && Fertilizer.can(library) === true) {
-				Fertilizer.process(library);
+				let changed_api = reasons.find(function(path) {
+					return path.startsWith('/api/files');
+				}) || null;
+
+				let changed_source = reasons.find(function(path) {
+					return path.startsWith('/source/files');
+				}) || null;
+
+				if (changed_api !== null && Harvester !== null && Harvester.can(library) === true) {
+					Harvester.process(library);
+				}
+
+				if (changed_source !== null && Strainer !== null && Strainer.can(library) === true) {
+					Strainer.process(library);
+				}
+
+				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(library) === true) {
+					Fertilizer.process(library);
+				}
+
 			}
 
 		}
@@ -182,25 +199,39 @@ lychee.define('harvester.Watcher').requires([
 		for (let pid in this.projects) {
 
 			let project = this.projects[pid];
+			let reasons = [];
 
 			if (Packager !== null && Packager.can(project) === true) {
-				Packager.process(project);
+				reasons = Packager.process(project);
 			}
 
 			if (Server !== null && Server.can(project) === true) {
 				Server.process(project);
 			}
 
-			if (Harvester !== null && Harvester.can(project) === true) {
-				Harvester.process(project);
-			}
 
-			if (Strainer !== null && Strainer.can(project) === true) {
-				Strainer.process(project);
-			}
+			if (reasons.length > 0) {
 
-			if (Fertilizer !== null && Fertilizer.can(project) === true) {
-				Fertilizer.process(project);
+				let changed_api = reasons.find(function(path) {
+					return path.startsWith('/api/files');
+				}) || null;
+
+				let changed_source = reasons.find(function(path) {
+					return path.startsWith('/source/files');
+				}) || null;
+
+				if (changed_api !== null && Harvester !== null && Harvester.can(project) === true) {
+					Harvester.process(project);
+				}
+
+				if (changed_source !== null && Strainer !== null && Strainer.can(project) === true) {
+					Strainer.process(project);
+				}
+
+				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(project) === true) {
+					Fertilizer.process(project);
+				}
+
 			}
 
 		}
@@ -251,15 +282,15 @@ lychee.define('harvester.Watcher').requires([
 
 			if (sandbox === true) {
 
-				console.info('harvester.Watcher: SANDBOX mode active   ');
-				console.info('harvester.Watcher: Software Bots disabled');
+				console.warn('harvester.Watcher: Sandbox Mode enabled  ');
+				console.warn('harvester.Watcher: Software Bots disabled');
 				console.log('\n\n');
 
 				this.sandbox = true;
 
 			} else {
 
-				console.info('harvester.Watcher: SANDBOX mode inactive');
+				console.info('harvester.Watcher: Sandbox Mode disabled');
 				console.info('harvester.Watcher: Software Bots enabled');
 				console.log('\n\n');
 
@@ -288,6 +319,10 @@ lychee.define('harvester.Watcher').requires([
 					_mod.Server.process(library);
 				}
 
+				if (_mod.Strainer !== null && _mod.Strainer.can(library) === true) {
+					_mod.Strainer.process(library);
+				}
+
 			}
 
 			for (let pid in this.projects) {
@@ -306,7 +341,14 @@ lychee.define('harvester.Watcher').requires([
 					_mod.Server.process(project);
 				}
 
+				if (_mod.Strainer !== null && _mod.Strainer.can(project) === true) {
+					_mod.Strainer.process(project);
+				}
+
 			}
+
+
+			return true;
 
 		},
 

@@ -1,6 +1,56 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"Template": [
+				"json"
+			],
+			"platform": {
+				"node": {
+					"data": {
+						"Shell": [
+							"json"
+						]
+					}
+				}
+			},
+			"template": {
+				"html": {
+					"Application": [
+						"json"
+					],
+					"Library": [
+						"json"
+					]
+				},
+				"html-nwjs": {
+					"Application": [
+						"json"
+					],
+					"Library": [
+						"json"
+					]
+				},
+				"html-webview": {
+					"Application": [
+						"json"
+					],
+					"Library": [
+						"json"
+					]
+				},
+				"node": {
+					"Application": [
+						"json"
+					],
+					"Library": [
+						"json"
+					]
+				}
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -48,11 +98,16 @@
 					]
 				}
 			}
-		}
+		},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
-		"tags": {},
+		"tags": {
+			"platform": {
+				"node": "platform/node"
+			}
+		},
 		"files": {
 			"Main": [
 				"js"
@@ -60,10 +115,14 @@
 			"Template": [
 				"js"
 			],
-			"data": {
-				"Shell": [
-					"js"
-				]
+			"platform": {
+				"node": {
+					"data": {
+						"Shell": [
+							"js"
+						]
+					}
+				}
 			},
 			"template": {
 				"html": {

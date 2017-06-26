@@ -58,24 +58,29 @@ lychee.define('lychee.ui.entity.Upload').tags({
 	 * HELPERS
 	 */
 
-	const _MIME_TYPE = [
-		null,
-		'json',
-		'fnt',
-		'msc',
-		'snd',
-		'png',
-		'*'
-	];
-
 	const _wrap = function(instance) {
 
-		let allowed = [ 'json', 'fnt', 'msc', 'snd', 'png', 'js', 'tpl', 'md' ];
+		let allowed = [ 'json', 'fnt', 'ogg', 'mp3', 'png', 'js', 'tpl', 'md' ];
 		let element = global.document.createElement('input');
 
-		if (instance.type !== Composite.TYPE.all) {
-			allowed = [ _MIME_TYPE[instance.type] ];
+
+		let type = instance.type;
+		if (type === Composite.TYPE.all) {
+			allowed = [ '*' ];
+		} else if (type === Composite.TYPE.config) {
+			allowed = [ 'json' ];
+		} else if (type === Composite.TYPE.font) {
+			allowed = [ 'fnt' ];
+		} else if (type === Composite.TYPE.music) {
+			allowed = [ 'mp3', 'ogg' ];
+		} else if (type === Composite.TYPE.sound) {
+			allowed = [ 'mp3', 'ogg' ];
+		} else if (type === Composite.TYPE.texture) {
+			allowed = [ 'png' ];
+		} else if (type === Composite.TYPE.stuff) {
+			allowed = [ '*' ];
 		}
+
 
 		element._visible = false;
 		element.setAttribute('accept',   allowed.map(function(v) {
@@ -114,6 +119,9 @@ lychee.define('lychee.ui.entity.Upload').tags({
 				let reader = new global.FileReader();
 
 				reader.onload = function() {
+
+					// TODO: If file.name is msc.ogg or msc.mp3 use both buffers
+					// TODO: If file.name is snd.ogg or snd.mp3 use both buffers
 
 					let asset = new lychee.Asset('/tmp/' + file.name, null, true);
 					if (asset !== null) {
@@ -202,7 +210,12 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 			let wrapper = _WRAPPERS[_INSTANCES.indexOf(this)] || null;
 			if (wrapper !== null) {
-				wrapper.click();
+
+				// XXX: Removing this causes endless loop
+				setTimeout(function() {
+					wrapper.click();
+				}, 250);
+
 			}
 
 		}, this);

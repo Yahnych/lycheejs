@@ -14,6 +14,12 @@ fi;
 
 LYCHEEJS_NODE="";
 PACKAGE_CMD="";
+CORE_FLAG="false";
+
+
+if [ "$1" == "--core" ]; then
+	CORE_FLAG="true";
+fi;
 
 
 if [ "$ARCH" == "x86_64" -o "$ARCH" == "amd64" ]; then
@@ -62,19 +68,27 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 	if [ "$?" == "0" ]; then
 
 		echo -e "\n\n";
-		echo -e "  (L) Building lychee.js Libraries";
+		echo -e " (L) Building lychee.js Libraries";
 
 		./libraries/fertilizer/bin/fertilizer.sh auto /libraries/lychee;
-		./libraries/fertilizer/bin/fertilizer.sh auto /libraries/breeder;
-		./libraries/fertilizer/bin/fertilizer.sh auto /libraries/fertilizer;
-		./libraries/fertilizer/bin/fertilizer.sh auto /libraries/harvester;
-		./libraries/fertilizer/bin/fertilizer.sh auto /libraries/strainer;
 
-		echo -e "  (I) SUCCESS\n";
+		if [ "$CORE_FLAG" == "false" ]; then
+
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/breeder;
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/fertilizer;
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/harvester;
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/strainer;
+
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/ranger;
+			./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/studio;
+
+		fi;
+
+		echo -e " (I) SUCCESS\n";
 
 	else
 
-		echo -e "  (E) FAILURE\n";
+		echo -e " (E) FAILURE\n";
 
 		exit 1;
 
@@ -85,7 +99,7 @@ fi;
 
 if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 
-	echo -e "  (L) Fixing CHMOD/CHOWN rights";
+	echo -e " (L) Fixing CHMOD/CHOWN rights";
 
 
 	cd $LYCHEEJS_ROOT;
@@ -137,7 +151,7 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 	fi;
 
 
-	echo -e "  (I) SUCCESS\n";
+	echo -e " (I) SUCCESS\n";
 
 fi;
 
@@ -146,7 +160,7 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 
 	if [ -e "$LYCHEEJS_ROOT/.git/config" ]; then
 
-		echo -e "  (L) Fixing GIT config";
+		echo -e " (L) Fixing GIT config";
 
 
 		cd $LYCHEEJS_ROOT;
@@ -162,7 +176,7 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 		fi;
 
 
-		echo -e "  (I) SUCCESS\n";
+		echo -e " (I) SUCCESS\n";
 
 	fi;
 

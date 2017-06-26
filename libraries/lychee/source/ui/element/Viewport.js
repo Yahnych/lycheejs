@@ -81,6 +81,10 @@ lychee.define('lychee.ui.element.Viewport').requires([
 
 				if (mode === 'fullscreen') {
 
+					main.settings.renderer.width      = null;
+					main.settings.renderer.height     = null;
+					main.settings.renderer.background = background;
+
 					renderer.setBackground(background);
 					renderer.setWidth(null);
 					renderer.setHeight(null);
@@ -88,6 +92,10 @@ lychee.define('lychee.ui.element.Viewport').requires([
 					viewport.setFullscreen(true);
 
 				} else if (mode === 'dynamic') {
+
+					main.settings.renderer.width      = null;
+					main.settings.renderer.height     = null;
+					main.settings.renderer.background = background;
 
 					renderer.setBackground(background);
 					renderer.setWidth(null);
@@ -97,6 +105,10 @@ lychee.define('lychee.ui.element.Viewport').requires([
 
 				} else if (mode === 'static') {
 
+					main.settings.renderer.width      = width;
+					main.settings.renderer.height     = height;
+					main.settings.renderer.background = background;
+
 					renderer.setBackground(background);
 					renderer.setWidth(width);
 					renderer.setHeight(height);
@@ -104,6 +116,14 @@ lychee.define('lychee.ui.element.Viewport').requires([
 					viewport.setFullscreen(false);
 
 				}
+
+
+				viewport.trigger('reshape', [
+					null,
+					null,
+					viewport.width,
+					viewport.height
+				]);
 
 			}
 
@@ -122,8 +142,9 @@ lychee.define('lychee.ui.element.Viewport').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Viewport';
-		settings.options = [ 'Save' ];
+		settings.label    = 'Viewport';
+		settings.options  = [ 'Save' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);

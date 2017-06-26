@@ -1,6 +1,47 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"Quickfix": [
+				"json"
+			],
+			"Template": [
+				"json"
+			],
+			"api": {
+				"Callback": [
+					"json"
+				],
+				"Composite": [
+					"json"
+				],
+				"Definition": [
+					"json"
+				],
+				"Module": [
+					"json"
+				],
+				"PARSER": [
+					"json"
+				]
+			},
+			"platform": {
+				"node": {
+					"plugin": {
+						"ESLINT": [
+							"json"
+						]
+					}
+				}
+			},
+			"plugin": {
+				"API": [
+					"json"
+				]
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -54,13 +95,21 @@
 					]
 				}
 			}
-		}
+		},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
-		"tags": {},
+		"tags": {
+			"platform": {
+				"node": "platform/node"
+			}
+		},
 		"files": {
 			"Main": [
+				"js"
+			],
+			"Quickfix": [
 				"js"
 			],
 			"Template": [
@@ -71,22 +120,30 @@
 					"js"
 				],
 				"Composite": [
-					"js",
-					"json"
+					"js"
 				],
 				"Definition": [
 					"js"
 				],
 				"Module": [
+					"js"
+				],
+				"PARSER": [
 					"js",
 					"json"
 				]
 			},
+			"platform": {
+				"node": {
+					"plugin": {
+						"ESLINT": [
+							"js"
+						]
+					}
+				}
+			},
 			"plugin": {
 				"API": [
-					"js"
-				],
-				"ESLINT": [
 					"js"
 				]
 			}

@@ -37,8 +37,8 @@ lychee.define('Viewport').tags({
 
 	let _focusactive   = true;
 	let _reshapeactive = false;
-	let _reshapewidth  = global.innerWidth;
-	let _reshapeheight = global.innerHeight;
+	let _reshapewidth  = global.innerWidth  | 0;
+	let _reshapeheight = global.innerHeight | 0;
 
 	const _reshape_viewport = function() {
 
@@ -78,7 +78,7 @@ lychee.define('Viewport').tags({
 		 *
 		 * The reflow is too slow for an update, so we have
 		 * to lock the heuristic to only be executed once,
-		 * waiting for a second to let the reflow finish.
+		 * waiting for 500ms to let the reflow finish.
 		 */
 
 		setTimeout(function() {
@@ -87,11 +87,11 @@ lychee.define('Viewport').tags({
 				_process_reshape.call(_INSTANCES[i], global.innerWidth, global.innerHeight);
 			}
 
-			_reshapewidth  = global.innerWidth;
-			_reshapeheight = global.innerHeight;
+			_reshapewidth  = global.innerWidth  | 0;
+			_reshapeheight = global.innerHeight | 0;
 			_reshapeactive = false;
 
-		}, 1000);
+		}, 500);
 
 	};
 
@@ -417,8 +417,8 @@ lychee.define('Viewport').tags({
 
 
 		this.fullscreen = false;
-		this.width      = global.innerWidth;
-		this.height     = global.innerHeight;
+		this.width      = global.innerWidth  | 0;
+		this.height     = global.innerHeight | 0;
 
 		this.__orientation = typeof global.orientation === 'number' ? global.orientation : 0;
 
@@ -441,7 +441,7 @@ lychee.define('Viewport').tags({
 			this.width  = 0;
 			this.height = 0;
 
-			_process_reshape.call(this, global.innerWidth, global.innerHeight);
+			_process_reshape.call(this, global.innerWidth | 0, global.innerHeight | 0);
 
 		}.bind(this), 100);
 
@@ -509,25 +509,32 @@ lychee.define('Viewport').tags({
 
 		setFullscreen: function(fullscreen) {
 
-			if (fullscreen === true && this.fullscreen === false) {
+			fullscreen = typeof fullscreen === 'boolean' ? fullscreen : null;
 
-				if (_enterFullscreen !== null) {
 
-					_enterFullscreen();
-					this.fullscreen = true;
+			if (fullscreen !== null) {
 
-					return true;
+				if (fullscreen === true && this.fullscreen === false) {
 
-				}
+					if (_enterFullscreen !== null) {
 
-			} else if (fullscreen === false && this.fullscreen === true) {
+						_enterFullscreen();
+						this.fullscreen = true;
 
-				if (_leaveFullscreen !== null) {
+						return true;
 
-					_leaveFullscreen();
-					this.fullscreen = false;
+					}
 
-					return true;
+				} else if (fullscreen === false && this.fullscreen === true) {
+
+					if (_leaveFullscreen !== null) {
+
+						_leaveFullscreen();
+						this.fullscreen = false;
+
+						return true;
+
+					}
 
 				}
 

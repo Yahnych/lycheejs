@@ -11,7 +11,7 @@ if [ "$LYCHEEJS_HELPER" != "" ] && [ "$LYCHEEJS_FERTILIZER" != "" ]; then
 	cp ./index-debug.html ./index.html;
 
 	cd $LYCHEEJS_ROOT/libraries/studio;
-	nw-debug .;
+	nw .;
 
 	exit $?;
 

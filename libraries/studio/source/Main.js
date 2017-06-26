@@ -95,7 +95,7 @@ lychee.define('studio.Main').requires([
 			this.setState('asset',   new _studio.state.Asset(this));
 
 
-			this.changeState('project');
+			this.changeState('project', 'Project');
 
 		}, this, true);
 

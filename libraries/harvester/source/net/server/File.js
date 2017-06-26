@@ -36,7 +36,9 @@ lychee.define('harvester.net.server.File').requires([
 
 	const _PUBLIC_PROJECT = {
 		identifier: '/libraries/harvester/public',
-		filesystem: new _Filesystem('/libraries/harvester/public')
+		filesystem: new _Filesystem({
+			root: '/libraries/harvester/public'
+		})
 	};
 
 
@@ -80,6 +82,8 @@ lychee.define('harvester.net.server.File').requires([
 		 * MODULE API
 		 */
 
+		// deserialize: function(blob) {},
+
 		serialize: function() {
 
 			return {
@@ -96,6 +100,10 @@ lychee.define('harvester.net.server.File').requires([
 		 */
 
 		receive: function(payload, headers) {
+
+			payload = payload instanceof Buffer ? payload : null;
+			headers = headers instanceof Object ? headers : {};
+
 
 			let identifier = null;
 			let info       = null;

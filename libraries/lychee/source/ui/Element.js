@@ -22,12 +22,32 @@ lychee.define('lychee.ui.Element').requires([
 	 * HELPERS
 	 */
 
+	const _validate_entity = function(entity) {
+
+		if (entity instanceof Object) {
+
+			if (
+				typeof entity.update === 'function'
+				&& typeof entity.render === 'function'
+				&& typeof entity.shape === 'number'
+				&& typeof entity.isAtPosition === 'function'
+			) {
+				return true;
+			}
+
+		}
+
+
+		return false;
+
+	};
+
 	const _on_relayout = function() {
 
-		let content = this.__content;
-		let entity  = null;
-		let label   = null;
-		let layout  = [
+		let entities = this.entities;
+		let entity   = null;
+		let label    = null;
+		let layout   = [
 			this.getEntity('@order'),
 			this.getEntity('@label'),
 			this.getEntity('@options-prev'),
@@ -41,21 +61,34 @@ lychee.define('lychee.ui.Element').requires([
 		let y2 =  1 / 2 * this.height;
 
 
-		if (content.length % 2 === 0) {
+		if (
+			entities[entities.length - 2] !== layout[2]
+			|| entities[entities.length - 1] !== layout[3]
+		) {
+
+			entities.splice(entities.indexOf(layout[2]), 1);
+			entities.splice(entities.indexOf(layout[3]), 1);
+			entities.push(layout[2]);
+			entities.push(layout[3]);
+
+		}
+
+
+		if (entities.length > 4) {
 
 			let offset   = 64 + 16;
 			let boundary = 0;
 
-			for (let c = 0, cl = content.length; c < cl; c += 2) {
+			for (let e = 2, el = entities.length - 2; e < el; e += 2) {
 
-				entity   = content[c]     || null;
-				label    = content[c + 1] || null;
+				label    = entities[e];
+				entity   = entities[e + 1];
 				boundary = 0;
 
 
 				if (entity.visible === true) {
 
-					if (label !== null) {
+					if (label.value !== '') {
 
 						label.position.x  = x1 + 16 + label.width / 2;
 						label.position.y  = y1 + offset + label.height / 2;
@@ -75,13 +108,18 @@ lychee.define('lychee.ui.Element').requires([
 
 					} else {
 
+						label.position.x  = -1 / 2 * this.width;
+						label.position.y  = y1 + offset + label.height / 2;
+						label.visible     = false;
+
 						entity.width      = this.width - 32;
 						entity.position.x = 0;
 						entity.position.y = y1 + offset + entity.height / 2;
 						entity.visible    = true;
 						entity.trigger('relayout');
 
-						boundary = entity.height;
+						boundary = Math.max(label.height, entity.height);
+						label.position.y  = y1 + offset + boundary / 2;
 						entity.position.y = y1 + offset + boundary / 2;
 
 						offset += boundary + 16;
@@ -90,9 +128,7 @@ lychee.define('lychee.ui.Element').requires([
 
 				} else {
 
-					if (label !== null) {
-						label.visible = false;
-					}
+					label.visible = false;
 
 				}
 
@@ -101,10 +137,7 @@ lychee.define('lychee.ui.Element').requires([
 		}
 
 
-		let entities = this.entities;
-		let index    = -1;
-		let order_w  = 0;
-
+		let order_w = 0;
 
 		entity            = layout[0];
 		order_w           = entity.width;
@@ -121,22 +154,10 @@ lychee.define('lychee.ui.Element').requires([
 		entity.position.x = x1 + 16 + entity.width / 2;
 		entity.position.y = y2 - 32;
 
-		index = entities.indexOf(entity);
-		if (index !== -1) {
-			entities.splice(index, 1);
-			entities.push(entity);
-		}
-
 		entity = layout[3];
 		entity.width      = 96;
 		entity.position.x = x2 - 16 - entity.width / 2;
 		entity.position.y = y2 - 32;
-
-		index = entities.indexOf(entity);
-		if (index !== -1) {
-			entities.splice(index, 1);
-			entities.push(entity);
-		}
 
 	};
 
@@ -151,15 +172,15 @@ lychee.define('lychee.ui.Element').requires([
 		let settings = Object.assign({}, data);
 
 
-		this.label     = 'CONTENT';
-		this.options   = [ 'Okay', 'Cancel' ];
-		this.order     = 1;
-
-		this.__content = [];
+		this.label   = 'CONTENT';
+		this.options = [ 'Okay', 'Cancel' ];
+		this.order   = 1;
 
 
-		settings.width    = typeof settings.width === 'number'  ? settings.width  : 256;
-		settings.height   = typeof settings.height === 'number' ? settings.height : 384;
+		settings.width    = typeof settings.width === 'number'     ? settings.width    : 256;
+		settings.height   = typeof settings.height === 'number'    ? settings.height   : 384;
+
+		let init_relayout = typeof settings.relayout === 'boolean' ? settings.relayout : false;
 		settings.relayout = false;
 
 
@@ -170,8 +191,6 @@ lychee.define('lychee.ui.Element').requires([
 		/*
 		 * INITIALIZATION
 		 */
-
-		let content = this.__content.slice(0);
 
 		_Layer.prototype.setEntity.call(this, '@order', new _Label({
 			font:  _FONTS.order,
@@ -194,7 +213,6 @@ lychee.define('lychee.ui.Element').requires([
 		}));
 
 
-		this.__content = content;
 		this.unbind('relayout');
 		this.bind('relayout', _on_relayout, this);
 
@@ -211,6 +229,13 @@ lychee.define('lychee.ui.Element').requires([
 		this.setLabel(settings.label);
 		this.setOptions(settings.options);
 		this.setOrder(settings.order);
+
+
+		if (init_relayout === true) {
+			this.setRelayout(true);
+			this.trigger('relayout');
+		}
+
 
 		settings = null;
 
@@ -245,10 +270,10 @@ lychee.define('lychee.ui.Element').requires([
 			if (this.order !== 1)                         settings.order   = this.order;
 
 
-			if (this.__content.length > 0) {
+			if (this.entities.length > 4) {
 
-				let entities = this.__content.filter(function(value, index) {
-					return index % 2 === 0;
+				let entities = this.entities.slice(2, -2).filter(function(value, index) {
+					return index % 2 === 1;
 				});
 
 				let map = Object.map(this.__map, function(val, key) {
@@ -335,13 +360,35 @@ lychee.define('lychee.ui.Element').requires([
 
 		addEntity: function(entity) {
 
-			let result = _Layer.prototype.addEntity.call(this, entity);
-			if (result === true) {
-				this.__content.push(entity);
-				this.__content.push(null);
+			entity = _validate_entity(entity) === true ? entity : null;
+
+
+			if (entity !== null) {
+
+				let index = this.entities.indexOf(entity);
+				if (index === -1) {
+
+					let label = new _Label({
+						value: ''
+					});
+
+
+					this.entities.push(label);
+					this.entities.push(entity);
+
+					if (this.__relayout === true) {
+						this.trigger('relayout');
+					}
+
+
+					return true;
+
+				}
+
 			}
 
-			return result;
+
+			return false;
 
 		},
 
@@ -361,7 +408,12 @@ lychee.define('lychee.ui.Element').requires([
 				if (this.__map[id] !== undefined) {
 					found = this.__map[id];
 				} else if (isNaN(num) === false) {
-					found = this.__content[num] || null;
+
+					// XXX: Ignore @order, @label, @options-prev, @optiones-next
+					if (num >= 0 && num <= this.entities.length - 4) {
+						found = this.entities[num + 2] || null;
+					}
+
 				}
 
 			} else if (position !== null) {
@@ -391,50 +443,143 @@ lychee.define('lychee.ui.Element').requires([
 
 		setEntity: function(id, entity) {
 
-			let result = _Layer.prototype.setEntity.call(this, id, entity);
-			if (result === true) {
+			id     = typeof id === 'string'            ? id     : null;
+			entity = _validate_entity(entity) === true ? entity : null;
+
+
+			if (id !== null && entity !== null && this.__map[id] === undefined) {
 
 				let label = new _Label({
 					value: id.charAt(0).toUpperCase() + id.substr(1)
 				});
 
 
+				this.__map[id] = entity;
+
 				this.entities.push(label);
+				this.entities.push(entity);
 
 
-				let index = this.__content.length - 1;
-				if (this.__content[index] === null) {
-					this.__content[index] = label;
+				if (this.__relayout === true) {
+					this.trigger('relayout');
 				}
+
+
+				return true;
 
 			}
 
-			return result;
+
+			return false;
 
 		},
 
 		removeEntity: function(entity) {
 
-			let result = _Layer.prototype.removeEntity.call(this, entity);
-			if (result === true) {
+			entity = _validate_entity(entity) === true ? entity : null;
 
-				let index = this.__content.indexOf(entity);
-				if (index !== -1) {
 
-					let label = this.__content[index + 1];
-					let tmp   = this.entities.indexOf(label);
-					if (tmp !== -1) {
-						this.entities.splice(tmp, 1);
+			if (entity !== null) {
+
+				let found   = false;
+				let e_index = this.entities.indexOf(entity);
+				let l_index = e_index - 1;
+
+				if (e_index !== -1 && l_index !== -1) {
+
+					let check = this.entities[l_index] || null;
+					if (check !== null && check instanceof _Label) {
+						this.entities.splice(l_index, 2);
+					} else {
+						this.entities.splice(e_index, 1);
 					}
 
+					found = true;
 
-					this.__content.splice(index, 2);
+				}
 
+
+				for (let id in this.__map) {
+
+					if (this.__map[id] === entity) {
+						delete this.__map[id];
+						found = true;
+					}
+
+				}
+
+
+				if (found === true) {
+
+					if (this.__relayout === true) {
+						this.trigger('relayout');
+					}
+
+				}
+
+
+				return found;
+
+			}
+
+
+			return false;
+
+		},
+
+		setEntities: function(entities) {
+
+			entities = entities instanceof Array ? entities : null;
+
+
+			let all = true;
+
+			if (entities !== null) {
+
+				let filtered = [
+					this.getEntity('@order'),
+					this.getEntity('@label'),
+					this.getEntity('@options-prev'),
+					this.getEntity('@options-next')
+				];
+
+				for (let e = 0, el = entities.length; e < el; e++) {
+
+					let entity = entities[e];
+					let index  = filtered.indexOf(entity);
+					if (index === -1) {
+						filtered.push(entity);
+					} else {
+						all = false;
+					}
+
+				}
+
+				this.entities = filtered;
+
+				if (this.__relayout === true) {
+					this.trigger('relayout');
 				}
 
 			}
 
-			return result;
+			return all;
+
+		},
+
+		removeEntities: function() {
+
+			let entities = this.entities;
+
+			for (let e = 2, el = entities.length - 2; e < el; e++) {
+
+				entities.splice(e, 1);
+				el--;
+				e--;
+
+			}
+
+			return true;
 
 		},
 
@@ -495,7 +640,6 @@ lychee.define('lychee.ui.Element').requires([
 					prev.visible = true;
 					prev.setLabel(this.options[1]);
 					prev.setValue(this.options[1].toLowerCase());
-
 
 				}
 

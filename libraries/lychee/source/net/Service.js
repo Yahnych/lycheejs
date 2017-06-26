@@ -6,7 +6,7 @@ lychee.define('lychee.net.Service').requires([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Emitter  = lychee.import('lychee.event.Emitter');
-	const _SERVICES = [];
+	const _SERVICES = {};
 
 
 
@@ -282,6 +282,17 @@ lychee.define('lychee.net.Service').requires([
 
 			} else if (type === Composite.TYPE.remote) {
 
+				// XXX: Allow method calls from remote side
+				if (data !== null && service !== null) {
+
+					data = {
+						data:    data,
+						service: service
+					};
+
+				}
+
+
 				if (data.service !== null) {
 
 					let broadcast = _SERVICES[this.id] || null;
@@ -335,9 +346,14 @@ lychee.define('lychee.net.Service').requires([
 						event: 'success'
 					});
 
+					return true;
+
 				}
 
 			}
+
+
+			return false;
 
 		},
 
@@ -360,9 +376,14 @@ lychee.define('lychee.net.Service').requires([
 						event: 'error'
 					});
 
+					return true;
+
 				}
 
 			}
+
+
+			return false;
 
 		},
 

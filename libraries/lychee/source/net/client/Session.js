@@ -148,7 +148,6 @@ lychee.define('lychee.net.client.Session').includes([
 						console.log('lychee.net.client.Session: Joining session "' + this.sid + '"');
 					}
 
-
 					this.tunnel.send({
 						autoadmin: this.autoadmin,
 						autolock:  this.autolock,
@@ -160,6 +159,8 @@ lychee.define('lychee.net.client.Session').includes([
 						id:    this.id,
 						event: 'join'
 					});
+
+					return true;
 
 				}
 
@@ -180,9 +181,14 @@ lychee.define('lychee.net.client.Session').includes([
 						event: 'start'
 					});
 
+					return true;
+
 				}
 
 			}
+
+
+			return false;
 
 		},
 
@@ -199,9 +205,14 @@ lychee.define('lychee.net.client.Session').includes([
 						event: 'stop'
 					});
 
+					return true;
+
 				}
 
 			}
+
+
+			return false;
 
 		},
 
@@ -215,7 +226,6 @@ lychee.define('lychee.net.client.Session').includes([
 						console.log('lychee.net.client.Session: Leaving session "' + this.sid + '"');
 					}
 
-
 					this.tunnel.send({
 						sid:   this.sid
 					}, {
@@ -223,21 +233,30 @@ lychee.define('lychee.net.client.Session').includes([
 						event: 'leave'
 					});
 
+					return true;
+
 				}
 
 			}
+
+
+			return false;
 
 		},
 
 		setAdmin: function(admin) {
 
-			if (admin === true || admin === false) {
+			admin = typeof admin === 'boolean' ? admin : null;
 
-				this.admin = true;
+
+			if (admin !== null) {
+
+				this.admin = admin;
 
 				return true;
 
 			}
+
 
 			return false;
 
@@ -245,7 +264,10 @@ lychee.define('lychee.net.client.Session').includes([
 
 		setAutoadmin: function(autoadmin) {
 
-			if (autoadmin === true || autoadmin === false) {
+			autoadmin = typeof autoadmin === 'boolean' ? autoadmin : null;
+
+
+			if (autoadmin !== null) {
 
 				this.autoadmin = autoadmin;
 
@@ -260,7 +282,10 @@ lychee.define('lychee.net.client.Session').includes([
 
 		setAutolock: function(autolock) {
 
-			if (autolock === true || autolock === false) {
+			autolock = typeof autolock === 'boolean' ? autolock : null;
+
+
+			if (autolock !== null) {
 
 				this.autolock = autolock;
 
@@ -275,7 +300,10 @@ lychee.define('lychee.net.client.Session').includes([
 
 		setAutostart: function(autostart) {
 
-			if (autostart === true || autostart === false) {
+			autostart = typeof autostart === 'boolean' ? autostart : null;
+
+
+			if (autostart !== null) {
 
 				this.autostart = autostart;
 

@@ -44,7 +44,7 @@ lychee.define('game.state.Game').requires([
 		position = position instanceof Object ? position : null;
 
 
-		let portal = this.queryLayer('game', 'portals > portal');
+		let portal = this.query('game > portals > portal');
 		if (portal !== null) {
 
 			portal.addEffect(new _Lightning({
@@ -52,8 +52,6 @@ lychee.define('game.state.Game').requires([
 				duration: 2000,
 				position: position
 			}));
-
-			_SOUNDS.spawn.play();
 
 		}
 
@@ -64,8 +62,8 @@ lychee.define('game.state.Game').requires([
 		position = position instanceof Object ? position : null;
 
 
-		let objects = this.queryLayer('game', 'objects');
-		let terrain = this.queryLayer('game', 'terrain');
+		let objects = this.query('game > objects');
+		let terrain = this.query('game > terrain');
 
 		if (objects !== null && terrain !== null) {
 
@@ -110,109 +108,90 @@ lychee.define('game.state.Game').requires([
 
 	};
 
-	const _respawn = function(tank) {
+	const _randomize_position = function(entity) {
 
-		_kill.call(this, tank);
+		if (entity instanceof _Tank) {
 
-
-		let objects = this.queryLayer('game', 'objects');
-		let portal  = this.queryLayer('game', 'portals > portal');
-
-		if (objects !== null && portal.effects.length > 0) {
-
-			for (let pe = 0, pel = portal.effects.length; pe < pel; pe++) {
-
-				let effect   = portal.effects[pe];
-				let position = effect.position;
-
-				if (effect instanceof _Lightning) {
-
-					let valid = Math.abs(position.x) > portal.width || Math.abs(position.y) > portal.height;
-					if (valid === true && effect.__alpha < 0.5) {
-
-						position.x = ((position.x / tank.width)  | 0) * tank.width  + tank.width  / 2;
-						position.y = ((position.y / tank.height) | 0) * tank.height + tank.height / 2;
+			let size     = 24;
+			let objects  = this.query('game > objects');
+			let position = {
+				x: ((Math.random() * size - size / 2) | 0) * 32 + 16,
+				y: ((Math.random() * size - size / 2) | 0) * 32 + 16
+			};
 
 
-						let entity = objects.getEntity(null, position);
-						if (entity === null) {
+			let check = objects.getEntity(null, position);
+			let tries = 0;
 
-							tank.position.x = position.x;
-							tank.position.y = position.y;
+			while (check !== null && tries < 8) {
 
-							_spawn.call(this, tank);
+				position.x = ((Math.random() * size - size / 2) | 0) * 32 + 16;
+				position.y = ((Math.random() * size - size / 2) | 0) * 32 + 16;
 
-							return true;
+				check = objects.getEntity(null, position);
+				tries++;
 
-						}
+			}
 
-					}
+			if (check === null) {
 
-				}
+				entity.position.x = position.x;
+				entity.position.y = position.y;
 
 			}
 
 		}
 
+	};
 
-		if (objects !== null) {
+	const _spawn = function(entity) {
 
-			this.loop.setTimeout(2000, function() {
-				_respawn.call(this, tank);
-			}, this);
+		let objects = this.query('game > objects');
+		if (objects.entities.indexOf(entity) === -1) {
 
-			return true;
+			entity.removeEffects();
+			objects.addEntity(entity);
+
+			_lightning_effect.call(this, entity.position);
 
 		}
 
-	};
 
-	const _spawn = function(tank) {
+		if (entity instanceof _Tank) {
 
-		let objects = this.queryLayer('game', 'objects');
-		if (objects.entities.indexOf(tank) === -1) {
+			entity.life      = 4;
+			entity.direction = 'top';
 
-			tank.removeEffects();
-			tank.addEffect(new _Lightning({
-				type:     _Lightning.TYPE.bounceeaseout,
-				duration: 3000
-			}));
-
-
-			objects.addEntity(tank);
 			_SOUNDS.spawn.play();
 
 		}
 
-		if (this.__players.indexOf(tank) === -1) {
-			this.__players.push(tank);
-		}
-
 	};
 
-	const _kill = function(tank) {
+	const _kill = function(entity) {
 
-		let objects = this.queryLayer('game', 'objects');
-		if (objects.entities.indexOf(tank) !== -1) {
+		_explode.call(this, entity.position);
 
-			tank.removeEffects();
 
-			objects.removeEntity(tank);
-			_SOUNDS.kill.play();
-
+		let objects = this.query('game > objects');
+		if (objects.entities.indexOf(entity) !== -1) {
+			entity.removeEffects();
+			objects.removeEntity(entity);
 		}
 
-		let index = this.__players.indexOf(tank);
-		if (index !== -1) {
-			this.__players.splice(index, 1);
+
+		if (entity instanceof _Tank) {
+
+			_SOUNDS.kill.play();
+
 		}
 
 	};
 
 	const _on_init = function(data) {
 
-		let control = this.queryLayer('ui', 'control');
-		let timeout = this.queryLayer('ui', 'timeout');
+		let control = this.query('ui > control');
+		let timeout = this.query('ui > timeout');
 
 		if (control !== null && timeout !== null) {
 
@@ -225,6 +204,7 @@ lychee.define('game.state.Game').requires([
 						this.__player = tank;
 					}
 
+					this.__players[p] = tank;
 					_spawn.call(this, tank);
 
 				}
@@ -251,6 +231,36 @@ lychee.define('game.state.Game').requires([
 		}
 
 
+		if (data.directions !== undefined) {
+
+			for (let d = 0, dl = data.directions.length; d < dl; d++) {
+
+				let dir   = data.directions[d] || null;
+				let other = this.__players[d]  || null;
+				if (dir !== null && other !== null) {
+					other.setDirection(dir);
+				}
+
+			}
+
+		}
+
+
+		if (data.lifes !== undefined) {
+
+			for (let l = 0, ll = data.lifes.length; l < ll; l++) {
+
+				let life  = data.lifes[l]     || null;
+				let other = this.__players[l] || null;
+				if (life !== null && other !== null) {
+					other.setLife(life);
+				}
+
+			}
+
+		}
+
+
 		if (data.positions !== undefined) {
 
 			for (let p = 0, pl = data.positions.length; p < pl; p++) {
@@ -260,9 +270,12 @@ lychee.define('game.state.Game').requires([
 				if (pos !== null && other !== null) {
 
 					if (pos.x !== -1 && pos.y !== -1) {
+
 						other.removeEffects();
+
 						other.position.x = data.positions[p].x;
 						other.position.y = data.positions[p].y;
+
 					}
 
 				}
@@ -279,8 +292,8 @@ lychee.define('game.state.Game').requires([
 			}
 
 
-			let bullets  = this.queryLayer('game', 'bullets');
-			let objects  = this.queryLayer('game', 'objects');
+			let bullets  = this.query('game > bullets');
+			let objects  = this.query('game > objects');
 			let entity   = null;
 			let position = {
 				x: player.position.x,
@@ -361,12 +374,38 @@ lychee.define('game.state.Game').requires([
 
 	};
 
+	const _send_change = function() {
+
+		let client = this.client   || null;
+		let player = this.__player || null;
+
+		if (client !== null && player !== null) {
+
+			let service = client.getService('control');
+			if (service !== null) {
+
+				service.change({
+					tid:       this.__players.indexOf(player),
+					direction: player.direction,
+					life:      player.life,
+					position:  {
+						x: player.position.x,
+						y: player.position.y
+					}
+				});
+
+			}
+
+		}
+
+	};
+
 	const _on_update = function(data) {
 
 		if (data.players === undefined) return;
 
 
-		let timeout = this.queryLayer('ui', 'timeout');
+		let timeout = this.query('ui > timeout');
 		if (timeout !== null) {
 			timeout.setTimeout(data.timeout);
 		}
@@ -383,6 +422,7 @@ lychee.define('game.state.Game').requires([
 						this.__player = tank;
 					}
 
+					this.__players[p] = tank;
 					_spawn.call(this, tank);
 
 				}
@@ -399,6 +439,7 @@ lychee.define('game.state.Game').requires([
 					if (p >= data.players.length) {
 
 						_kill.call(this, tank);
+						this.__players.splice(p, 1);
 						pl--;
 						p--;
 
@@ -425,8 +466,8 @@ lychee.define('game.state.Game').requires([
 
 	const _on_start = function(data) {
 
-		let control = this.queryLayer('ui', 'control');
-		let timeout = this.queryLayer('ui', 'timeout');
+		let control = this.query('ui > control');
+		let timeout = this.query('ui > timeout');
 
 		if (control !== null && timeout !== null) {
 
@@ -478,17 +519,17 @@ lychee.define('game.state.Game').requires([
 					let height = renderer.height;
 
 
-					entity = this.queryLayer('ui', 'control');
+					entity = this.query('ui > control');
 					entity.width  = width;
 					entity.height = height;
 					entity.trigger('relayout');
 
-					entity = this.queryLayer('ui', 'timeout');
+					entity = this.query('ui > timeout');
 					entity.width  = width;
 					entity.height = height;
 					entity.trigger('relayout');
 
-					entity = this.queryLayer('game', 'portals');
+					entity = this.query('game > portals');
 					entity.width  = width;
 					entity.height = height;
 					entity.trigger('relayout');
@@ -526,9 +567,9 @@ lychee.define('game.state.Game').requires([
 
 		update: function(clock, delta) {
 
-			let bullets = this.queryLayer('game', 'bullets');
-			let objects = this.queryLayer('game', 'objects');
-			let portal  = this.queryLayer('game', 'portals > portal');
+			let bullets = this.query('game > bullets');
+			let objects = this.query('game > objects');
+			let portal  = this.query('game > portals > portal');
 
 			if (bullets !== null && objects !== null) {
 
@@ -571,7 +612,8 @@ lychee.define('game.state.Game').requires([
 
 				for (let p = 0, pl = players.length; p < pl; p++) {
 
-					let player = players[p];
+					let changed = false;
+					let player  = players[p];
 
 					for (let b = 0, bl = this.__bullets[p].length; b < bl; b++) {
 
@@ -589,6 +631,7 @@ lychee.define('game.state.Game').requires([
 
 								if (entity instanceof _Tank) {
 									entity.hit();
+									changed = true;
 								} else if (entity instanceof _Wall) {
 									entity.hit();
 								}
@@ -609,21 +652,17 @@ lychee.define('game.state.Game').requires([
 
 
 					if (player.life <= 0) {
-						_respawn.call(this, player);
+
+						_kill.call(this, player);
+						_randomize_position.call(this, player);
+						_spawn.call(this, player);
+
+						changed = true;
+
 					}
 
-
-					for (let pe = 0, pel = portal.effects.length; pe < pel; pe++) {
-
-						let effect = portal.effects[pe];
-						if (effect.__alpha > 0.5) {
-
-							if (player.isAtPosition(effect.position)) {
-								_respawn.call(this, player);
-							}
-
-						}
-
+					if (changed === true && this.__player === player) {
+						_send_change.call(this, player);
 					}
 
 				}
@@ -638,8 +677,7 @@ lychee.define('game.state.Game').requires([
 
 							let entity = objects.getEntity(null, effect.position);
 							if (entity !== null && entity instanceof _Wall) {
-								_explode.call(this, effect.position);
-								objects.removeEntity(entity);
+								_kill.call(this, entity);
 							}
 
 						}
@@ -655,8 +693,7 @@ lychee.define('game.state.Game').requires([
 
 					for (let i = 0, il = 4; i < il; i++) {
 
-						objects.addEntity(items[i]);
-						_lightning_effect.call(this, items[i].position);
+						_spawn.call(this, items[i]);
 
 						items.splice(i, 1);
 						il--;
@@ -681,10 +718,8 @@ lychee.define('game.state.Game').requires([
 
 		enter: function(oncomplete, data) {
 
-			data = data instanceof Object ? data : { level: 'intro' };
-
-
-			_State.prototype.enter.call(this, oncomplete);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+			data       = data instanceof Object         ? data       : { level: 'intro' };
 
 
 			let level = _LEVEL.decode(_LEVELS[data.level] || null) || null;
@@ -697,7 +732,7 @@ lychee.define('game.state.Game').requires([
 				this.__players = [];
 
 
-				let objects = this.queryLayer('game', 'objects');
+				let objects = this.query('game > objects');
 				if (objects !== null) {
 
 					objects.entities = [];
@@ -722,7 +757,7 @@ lychee.define('game.state.Game').requires([
 				}
 
 
-				let terrain = this.queryLayer('game', 'terrain');
+				let terrain = this.query('game > terrain');
 				if (terrain !== null) {
 
 					terrain.entities = [];
@@ -745,7 +780,7 @@ lychee.define('game.state.Game').requires([
 				let client = this.client;
 				if (client !== null) {
 
-					let control = this.queryLayer('ui', 'control');
+					let control = this.query('ui > control');
 					let service = client.getService('control');
 
 					if (control !== null && service !== null) {
@@ -781,8 +816,8 @@ lychee.define('game.state.Game').requires([
 				}
 
 
-				this.queryLayer('ui', 'control').setVisible(false);
-				this.queryLayer('ui', 'timeout').setVisible(true);
+				this.query('ui > control').setVisible(false);
+				this.query('ui > timeout').setVisible(true);
 
 			}
 
@@ -793,7 +828,7 @@ lychee.define('game.state.Game').requires([
 				input.unbind('key');
 				input.bind('key', function(key, name, delta) {
 
-					let control = this.queryLayer('ui', 'control');
+					let control = this.query('ui > control');
 					if (control !== null && control.visible === true) {
 						control.trigger('key', [ key, name, delta ]);
 					}
@@ -803,7 +838,7 @@ lychee.define('game.state.Game').requires([
 				input.unbind('touch', null, this);
 				input.bind('touch', function(id, position, delta) {
 
-					let control = this.queryLayer('ui', 'control');
+					let control = this.query('ui > control');
 					if (control !== null && control.visible === true) {
 						control.trigger('touch', [ id, position, delta ]);
 					}
@@ -813,7 +848,7 @@ lychee.define('game.state.Game').requires([
 				input.unbind('swipe', null, this);
 				input.bind('swipe', function(id, state, position, delta, swipe) {
 
-					let control = this.queryLayer('ui', 'control');
+					let control = this.query('ui > control');
 					if (control !== null && control.visible === true) {
 						control.trigger('swipe', [ id, state, position, delta, swipe ]);
 					}
@@ -829,12 +864,23 @@ lychee.define('game.state.Game').requires([
 				jukebox.play(_MUSIC);
 			}
 
+
+			if (oncomplete !== null) {
+				oncomplete(true);
+			}
+
+
+			return true;
+
 		},
 
 		leave: function(oncomplete) {
 
-			this.queryLayer('game', 'terrain').setEntities([]);
-			this.queryLayer('game', 'objects').setEntities([]);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
+
+			this.query('game > terrain').setEntities([]);
+			this.query('game > objects').setEntities([]);
 
 
 			let jukebox = this.jukebox;
@@ -854,7 +900,7 @@ lychee.define('game.state.Game').requires([
 			}
 
 
-			let control = this.queryLayer('ui', 'control');
+			let control = this.query('ui > control');
 			if (control !== null) {
 
 				control.unbind('change', null, this);
@@ -863,7 +909,7 @@ lychee.define('game.state.Game').requires([
 			}
 
 
-			let timeout = this.queryLayer('ui', 'timeout');
+			let timeout = this.query('ui > timeout');
 			if (timeout !== null) {
 				timeout.setVisible(true);
 			}
@@ -885,7 +931,7 @@ lychee.define('game.state.Game').requires([
 			}
 
 
-			_State.prototype.leave.call(this, oncomplete);
+			return _State.prototype.leave.call(this, oncomplete);
 
 		}
 

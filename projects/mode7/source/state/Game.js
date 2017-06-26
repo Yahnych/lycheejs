@@ -1,16 +1,16 @@
 
 lychee.define('game.state.Game').requires([
 	'lychee.app.sprite.Emblem',
-	'game.entity.Background',
-	'game.entity.Track'
+	'game.app.entity.Background',
+	'game.level.Track'
 ]).includes([
 	'lychee.app.State'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Background = lychee.import('game.entity.Background');
+	const _Background = lychee.import('game.app.entity.Background');
 	const _Emblem     = lychee.import('lychee.app.sprite.Emblem');
 	const _State      = lychee.import('lychee.app.State');
-	const _Track      = lychee.import('game.entity.Track');
+	const _Track      = lychee.import('game.level.Track');
 
 
 
@@ -112,74 +112,114 @@ lychee.define('game.state.Game').requires([
 
 		enter: function(oncomplete, data) {
 
-			_State.prototype.enter.call(this, oncomplete);
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+			data       = data instanceof Object         ? data       : null;
 
 
-			this.__track = new _Track(data.track);
+			if (data !== null) {
+
+				this.__track = new _Track({
+					id: data.track
+				});
 
 
-			if (this.__track.length === 0) {
-				this.leave();
-				return;
-			}
+				if (this.__track.length === 0) {
 
+					this.leave();
 
-			let wait   = 3; // in seconds
-			let renderer = this.renderer;
-			if (renderer !== null) {
-
-				let camera = this.camera;
-				// let width  = renderer.width;
-				let height = renderer.height;
-
-
-				camera.position.y = camera.offset + wait * 10 * height;
-
-
-				let start = null;
-
-				let handle = this.loop.setInterval(1000 / 60, function(clock, delta, step) {
-
-					if (start === null) start = clock;
-
-
-					let t = (clock - start) / (wait * 1000);
-					let y = camera.offset + (1 - (Math.pow(t - 1, 3) + 1)) * wait * 10 * height;
-					if (y < camera.offset) {
-
-						camera.position.y = camera.offset;
-						this.__autopilot  = true;
-						this.__offset     = camera.offset;
-
-						this.loop.removeInterval(handle);
-
-					} else {
-
-						camera.position.y = y;
-
+					if (oncomplete !== null) {
+						oncomplete(false);
 					}
 
-				}, this);
+					return false;
+
+				}
+
+
+				let wait   = 3; // in seconds
+				let renderer = this.renderer;
+				if (renderer !== null) {
+
+					let camera = this.camera;
+					// let width  = renderer.width;
+					let height = renderer.height;
+
+
+					camera.position.y = camera.offset + wait * 10 * height;
+
+
+					let start = null;
+
+					let handle = this.loop.setInterval(1000 / 60, function(clock, delta, step) {
+
+						if (start === null) start = clock;
+
+
+						let t = (clock - start) / (wait * 1000);
+						let y = camera.offset + (1 - (Math.pow(t - 1, 3) + 1)) * wait * 10 * height;
+						if (y < camera.offset) {
+
+							camera.position.y = camera.offset;
+							this.__autopilot  = true;
+							this.__offset     = camera.offset;
+
+							this.loop.removeInterval(handle);
+
+						} else {
+
+							camera.position.y = y;
+
+						}
+
+					}, this);
+
+				}
 
 			}
+
+
+			return _State.prototype.enter.call(this, oncomplete);
 
 		},
 
 		leave: function(oncomplete) {
 
+			oncomplete = oncomplete instanceof Function ? oncomplete : null;
+
+
 			this.__autopilot = false;
 			this.__track     = null;
 
 
-			_State.prototype.leave.call(this, oncomplete);
+			return _State.prototype.leave.call(this, oncomplete);
+
+		},
+
+		render: function(clock, delta) {
+
+			let renderer = this.renderer;
+			if (renderer !== null) {
+
+				renderer.clear();
+
+				let bgx = renderer.width / 2;
+				let bgy = this.__background.height / 2;
+				renderer.renderEntity(this.__background, bgx, bgy);
+
+				renderer.renderEntity(this.__track,      0, 0);
+
+				this.__logo.render(renderer, 0, 0);
+
+				renderer.flush();
+
+			}
 
 		},
 
 		update: function(clock, delta) {
 
-			let camera = this.camera;
-			let position = camera.position;
-
+			let camera     = this.camera;
+			let position   = camera.position;
 			let background = this.__background;
 			let origin     = this.__origin;
 			let track      = this.__track;
@@ -217,27 +257,6 @@ lychee.define('game.state.Game').requires([
 
 
 			background.setOrigin(origin);
-
-		},
-
-		render: function(clock, delta) {
-
-			let renderer = this.renderer;
-			if (renderer !== null) {
-
-				renderer.clear();
-
-				let bgx = renderer.width / 2;
-				let bgy = this.__background.height / 2;
-				renderer.renderEntity(this.__background, bgx, bgy);
-
-				renderer.renderEntity(this.__track,      0, 0);
-
-				this.__logo.render(renderer, 0, 0);
-
-				renderer.flush();
-
-			}
 
 		}
 

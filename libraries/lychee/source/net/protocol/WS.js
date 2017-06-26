@@ -14,7 +14,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 	/*
 	 * WebSocket Framing Protocol
 	 *
-	 *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+	 * |0 1 2 3 4 5 6 7|0 1 2 3 4 5 6 7|0 1 2 3 4 5 6 7|0 1 2 3 4 5 6 7|
 	 * +-+-+-+-+-------+-+-------------+-------------------------------+
 	 * |F|R|R|R| opcode|M| Payload len |    Extended payload length    |
 	 * |I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
@@ -250,6 +250,12 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 			payload_length = (buffer[2] << 8) + buffer[3];
 
+
+			if (payload_length > buffer.length) {
+				return chunk;
+			}
+
+
 			if (mask === true) {
 				mask_data    = buffer.slice(4, 8);
 				payload_data = buffer.slice(8, 8 + payload_length);
@@ -262,10 +268,17 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 		} else if (payload_length === 127) {
 
-			let hi = (buffer[2] << 24) + (buffer[3] << 16) + (buffer[4] << 8) + buffer[5];
-			let lo = (buffer[6] << 24) + (buffer[7] << 16) + (buffer[8] << 8) + buffer[9];
+			let hi = (buffer[2] * 0x1000000) + ((buffer[3] << 16) | (buffer[4] << 8) | buffer[5]);
+			let lo = (buffer[6] * 0x1000000) + ((buffer[7] << 16) | (buffer[8] << 8) | buffer[9]);
+
 
 			payload_length = (hi * 4294967296) + lo;
+
+
+			if (payload_length > buffer.length) {
+				return chunk;
+			}
+
 
 			if (mask === true) {
 				mask_data    = buffer.slice(10, 14);
@@ -292,6 +305,18 @@ lychee.define('lychee.net.protocol.WS').requires([
 		// 0: Continuation Frame (Fragmentation)
 		if (operator === 0x00) {
 
+			if (payload_data !== null) {
+
+				let payload = new Buffer(fragment.payload.length + payload_length);
+
+				fragment.payload.copy(payload, 0);
+				payload_data.copy(payload, fragment.payload.length);
+
+				fragment.payload = payload;
+
+			}
+
+
 			if (fin === true) {
 
 				let tmp0 = _JSON.decode(fragment.payload);
@@ -302,15 +327,6 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 				fragment.operator = 0x00;
 				fragment.payload  = new Buffer(0);
-
-			} else if (payload_data !== null) {
-
-				let payload = new Buffer(fragment.payload.length + payload_length);
-
-				fragment.payload.copy(payload, 0);
-				payload_data.copy(payload, fragment.payload.length);
-
-				fragment.payload = payload;
 
 			}
 
@@ -326,10 +342,15 @@ lychee.define('lychee.net.protocol.WS').requires([
 					chunk.payload = tmp1.payload || null;
 				}
 
-			} else {
+			} else if (payload_data !== null) {
 
+				let payload = new Buffer(fragment.payload.length + payload_length);
+
+				fragment.payload.copy(payload, 0);
+				payload_data.copy(payload, fragment.payload.length);
+
+				fragment.payload  = payload;
 				fragment.operator = operator;
-				fragment.payload  = payload_data;
 
 			}
 
@@ -345,10 +366,15 @@ lychee.define('lychee.net.protocol.WS').requires([
 					chunk.payload = tmp2.payload || null;
 				}
 
-			} else {
+			} else if (payload_data !== null) {
 
+				let payload = new Buffer(fragment.payload.length + payload_length);
+
+				fragment.payload.copy(payload, 0);
+				payload_data.copy(payload, fragment.payload.length);
+
+				fragment.payload  = payload;
 				fragment.operator = operator;
-				fragment.payload  = payload_data;
 
 			}
 
@@ -389,9 +415,12 @@ lychee.define('lychee.net.protocol.WS').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(type) {
+	let Composite = function(data) {
 
-		this.type = lychee.enumof(Composite.TYPE, type) ? type : null;
+		let settings = Object.assign({}, data);
+
+
+		this.type = lychee.enumof(Composite.TYPE, settings.type) ? settings.type : null;
 
 		this.__buffer   = new Buffer(0);
 		this.__fragment = { operator: 0x00, payload: new Buffer(0) };
@@ -405,6 +434,8 @@ lychee.define('lychee.net.protocol.WS').requires([
 			}
 
 		}
+
+		settings = null;
 
 	};
 
@@ -527,9 +558,16 @@ lychee.define('lychee.net.protocol.WS').requires([
 						}
 
 
-						tmp = new Buffer(buf.length - chunk.bytes);
-						buf.copy(tmp, 0, chunk.bytes);
-						buf = tmp;
+						if (buf.length - chunk.bytes > 0) {
+
+							tmp = new Buffer(buf.length - chunk.bytes);
+							buf.copy(tmp, 0, chunk.bytes);
+							buf = tmp;
+
+						} else {
+							buf = new Buffer(0);
+						}
+
 
 						chunk = null;
 						chunk = _decode_buffer.call(this, buf);

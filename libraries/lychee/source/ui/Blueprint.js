@@ -41,10 +41,11 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 	const _on_relayout = function() {
 
-		let fade    = this.__fade;
-		let visible = this.visible;
+		let fade     = this.__fade;
+		let entities = this.entities;
+		let visible  = this.visible;
 
-		if (visible === true) {
+		if (entities.length > 0 && visible === true) {
 
 			let entity = null;
 			let other  = null;
@@ -65,9 +66,9 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 			if (type === Composite.TYPE.grid) {
 
-				for (let e = 0, el = this.entities.length; e < el; e++) {
+				for (let e = 0, el = entities.length; e < el; e++) {
 
-					entity = this.entities[e];
+					entity = entities[e];
 					pos_x  = off_x + entity.width  / 2;
 					pos_y  = off_y + entity.height / 2;
 
@@ -129,9 +130,9 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 			} else if (type === Composite.TYPE.view) {
 
-				if (this.entities.length === 2) {
+				if (entities.length === 2) {
 
-					entity        = this.entities[0];
+					entity        = entities[0];
 					entity.width  = 320;
 					entity.height = this.height;
 
@@ -169,7 +170,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 					}
 
 
-					entity        = this.entities[1];
+					entity        = entities[1];
 					entity.width  = Math.max(480, this.width - 64 - 320);
 					entity.height = this.height;
 
@@ -209,9 +210,9 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 					this.__scroll.max_x = Math.min(this.__scroll.max_x, -1 * (x1 + pos_x + entity.width / 2 + 32));
 
-				} else if (this.entities.length === 1) {
+				} else if (entities.length === 1) {
 
-					entity        = this.entities[0];
+					entity        = entities[0];
 					entity.width  = 320;
 					entity.height = this.height;
 
@@ -252,9 +253,9 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 			} else if (type === Composite.TYPE.full) {
 
-				for (let e = 0, el = this.entities.length; e < el; e++) {
+				for (let e = 0, el = entities.length; e < el; e++) {
 
-					entity = this.entities[e];
+					entity = entities[e];
 
 					entity.position.x = 0;
 					entity.position.y = 0;
@@ -263,9 +264,9 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 			} else if (type === Composite.TYPE.auto) {
 
-				if (this.entities.length === 2) {
+				if (entities.length === 2) {
 
-					entity = this.entities[0];
+					entity = entities[0];
 
 					pos_x = x1 + 32 + entity.width / 2;
 					pos_y = 0;
@@ -301,8 +302,8 @@ lychee.define('lychee.ui.Blueprint').requires([
 					}
 
 
-					entity = this.entities[1];
-					other  = this.entities[0];
+					entity = entities[1];
+					other  = entities[0];
 
 					pos_x = other.position.x + other.width / 2 + 32 + entity.width / 2;
 					pos_y = 0;
@@ -337,9 +338,31 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 					}
 
-				} else if (this.entities.length === 3) {
+				} else if (entities.length === 3) {
 
-					entity = this.entities[0];
+					// XXX: Stretch widest entity
+					let tmp_entity = entities[0];
+					let tmp_width  = 0;
+
+					for (let e = 0, el = entities.length; e < el; e++) {
+
+						let entity = entities[e];
+						if (entity.width > tmp_entity.width) {
+							tmp_entity = entity;
+						}
+
+						tmp_width += entity.width;
+						tmp_width += 32;
+
+					}
+
+					if (tmp_width - 32 < this.width) {
+						tmp_entity.width = tmp_entity.width + (this.width - tmp_width - 32);
+					}
+
+
+
+					entity = entities[0];
 
 					pos_x = x1 + 32 + entity.width / 2;
 					pos_y = 0;
@@ -375,10 +398,10 @@ lychee.define('lychee.ui.Blueprint').requires([
 					}
 
 
-					entity = this.entities[1];
-					other  = this.entities[0];
+					entity = entities[1];
+					other  = entities[0];
 
-					pos_x = 0;
+					pos_x = pos_x + other.width / 2 + 32 + entity.width / 2;
 					pos_y = 0;
 
 					entity.trigger('relayout');
@@ -412,9 +435,10 @@ lychee.define('lychee.ui.Blueprint').requires([
 					}
 
 
-					entity = this.entities[2];
+					entity = entities[2];
+					other  = entities[1];
 
-					pos_x = x2 - 32 - entity.width / 2;
+					pos_x = pos_x + other.width / 2 + 32 + entity.width / 2;
 					pos_y = 0;
 
 					entity.trigger('relayout');
@@ -921,7 +945,10 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 		setVisible: function(visible) {
 
-			if (visible === true || visible === false) {
+			visible = typeof visible === 'boolean' ? visible : null;
+
+
+			if (visible !== null) {
 
 				let fade = false;
 				if (this.visible === false && visible === true) {

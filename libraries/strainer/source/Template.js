@@ -67,7 +67,7 @@ lychee.define('strainer.Template').requires([
 			files = files.map(function(value) {
 				return value.substr(1);
 			}).filter(function(value) {
-				return value.substr(0, 4) !== 'core' && value.substr(-12) !== 'bootstrap.js';
+				return value.substr(-12) !== 'bootstrap.js';
 			}).filter(function(value) {
 				return value.indexOf('__') === -1;
 			}).sort();
@@ -93,6 +93,7 @@ lychee.define('strainer.Template').requires([
 		this.checks   = [];
 		this.codes    = [];
 		this.configs  = [];
+		this.errors   = [];
 		this.sandbox  = '';
 		this.settings = {};
 		this.stash    = new _Stash({
@@ -177,12 +178,12 @@ lychee.define('strainer.Template').requires([
 		this.bind('check-eslint', function(oncomplete) {
 
 			let eslint  = _plugin.ESLINT || null;
+			let errors  = this.errors;
 			let project = this.settings.project;
 
 			if (eslint !== null) {
 
 				console.log('strainer: CHECK-ESLINT ' + project);
-
 
 				this.checks = this.codes.map(function(asset) {
 
@@ -190,11 +191,18 @@ lychee.define('strainer.Template').requires([
 					if (report.length > 0) {
 
 						let result = _plugin.ESLINT.fix(asset, report);
-						if (result.length > 0) {
-							return result;
-						} else {
-							return [];
-						}
+
+						report.forEach(function(err) {
+
+							err.fileName = asset.url;
+
+							if (result.includes(err) === true) {
+								errors.push(err);
+							}
+
+						});
+
+						return result;
 
 					}
 
@@ -270,6 +278,7 @@ lychee.define('strainer.Template').requires([
 		this.bind('check-api', function(oncomplete) {
 
 			let api     = _plugin.API || null;
+			let errors  = this.errors;
 			let project = this.settings.project;
 
 			if (api !== null) {
@@ -281,12 +290,27 @@ lychee.define('strainer.Template').requires([
 
 					let url    = asset.url.replace(/source/, 'api').replace(/\.js$/, '.json');
 					let report = _plugin.API.check(asset);
-
 					if (report !== null) {
 
 						if (report.errors.length > 0) {
-							_plugin.API.fix(asset, report);
+
+							let result = _plugin.API.fix(asset, report);
+
+							report.errors = report.errors.filter(function(err) {
+
+								err.fileName = asset.url;
+
+								if (result.includes(err) === true) {
+									errors.push(err);
+									return true;
+								}
+
+								return false;
+
+							});
+
 						}
+
 
 						let config = new lychee.Asset(url, 'json', true);
 
@@ -344,6 +368,65 @@ lychee.define('strainer.Template').requires([
 					stash.batch('write', configs.map(function(config) {
 						return config.url;
 					}), configs);
+
+				} else {
+
+					oncomplete(true);
+
+				}
+
+			} else {
+
+				oncomplete(false);
+
+			}
+
+		}, this);
+
+		this.bind('write-pkg', function(oncomplete) {
+
+			let project = this.settings.project;
+			let stash   = this.stash;
+
+
+			if (project !== null && stash !== null) {
+
+				console.log('strainer: WRITE-PKG ' + project);
+
+
+				let configs = this.configs.filter(function(config) {
+					return config !== null;
+				});
+
+
+				if (configs.length > 0) {
+
+					let index = stash.read(project + '/api/strainer.pkg');
+
+					index.onload = function(result) {
+
+						if (result === false) {
+							this.buffer = {};
+						}
+
+
+						let buffer = this.buffer;
+						if (buffer !== null) {
+
+							configs.forEach(function(config) {
+								buffer[config.url] = Date.now();
+							});
+
+						}
+
+						stash.write(index.url, index);
+						stash.sync();
+
+						oncomplete(true);
+
+					};
+
+					index.load();
 
 				} else {
 

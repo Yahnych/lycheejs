@@ -27,7 +27,7 @@
 			"blob": {
 				"entities": [
 					{
-						"constructor": "game.entity.Ball",
+						"constructor": "game.app.sprite.Ball",
 						"arguments": [
 							{
 								"position": {
@@ -38,7 +38,7 @@
 						]
 					},
 					{
-						"constructor": "game.entity.Paddle",
+						"constructor": "game.app.sprite.Paddle",
 						"arguments": [
 							{
 								"state": "good",
@@ -50,7 +50,7 @@
 						]
 					},
 					{
-						"constructor": "game.entity.Paddle",
+						"constructor": "game.app.sprite.Paddle",
 						"arguments": [
 							{
 								"state": "evil",

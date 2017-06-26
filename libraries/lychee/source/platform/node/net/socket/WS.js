@@ -402,7 +402,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 					connection.on('upgrade', function(event) {
 
-						let protocol = new _Protocol(_Protocol.TYPE.remote);
+						let protocol = new _Protocol({
+							type: _Protocol.TYPE.remote
+						});
 						let socket   = event.socket || null;
 
 
@@ -455,7 +457,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 					connector.on('upgrade', function(event) {
 
-						let protocol = new _Protocol(_Protocol.TYPE.client);
+						let protocol = new _Protocol({
+							type: _Protocol.TYPE.client
+						});
 						let socket   = event.socket || null;
 
 
@@ -536,7 +540,13 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				}
 
+
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
@@ -558,12 +568,18 @@ lychee.define('lychee.net.socket.WS').tags({
 					let enc   = binary === true ? 'binary' : 'utf8';
 
 					if (chunk !== null) {
+
 						connection.write(chunk, enc);
+
+						return true;
 					}
 
 				}
 
 			}
+
+
+			return false;
 
 		},
 

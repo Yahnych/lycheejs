@@ -29,22 +29,20 @@
 									]
 								},
 								{
-									"constructor": "studio.ui.element.Font",
+									"constructor": "studio.ui.element.modify.Font",
 									"arguments": [
 										{
-											"label": "Modify",
-											"width": 512,
+											"width": 320,
 											"height": 620,
 											"visible": false
 										}
 									]
 								},
 								{
-									"constructor": "studio.ui.element.Preview",
+									"constructor": "studio.ui.element.preview.Font",
 									"arguments": [
 										{
-											"label": "Preview",
-											"width": 512,
+											"width": 400,
 											"height": 620,
 											"visible": false
 										}

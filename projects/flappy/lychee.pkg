@@ -1,6 +1,37 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"app": {
+				"sprite": {
+					"Goal": [
+						"json"
+					],
+					"Plane": [
+						"json"
+					]
+				}
+			},
+			"effect": {
+				"Explosion": [
+					"json"
+				]
+			},
+			"state": {
+				"Game": [
+					"json"
+				]
+			},
+			"ui": {
+				"sprite": {
+					"Background": [
+						"json"
+					]
+				}
+			}
+		}
 	},
 	"build": {
 		"environments": {
@@ -40,7 +71,8 @@
 				"variant": "application"
 			}
 		},
-		"files": {}
+		"files": {},
+		"tags": {}
 	},
 	"source": {
 		"environments": {},
@@ -48,24 +80,26 @@
 			"Main": [
 				"js"
 			],
+			"app": {
+				"sprite": {
+					"Goal": [
+						"js",
+						"json",
+						"png"
+					],
+					"Plane": [
+						"js",
+						"json",
+						"png"
+					]
+				}
+			},
 			"effect": {
 				"Explosion": [
 					"js",
 					"json",
 					"png",
 					"snd"
-				]
-			},
-			"entity": {
-				"Goal": [
-					"js",
-					"json",
-					"png"
-				],
-				"Plane": [
-					"js",
-					"json",
-					"png"
 				]
 			},
 			"state": {

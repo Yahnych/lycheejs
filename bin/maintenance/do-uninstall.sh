@@ -5,10 +5,8 @@ lowercase() {
 }
 
 OS=`lowercase \`uname\``;
-ARCH=`lowercase \`uname -m\``;
 USER_WHO=`whoami`;
 USER_LOG=`logname 2> /dev/null`;
-
 
 ALWAYS_YES="false";
 
@@ -19,32 +17,30 @@ fi;
 
 
 if [ "$OS" == "darwin" ]; then
-
 	OS="osx";
-
 elif [ "$OS" == "linux" ]; then
-
 	OS="linux";
-
 elif [ "$OS" == "freebsd" ] || [ "$OS" == "netbsd" ]; then
-
 	OS="bsd";
-
 fi;
 
 
 
 if [ "$USER_WHO" != "root" ]; then
 
-	echo "You are not root.";
-	echo "Use \"sudo $0\".";
+	echo -e "\e[41m\e[97m";
+	echo " (E) You are not root.                             ";
+	echo "     Use \"sudo ./bin/maintenance/do-uninstall.sh\". ";
+	echo -e "\e[0m";
 
 	exit 1;
 
 elif [ "$OS" == "osx" ] && [ "$USER_WHO" == "root" ] && [ "$USER_LOG" == "root" ]; then
 
-	echo "You are root.";
-	echo "Please exit su shell and use \"sudo $0\".";
+	echo -e "\e[41m\e[97m";
+	echo " (E) You are root. Exit su shell and              ";
+	echo "     Use \"sudo ./bin/maintenance/do-uninstall.sh\".";
+	echo -e "\e[0m";
 
 	exit 1;
 
@@ -52,22 +48,24 @@ else
 
 	if [ "$ALWAYS_YES" != "true" ]; then
 
-		echo "";
-		echo -e "\e[37m\e[42m lychee.js Uninstall Tool \e[0m";
-		echo "";
-		echo " All your data are belong to us.                           ";
-		echo " This tool separates lychee.js from the operating system.  ";
-		echo "                                                           ";
-		echo " No projects are harmed or modified by executing this      ";
-		echo " script. This will only remove all software packages.      ";
-		echo "                                                           ";
+		echo " (L) ";
+		echo -e "\e[42m\e[97m (I) lychee.js Uninstall Tool \e[0m";
+		echo " (L) ";
+		echo " (L) All your data are belong to us.                      ";
+		echo " (L) This tool separates lychee.js from your system.      ";
+		echo " (L) ";
+		echo " (L) No projects are harmed or modified by executing this ";
+		echo " (L) script. This only removes all system integrations.   ";
+		echo " (L) ";
+		echo " (L) ";
 
-		read -p "Continue (y/n)? " -r
+		read -p " (L) Continue (y/n)? " -r
 
-		if [[ $REPLY =~ ^[Yy]$ ]]; then
-			echo "";
-		else
-			echo "";
+		if [[ $REPLY =~ ^[Nn]$ ]]; then
+			echo -e "\e[41m\e[97m (E) ABORTED \e[0m";
+			exit 0;
+		elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
+			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
 			exit 1;
 		fi;
 
@@ -79,9 +77,8 @@ else
 
 		if [ -d /usr/share/applications ]; then
 
-			echo "";
-			echo "> Separating GUI Applications";
-			echo "";
+			echo " (L) ";
+			echo " (L) > Separating GUI applications ...";
 
 
 			rm /usr/share/applications/lycheejs-helper.desktop 2> /dev/null;
@@ -91,28 +88,26 @@ else
 
 
 			update_desktop=`which update-desktop-database`;
-
 			if [ "$update_desktop" != "" ]; then
-				$update_desktop;
+				echo " (L)   update-desktop-database";
+				$update_desktop 1> /dev/null 2> /dev/null;
 			fi;
 
 			update_desktop=`which xdg-desktop-menu`;
-
 			if [ "$update_desktop" != "" ]; then
-				$update_desktop forceupdate;
+				echo " (L)   xdg-desktop-menu forceupdate";
+				$update_desktop forceupdate 1> /dev/null 2> /dev/null;
 			fi;
 
 
-			echo "> DONE";
-			echo "";
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
 		fi;
 
 		if [ -d /usr/local/bin ]; then
 
-			echo "";
-			echo "> Separating CLI Applications";
-			echo "";
+			echo " (L) ";
+			echo " (L) > Separating CLI applications ...";
 
 
 			rm /usr/local/bin/lycheejs-breeder    2> /dev/null;
@@ -124,25 +119,46 @@ else
 			rm /usr/local/bin/lycheejs-studio     2> /dev/null;
 
 
-			echo "> DONE";
-			echo "";
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+
+		fi;
+
+
+		if [ -d /usr/share/bash-completion/completions ]; then
+
+			echo " (L) ";
+			echo " (L) > Integrating CLI autocompletions ...";
+
+			rm /usr/share/bash-completion/completions/lycheejs            2> /dev/null;
+			rm /usr/share/bash-completion/completions/lycheejs-breeder    2> /dev/null;
+			rm /usr/share/bash-completion/completions/lycheejs-fertilizer 2> /dev/null;
+			rm /usr/share/bash-completion/completions/lycheejs-harvester  2> /dev/null;
+			rm /usr/share/bash-completion/completions/lycheejs-strainer   2> /dev/null;
+
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+
+		elif [ -d /etc/bash_completion.d ]; then
+
+			echo " (L) ";
+			echo " (L) > Separating CLI autocompletions ...";
+
+			rm /etc/bash_completion.d/lycheejs 2> /dev/null;
+
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
 		fi;
 
 	elif [ "$OS" == "osx" ]; then
 
-		echo "";
-		echo "> Separating GUI Applications";
-		echo "";
-		echo "> DONE";
-		echo "";
+		echo " (L) ";
+		echo " (L) > Separating GUI applications ...";
+		echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
 
 		if [ -d /usr/local/bin ]; then
 
-			echo "";
-			echo "> Separating CLI Applications";
-			echo "";
+			echo " (L) ";
+			echo " (L) > Separating CLI applications ...";
 
 
 			rm /usr/local/bin/lycheejs-breeder    2> /dev/null;
@@ -154,8 +170,18 @@ else
 			rm /usr/local/bin/lycheejs-studio     2> /dev/null;
 
 
-			echo "> DONE";
-			echo "";
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+
+		fi;
+
+		if [ -d /etc/bash_completion.d ]; then
+
+			echo " (L) ";
+			echo " (L) > Separating CLI autocompletions ...";
+
+			rm /etc/bash_completion.d/lycheejs 2> /dev/null;
+
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
 		fi;
 

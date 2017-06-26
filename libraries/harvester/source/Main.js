@@ -105,8 +105,17 @@ lychee.define('harvester.Main').requires([
 
 	let Composite = function(settings) {
 
-		this.settings = lychee.assignunlink({ host: null, port: null, sandbox: false }, settings);
-		this.defaults = lychee.assignunlink({}, this.settings);
+		this.settings = lychee.assignunlink({
+			host:    null,
+			port:    null,
+			sandbox: false
+		}, settings);
+
+		this.defaults = lychee.assignunlink({
+			host:    null,
+			port:    null,
+			sandbox: false
+		}, this.settings);
 
 
 		// Updated by Watcher instance
@@ -164,7 +173,6 @@ lychee.define('harvester.Main').requires([
 			console.log('\n\n');
 
 		}, this, true);
-
 
 		this.bind('init', function() {
 
@@ -238,6 +246,8 @@ lychee.define('harvester.Main').requires([
 			this.trigger('load');
 			this.trigger('init');
 
+			return true;
+
 		},
 
 		destroy: function() {
@@ -274,6 +284,8 @@ lychee.define('harvester.Main').requires([
 
 			this.trigger('destroy');
 
+			return true;
+
 		},
 
 
@@ -284,36 +296,43 @@ lychee.define('harvester.Main').requires([
 
 		getHosts: function() {
 
-			let hosts  = [];
-			let server = this.server;
+			let filtered = [];
 
+
+			let server = this.server;
 			if (server !== null) {
 
 				let host = server.host || null;
 				let port = server.port;
-
 				if (host === null) {
-					hosts.push.apply(hosts, _INTERFACES);
-					hosts.push('localhost');
-				} else {
-					hosts.push(host);
-				}
 
+					for (let i = 0, il = _INTERFACES.length; i < il; i++) {
 
-				hosts = hosts.map(function(host) {
+						let iface = _INTERFACES[i];
+						if (/:/g.test(iface)) {
+							filtered.push('http://[' + iface + ']:' + port);
+						} else {
+							filtered.push('http://' + iface + ':' + port);
+						}
 
-					if (/:/g.test(host)) {
-						return 'http://[' + host + ']:' + port;
-					} else {
-						return 'http://' + host + ':' + port;
 					}
 
-				});
+					filtered.push('http://localhost:' + port);
+
+				} else {
+
+					if (/:/g.test(host)) {
+						filtered.push('http://[' + host + ']:' + port);
+					} else {
+						filtered.push('http://' + host + ':' + port);
+					}
+
+				}
 
 			}
 
 
-			return hosts;
+			return filtered;
 
 		},
 

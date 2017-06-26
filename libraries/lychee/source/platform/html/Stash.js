@@ -450,7 +450,7 @@ lychee.define('Stash').tags({
 
 
 			if (this.id.substr(0, 13) !== 'lychee-Stash-') settings.id   = this.id;
-			if (this.type !== Composite.TYPE.persistent)       settings.type = this.type;
+			if (this.type !== Composite.TYPE.persistent)   settings.type = this.type;
 
 
 			if (Object.keys(this.__assets).length > 0) {
@@ -495,12 +495,10 @@ lychee.define('Stash').tags({
 
 				let result = true;
 				let that   = this;
-				let i      = 0;
-				let il     = ids.length;
 
 				if (action === 'read') {
 
-					for (i = 0; i < il; i++) {
+					for (let i = 0, il = ids.length; i < il; i++) {
 
 						let asset = this.read(ids[i]);
 						if (asset !== null) {
@@ -536,7 +534,7 @@ lychee.define('Stash').tags({
 
 					this.bind('#sync', _on_batch_remove, cache);
 
-					for (i = 0; i < il; i++) {
+					for (let i = 0, il = ids.length; i < il; i++) {
 
 						if (this.remove(ids[i]) === false) {
 							result = false;
@@ -555,7 +553,7 @@ lychee.define('Stash').tags({
 
 					this.bind('#sync', _on_batch_write, cache);
 
-					for (i = 0; i < il; i++) {
+					for (let i = 0, il = ids.length; i < il; i++) {
 
 						if (this.write(ids[i], assets[i]) === false) {
 							result = false;

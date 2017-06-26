@@ -1,0 +1,150 @@
+{
+	"api": {
+		"files": {
+			"Main": [
+				"json"
+			],
+			"app": {
+				"entity": {
+					"Cell": [
+						"json"
+					],
+					"Unit": [
+						"json"
+					],
+					"Vesicle": [
+						"json"
+					],
+					"unit": {
+						"Globuline": [
+							"json"
+						],
+						"Leucocyte": [
+							"json"
+						],
+						"Virus": [
+							"json"
+						]
+					}
+				}
+			},
+			"state": {
+				"Game": [
+					"json"
+				],
+				"Menu": [
+					"json"
+				]
+			}
+		}
+	},
+	"build": {
+		"environments": {
+			"html-nwjs/main": {
+				"build": "game.Main",
+				"debug": false,
+				"packages": [
+					[
+						"game",
+						"./lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html-nwjs",
+						"html"
+					]
+				},
+				"variant": "application",
+				"profile": {}
+			},
+			"html-webview/main": {
+				"build": "game.Main",
+				"debug": false,
+				"packages": [
+					[
+						"game",
+						"./lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html-webview",
+						"html"
+					]
+				},
+				"variant": "application",
+				"profile": {}
+			},
+			"html/main": {
+				"build": "game.Main",
+				"debug": false,
+				"packages": [
+					[
+						"game",
+						"./lychee.pkg"
+					]
+				],
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"variant": "application",
+				"profile": {}
+			}
+		},
+		"files": {},
+		"tags": {}
+	},
+	"source": {
+		"environments": {},
+		"files": {
+			"Main": [
+				"js"
+			],
+			"app": {
+				"entity": {
+					"Cell": [
+						"immune.fnt",
+						"js",
+						"neutral.fnt",
+						"virus.fnt"
+					],
+					"Unit": [
+						"attack.snd",
+						"js",
+						"move.snd"
+					],
+					"Vesicle": [
+						"js"
+					],
+					"unit": {
+						"Globuline": [
+							"js"
+						],
+						"Leucocyte": [
+							"js"
+						],
+						"Virus": [
+							"js"
+						]
+					}
+				}
+			},
+			"state": {
+				"Game": [
+					"js"
+				],
+				"Menu": [
+					"js",
+					"json"
+				]
+			}
+		},
+		"tags": {}
+	}
+}

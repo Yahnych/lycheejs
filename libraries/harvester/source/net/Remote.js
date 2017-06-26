@@ -76,12 +76,21 @@ lychee.define('harvester.net.Remote').requires([
 			}
 
 
-			return _Tunnel.prototype.receive.call(this, payload, headers);
+			let result = _Tunnel.prototype.receive.call(this, payload, headers);
+			if (result === true) {
+				return true;
+			}
+
+
+			return true;
 
 		},
 
 		send: function(data, headers) {
 
+			// XXX: data can be Object, Buffer or String
+
+			data    = data !== undefined        ? data    : null;
 			headers = headers instanceof Object ? headers : {};
 
 

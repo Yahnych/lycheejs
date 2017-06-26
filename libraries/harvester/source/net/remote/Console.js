@@ -3,7 +3,6 @@ lychee.define('harvester.net.remote.Console').includes([
 	'lychee.net.Service'
 ]).exports(function(lychee, global, attachments) {
 
-	const _console = global.console;
 	const _Service = lychee.import('lychee.net.Service');
 
 
@@ -48,17 +47,24 @@ lychee.define('harvester.net.remote.Console').includes([
 			let tunnel = this.tunnel;
 			if (tunnel !== null) {
 
-				tunnel.send(lychee.serialize(_console), {
+				let result = tunnel.send(lychee.serialize(console), {
 					id:    this.id,
 					event: 'sync'
 				});
 
+				if (result === true) {
+					return true;
+				}
+
 			}
+
+
+			return false;
 
 		},
 
 		sync: function() {
-			this.index();
+			return this.index();
 		}
 
 	};

@@ -107,8 +107,9 @@ lychee.define('lychee.ui.element.Stash').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Stash';
-		settings.options = [ 'Save', 'Clear' ];
+		settings.label    = 'Stash';
+		settings.options  = [ 'Save', 'Clear' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);

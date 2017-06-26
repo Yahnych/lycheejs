@@ -171,8 +171,9 @@ lychee.define('lychee.ui.element.Network').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Network';
-		settings.options = [ 'Save' ];
+		settings.label    = 'Network';
+		settings.options  = [ 'Save' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);

@@ -7,15 +7,8 @@ lychee.define('lychee.policy.Velocity').exports(function(lychee, global, attachm
 
 	let Composite = function(settings) {
 
-		this.entity = null;
+		this.entity = settings.entity instanceof Object ? settings.entity : null;
 		this.limit  = { x: Infinity, y: Infinity, z: Infinity };
-
-
-		// No data validation garbage allowed for policies
-
-		if (settings.entity instanceof Object) {
-			this.entity = settings.entity;
-		}
 
 		if (settings.limit instanceof Object) {
 			this.limit.x = typeof settings.limit.x === 'number' ? (settings.limit.x | 0) : Infinity;
@@ -95,7 +88,12 @@ lychee.define('lychee.policy.Velocity').exports(function(lychee, global, attachm
 				entity.velocity.y = (values[1] * (hy * 2)) - hy;
 				entity.velocity.z = (values[2] * (hz * 2)) - hz;
 
+				return true;
+
 			}
+
+
+			return false;
 
 		}
 

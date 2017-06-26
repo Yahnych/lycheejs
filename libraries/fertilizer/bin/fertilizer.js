@@ -7,34 +7,69 @@ const _CHILDREN      = [];
 const _ROOT          = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
 
-if (_fs.existsSync(_ROOT + '/libraries/lychee/build/node/core.js') === false) {
-	require(_ROOT + '/bin/configure.js');
-}
-
-
-const lychee = require(_ROOT + '/libraries/lychee/build/node/core.js')(_ROOT);
-
-
 
 /*
  * USAGE
  */
 
+const _print_autocomplete = function(target, project, flag) {
+
+	let targets = [];
+	let flags   = [ '--debug', '--sandbox' ];
+
+	_fs.readdirSync(_ROOT + '/libraries/lychee/build').sort().forEach(function(platform) {
+		targets.push(platform + '/dist');
+		targets.push(platform + '/main');
+	});
+
+	let libraries = _fs.readdirSync(_ROOT + '/libraries')
+		.sort()
+		.map(val => '/libraries/' + val)
+		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
+	let projects  = _fs.readdirSync(_ROOT + '/projects')
+		.sort()
+		.map(val => '/projects/' + val)
+		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
+
+
+	let suggestions = [];
+	let has_target  = targets.find(t => t === target);
+	let has_project = libraries.find(l => l === project) || projects.find(p => p === project);
+	let has_flag    = flags.find(f => f === flag);
+
+	if (has_target && has_project && has_flag) {
+		// Nothing to suggest
+	} else if (has_target && has_project && flag) {
+		suggestions = flags.filter(f => f.startsWith(flag));
+	} else if (has_target && has_project) {
+		suggestions = flags;
+	} else if (has_target && project) {
+		suggestions.push.apply(suggestions, libraries.filter(l => l.startsWith(project)));
+		suggestions.push.apply(suggestions, projects.filter(p => p.startsWith(project)));
+	} else if (has_target) {
+		suggestions.push.apply(suggestions, libraries);
+		suggestions.push.apply(suggestions, projects);
+	} else if (target) {
+		suggestions = targets.filter(t => t.startsWith(target));
+	} else {
+		suggestions = targets;
+	}
+
+	return suggestions.sort();
+
+};
+
 const _print_help = function() {
 
-	let targets = _fs.readdirSync(_ROOT + '/libraries/lychee/build').sort();
-
-	let libraries = _fs.readdirSync(_ROOT + '/libraries').sort().filter(function(value) {
-		return _fs.existsSync(_ROOT + '/libraries/' + value + '/lychee.pkg');
-	}).map(function(value) {
-		return '/libraries/' + value;
-	});
-
-	let projects = _fs.readdirSync(_ROOT + '/projects').sort().filter(function(value) {
-		return _fs.existsSync(_ROOT + '/projects/' + value + '/lychee.pkg');
-	}).map(function(value) {
-		return '/projects/' + value;
-	});
+	let targets   = _fs.readdirSync(_ROOT + '/libraries/lychee/build').sort();
+	let libraries = _fs.readdirSync(_ROOT + '/libraries')
+		.sort()
+		.map(val => '/libraries/' + val)
+		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
+	let projects  = _fs.readdirSync(_ROOT + '/projects')
+		.sort()
+		.map(val => '/projects/' + val)
+		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
 
 
 	console.log('                                                              ');
@@ -195,6 +230,26 @@ const _spawn = function(program, args) {
 
 
 
+if (process.argv.includes('--autocomplete')) {
+
+	let tmp1   = process.argv.indexOf('--autocomplete');
+	let words  = process.argv.slice(tmp1 + 1);
+	let result = _print_autocomplete.apply(null, words);
+
+	process.stdout.write(result.join(' '));
+
+	process.exit(0);
+	return;
+
+}
+
+
+
+if (_fs.existsSync(_ROOT + '/libraries/lychee/build/node/core.js') === false) {
+	require(_ROOT + '/bin/configure.js');
+}
+
+const lychee    = require(_ROOT + '/libraries/lychee/build/node/core.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
@@ -209,7 +264,7 @@ const _SETTINGS = (function() {
 	};
 
 
-	let identifier   = args.find(val => /^([a-z-]+)\/([a-z]+)$/g.test(val)) || args.find(val => val === 'auto');
+	let identifier   = args.find(val => /^(([a-z-]+|\*))\/(([a-z]+)|\*)$/g.test(val)) || args.find(val => val === 'auto');
 	let project      = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_\/]+)$/g.test(val));
 	let debug_flag   = args.find(val => /--([debug]{5})/g.test(val));
 	let sandbox_flag = args.find(val => /--([sandbox]{7})/g.test(val));
@@ -233,13 +288,21 @@ const _SETTINGS = (function() {
 
 			if (json.build instanceof Object && json.build.environments instanceof Object) {
 
+				let found = false;
+
 				Object.keys(json.build.environments).forEach(function(identifier) {
 
 					if (identifier !== 'auto') {
+						found = true;
 						_spawn(prog, [ process.argv[1], identifier, project ]);
 					}
 
 				});
+
+
+				if (found === false) {
+					console.warn('No Target in "' + project + '"');
+				}
 
 			}
 
@@ -248,6 +311,66 @@ const _SETTINGS = (function() {
 			settings.auto       = false;
 			settings.project    = project;
 			settings.identifier = 'auto';
+
+		}
+
+	} else if ((identifier.startsWith('*') || identifier.endsWith('*')) && project !== undefined && _fs.existsSync(_ROOT + project) === true) {
+
+		settings.auto = true;
+
+
+		let json = null;
+
+		try {
+			json = JSON.parse(_fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8'));
+		} catch (err) {
+			json = null;
+		}
+
+
+		if (json !== null) {
+
+			if (json.build instanceof Object && json.build.environments instanceof Object) {
+
+				let template = identifier.split('/');
+				let found    = false;
+
+				Object.keys(json.build.environments).forEach(function(identifier) {
+
+					if (identifier !== 'auto') {
+
+						let valid = true;
+
+						identifier.split('/').forEach(function(chunk, c) {
+
+							let str = template[c];
+							if (str !== '*' && str !== chunk) {
+								valid = false;
+							}
+
+						});
+
+						if (valid === true) {
+							found = true;
+							_spawn(prog, [ process.argv[1], identifier, project ]);
+						}
+
+					}
+
+				});
+
+
+				if (found === false) {
+					console.warn('No Target for "' + identifier + '" in "' + project + '"');
+				}
+
+			}
+
+		} else {
+
+			settings.auto       = false;
+			settings.project    = project;
+			settings.identifier = identifier;
 
 		}
 

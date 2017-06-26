@@ -16,21 +16,64 @@
 			padding: 0;
 			overflow: hidden;
 		}
-		
+
 		.lychee-Renderer {
 			display: block;
-			margin: 0 auto;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			z-index: 0;
 			user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
 			-webkit-user-select: none;
+		}
+
+
+		.webfont-dummy {
+			position: relative;
+			font-size: 32px;
+			font-style: normal;
+			font-weight: normal;
+			color: #ffffff;
+			background-color: #ffffff;
+			z-index: 0;
+		}
+
+		@font-face {
+			font-family: "Museo Sans Light";
+			src: url("/design/museo-sans-300.woff");
+		}
+
+		@font-face {
+			font-family: "Museo Sans";
+			src: url("/design/museo-sans-500.woff");
 		}
 	</style>
 
 </head>
 <body>
 	<script>
+	// XXX: Webfont Dummy forces load of Webfonts
+	// otherwise canvas silently fails to draw...
+	const _create_webfont_dummy = function(family) {
+
+		let dummy = document.createElement('customelement');
+
+		dummy.className        = "webfont-dummy";
+		dummy.style.fontFamily = family;
+		dummy.innerHTML        = "This is a webfont dummy.";
+
+		document.body.appendChild(dummy);
+
+	};
+
 	(function(lychee, global) {
+
+		// XXX: These are necessary; because CSS
+		_create_webfont_dummy("Museo Sans");
+		_create_webfont_dummy("Museo Sans Light");
+
 
 		setTimeout(function() {
 
@@ -39,6 +82,17 @@
 				sandbox: false
 			}, {
 			});
+
+
+			setTimeout(function() {
+
+				console.clear();
+
+				// XXX: Debug Flows for easy development
+				// lychee.assimilate('./flow/asset-font.js');
+				lychee.assimilate('./flow/asset-sprite.js');
+
+			}, 3000);
 
 		}.bind(this), 200);
 

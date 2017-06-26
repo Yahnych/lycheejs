@@ -107,8 +107,9 @@ lychee.define('lychee.ui.element.Storage').requires([
 		let settings = Object.assign({}, data);
 
 
-		settings.label   = 'Storage';
-		settings.options = [ 'Save', 'Clear' ];
+		settings.label    = 'Storage';
+		settings.options  = [ 'Save', 'Clear' ];
+		settings.relayout = true;
 
 
 		_Element.call(this, settings);
