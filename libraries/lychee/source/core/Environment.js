@@ -342,9 +342,16 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		let identifier = definition.id.split('.').pop();
 
 
+		// XXX: Allow usage of non-existing attachments in definition
 		if (this.debug === true) {
-			let info = Object.keys(definition._attaches).length > 0 ? ('(' + Object.keys(definition._attaches).length + ' Attachment(s))') : '';
+
+			let attachments = Object.values(definition._attaches).filter(function(asset) {
+				return asset._is_dummy !== true;
+			});
+			let info = attachments.length > 0 ? ('(' + attachments.length + ' Attachment(s))') : '';
+
 			this.global.console.log('lychee-Environment (' + this.id + '): Exporting "' + definition.id + '" ' + info);
+
 		}
 
 
@@ -840,13 +847,12 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		this.build       = 'app.Main';
 		this.debug       = true;
 		this.definitions = {};
-		this.global      = global;
+		this.global      = global !== undefined ? global : {};
 		this.packages    = [];
 		this.sandbox     = false;
 		this.tags        = {};
 		this.timeout     = 10000;
 		this.type        = 'source';
-
 
 		this.__cache    = {
 			active:        false,

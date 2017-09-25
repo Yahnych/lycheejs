@@ -1,15 +1,15 @@
 
-lychee.define('strainer.Quickfix').requires([
+lychee.define('strainer.Fixer').requires([
 	'lychee.Input',
-	'strainer.Template'
+	'strainer.flow.Check'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
-	const _lychee   = lychee.import('lychee');
-	const _Emitter  = lychee.import('lychee.event.Emitter');
-	const _Input    = lychee.import('lychee.Input');
-	const _Template = lychee.import('strainer.Template');
+	const _lychee  = lychee.import('lychee');
+	const _Emitter = lychee.import('lychee.event.Emitter');
+	const _Input   = lychee.import('lychee.Input');
+	const _flow    = lychee.import('strainer.flow');
 
 
 
@@ -51,7 +51,7 @@ lychee.define('strainer.Quickfix').requires([
 				lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
 
-				this.trigger('init', [ project, file ]);
+				this.trigger('init');
 
 			} else {
 
@@ -61,16 +61,16 @@ lychee.define('strainer.Quickfix').requires([
 
 		}, this, true);
 
-		this.bind('init', function(project, file) {
+		this.bind('init', function() {
 
-			let template = new _Template({
-				sandbox:  project,
+			let flow = new _flow.Check({
+				sandbox:  this.settings.project,
 				settings: this.settings
 			});
 
 
-			template.unbind('read');
-			template.bind('read', function(oncomplete) {
+			flow.unbind('read');
+			flow.bind('read', function(oncomplete) {
 
 				let file    = this.settings.file;
 				let project = this.settings.project;
@@ -84,10 +84,10 @@ lychee.define('strainer.Quickfix').requires([
 
 					let that  = this;
 					let asset = new Stuff(sandbox + '/' + file, true);
-					let pkg   = new Config(sandbox + '/lychee.pkg');
 
 
-					pkg.onload = function(result) {
+					this.__pkg        = new Config(sandbox + '/lychee.pkg');
+					this.__pkg.onload = function(result) {
 
 						if (result === true) {
 
@@ -116,7 +116,7 @@ lychee.define('strainer.Quickfix').requires([
 
 					};
 
-					pkg.load();
+					this.__pkg.load();
 
 				} else {
 
@@ -125,22 +125,14 @@ lychee.define('strainer.Quickfix').requires([
 				}
 
 
-			}, template);
+			}, flow);
 
-			template.then('read');
-
-			template.then('check-eslint');
-			template.then('check-api');
-
-			template.then('write-eslint');
-			template.then('write-api');
-
-			template.bind('complete', function() {
+			flow.bind('complete', function() {
 
 				let cwd = this.settings.cwd;
 
 
-				let length = template.errors.length;
+				let length = flow.errors.length;
 				if (length === 0) {
 
 					console.error('\n0 problems');
@@ -149,10 +141,10 @@ lychee.define('strainer.Quickfix').requires([
 
 				} else {
 
-					template.errors.forEach(function(err) {
+					flow.errors.forEach(function(err) {
 
-						let path = '/opt/lycheejs' + err.fileName;
-						let rule = err.ruleId  || 'parser-error';
+						let path = '/opt/lycheejs' + err.url;
+						let rule = err.rule    || 'parser-error';
 						let line = err.line    || 0;
 						let col  = err.column  || 0;
 						let msg  = err.message || 'Parsing error: unknown';
@@ -181,14 +173,14 @@ lychee.define('strainer.Quickfix').requires([
 
 			}, this);
 
-			template.bind('error', function(event) {
+			flow.bind('error', function(event) {
 
 				this.destroy(1);
 
 			}, this);
 
 
-			template.init();
+			flow.init();
 
 
 			return true;
@@ -209,7 +201,7 @@ lychee.define('strainer.Quickfix').requires([
 		serialize: function() {
 
 			let data = _Emitter.prototype.serialize.call(this);
-			data['constructor'] = 'strainer.Quickfix';
+			data['constructor'] = 'strainer.Fixer';
 
 
 			let settings = _lychee.assignunlink({}, this.settings);

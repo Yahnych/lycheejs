@@ -68,11 +68,11 @@ lychee.define('strainer.api.PARSER').requires([
 			type = 'String';
 		} else if (str.includes('toString(') || str.includes('join(')) {
 			type = 'String';
-		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9\.]+$/g.test(str)) {
+		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9.]+$/g.test(str) || /^-[0-9.]+$/g.test(str)) {
 			type = 'Number';
 		} else if (str === 'Infinity') {
 			type = 'Number';
-		} else if (str.includes(' + ') && (str.includes('\'') || str.includes('"') || str.includes('\.substr(') || str.includes('trim()'))) {
+		} else if (str.includes(' + ') && (str.includes('\'') || str.includes('"') || str.includes('.substr(') || str.includes('.trim()'))) {
 			type = 'String';
 		} else if (str.includes(' * ') || str.includes(' / ') || str.includes(' + ') || str.includes(' - ')) {
 			type = 'Number';
@@ -80,7 +80,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 			if (str.includes('instanceof') && str.includes('?') && str.includes(':')) {
 
-				let tmp = str.split(/(.*)instanceof\s([A-Za-z0-9_\.]+)([\s]+)\?(.*)/g);
+				let tmp = str.split(/(.*)instanceof\s([A-Za-z0-9_.]+)([\s]+)\?(.*)/g);
 				if (tmp.length > 2) {
 					type = tmp[2];
 				}
@@ -88,7 +88,7 @@ lychee.define('strainer.api.PARSER').requires([
 			} else if (str.startsWith('typeof') && str.includes('===') && str.includes('?') && str.includes(':')) {
 
 				let tmp = (str.split('?')[0].split('===')[1] || '').trim();
-				if (tmp.startsWith('\'') || tmp.startsWith('\"')) {
+				if (tmp.startsWith('\'') || tmp.startsWith('"')) {
 					tmp = tmp.substr(1, tmp.length - 2);
 				}
 
@@ -128,6 +128,24 @@ lychee.define('strainer.api.PARSER').requires([
 
 				type = 'Object';
 
+			} else if (str.startsWith('lychee.deserialize') || str.startsWith('_lychee.deserialize')) {
+
+				if (str.includes('lychee.serialize(')) {
+
+					let tmp = str.split(/lychee\.deserialize\(lychee\.serialize\(([A-Za-z0-9_.]+)\)\)/g);
+					if (tmp.length > 2) {
+						type = 'undefined';
+					}
+
+				} else {
+
+					let tmp = str.split(/lychee\.deserialize\(([A-Za-z0-9_.]+)\)/g);
+					if (tmp.length > 2) {
+						type = 'Object';
+					}
+
+				}
+
 			} else if (str.startsWith('lychee.assignunlink') || str.startsWith('_lychee.assignunlink')) {
 
 				type = 'Object';
@@ -146,7 +164,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 			} else if (str.startsWith('lychee.interfaceof') || str.startsWith('_lychee.interfaceof')) {
 
-				let tmp = str.split(/lychee.interfaceof\(([A-Za-z0-9_\.]+),(.*)\)/g);
+				let tmp = str.split(/lychee.interfaceof\(([A-Za-z0-9_.]+),(.*)\)/g);
 				if (tmp.length > 1) {
 					type = tmp[1];
 				}
@@ -154,6 +172,10 @@ lychee.define('strainer.api.PARSER').requires([
 			} else if (str === 'this') {
 
 				type = 'Object';
+
+			} else if (str.startsWith('this.')) {
+
+				type = 'undefined';
 
 			} else if (str.endsWith(' || null')) {
 
@@ -278,11 +300,11 @@ lychee.define('strainer.api.PARSER').requires([
 			value = "<string>";
 		} else if (str.includes('toString(') || str.includes('join(')) {
 			value = "<string>";
-		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9\.]+$/g.test(str)) {
+		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9.]+$/g.test(str) || /^-[0-9.]+$/g.test(str)) {
 			value = _parse_value(str);
 		} else if (str === 'Infinity') {
 			value = Infinity;
-		} else if (str.includes(' + ') && (str.includes('\'') || str.includes('"') || str.includes('\.substr(') || str.includes('trim()'))) {
+		} else if (str.includes(' + ') && (str.includes('\'') || str.includes('"') || str.includes('.substr(') || str.includes('.trim()'))) {
 			value = "<string>";
 		} else if (str.includes(' * ') || str.includes(' / ') || str.includes(' + ') || str.includes(' - ')) {
 			value = 1337;
@@ -323,6 +345,28 @@ lychee.define('strainer.api.PARSER').requires([
 
 				value = {};
 
+			} else if (str.startsWith('lychee.deserialize') || str.startsWith('_lychee.deserialize')) {
+
+				if (str.includes('lychee.serialize(')) {
+
+					let tmp = str.split(/lychee\.deserialize\(lychee\.serialize\(([A-Za-z0-9_.]+)\)\)/g);
+					if (tmp.length > 2) {
+
+						value = {
+							'reference': tmp[1],
+							'arguments': []
+						};
+
+					}
+
+				} else {
+
+					let tmp = str.split(/lychee\.deserialize\(([A-Za-z0-9_.]+)\)/g);
+					if (tmp.length > 2) {
+						value = {};
+					}
+
+				}
 
 			} else if (str.startsWith('lychee.assignunlink') || str.startsWith('_lychee.assignunlink')) {
 
@@ -341,7 +385,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 			} else if (str.startsWith('lychee.import') || str.startsWith('_lychee.import')) {
 
-				let tmp = str.split(/lychee\.import\(\'([A-Za-z0-9_\.]+)\'\)/g);
+				let tmp = str.split(/lychee\.import\('([A-Za-z0-9_.]+)'\)/g);
 				if (tmp.length > 2) {
 
 					value = {
@@ -374,6 +418,13 @@ lychee.define('strainer.api.PARSER').requires([
 			} else if (str === 'this') {
 
 				value = 'this';
+
+			} else if (str.startsWith('this.')) {
+
+				value = {
+					'reference': str,
+					'arguments': []
+				};
 
 			} else if (str.endsWith(' || null')) {
 
@@ -556,9 +607,18 @@ lychee.define('strainer.api.PARSER').requires([
 
 
 				lines.filter(function(line) {
-					return line.includes(':');
-				}).map(function(line) {
-					return line.trim();
+
+					if (line.includes(':')) {
+
+						let tmp = line.trim();
+						if (tmp.startsWith('//') === false) {
+							return true;
+						}
+
+					}
+
+					return false;
+
 				}).map(function(line) {
 
 					let i1 = line.indexOf(':');
@@ -994,6 +1054,7 @@ lychee.define('strainer.api.PARSER').requires([
 			let candidates = [];
 			let values     = [];
 			let lines      = code.split('\n');
+			let is_comment = false;
 			let nest_level = 0;
 			let first      = lines[0].trim();
 			let last       = lines[lines.length - 1].trim();
@@ -1010,6 +1071,19 @@ lychee.define('strainer.api.PARSER').requires([
 			lines.map(function(line) {
 				return line.trim();
 			}).filter(function(line) {
+
+				if (line.startsWith('//')) {
+					return false;
+				} else if (line.startsWith('/*')) {
+					is_comment = true;
+					return false;
+				} else if (line.endsWith('*/')) {
+					is_comment = false;
+					return false;
+				} else if (is_comment === true) {
+					return false;
+				}
+
 
 				// XXX: Following algorithm crashes itself
 				if (
