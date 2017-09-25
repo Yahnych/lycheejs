@@ -14,16 +14,16 @@ const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
 const _print_help = function() {
 
-	console.log('                                                                    ');
-	console.info('lychee.js ' + lychee.VERSION + ' Strainer (Quickfix Tool)');
-	console.log('                                                                    ');
-	console.log('Usage: lycheejs-strainer-quickfix [File]                            ');
-	console.log('                                                                    ');
-	console.log('Examples:                                                           ');
-	console.log('                                                                    ');
-	console.log('    # cwd has to be /opt/lycheejs                                   ');
-	console.log('    lycheejs-strainer-quickfix projects/boilerplate/source/Main.js; ');
-	console.log('                                                                    ');
+	console.log('                                                                 ');
+	console.info('lychee.js ' + lychee.VERSION + ' Strainer (Fixer)');
+	console.log('                                                                 ');
+	console.log('Usage: lycheejs-strainer-fixer [File]                            ');
+	console.log('                                                                 ');
+	console.log('Examples:                                                        ');
+	console.log('                                                                 ');
+	console.log('    # cwd has to be /opt/lycheejs                                ');
+	console.log('    lycheejs-strainer-fixer projects/boilerplate/source/Main.js; ');
+	console.log('                                                                 ');
 
 };
 
@@ -53,12 +53,11 @@ const _bootup = function(settings) {
 		id:       'strainer',
 		debug:    false,
 		sandbox:  true,
-		build:    'strainer.Quickfix',
+		build:    'strainer.Fixer',
 		timeout:  5000,
 		packages: [
-			new lychee.Package('lychee',     '/libraries/lychee/lychee.pkg'),
-			new lychee.Package('fertilizer', '/libraries/fertilizer/lychee.pkg'),
-			new lychee.Package('strainer',   '/libraries/strainer/lychee.pkg')
+			new lychee.Package('lychee',   '/libraries/lychee/lychee.pkg'),
+			new lychee.Package('strainer', '/libraries/strainer/lychee.pkg')
 		],
 		tags:     {
 			platform: [ 'node' ]
@@ -78,7 +77,7 @@ const _bootup = function(settings) {
 
 
 			// This allows using #MAIN in JSON files
-			sandbox.MAIN = new strainer.Quickfix(settings);
+			sandbox.MAIN = new strainer.Fixer(settings);
 
 			sandbox.MAIN.bind('destroy', function(code) {
 				process.exit(code);

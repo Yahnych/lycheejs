@@ -1,17 +1,13 @@
 
-lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
+(function(global) {
+
+	if (typeof lychee !== 'undefined') {
+		return;
+	}
+
+
 
 	const _INTERFACEOF_CACHE = {};
-
-
-
-	/*
-	 * NAMESPACE
-	 */
-
-	if (typeof lychee === 'undefined') {
-		lychee = global.lychee = {};
-	}
 
 
 
@@ -412,15 +408,18 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 	const Module = {
 
-		debug:        true,
-		environment:  _environment,
+		debug: true,
+
+		environment: _environment,
 
 		ENVIRONMENTS: {},
-		ROOT:         {
+
+		ROOT: {
 			lychee:  '/opt/lycheejs',
 			project: null
 		},
-		VERSION:      "2017-Q2",
+
+		VERSION: "2017-Q3",
 
 
 
@@ -429,6 +428,10 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 		 */
 
 		diff: function(aobject, bobject) {
+
+			aobject = aobject !== undefined ? aobject : undefined;
+			bobject = bobject !== undefined ? bobject : undefined;
+
 
 			if (aobject instanceof Object && bobject instanceof Object) {
 
@@ -450,7 +453,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 							if (aobject[key] instanceof Object && bobject[key] instanceof Object) {
 
-								if (lychee.diff(aobject[key], bobject[key]) === true) {
+								if (Module.diff(aobject[key], bobject[key]) === true) {
 
 									// Allows aobject[key].builds = {} and bobject[key].builds = { stuff: {}}
 									if (Object.keys(aobject[key]).length > 0) {
@@ -471,11 +474,9 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 				}
 
-			} else {
+			} else if (aobject !== bobject) {
 
-				if (aobject !== bobject) {
-					return true;
-				}
+				return true;
 
 			}
 
@@ -486,7 +487,11 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 		enumof: function(template, value) {
 
-			if (template instanceof Object && typeof value === 'number') {
+			template = template instanceof Object ? template : null;
+			value    = typeof value === 'number'  ? value    : null;
+
+
+			if (template !== null && value !== null) {
 
 				let valid = false;
 
@@ -499,7 +504,6 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 				}
 
-
 				return valid;
 
 			}
@@ -510,6 +514,9 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 		},
 
 		assignsafe: function(target) {
+
+			target = target instanceof Object ? target : {};
+
 
 			for (let a = 1, al = arguments.length; a < al; a++) {
 
@@ -524,11 +531,11 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 							let ovalue = object[prop];
 							if (tvalue instanceof Array && ovalue instanceof Array) {
 
-								lychee.assignsafe(target[prop], object[prop]);
+								Module.assignsafe(target[prop], object[prop]);
 
 							} else if (tvalue instanceof Object && ovalue instanceof Object) {
 
-								lychee.assignsafe(target[prop], object[prop]);
+								Module.assignsafe(target[prop], object[prop]);
 
 							} else if (typeof tvalue === typeof ovalue) {
 
@@ -551,6 +558,9 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 		assignunlink: function(target) {
 
+			target = target instanceof Object ? target : {};
+
+
 			for (let a = 1, al = arguments.length; a < al; a++) {
 
 				let object = arguments[a];
@@ -564,10 +574,10 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 							let ovalue = object[prop];
 							if (tvalue instanceof Array && ovalue instanceof Array) {
 								target[prop] = [];
-								lychee.assignunlink(target[prop], object[prop]);
+								Module.assignunlink(target[prop], object[prop]);
 							} else if (tvalue instanceof Object && ovalue instanceof Object) {
 								target[prop] = {};
-								lychee.assignunlink(target[prop], object[prop]);
+								Module.assignunlink(target[prop], object[prop]);
 							} else {
 								target[prop] = object[prop];
 							}
@@ -587,103 +597,109 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 		interfaceof: function(template, instance) {
 
-			if (instance === null || instance === undefined) {
-				return false;
-			}
+			template = template !== undefined ? template : null;
+			instance = instance !== undefined ? instance : null;
 
 
-			let tname    = template.displayName;
-			let iname    = instance.displayName;
-			let hashable = typeof tname === 'string' && typeof iname === 'string';
-			let hashmap  = _INTERFACEOF_CACHE;
-			let valid    = false;
+			if (template !== null && instance !== null) {
+
+				let tname    = template.displayName;
+				let iname    = instance.displayName;
+				let hashable = typeof tname === 'string' && typeof iname === 'string';
+				let hashmap  = _INTERFACEOF_CACHE;
+				let valid    = false;
 
 
-			// 0. Quick validation for identical constructors
-			if (hashable === true) {
+				// 0. Quick validation for identical constructors
+				if (hashable === true) {
 
-				if (hashmap[tname] !== undefined && hashmap[tname][iname] !== undefined) {
+					if (hashmap[tname] !== undefined && hashmap[tname][iname] !== undefined) {
 
-					return hashmap[tname][iname];
+						return hashmap[tname][iname];
 
-				} else if (tname === iname) {
+					} else if (tname === iname) {
 
-					if (hashmap[tname] === undefined) {
-						hashmap[tname] = {};
-					}
+						if (hashmap[tname] === undefined) {
+							hashmap[tname] = {};
+						}
 
-					hashmap[tname][iname] = true;
+						hashmap[tname][iname] = true;
 
-					return true;
+						return hashmap[tname][iname];
 
-				}
-
-			}
-
-
-			// 1. Interface validation on Template
-			if (template instanceof Function && template.prototype instanceof Object && instance instanceof Function && instance.prototype instanceof Object) {
-
-				valid = true;
-
-				for (let method in template.prototype) {
-
-					if (typeof template.prototype[method] !== typeof instance.prototype[method]) {
-						valid = false;
-						break;
 					}
 
 				}
 
 
-			// 2. Interface validation on Instance
-			} else if (template instanceof Function && template.prototype instanceof Object && instance instanceof Object) {
+				// 1. Interface validation on Template
+				if (template instanceof Function && template.prototype instanceof Object && instance instanceof Function && instance.prototype instanceof Object) {
 
-				valid = true;
+					valid = true;
 
-				for (let method in template.prototype) {
+					for (let method in template.prototype) {
 
-					if (typeof template.prototype[method] !== typeof instance[method]) {
-						valid = false;
-						break;
-					}
-
-				}
-
-
-			// 3. Interface validation on Struct
-			} else if (template instanceof Object && instance instanceof Object) {
-
-				valid = true;
-
-				for (let property in template) {
-
-					if (template.hasOwnProperty(property) && instance.hasOwnProperty(property)) {
-
-						if (typeof template[property] !== typeof instance[property]) {
+						if (typeof template.prototype[method] !== typeof instance.prototype[method]) {
 							valid = false;
 							break;
 						}
 
 					}
 
+
+				// 2. Interface validation on Instance
+				} else if (template instanceof Function && template.prototype instanceof Object && instance instanceof Object) {
+
+					valid = true;
+
+					for (let method in template.prototype) {
+
+						if (typeof template.prototype[method] !== typeof instance[method]) {
+							valid = false;
+							break;
+						}
+
+					}
+
+
+				// 3. Interface validation on Struct
+				} else if (template instanceof Object && instance instanceof Object) {
+
+					valid = true;
+
+					for (let property in template) {
+
+						if (template.hasOwnProperty(property) && instance.hasOwnProperty(property)) {
+
+							if (typeof template[property] !== typeof instance[property]) {
+								valid = false;
+								break;
+							}
+
+						}
+
+					}
+
 				}
+
+
+				if (hashable === true) {
+
+					if (hashmap[tname] === undefined) {
+						hashmap[tname] = {};
+					}
+
+					hashmap[tname][iname] = valid;
+
+				}
+
+
+				return valid;
 
 			}
 
 
-			if (hashable === true) {
-
-				if (hashmap[tname] === undefined) {
-					hashmap[tname] = {};
-				}
-
-				hashmap[tname][iname] = valid;
-
-			}
-
-
-			return valid;
+			return false;
 
 		},
 
@@ -906,8 +922,10 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let definition = new lychee.Definition(identifier);
 				let that       = this;
+				let definition = new lychee.Definition({
+					id: identifier
+				});
 
 
 				// XXX: First sandboxed hierarchy
@@ -1052,7 +1070,12 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 
 				lychee.setEnvironment(environment);
-				environment.init(new Function('sandbox', code));
+
+
+				let result = environment.init(new Function('sandbox', code));
+				if (result === true) {
+					return true;
+				}
 
 			} else if (message === true) {
 
@@ -1060,6 +1083,9 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 				console.info('lychee.envinit: Use lychee.envinit(env, profile) where env is a lychee.Environment instance');
 
 			}
+
+
+			return false;
 
 		},
 
@@ -1131,7 +1157,7 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 							} else {
 
 								console.warn('lychee.pkginit: Invalid settings for "' + identifier + '" in lychee.pkg.');
-								console.info('lychee.pkginit: Insert settings at "/build/environments/\"' + identifier + '\"" in lychee.pkg.');
+								console.info('lychee.pkginit: Insert settings at "/build/environments/' + identifier + '" in lychee.pkg.');
 
 							}
 
@@ -1153,7 +1179,12 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 
 				config.load();
 
+				return true;
+
 			}
+
+
+			return false;
 
 		},
 
@@ -1227,7 +1258,12 @@ lychee = typeof lychee !== 'undefined' ? lychee : (function(global) {
 	};
 
 
-	return Object.assign(lychee, Module);
+	if (typeof lychee === 'undefined') {
+		lychee = global.lychee = Object.assign({}, Module);
+	}
+
+
+	return Module;
 
 })(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));
 

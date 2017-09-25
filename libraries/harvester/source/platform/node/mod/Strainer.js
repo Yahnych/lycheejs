@@ -27,8 +27,10 @@ lychee.define('harvester.mod.Strainer').tags({
 	const _child_process = global.require('child_process');
 	const _setInterval   = global.setInterval;
 	const _Project       = lychee.import('harvester.data.Project');
+	const _BINARY        = process.execPath;
 	let   _ACTIVE        = false;
 	const _QUEUE         = [];
+	const _ROOT          = lychee.ROOT.lychee;
 
 
 
@@ -78,40 +80,77 @@ lychee.define('harvester.mod.Strainer').tags({
 
 	const _strain = function(project) {
 
-		_child_process.execFile(lychee.ROOT.lychee + '/libraries/strainer/bin/strainer.sh', [
-			'check',
-			project
-		], {
-			cwd: lychee.ROOT.lychee
-		}, function(error, stdout, stderr) {
+		let handle = null;
 
-			_ACTIVE = false;
+		try {
+
+			// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', _ROOT + '/libraries/strainer/bin/strainer.js', target, project ])
+
+			handle = _child_process.execFile(_BINARY, [
+				_ROOT + '/libraries/strainer/bin/strainer.js',
+				'check',
+				project
+			], {
+				cwd: _ROOT
+			}, function(error, stdout, stderr) {
+
+				_ACTIVE = false;
 
 
-			let tmp = stderr.trim();
-			if (error || tmp.indexOf('(E)') !== -1) {
+				let tmp_err = stderr.trim().split('\n').map(function(line) {
+					return line.substr(15, line.length - 29).trim();
+				}).filter(function(line) {
+					return line.startsWith('strainer: /');
+				});
 
-				console.error('harvester.mod.Strainer: FAILURE ("' + project + '")');
+				let tmp_out = stdout.trim().split('\n').filter(function(line) {
+					return line.includes('(W)');
+				}).map(function(line) {
+					return line.substr(15, line.length - 29).trim();
+				}).filter(function(line) {
+					return line.startsWith('strainer: /');
+				});
 
-				let lines = tmp.split('\n');
 
-				for (let l = 0, ll = lines.length; l < ll; l++) {
+				if (tmp_err.length > 0) {
 
-					let line = lines[l];
-					let tmp1 = line.substr(15, line.length - 29).trim();
-					if (tmp1.startsWith('strainer: /')) {
-						console.error(tmp1.trim());
-					}
+					console.error('harvester.mod.Strainer: FAILURE ("' + project + '")');
+
+					tmp_out.forEach(function(line) {
+						console.warn(line);
+					});
+
+					tmp_err.forEach(function(line) {
+						console.error(line);
+					});
+
+				} else if (tmp_out.length > 0) {
+
+					console.info('harvester.mod.Strainer: SUCCESS ("' + project + '")');
+
+					tmp_out.forEach(function(line) {
+						console.warn(line);
+					});
+
+				} else if (error) {
+
+					console.error('harvester.mod.Strainer: ERROR ("' + project + '")');
+
+				} else {
+
+					console.info('harvester.mod.Strainer: SUCCESS ("' + project + '")');
 
 				}
 
-			} else {
+			});
 
-				console.info('harvester.mod.Strainer: SUCCESS ("' + project + '")');
+		} catch (err) {
 
-			}
+			handle = null;
 
-		});
+		}
+
+		return handle;
 
 	};
 

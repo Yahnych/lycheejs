@@ -2,6 +2,7 @@
 lychee.define('strainer.plugin.API').requires([
 	'strainer.api.Callback',
 	'strainer.api.Composite',
+	'strainer.api.Core',
 	'strainer.api.Definition',
 	'strainer.api.Module'
 ]).exports(function(lychee, global, attachments) {
@@ -9,14 +10,15 @@ lychee.define('strainer.plugin.API').requires([
 	const _api     = {
 		Callback:   lychee.import('strainer.api.Callback'),
 		Composite:  lychee.import('strainer.api.Composite'),
+		Core:       lychee.import('strainer.api.Core'),
 		Definition: lychee.import('strainer.api.Definition'),
 		Module:     lychee.import('strainer.api.Module')
 	};
 	const _TAB_STR = new Array(128).fill('\t').join('');
 	const _FIXES   = {
-		'no-return-value': function(err, report) {
+		'unguessable-return-value': function(err, report) {
 
-			let method = report.result.methods[err.methodName] || null;
+			let method = report.result.methods[err.reference] || null;
 			if (method !== null) {
 
 				let has_already = method.values.find(function(val) {
@@ -31,7 +33,23 @@ lychee.define('strainer.plugin.API').requires([
 
 			return false;
 
+		},
+
+		'unguessable-property-value': function(err, report) {
+
+			let property = report.result.properties[err.reference] || null;
+			if (property !== null) {
+
+				if (property.value.type !== 'undefined') {
+					return true;
+				}
+
+			}
+
+			return false;
+
 		}
+
 	};
 
 
@@ -80,8 +98,10 @@ lychee.define('strainer.plugin.API').requires([
 				let report = null;
 				let api    = null;
 				let stream = asset.buffer.toString('utf8');
+				let first  = stream.trim().split('\n')[0];
 
 
+				let is_core       = asset.url.startsWith('/libraries/lychee/source/core') && first.endsWith('(function(global) {');
 				let is_definition = stream.trim().startsWith('lychee.define(');
 				let is_callback   = stream.lastIndexOf('return Callback;')  > 0;
 				let is_composite  = stream.lastIndexOf('return Composite;') > 0;
@@ -107,6 +127,8 @@ lychee.define('strainer.plugin.API').requires([
 
 				if (is_definition === true) {
 					header = _api['Definition'].check(asset);
+				} else if (is_core === true) {
+					header = _api['Core'].check(asset);
 				}
 
 
@@ -116,6 +138,18 @@ lychee.define('strainer.plugin.API').requires([
 
 
 				if (header !== null && report !== null) {
+
+					if (header.errors.length > 0) {
+
+						let errors = [];
+
+						errors.push.apply(errors, header.errors);
+						errors.push.apply(errors, report.errors);
+
+						report.errors = errors;
+
+					}
+
 
 					return {
 						header: header.result,
@@ -154,7 +188,7 @@ lychee.define('strainer.plugin.API').requires([
 
 				report.errors.forEach(function(err) {
 
-					let rule = err.ruleId;
+					let rule = err.rule;
 					let fix  = _FIXES[rule] || null;
 					let tmp  = false;
 

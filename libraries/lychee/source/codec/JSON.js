@@ -5,7 +5,7 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 	 * HELPERS
 	 */
 
-	const _CHARS_SEARCH = /[\\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+	const _CHARS_SEARCH = /[\\"\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 	const _CHARS_META   = {
 		'\r': '',    // FUCK YOU, Microsoft!
 		'\b': '\\b',
@@ -147,15 +147,35 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 
 	const _encode = function(stream, data) {
 
-		// null,false,true: Boolean or Null or EOS
-		if (typeof data === 'boolean' || data === null) {
+		// Boolean, Null (or EOS), Undefined, Infinity, NaN
+		if (
+			typeof data === 'boolean'
+			|| data === null
+			|| data === undefined
+			|| (
+				typeof data === 'number'
+				&& (
+					data === Infinity
+					|| data === -Infinity
+					|| isNaN(data) === true
+				)
+			)
+		) {
 
 			if (data === null) {
 				stream.write('null');
+			} else if (data === undefined) {
+				stream.write('undefined');
 			} else if (data === false) {
 				stream.write('false');
 			} else if (data === true) {
 				stream.write('true');
+			} else if (data === Infinity) {
+				stream.write('Infinity');
+			} else if (data === -Infinity) {
+				stream.write('-Infinity');
+			} else if (isNaN(data) === true) {
+				stream.write('NaN');
 			}
 
 
@@ -274,19 +294,28 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 			seek = stream.seek(1);
 
 
-			// null,false,true: Boolean or Null or EOS
-			if (seek === 'n' || seek === 'f' || seek === 't') {
-
-				if (stream.seek(4) === 'null') {
-					stream.read(4);
-					value = null;
-				} else if (stream.seek(5) === 'false') {
-					stream.read(5);
-					value = false;
-				} else if (stream.seek(4) === 'true') {
-					stream.read(4);
-					value = true;
-				}
+			// Boolean, Null (or EOS), Undefined, Infinity, NaN
+			if (stream.seek(4) === 'null') {
+				stream.read(4);
+				value = null;
+			} else if (stream.seek(9) === 'undefined') {
+				stream.read(9);
+				value = undefined;
+			} else if (stream.seek(5) === 'false') {
+				stream.read(5);
+				value = false;
+			} else if (stream.seek(4) === 'true') {
+				stream.read(4);
+				value = true;
+			} else if (stream.seek(8) === 'Infinity') {
+				stream.read(8);
+				value = Infinity;
+			} else if (stream.seek(9) === '-Infinity') {
+				stream.read(9);
+				value = -Infinity;
+			} else if (stream.seek(3) === 'NaN') {
+				stream.read(3);
+				value = NaN;
 
 
 			// 123: Number

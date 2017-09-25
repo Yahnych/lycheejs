@@ -1,18 +1,11 @@
 
-# lychee.js (2017-Q2)
+# lychee.js (2017-Q3)
 
 <img src="./guides/asset/qr-codes.png" align="right" width="500px">
 
 brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
 
 Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
-
-
-**IMPORTANT NOTICE**
-
-AI went live on 1. Sept 2016. Make sure that `:balloon: AI History starts here`
-is on your `master` branch so that the `./bin/maintenance` auto-update integration
-works fine. Otherwise re-fork your fork or force-pull from upstream.
 
 
 **Work-in-Progress (aka alpha)**
@@ -96,7 +89,7 @@ The following Repositories are related to the lychee.js Engine:
 - [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
 - [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
 - [lychee.js Harvester](https://github.com/Artificial-Engineering/lycheejs-harvester.git) contains the lychee.js Harvester (forked from `/libraries/harvester`).
-- [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [https://lychee.js.org](https://lychee.js.org)).
+- [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
 - [lychee.js Bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) generates the OS-ready lychee.js Bundles (published at [releases](https://github.com/Artificial-Engineering/lycheejs-bundle/releases) section).
 - [lychee.js Future](https://github.com/Artificial-Engineering/lycheejs-future.git) contains all Concepts and Ideas not yet finished.
 

@@ -16,6 +16,36 @@ lychee.define('studio.Main').requires([
 	const _Client  = lychee.import('harvester.net.Client');
 	const _Main    = lychee.import('lychee.app.Main');
 	const _Project = lychee.import('studio.data.Project');
+	const _ARGS    = [];
+
+
+
+	(function(process) {
+
+		let node_argv = process.argv || [];
+		let nwjs_argv = [];
+
+		try {
+			nwjs_argv = global.require('nw.gui').App.argv;
+		} catch (err) {
+			nwjs_argv = [];
+		}
+
+		if (nwjs_argv.length > 0) {
+
+			for (let a = 0, al = nwjs_argv.length; a < al; a++) {
+				_ARGS.push(nwjs_argv[a]);
+			}
+
+		} else if (node_argv.length > 1) {
+
+			for (let a = 1, al = node_argv.length; a < al; a++) {
+				_ARGS.push(node_argv[a]);
+			}
+
+		}
+
+	})(typeof process === 'object' ? process : {});
 
 
 
@@ -54,6 +84,7 @@ lychee.define('studio.Main').requires([
 		}, data);
 
 
+		this.api     = null;
 		this.project = null;
 
 
@@ -96,6 +127,31 @@ lychee.define('studio.Main').requires([
 
 
 			this.changeState('project', 'Project');
+
+
+			let api     = this.api;
+			let project = _ARGS.find(function(val) {
+				return /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val);
+			}) || null;
+
+			if (api !== null && project !== null) {
+
+				let service = this.api.getService('project');
+				if (service !== null) {
+
+					service.bind('sync', function() {
+
+						let entity = this.state.query('ui > project > select > search');
+						let result = entity.setValue(project);
+						if (result === true) {
+							entity.trigger('change', [ entity.value ]);
+						}
+
+					}, this, true);
+
+				}
+
+			}
 
 		}, this, true);
 

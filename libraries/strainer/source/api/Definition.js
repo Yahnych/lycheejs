@@ -45,7 +45,7 @@ lychee.define('strainer.api.Definition').requires([
 
 		if (tmp.startsWith('lychee.define(')) {
 
-			let tmp1 = tmp.split(/lychee\.define\("?\'?([A-Za-z\.]+)"?\'?\)\.(.*)/g);
+			let tmp1 = tmp.split(/lychee\.define\("?'?([A-Za-z.-]+)"?'?\)\.(.*)/g);
 			if (tmp1.length > 1) {
 
 				let id = tmp1[1];
@@ -60,9 +60,12 @@ lychee.define('strainer.api.Definition').requires([
 		} else {
 
 			errors.push({
-				ruleId:   'no-identifier',
-				fileName: null,
-				message:  'No Definition identifier defined.'
+				url:       null,
+				rule:      'no-identifier',
+				reference: null,
+				message:   'Invalid Definition identifier.',
+				line:      0,
+				column:    0
 			});
 
 		}
@@ -251,16 +254,17 @@ lychee.define('strainer.api.Definition').requires([
 				// _parse_exports(result.exports, stream, errors);
 
 				let i1 = stream.indexOf('lychee.define(');
-				let i2 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+				let i2 = stream.indexOf('exports(function(lychee, global, attachments) {\n', i1);
 
 				if (i1 === -1 || i2 === -1) {
 
 					errors.push({
-						ruleId:   'no-definition',
-						fileName: null,
-						message:  'No lychee.Definition found.',
-						line:     0,
-						column:   0
+						url:       null,
+						rule:      'no-definition',
+						reference: null,
+						message:   'Invalid lychee.Definition (wrong API usage).',
+						line:      0,
+						column:    0
 					});
 
 				}

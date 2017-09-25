@@ -1,13 +1,10 @@
 {
 	"api": {
 		"files": {
+			"Fixer": [
+				"json"
+			],
 			"Main": [
-				"json"
-			],
-			"Quickfix": [
-				"json"
-			],
-			"Template": [
 				"json"
 			],
 			"api": {
@@ -17,6 +14,9 @@
 				"Composite": [
 					"json"
 				],
+				"Core": [
+					"json"
+				],
 				"Definition": [
 					"json"
 				],
@@ -24,6 +24,11 @@
 					"json"
 				],
 				"PARSER": [
+					"json"
+				]
+			},
+			"flow": {
+				"Check": [
 					"json"
 				]
 			},
@@ -106,13 +111,10 @@
 			}
 		},
 		"files": {
+			"Fixer": [
+				"js"
+			],
 			"Main": [
-				"js"
-			],
-			"Quickfix": [
-				"js"
-			],
-			"Template": [
 				"js"
 			],
 			"api": {
@@ -120,6 +122,9 @@
 					"js"
 				],
 				"Composite": [
+					"js"
+				],
+				"Core": [
 					"js"
 				],
 				"Definition": [
@@ -131,6 +136,11 @@
 				"PARSER": [
 					"js",
 					"json"
+				]
+			},
+			"flow": {
+				"Check": [
+					"js"
 				]
 			},
 			"platform": {

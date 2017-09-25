@@ -20,6 +20,20 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
+## [2017-Q3] - 2017-09-28
+
+- **Changed**: harvester.mod.Harvester supports proper git flow.
+- **Changed**: lychee.Definition supports Composite syntax.
+- **Removed**: Legacy Cultivator Projects.
+- **Added**: lychee.js Strainer supports Static Code Analysis, Memory Tracing and Knowledge Tracing.
+- Changed: lychee.codec.BENCODE support special primitives (undefined, Infinity, NaN).
+- Changed: lychee.codec.BITON supports special primitives (undefined, Infinity, NaN).
+- Changed: lychee.codec.JSON support special primitives (undefined, Infinity, NaN).
+- Added: lychee.js Helper supports cached builds.
+- Fixed: Harvester Mods use sandboxed node.js binaries.
+- Fixed: lychee.ai.bnn.Brain correctly boosts gradients.
+
+
 ## [2017-Q2] - 2017-06-28
 
 - **Changed**: Libraries and Projects refactor to match lychee.js Strainer's expectations.
@@ -138,7 +152,9 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q1...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...HEAD)
+- [2017-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q2...2017-Q3)
+- [2017-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q1...2017-Q2)
 - [2017-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2016-Q4...2017-Q1)
 - [2016-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2016-Q3...2016-Q4)
 - [2016-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2016-Q2...2016-Q3)
