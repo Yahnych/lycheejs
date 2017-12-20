@@ -19,7 +19,7 @@ lychee.define('ranger.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({
 
@@ -30,6 +30,8 @@ lychee.define('ranger.Main').requires([
 
 
 		_Main.call(this, settings);
+
+		settings = null;
 
 
 

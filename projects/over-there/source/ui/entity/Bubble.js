@@ -18,7 +18,7 @@ lychee.define('app.ui.entity.Bubble').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -62,7 +62,6 @@ lychee.define('app.ui.entity.Bubble').includes([
 
 
 			let settings = data['arguments'][0] || {};
-			// let blob     = data['blob'] || {};
 
 
 			if (this.key !== 'urine') settings.key   = this.key;

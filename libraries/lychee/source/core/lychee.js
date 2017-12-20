@@ -1,12 +1,13 @@
 
-(function(global) {
+lychee = (function(global) {
 
 	if (typeof lychee !== 'undefined') {
-		return;
+		return lychee;
 	}
 
 
 
+	const _BLOBOF_CACHE      = {};
 	const _INTERFACEOF_CACHE = {};
 
 
@@ -288,6 +289,33 @@
 
 	}
 
+	if (typeof String.prototype.endsWith !== 'function') {
+
+		String.prototype.endsWith = function(search/*, from */) {
+
+			if (this === null || this === undefined) {
+				throw new TypeError('String.prototype.endsWith called on null or undefined');
+			}
+
+
+			let value  = (this).toString();
+			let from   = arguments.length >= 2 ? (arguments[1] | 0) : value.length;
+			let tmp    = String(search);
+			let length = tmp.length >>> 0;
+
+
+			let chunk = value.substr(0, from - length);
+			if (chunk === tmp) {
+				return true;
+			}
+
+
+			return false;
+
+		};
+
+	}
+
 	if (typeof String.prototype.replaceObject !== 'function') {
 
 		String.prototype.replaceObject = function(object) {
@@ -345,6 +373,33 @@
 
 	}
 
+	if (typeof String.prototype.startsWith !== 'function') {
+
+		String.prototype.startsWith = function(search/*, from */) {
+
+			if (this === null || this === undefined) {
+				throw new TypeError('String.prototype.startsWith called on null or undefined');
+			}
+
+
+			let value  = (this).toString();
+			let from   = arguments.length >= 2 ? (arguments[1] | 0) : 0;
+			let tmp    = String(search);
+			let length = tmp.length >>> 0;
+
+
+			let chunk = value.substr(from, length);
+			if (chunk === tmp) {
+				return true;
+			}
+
+
+			return false;
+
+		};
+
+	}
+
 	if (typeof String.prototype.toJSON !== 'function') {
 
 		String.prototype.toJSON = function() {
@@ -360,6 +415,7 @@
 	 */
 
 	let _environment = null;
+	let _simulation  = null;
 
 	const _bootstrap_environment = function() {
 
@@ -375,6 +431,39 @@
 		if (this.environment === null) {
 			this.setEnvironment(_environment);
 		}
+
+	};
+
+	const _bootstrap_simulation = function() {
+
+		_bootstrap_environment.call(this);
+
+
+		if (_simulation === null) {
+
+			_simulation = new lychee.Simulation({
+				environment: this.environment
+			});
+
+		}
+
+
+		if (this.simulation === null) {
+			this.setSimulation(_simulation);
+		}
+
+	};
+
+	const _validate_environment = function(environment) {
+
+		if (environment instanceof lychee.Environment) {
+			return true;
+		} else if (environment instanceof lychee.Simulation) {
+			return true;
+		}
+
+
+		return false;
 
 	};
 
@@ -411,21 +500,164 @@
 		debug: true,
 
 		environment: _environment,
+		simulation:  _simulation,
 
 		ENVIRONMENTS: {},
+		FEATURES:     {},
+		FILENAME:     null,
+		PLATFORMS:    [],
 
 		ROOT: {
 			lychee:  '/opt/lycheejs',
 			project: null
 		},
 
-		VERSION: "2017-Q3",
+		VERSION: "2017-Q4",
 
 
 
 		/*
 		 * LIBRARY API
 		 */
+
+		assignsafe: function(target) {
+
+			target = target instanceof Object ? target : {};
+
+
+			for (let a = 1, al = arguments.length; a < al; a++) {
+
+				let object = arguments[a];
+				if (object) {
+
+					for (let prop in object) {
+
+						if (object.hasOwnProperty(prop) === true) {
+
+							let tvalue = target[prop];
+							let ovalue = object[prop];
+							if (tvalue instanceof Array && ovalue instanceof Array) {
+
+								Module.assignsafe(target[prop], object[prop]);
+
+							} else if (tvalue instanceof Object && ovalue instanceof Object) {
+
+								Module.assignsafe(target[prop], object[prop]);
+
+							} else if (typeof tvalue === typeof ovalue) {
+
+								target[prop] = object[prop];
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return target;
+
+		},
+
+		assignunlink: function(target) {
+
+			target = target instanceof Object ? target : {};
+
+
+			for (let a = 1, al = arguments.length; a < al; a++) {
+
+				let object = arguments[a];
+				if (object) {
+
+					for (let prop in object) {
+
+						if (object.hasOwnProperty(prop) === true) {
+
+							let tvalue = target[prop];
+							let ovalue = object[prop];
+							if (tvalue instanceof Array && ovalue instanceof Array) {
+								target[prop] = [];
+								Module.assignunlink(target[prop], object[prop]);
+							} else if (tvalue instanceof Object && ovalue instanceof Object) {
+								target[prop] = {};
+								Module.assignunlink(target[prop], object[prop]);
+							} else {
+								target[prop] = object[prop];
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return target;
+
+		},
+
+		blobof: function(template, blob) {
+
+			template = template !== undefined ? template : null;
+			blob     = blob instanceof Object ? blob     : null;
+
+
+			if (template !== null && blob !== null) {
+
+				let tname    = template.displayName;
+				let bname    = blob.constructor || blob.reference || null;
+				let hashable = typeof tname === 'string' && typeof bname === 'string';
+				let hashmap  = _BLOBOF_CACHE;
+
+
+				// 0. Quick validation for identical constructors
+				if (hashable === true) {
+
+					if (hashmap[tname] !== undefined && hashmap[tname][bname] !== undefined) {
+
+						return hashmap[tname][bname];
+
+					} else if (tname === bname) {
+
+						if (hashmap[tname] === undefined) {
+							hashmap[tname] = {};
+						}
+
+						hashmap[tname][bname] = true;
+
+						return hashmap[tname][bname];
+
+					} else if (tname !== bname) {
+
+						let instance = lychee.deserialize(blob);
+						if (lychee.interfaceof(template, instance) === true) {
+
+							if (hashmap[tname] === undefined) {
+								hashmap[tname] = {};
+							}
+
+							hashmap[tname][bname] = true;
+
+							return hashmap[tname][bname];
+
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return false;
+
+		},
 
 		diff: function(aobject, bobject) {
 
@@ -510,88 +742,6 @@
 
 
 			return false;
-
-		},
-
-		assignsafe: function(target) {
-
-			target = target instanceof Object ? target : {};
-
-
-			for (let a = 1, al = arguments.length; a < al; a++) {
-
-				let object = arguments[a];
-				if (object) {
-
-					for (let prop in object) {
-
-						if (object.hasOwnProperty(prop) === true) {
-
-							let tvalue = target[prop];
-							let ovalue = object[prop];
-							if (tvalue instanceof Array && ovalue instanceof Array) {
-
-								Module.assignsafe(target[prop], object[prop]);
-
-							} else if (tvalue instanceof Object && ovalue instanceof Object) {
-
-								Module.assignsafe(target[prop], object[prop]);
-
-							} else if (typeof tvalue === typeof ovalue) {
-
-								target[prop] = object[prop];
-
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-
-
-			return target;
-
-		},
-
-		assignunlink: function(target) {
-
-			target = target instanceof Object ? target : {};
-
-
-			for (let a = 1, al = arguments.length; a < al; a++) {
-
-				let object = arguments[a];
-				if (object) {
-
-					for (let prop in object) {
-
-						if (object.hasOwnProperty(prop) === true) {
-
-							let tvalue = target[prop];
-							let ovalue = object[prop];
-							if (tvalue instanceof Array && ovalue instanceof Array) {
-								target[prop] = [];
-								Module.assignunlink(target[prop], object[prop]);
-							} else if (tvalue instanceof Object && ovalue instanceof Object) {
-								target[prop] = {};
-								Module.assignunlink(target[prop], object[prop]);
-							} else {
-								target[prop] = object[prop];
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-
-
-			return target;
 
 		},
 
@@ -736,8 +886,8 @@
 
 				} else if (typeof data.constructor === 'string' && data.arguments instanceof Array) {
 
-					let resolved_class = _resolve_reference.call(scope, data.constructor);
-					if (typeof resolved_class === 'function') {
+					let resolved_composite = _resolve_reference.call(scope, data.constructor);
+					if (typeof resolved_composite === 'function') {
 
 						let bindargs = [].splice.call(data.arguments, 0).map(function(value) {
 
@@ -760,13 +910,13 @@
 
 
 						bindargs.reverse();
-						bindargs.push(resolved_class);
+						bindargs.push(resolved_composite);
 						bindargs.reverse();
 
 
 						instance = new (
-							resolved_class.bind.apply(
-								resolved_class,
+							resolved_composite.bind.apply(
+								resolved_composite,
 								bindargs
 							)
 						)();
@@ -924,7 +1074,8 @@
 
 				let that       = this;
 				let definition = new lychee.Definition({
-					id: identifier
+					id:  identifier,
+					url: lychee.FILENAME || null
 				});
 
 
@@ -957,7 +1108,7 @@
 			} else {
 
 				console.warn('lychee.define: Invalid identifier');
-				console.info('lychee.define: Use lychee.define(id).exports(closure)');
+				console.info('lychee.define: Use lychee.define(id).exports(function(lychee, global, attachments) {})');
 
 			}
 
@@ -1008,6 +1159,11 @@
 
 				return instance;
 
+			} else {
+
+				console.warn('lychee.import: Invalid reference');
+				console.info('lychee.import: Use lychee.import(reference)');
+
 			}
 
 
@@ -1015,171 +1171,146 @@
 
 		},
 
-		envinit: function(environment, profile) {
+		init: function(environment, settings, callback) {
 
 			let message = environment !== null;
 
-			environment = environment instanceof lychee.Environment ? environment : null;
-			profile     = profile instanceof Object                 ? profile     : {};
+			environment = _validate_environment(environment) === true ? environment : null;
+			settings    = settings instanceof Object                  ? settings    : null;
+			callback    = callback instanceof Function                ? callback    : null;
 
 
 			_bootstrap_environment.call(this);
+			_bootstrap_simulation.call(this);
 
 
-			if (environment !== null) {
-
-				let code        = '\n';
-				let id          = (lychee.ROOT.project || '').substr((lychee.ROOT.lychee || '').length) + '/custom';
-				let env_profile = Object.assign({}, environment.profile, profile);
-
-
-				if (environment.id.substr(0, 19) === 'lychee-Environment-') {
-					environment.setId(id);
-				}
-
+			if (environment !== null && settings !== null) {
 
 				if (_environment !== null) {
 
-					Object.values(_environment.definitions).forEach(function(definition) {
-						environment.define(definition, true);
+					if (environment instanceof lychee.Environment) {
+
+						Object.values(_environment.definitions).forEach(function(definition) {
+							environment.define(definition, true);
+						});
+
+					} else if (environment instanceof lychee.Simulation) {
+
+						Object.values(_environment.definitions).forEach(function(definition) {
+							environment.environment.define(definition, true);
+						});
+
+					}
+
+				}
+
+
+				if (environment.id.startsWith('lychee-Environment-')) {
+					environment.setId((lychee.ROOT.project || '').substr((lychee.ROOT.lychee || '').length) + '/custom');
+				}
+
+				for (let id in settings) {
+
+					let method = 'set' + id.charAt(0).toUpperCase() + id.substr(1);
+					if (typeof environment[method] === 'function') {
+						environment[method](settings[id]);
+					}
+
+				}
+
+
+				if (environment instanceof lychee.Environment) {
+
+					if (callback === null) {
+
+						let code    = '';
+						let profile = settings.profile || {};
+
+						code += '\n\n';
+						code += 'if (sandbox === null) {\n';
+						code += '\tconsole.error(\'lychee: environment.init() failed.\');\n';
+						code += '\treturn;\n';
+						code += '}\n';
+						code += '\n\n';
+						code += 'let lychee = sandbox.lychee;\n';
+
+						let packages = environment.packages;
+						if (packages instanceof Object && Array.isArray(packages) === false) {
+
+							for (let pid in packages) {
+
+								if (pid !== 'lychee' && /$([a-z]+)/g.test(pid)) {
+									code += 'let ' + pid + ' = sandbox.' + pid + ';\n';
+								}
+
+							}
+
+						}
+
+						code += '\n\n';
+						code += 'sandbox.MAIN = new ' + environment.target + '(' + JSON.stringify(profile) + ');\n';
+						code += '\n\n';
+						code += 'if (typeof sandbox.MAIN.init === \'function\') {\n';
+						code += '\tsandbox.MAIN.init();\n';
+						code += '}\n';
+
+						callback = new Function('sandbox', code);
+
+					}
+
+
+					lychee.setEnvironment(environment);
+					environment.init(callback);
+
+				} else if (environment instanceof lychee.Simulation) {
+
+					let simulation  = environment;
+					let environment = simulation.environment;
+
+
+					if (callback === null) {
+
+						let code = '';
+
+						code += '\n\n';
+						code += 'if (sandbox_sim === null) {\n';
+						code += '\tconsole.error(\'lychee: simulation.init() failed.\');\n';
+						code += '\treturn;\n';
+						code += '}\n';
+						code += '\n\n';
+						code += 'console.info(\'lychee: simulation.init() succeeded.\');\n';
+
+						callback = new Function('sandbox_sim', code);
+
+					}
+
+
+					lychee.setEnvironment(environment);
+
+					environment.init(function(sandbox) {
+
+						if (sandbox === null) {
+							console.error('lychee: environment.init() failed.');
+							return;
+						}
+
+
+						console.info('lychee: environment.init() succeeded.');
+
+						lychee.setSimulation(simulation);
+						simulation.init(callback);
+
 					});
 
 				}
 
 
-				code += '\n\n';
-				code += 'if (sandbox === null) {\n';
-				code += '\tconsole.error("lychee: envinit() failed.");\n';
-				code += '\treturn;\n';
-				code += '}\n';
-				code += '\n\n';
-
-
-				code += [ 'lychee' ].concat(environment.packages.map(function(pkg) {
-					return pkg.id;
-				})).map(function(lib) {
-					return 'let ' + lib + ' = sandbox.' + lib + ';';
-				}).join('\n');
-
-				code += '\n\n';
-				code += 'sandbox.MAIN = new ' + environment.build + '(' + JSON.stringify(env_profile) + ');\n';
-				code += '\n\n';
-				code += 'if (typeof sandbox.MAIN.init === \'function\') {\n';
-				code += '\tsandbox.MAIN.init();\n';
-				code += '}\n';
-
-
-				lychee.setEnvironment(environment);
-
-
-				let result = environment.init(new Function('sandbox', code));
-				if (result === true) {
-					return true;
-				}
+				return true;
 
 			} else if (message === true) {
 
-				console.warn('lychee.envinit: Invalid environment');
-				console.info('lychee.envinit: Use lychee.envinit(env, profile) where env is a lychee.Environment instance');
-
-			}
-
-
-			return false;
-
-		},
-
-		pkginit: function(identifier, settings, profile) {
-
-			identifier = typeof identifier === 'string' ? identifier : null;
-			settings   = settings instanceof Object     ? settings   : {};
-			profile    = profile instanceof Object      ? profile    : {};
-
-
-			_bootstrap_environment.call(this);
-
-
-			if (identifier !== null) {
-
-				let config = new Config('./lychee.pkg');
-
-				config.onload = function() {
-
-					let buffer = this.buffer || null;
-					if (buffer instanceof Object) {
-
-						if (buffer.build instanceof Object && buffer.build.environments instanceof Object) {
-
-							let data = buffer.build.environments[identifier] || null;
-							if (data instanceof Object) {
-
-								let code         = '\n';
-								let env_settings = Object.assign({
-									id: lychee.ROOT.project + '/' + identifier.split('/').pop()
-								}, data, settings);
-								let env_profile  = Object.assign({}, data.profile, profile);
-								let environment  = new lychee.Environment(env_settings);
-
-
-								if (_environment !== null) {
-
-									Object.values(_environment.definitions).forEach(function(definition) {
-										environment.define(definition, true);
-									});
-
-								}
-
-
-								code += '\n\n';
-								code += 'if (sandbox === null) {\n';
-								code += '\tconsole.error("lychee: pkginit() failed.");\n';
-								code += '\treturn;\n';
-								code += '}\n';
-								code += '\n\n';
-
-								code += [ 'lychee' ].concat(env_settings.packages.map(function(pkg) {
-									return pkg.id;
-								})).map(function(lib) {
-									return 'let ' + lib + ' = sandbox.' + lib + ';';
-								}).join('\n');
-
-								code += '\n\n';
-								code += 'sandbox.MAIN = new ' + env_settings.build + '(' + JSON.stringify(env_profile) + ');\n';
-								code += '\n\n';
-								code += 'if (typeof sandbox.MAIN.init === \'function\') {\n';
-								code += '\tsandbox.MAIN.init();\n';
-								code += '}\n';
-
-
-								lychee.setEnvironment(environment);
-								environment.init(new Function('sandbox', code));
-
-							} else {
-
-								console.warn('lychee.pkginit: Invalid settings for "' + identifier + '" in lychee.pkg.');
-								console.info('lychee.pkginit: Insert settings at "/build/environments/' + identifier + '" in lychee.pkg.');
-
-							}
-
-						} else {
-
-							console.warn('lychee.pkginit: Invalid package at "' + this.url + '".');
-							console.info('lychee.pkginit: Replace lychee.pkg with the one from "/projects/boilerplate".');
-
-						}
-
-					} else {
-
-						console.warn('lychee.pkginit: Invalid package at "' + this.url + '".');
-						console.info('lychee.pkginit: Replace lychee.pkg with the one from "/projects/boilerplate".');
-
-					}
-
-				};
-
-				config.load();
-
-				return true;
+				console.warn('lychee.init: Invalid environment');
+				console.info('lychee.init: Use lychee.init(env, settings, callback) where env can be a lychee.Environment or lychee.Simulation instance.');
 
 			}
 
@@ -1189,6 +1320,8 @@
 		},
 
 		inject: function(environment) {
+
+			let message = environment !== null;
 
 			environment = environment instanceof lychee.Environment ? environment : null;
 
@@ -1206,12 +1339,12 @@
 						that.environment.define(definition, true);
 					});
 
-					let build_old = this.environment.definitions[this.environment.build] || null;
-					let build_new = environment.definitions[environment.build]           || null;
+					let build_old = this.environment.definitions[this.environment.target] || null;
+					let build_new = environment.definitions[environment.target]           || null;
 
 					if (build_old === null && build_new !== null) {
-						this.environment.build = environment.build;
-						this.environment.type  = environment.type;
+						this.environment.target = environment.target;
+						this.environment.type   = environment.type;
 					}
 
 
@@ -1224,10 +1357,123 @@
 
 				}
 
+			} else if (message === true) {
+
+				console.warn('lychee.inject: Invalid environment');
+				console.info('lychee.inject: Use lychee.inject(env) where env is a lychee.Environment instance');
+
 			}
 
 
 			return false;
+
+		},
+
+		pkg: function(type, id, callback) {
+
+			type     = typeof type === 'string'     ? type       : null;
+			id       = typeof id === 'string'       ? id         : null;
+			callback = callback instanceof Function ? callback   : null;
+
+
+			if (id !== null && type !== null && callback !== null) {
+
+				if (/^(build|review|source)$/g.test(type)) {
+
+					let config = new Config('./lychee.pkg');
+
+					config.onload = function() {
+
+						let buffer = this.buffer || null;
+						if (buffer instanceof Object) {
+
+							let settings = buffer[type].environments[id] || null;
+							if (settings instanceof Object) {
+
+								let environment = null;
+								let profile     = settings.profile || null;
+
+								if (profile !== null) {
+									delete settings.profile;
+								}
+
+								if (type === 'build' || type === 'source') {
+									environment = new lychee.Environment(JSON.parse(JSON.stringify(settings)));
+								} else if (type === 'review') {
+									environment = new lychee.Simulation(JSON.parse(JSON.stringify(settings)));
+								}
+
+								callback(environment, profile);
+
+							} else {
+
+								console.warn('lychee.pkg: Invalid settings for "' + id + '" in lychee.pkg.');
+								console.info('lychee.pkg: Insert settings at "/' + type + '/environments/' + id + '" in lychee.pkg.');
+
+								callback(null, null);
+
+							}
+
+						} else {
+
+							console.warn('lychee.pkg: Invalid package at "' + this.url + '".');
+							console.info('lychee.pkg: Replace lychee.pkg with the one from "/projects/boilerplate".');
+
+							callback(null, null);
+
+						}
+
+					};
+
+					config.load();
+
+					return true;
+
+				}
+
+			}
+
+
+			return false;
+
+		},
+
+		specify: function(identifier) {
+
+			identifier = typeof identifier === 'string' ? identifier : null;
+
+
+			if (identifier !== null) {
+
+				_bootstrap_simulation.call(this);
+
+
+				let that          = this;
+				let specification = new lychee.Specification({
+					id:  identifier,
+					url: lychee.FILENAME || null
+				});
+
+
+				specification.exports = function(callback) {
+
+					lychee.Specification.prototype.exports.call(this, callback);
+					that.simulation.specify(this, false);
+
+				};
+
+
+				return specification;
+
+			} else {
+
+				console.warn('lychee.specify: Invalid identifier');
+				console.info('lychee.specify: Use lychee.specify(id).exports(function(lychee, global, simulation) {})');
+
+			}
+
+
+			return null;
 
 		},
 
@@ -1247,6 +1493,28 @@
 
 				this.environment = _environment;
 				this.debug       = this.environment.debug;
+
+			}
+
+
+			return false;
+
+		},
+
+		setSimulation: function(simulation) {
+
+			simulation = simulation instanceof lychee.Simulation ? simulation : null;
+
+
+			if (simulation !== null) {
+
+				this.simulation = simulation;
+
+				return true;
+
+			} else {
+
+				this.simulation = _simulation;
 
 			}
 

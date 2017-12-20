@@ -1,11 +1,13 @@
 
 lychee.define('studio.Main').requires([
+	'lychee.app.Flow',
 	'studio.codec.FONT',
 	'studio.data.Project',
 	'studio.net.Client',
 	'studio.net.Server',
 	'studio.state.Asset',
 	'studio.state.Project',
+	'studio.state.Scene',
 	'harvester.net.Client'
 ]).includes([
 	'lychee.app.Main'
@@ -53,7 +55,7 @@ lychee.define('studio.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({
 
@@ -90,6 +92,8 @@ lychee.define('studio.Main').requires([
 
 		_Main.call(this, settings);
 
+		settings = null;
+
 
 
 		/*
@@ -124,6 +128,7 @@ lychee.define('studio.Main').requires([
 
 			this.setState('project', new _studio.state.Project(this));
 			this.setState('asset',   new _studio.state.Asset(this));
+			this.setState('scene',   new _studio.state.Scene(this));
 
 
 			this.changeState('project', 'Project');

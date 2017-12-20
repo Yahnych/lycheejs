@@ -1,5 +1,7 @@
 
-lychee.define('game.app.sprite.Bullet').includes([
+lychee.define('game.app.sprite.Bullet').requires([
+	'lychee.app.Entity'
+]).includes([
 	'lychee.app.Sprite'
 ]).exports(function(lychee, global, attachments) {
 
@@ -14,7 +16,7 @@ lychee.define('game.app.sprite.Bullet').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

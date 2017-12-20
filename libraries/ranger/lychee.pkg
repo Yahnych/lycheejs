@@ -41,18 +41,11 @@
 	"build": {
 		"environments": {
 			"html-nwjs/main": {
-				"build": "ranger.Main",
 				"debug": false,
-				"packages": [
-					[
-						"ranger",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"ranger": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -60,21 +53,15 @@
 						"html"
 					]
 				},
+				"target": "ranger.Main",
 				"variant": "application"
 			},
 			"html-webview/main": {
-				"build": "ranger.Main",
 				"debug": false,
-				"packages": [
-					[
-						"ranger",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"ranger": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -82,32 +69,28 @@
 						"html"
 					]
 				},
+				"target": "ranger.Main",
 				"variant": "application"
 			},
 			"html/main": {
-				"build": "ranger.Main",
 				"debug": false,
-				"packages": [
-					[
-						"ranger",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"ranger": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
+				"target": "ranger.Main",
 				"variant": "application"
 			}
-		},
-		"files": {},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

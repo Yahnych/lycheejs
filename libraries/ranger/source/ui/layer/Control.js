@@ -1,8 +1,8 @@
 
-lychee.define('ranger.ui.layer.Control').includes([
-	'lychee.ui.Layer'
-]).requires([
+lychee.define('ranger.ui.layer.Control').requires([
 	'lychee.ui.entity.Helper'
+]).includes([
+	'lychee.ui.Layer'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Helper = lychee.import('lychee.ui.entity.Helper');
@@ -104,7 +104,7 @@ lychee.define('ranger.ui.layer.Control').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

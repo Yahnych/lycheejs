@@ -1,5 +1,5 @@
 
-lychee.define('Renderer').tags({
+lychee.define('lychee.Renderer').tags({
 	platform: 'html'
 }).supports(function(lychee, global) {
 
@@ -51,6 +51,45 @@ lychee.define('Renderer').tags({
 	 * HELPERS
 	 */
 
+	const _VENDORS = [ 'moz', 'ms', 'o', 'webkit' ];
+	const _fix_css = function() {
+
+		let found = null;
+		let style = this.__canvas.style;
+
+		for (let v = 0, vl = _VENDORS.length; v < vl; v++) {
+
+			let vendor = _VENDORS[v];
+			if (vendor + 'UserSelect' in style) {
+				found = vendor;
+				break;
+			}
+
+		}
+
+		if (found !== null) {
+			style[found + 'UserSelect'] = 'none';
+		} else {
+			style['userSelect'] = 'none';
+		}
+
+		style['display'] = 'block';
+
+
+		if (_body !== null) {
+			_body.style['margin']   = '0px';
+			_body.style['padding']  = '0px';
+			_body.style['overflow'] = 'hidden';
+		}
+
+	};
+
+
+
+	/*
+	 * STRUCTS
+	 */
+
 	const _Buffer = function(width, height) {
 
 		this.width  = typeof width === 'number'  ? width  : 1;
@@ -90,7 +129,7 @@ lychee.define('Renderer').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -106,9 +145,12 @@ lychee.define('Renderer').tags({
 		this.__canvas.className = 'lychee-Renderer';
 		this.__ctx              = this.__canvas.getContext('2d');
 
+
 		if (_body !== null) {
 			_body.appendChild(this.__canvas);
 		}
+
+		_fix_css.call(this);
 
 
 		this.setAlpha(settings.alpha);
@@ -150,11 +192,11 @@ lychee.define('Renderer').tags({
 			let settings = {};
 
 
-			if (this.alpha !== 1.0)                           settings.alpha      = this.alpha;
-			if (this.background !== '#000000')                settings.background = this.background;
-			if (this.id.substr(0, 16) !== 'lychee-Renderer-') settings.id         = this.id;
-			if (this.width !== null)                          settings.width      = this.width;
-			if (this.height !== null)                         settings.height     = this.height;
+			if (this.alpha !== 1.0)                               settings.alpha      = this.alpha;
+			if (this.background !== '#000000')                    settings.background = this.background;
+			if (this.id.startsWith('lychee-Renderer-') === false) settings.id         = this.id;
+			if (this.width !== null)                              settings.width      = this.width;
+			if (this.height !== null)                             settings.height     = this.height;
 
 
 			return {

@@ -1,5 +1,5 @@
 
-lychee.define('Stash').tags({
+lychee.define('lychee.Stash').tags({
 	platform: 'html-nwjs'
 }).includes([
 	'lychee.event.Emitter'
@@ -131,12 +131,12 @@ lychee.define('Stash').tags({
 
 
 				let path = lychee.environment.resolve(id);
-				if (path.substr(0, lychee.ROOT.project.length) === lychee.ROOT.project) {
+				if (path.startsWith(lychee.ROOT.project)) {
 
 					if (asset !== null) {
 
 						let dir = path.split('/').slice(0, -1).join('/');
-						if (dir.substr(0, lychee.ROOT.project.length) === lychee.ROOT.project) {
+						if (dir.startsWith(lychee.ROOT.project)) {
 							_mkdir_p(dir);
 						}
 
@@ -387,7 +387,7 @@ lychee.define('Stash').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -483,8 +483,8 @@ lychee.define('Stash').tags({
 			let blob     = (data['blob'] || {});
 
 
-			if (this.id.substr(0, 13) !== 'lychee-Stash-') settings.id   = this.id;
-			if (this.type !== Composite.TYPE.persistent)   settings.type = this.type;
+			if (this.id.startsWith('lychee-Stash-') === false) settings.id   = this.id;
+			if (this.type !== Composite.TYPE.persistent)       settings.type = this.type;
 
 
 			if (Object.keys(this.__assets).length > 0) {

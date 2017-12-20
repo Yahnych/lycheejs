@@ -35,14 +35,10 @@
 	"build": {
 		"environments": {
 			"html-nwjs/main": {
-				"build": "game.Main",
 				"debug": false,
-				"packages": [
-					[
-						"game",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"game": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -50,17 +46,14 @@
 						"html"
 					]
 				},
+				"target": "game.Main",
 				"variant": "application"
 			},
 			"html-webview/main": {
-				"build": "game.Main",
 				"debug": false,
-				"packages": [
-					[
-						"game",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"game": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -68,29 +61,28 @@
 						"html"
 					]
 				},
+				"target": "game.Main",
 				"variant": "application"
 			},
 			"html/main": {
-				"build": "game.Main",
 				"debug": false,
-				"packages": [
-					[
-						"game",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"game": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
+				"target": "game.Main",
 				"type": "folder",
 				"variant": "application"
 			}
-		},
-		"files": {},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

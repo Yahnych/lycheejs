@@ -19,6 +19,11 @@ const _print_help = function() {
 	console.log('                                                                 ');
 	console.log('Usage: lycheejs-strainer-fixer [File]                            ');
 	console.log('                                                                 ');
+	console.log('                                                                 ');
+	console.log('Available Flags:                                                 ');
+	console.log('                                                                 ');
+	console.log('   --debug          Debug Mode with debug messages               ');
+	console.log('                                                                 ');
 	console.log('Examples:                                                        ');
 	console.log('                                                                 ');
 	console.log('    # cwd has to be /opt/lycheejs                                ');
@@ -33,87 +38,71 @@ const _bootup = function(settings) {
 	// console log/info/warn or pretty
 	// color codes, so strip them out.
 
-	console.log   = function() {};
-	console.info  = function() {};
-	console.warn  = function() {};
-	console.error = function() {
+	if (settings.debug === false) {
 
-		let al   = arguments.length;
-		let args = [];
-		for (let a = 0; a < al; a++) {
-			args.push(arguments[a]);
-		}
+		console.log   = function() {};
+		console.info  = function() {};
+		console.warn  = function() {};
+		console.error = function() {
 
-		process.stdout.write(args.join(' ') + '\n');
+			let al   = arguments.length;
+			let args = [];
+			for (let a = 0; a < al; a++) {
+				args.push(arguments[a]);
+			}
 
-	};
+			process.stdout.write(args.join(' ') + '\n');
 
+		};
 
-	let environment = new lychee.Environment({
-		id:       'strainer',
-		debug:    false,
-		sandbox:  true,
-		build:    'strainer.Fixer',
-		timeout:  5000,
-		packages: [
-			new lychee.Package('lychee',   '/libraries/lychee/lychee.pkg'),
-			new lychee.Package('strainer', '/libraries/strainer/lychee.pkg')
-		],
-		tags:     {
-			platform: [ 'node' ]
-		}
-	});
+	}
 
 
-	lychee.setEnvironment(environment);
+	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/strainer';
+
+	lychee.pkg('build', 'node/fixer', function(environment) {
+
+		lychee.init(environment, {
+			debug:   false,
+			sandbox: true
+		}, function(sandbox) {
+
+			if (sandbox !== null) {
+
+				let lychee   = sandbox.lychee;
+				let strainer = sandbox.strainer;
 
 
-	environment.init(function(sandbox) {
+				// This allows using #MAIN in JSON files
+				sandbox.MAIN = new strainer.Fixer(settings);
 
-		if (sandbox !== null) {
+				sandbox.MAIN.bind('destroy', function(code) {
+					process.exit(code);
+				});
 
-			let lychee   = sandbox.lychee;
-			let strainer = sandbox.strainer;
-
-
-			// This allows using #MAIN in JSON files
-			sandbox.MAIN = new strainer.Fixer(settings);
-
-			sandbox.MAIN.bind('destroy', function(code) {
-				process.exit(code);
-			});
-
-			sandbox.MAIN.init();
+				sandbox.MAIN.init();
 
 
-			const _on_process_error = function() {
-				sandbox.MAIN.destroy();
+				const _on_process_error = function() {
+					sandbox.MAIN.destroy();
+					process.exit(1);
+				};
+
+				process.on('SIGHUP',  _on_process_error);
+				process.on('SIGINT',  _on_process_error);
+				process.on('SIGQUIT', _on_process_error);
+				process.on('SIGABRT', _on_process_error);
+				process.on('SIGTERM', _on_process_error);
+				process.on('error',   _on_process_error);
+				process.on('exit',    function() {});
+
+			} else {
+
 				process.exit(1);
-			};
 
-			process.on('SIGHUP',  _on_process_error);
-			process.on('SIGINT',  _on_process_error);
-			process.on('SIGQUIT', _on_process_error);
-			process.on('SIGABRT', _on_process_error);
-			process.on('SIGTERM', _on_process_error);
-			process.on('error',   _on_process_error);
-			process.on('exit',    function() {});
+			}
 
-
-			new lychee.Input({
-				key:         true,
-				keymodifier: true
-			}).bind('escape', function() {
-
-				sandbox.MAIN.destroy();
-
-			}, this);
-
-		} else {
-
-			process.exit(1);
-
-		}
+		});
 
 	});
 
@@ -151,8 +140,13 @@ const _SETTINGS = (function() {
 	let settings = {
 		cwd:     _CWD,
 		file:    null,
-		project: null
+		project: null,
+		debug:   false
 	};
+
+
+	let debug_flag = args.find(val => /--([debug]{5})/g.test(val));
+
 
 	let file = args[0];
 	if (file !== undefined) {
@@ -216,6 +210,11 @@ const _SETTINGS = (function() {
 	}
 
 
+	if (debug_flag !== undefined) {
+		settings.debug = true;
+	}
+
+
 	return settings;
 
 })();
@@ -236,6 +235,7 @@ const _SETTINGS = (function() {
 
 		_bootup({
 			cwd:     settings.cwd,
+			debug:   settings.debug === true,
 			file:    settings.file,
 			project: settings.project
 		});

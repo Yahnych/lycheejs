@@ -1,5 +1,5 @@
 
-lychee.define('Viewport').tags({
+lychee.define('lychee.Viewport').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
@@ -411,7 +411,7 @@ lychee.define('Viewport').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

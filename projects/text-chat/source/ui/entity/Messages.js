@@ -111,7 +111,7 @@ lychee.define('app.ui.entity.Messages').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -132,6 +132,8 @@ lychee.define('app.ui.entity.Messages').requires([
 
 
 		_Entity.call(this, settings);
+
+		settings = null;
 
 
 

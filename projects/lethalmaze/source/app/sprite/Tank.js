@@ -1,5 +1,6 @@
 
 lychee.define('game.app.sprite.Tank').requires([
+	'lychee.app.Entity',
 	'lychee.effect.Position'
 ]).includes([
 	'lychee.app.Sprite'
@@ -24,7 +25,7 @@ lychee.define('game.app.sprite.Tank').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -97,7 +98,6 @@ lychee.define('game.app.sprite.Tank').requires([
 
 
 			let settings = data['arguments'][0] || {};
-			// let blob     = data['blob'] || {};
 
 
 			if (this.ammo !== 16)         settings.ammo      = this.ammo;

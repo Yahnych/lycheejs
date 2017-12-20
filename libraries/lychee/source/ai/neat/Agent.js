@@ -1,8 +1,9 @@
 
-lychee.define('lychee.ai.neat.Agent').includes([
-	'lychee.ai.Agent'
-]).requires([
+lychee.define('lychee.ai.neat.Agent').requires([
+	'lychee.ai.neat.Brain',
 	'lychee.ai.neat.Genome'
+]).includes([
+	'lychee.ai.Agent'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Agent            = lychee.import('lychee.ai.Agent');
@@ -20,7 +21,7 @@ lychee.define('lychee.ai.neat.Agent').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

@@ -1,5 +1,6 @@
 
 lychee.define('harvester.mod.Beautifier').requires([
+	'harvester.data.Package',
 	'harvester.data.Project'
 ]).exports(function(lychee, global, attachments) {
 
@@ -39,6 +40,12 @@ lychee.define('harvester.mod.Beautifier').requires([
 		let files = [];
 
 
+		// _walk_directory.call(project.filesystem, '/bin', files);
+		// _walk_directory.call(project.filesystem, '/api', files);
+		// _walk_directory.call(project.filesystem, '/asset', files);
+		// _walk_directory.call(project.filesystem, '/build', files);
+
+		_walk_directory.call(project.filesystem, '/review', files);
 		_walk_directory.call(project.filesystem, '/source', files);
 
 
@@ -52,12 +59,11 @@ lychee.define('harvester.mod.Beautifier').requires([
 		let name = path.split('/').pop();
 
 		let info = this.info(path);
-		if (info !== null && name.substr(0, 1) !== '.') {
+		if (info !== null && name.startsWith('.') === false) {
 
 			if (info.type === 'file') {
 
-				let ext = name.split('.').pop();
-				if (ext === 'json') {
+				if (name.endsWith('.json')) {
 					cache.push(path);
 				}
 
@@ -138,7 +144,7 @@ lychee.define('harvester.mod.Beautifier').requires([
 					if (files.length > 0) {
 
 						files.filter(function(path) {
-							return path.split('.').pop() === 'json';
+							return path.endsWith('.json');
 						}).forEach(function(path) {
 							_beautify_json(project, path);
 						});

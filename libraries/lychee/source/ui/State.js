@@ -193,13 +193,23 @@ lychee.define('lychee.ui.State').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(main) {
+	const Composite = function(main) {
+
+		this.__layers = {
+			ui: new _Layer()
+		};
+
+		this.__layers_map = [];
+
 
 		_State.call(this, main);
 
 
-		this.__layers.ui  = new _Layer();
-		this.__layers_map = Object.keys(this.__layers).sort();
+		// XXX: Make sure layers map contains "ui"
+		let ids = Object.keys(this.__layers).sort();
+		if (ids.length > 0) {
+			this.__layers_map = ids;
+		}
 
 
 		_INSTANCES.push(this);

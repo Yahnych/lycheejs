@@ -5,14 +5,10 @@
 	"build": {
 		"environments": {
 			"html-nwjs/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -20,6 +16,7 @@
 						"html"
 					]
 				},
+				"target": "app.Main",
 				"variant": "application",
 				"profile": {
 					"client": "/api/server/connect?identifier=${id}",
@@ -27,14 +24,10 @@
 				}
 			},
 			"html-webview/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -42,6 +35,7 @@
 						"html"
 					]
 				},
+				"target": "app.Main",
 				"variant": "application",
 				"profile": {
 					"client": "/api/server/connect?identifier=${id}",
@@ -49,20 +43,17 @@
 				}
 			},
 			"html/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
+				"target": "app.Main",
 				"variant": "application",
 				"profile": {
 					"client": "/api/server/connect?identifier=${id}",
@@ -70,26 +61,27 @@
 				}
 			},
 			"node/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "app.Main",
 				"variant": "application",
 				"profile": {
 					"client": null
 				}
 			}
 		},
+		"files": {}
+	},
+	"review": {
+		"environments": {},
 		"files": {}
 	},
 	"source": {

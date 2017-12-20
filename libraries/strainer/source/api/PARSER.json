@@ -249,6 +249,20 @@
 		]
 	},
 	{
+		"chunk": "_validate_environment(environment)",
+		"types": [ "lychee.Environment", "lychee.Simulation" ],
+		"values": [
+			{
+				"constructor": "lychee.Environment",
+				"arguments": []
+			},
+			{
+				"constructor": "lychee.Simulation",
+				"arguments": []
+			}
+		]
+	},
+	{
 		"chunk": "entity",
 		"types": [ "lychee.app.Entity", "lychee.ui.Entity" ],
 		"values": [
@@ -424,6 +438,11 @@
 		"chunk": "radius",
 		"type": "Number",
 		"value": 137
+	},
+	{
+		"chunk": "Date.now()",
+		"type": "Number",
+		"value": 1333333333337
 	},
 	{
 		"chunk": "Math.pow",

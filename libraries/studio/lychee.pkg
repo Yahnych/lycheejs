@@ -45,6 +45,9 @@
 				],
 				"Project": [
 					"json"
+				],
+				"Scene": [
+					"json"
 				]
 			},
 			"ui": {
@@ -67,6 +70,11 @@
 						"Sprite": [
 							"json"
 						]
+					},
+					"select": {
+						"Scene": [
+							"json"
+						]
 					}
 				},
 				"entity": {
@@ -82,18 +90,15 @@
 	"build": {
 		"environments": {
 			"html-nwjs/main": {
-				"build": "studio.Main",
 				"debug": false,
-				"packages": [
-					[
-						"studio",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"studio": "./lychee.pkg"
+				},
+				"profile": {
+					"client": "http://localhost:4848/api/server/connect?identifier=/libraries/studio",
+					"server": "http://localhost:4848/api/server/connect?identifier=/libraries/studio"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -101,103 +106,76 @@
 						"html"
 					]
 				},
-				"variant": "application",
-				"profile": {
-					"client": "http://localhost:4848/api/server/connect?identifier=/libraries/studio",
-					"server": "http://localhost:4848/api/server/connect?identifier=/libraries/studio"
-				}
+				"target": "studio.Main",
+				"variant": "application"
 			},
 			"html/dist": {
-				"build": "studio.Main",
 				"debug": false,
-				"packages": [
-					[
-						"studio",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"studio": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
+				"target": "studio.Main",
 				"variant": "library"
 			},
 			"html/main": {
-				"build": "studio.Main",
 				"debug": false,
-				"packages": [
-					[
-						"studio",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"studio": "./lychee.pkg"
+				},
+				"profile": {
+					"client": "http://localhost:4848/api/server/connect?identifier=/libraries/studio",
+					"server": null
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
-				"variant": "application",
-				"profile": {
-					"client": "http://localhost:4848/api/server/connect?identifier=/libraries/studio",
-					"server": null
-				}
+				"target": "studio.Main",
+				"variant": "application"
 			},
 			"node/dist": {
-				"build": "studio.Main",
 				"debug": false,
-				"packages": [
-					[
-						"studio",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"studio": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "studio.Main",
 				"variant": "library"
 			},
 			"node/main": {
-				"build": "studio.Main",
 				"debug": false,
-				"packages": [
-					[
-						"studio",
-						"./lychee.pkg"
-					],
-					[
-						"harvester",
-						"/libraries/harvester/lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "/libraries/harvester/lychee.pkg",
+					"studio": "./lychee.pkg"
+				},
+				"profile": {
+					"client": null,
+					"renderer": null
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
-				"variant": "application",
-				"profile": {
-					"client": null,
-					"renderer": null
-				}
+				"target": "studio.Main",
+				"variant": "application"
 			}
 		},
 		"files": {
@@ -215,8 +193,10 @@
 					]
 				}
 			}
-		},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},
@@ -267,6 +247,10 @@
 				"Project": [
 					"js",
 					"json"
+				],
+				"Scene": [
+					"js",
+					"json"
 				]
 			},
 			"ui": {
@@ -287,6 +271,11 @@
 							"js"
 						],
 						"Sprite": [
+							"js"
+						]
+					},
+					"select": {
+						"Scene": [
 							"js"
 						]
 					}

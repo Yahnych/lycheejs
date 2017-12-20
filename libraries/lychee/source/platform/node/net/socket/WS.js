@@ -208,12 +208,11 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	const _upgrade_client = function(host, port, nonce) {
 
-		// let that       = this;
 		let handshake  = '';
 		let identifier = lychee.ROOT.project;
 
 
-		if (identifier.substr(0, lychee.ROOT.lychee.length) === lychee.ROOT.lychee) {
+		if (identifier.startsWith(lychee.ROOT.lychee)) {
 			identifier = lychee.ROOT.project.substr(lychee.ROOT.lychee.length + 1);
 		}
 
@@ -331,7 +330,7 @@ lychee.define('lychee.net.socket.WS').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function() {
+	const Composite = function() {
 
 		this.__connection = null;
 		this.__protocol   = null;
@@ -374,7 +373,6 @@ lychee.define('lychee.net.socket.WS').tags({
 
 
 			let that = this;
-			// let url  = /:/g.test(host) ? ('ws://[' + host + ']:' + port) : ('ws://' + host + ':' + port);
 
 
 			if (host !== null && port !== null) {

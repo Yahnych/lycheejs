@@ -1,6 +1,5 @@
 
 lychee.define('strainer.Main').requires([
-	'lychee.Input',
 	'strainer.flow.Check'
 ]).includes([
 	'lychee.event.Emitter'
@@ -8,7 +7,6 @@ lychee.define('strainer.Main').requires([
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');
-	const _Input   = lychee.import('lychee.Input');
 	const _flow    = lychee.import('strainer.flow');
 
 
@@ -17,7 +15,7 @@ lychee.define('strainer.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(settings) {
+	const Composite = function(settings) {
 
 		this.settings = _lychee.assignunlink({
 			action:  null,

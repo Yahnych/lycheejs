@@ -98,49 +98,82 @@ lychee.define('harvester.mod.Packager').requires([
 
 		}
 
-		if (json === null)                      json        = {};
-		if (typeof json.api    === 'undefined') json.api    = {};
-		if (typeof json.build  === 'undefined') json.build  = {};
-		if (typeof json.source === 'undefined') json.source = {};
 
-		json.api.files    = {};
-		json.build.files  = {};
-		json.source.files = {};
+		if (json === null)                                   json                     = {};
+		if (typeof json.api === 'undefined')                 json.api                 = {};
+		if (typeof json.api.files === 'undefined')           json.api.files           = {};
+		if (typeof json.build  === 'undefined')              json.build               = {};
+		if (typeof json.build.environments === 'undefined')  json.build.environments  = {};
+		if (typeof json.build.files === 'undefined')         json.build.files         = {};
+		if (typeof json.review === 'undefined')              json.review              = {};
+		if (typeof json.review.environments === 'undefined') json.review.environments = {};
+		if (typeof json.review.files === 'undefined')        json.review.files        = {};
+		if (typeof json.source === 'undefined')              json.source              = {};
+		if (typeof json.source.environments === 'undefined') json.source.environments = {};
+		if (typeof json.source.files === 'undefined')        json.source.files        = {};
+		if (typeof json.source.tags === 'undefined')         json.source.tags         = {};
 
+
+		if (typeof json.api.environments !== 'undefined')    delete json.api.environments;
+		if (typeof json.api.tags !== 'undefined')            delete json.api.tags;
+		if (typeof json.build.tags !== 'undefined')          delete json.build.tags;
+		if (typeof json.review.tags !== 'undefined')         delete json.review.tags;
+
+
+		json.api.files = {};
 		_walk_directory.call(project.filesystem, tmp, '/api');
+		json.api.files = _sort_recursive(tmp.api);
+
+		json.build.files = {};
 		_walk_directory.call(project.filesystem, tmp, '/build');
+		json.build.environments = _sort_recursive(json.build.environments);
+		json.build.files        = _sort_recursive(tmp.build);
+
+		json.review.files = {};
+		_walk_directory.call(project.filesystem, tmp, '/review');
+		json.review.simulations = _sort_recursive(json.review.simulations);
+		json.review.files       = _sort_recursive(tmp.review);
+
+		json.source.files = {};
 		_walk_directory.call(project.filesystem, tmp, '/source');
-
-		json.api.files    = tmp.api    || {};
-		json.build.files  = tmp.build  || {};
-		json.source.files = tmp.source || {};
-
-		json.api.files    = _sort_recursive(json.api.files);
-		json.build.files  = _sort_recursive(json.build.files);
-		json.source.files = _sort_recursive(json.source.files);
-
-		json.build.tags   = _walk_tags(json.build.files);
-		json.source.tags  = _walk_tags(json.source.files);
+		json.source.environments = _sort_recursive(json.source.environments);
+		json.source.simulations  = _sort_recursive(json.source.simulations);
+		json.source.files        = _sort_recursive(tmp.source);
+		json.source.tags         = _walk_tags(json.source.files);
 
 
 		return {
 			api:    json.api,
 			build:  json.build,
+			review: json.review,
 			source: json.source
 		};
 
 	};
 
-	const _sort_recursive = function(obj) {
+	const _sort_recursive = function(obj, name) {
 
 		if (obj instanceof Array) {
 
-			return obj.sort();
+			if (name === 'platform') {
+
+				// XXX: platform: [ 'html-webview', 'html' ] is wanted
+				return obj.sort(function(a, b) {
+					if (a.includes('-') && !b.includes('-')) return -1;
+					if (b.includes('-') && !a.includes('-')) return  1;
+					return 0;
+				});
+
+			} else {
+
+				return obj.sort();
+
+			}
 
 		} else if (obj instanceof Object) {
 
 			for (let prop in obj) {
-				obj[prop] = _sort_recursive(obj[prop]);
+				obj[prop] = _sort_recursive(obj[prop], prop);
 			}
 
 			return Object.sort(obj);
@@ -177,7 +210,7 @@ lychee.define('harvester.mod.Packager').requires([
 		let name = path.split('/').pop();
 
 		let info = this.info(path);
-		if (info !== null && name.substr(0, 1) !== '.') {
+		if (info !== null && name.startsWith('.') === false) {
 
 			if (info.type === 'file') {
 
@@ -192,7 +225,7 @@ lychee.define('harvester.mod.Packager').requires([
 					ext        = attachment.split('.').pop();
 				}
 
-				if (/(msc|snd|js|json|fnt|png|md|tpl)$/.test(ext) || path.substr(0, 7) === '/source') {
+				if (/(msc|snd|js|json|fnt|png|md|tpl)$/.test(ext)) {
 
 					if (pointer[identifier] instanceof Array) {
 

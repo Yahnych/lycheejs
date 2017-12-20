@@ -54,7 +54,7 @@
 
 
 			let tmp3 = selfpath.split('/').slice(0, 3).join('/');
-			if (tmp3.substr(0, 13) === '/opt/lycheejs') {
+			if (tmp3.startsWith('/opt/lycheejs')) {
 				lychee.ROOT.lychee = tmp3;
 			}
 
@@ -65,7 +65,7 @@
 
 		}
 
-	})(global.location || {}, (document.currentScript || {}).src || '');
+	})(global.location || {}, (global.document.currentScript || {}).src || '');
 
 
 	Buffer.isBuffer = function(buffer) {
@@ -79,34 +79,6 @@
 		return false;
 
 	};
-
-
-
-	/*
-	 * FEATURES
-	 */
-
-	// XXX: This is an incremental platform of 'html'
-
-	const _FEATURES = {
-
-		require: function(id) {
-
-			if (id === 'child_process') return {};
-			if (id === 'fs')            return {};
-			if (id === 'http')          return {};
-			if (id === 'https')         return {};
-			if (id === 'net')           return {};
-			if (id === 'path')          return {};
-
-
-			throw new Error('Cannot find module \'' + id + '\'');
-
-		}
-
-	};
-
-	Object.assign(lychee.Environment.__FEATURES, _FEATURES);
 
 })(this.lychee, this);
 

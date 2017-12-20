@@ -48,6 +48,22 @@ lychee.define('harvester.data.Package').exports(function(lychee, global, attachm
 			}
 
 
+			if (json.review instanceof Object) {
+
+				if (json.review.files instanceof Object) {
+					_walk_directory(this.review, json.review.files, '');
+				}
+
+			} else {
+
+				json.review = {
+					environments: {},
+					files:        {}
+				};
+
+			}
+
+
 			if (json.source instanceof Object) {
 
 				if (json.source.files instanceof Object) {
@@ -115,7 +131,7 @@ lychee.define('harvester.data.Package').exports(function(lychee, global, attachm
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -124,6 +140,7 @@ lychee.define('harvester.data.Package').exports(function(lychee, global, attachm
 
 		this.api    = [];
 		this.build  = [];
+		this.review = [];
 		this.source = [];
 		this.json   = {};
 

@@ -11,20 +11,17 @@
 
 	(function(process, selfpath) {
 
-		let cwd  = typeof process.cwd === 'function' ? process.cwd() : '';
 		let tmp1 = selfpath.indexOf('/libraries/lychee');
-
 		if (tmp1 !== -1) {
 			lychee.ROOT.lychee = selfpath.substr(0, tmp1);
 		}
 
-
 		let tmp2 = selfpath.split('/').slice(0, 3).join('/');
-		if (tmp2.substr(0, 13) === '/opt/lycheejs') {
+		if (tmp2.startsWith('/opt/lycheejs')) {
 			lychee.ROOT.lychee = tmp2;
 		}
 
-
+		let cwd = typeof process.cwd === 'function' ? process.cwd() : '';
 		if (cwd !== '') {
 			lychee.ROOT.project = cwd;
 		}
@@ -513,10 +510,10 @@
 
 			let methods = [];
 
-			if (consol)  methods.push('console');
-			if (audio)   methods.push('Audio');
-			if (buffer)  methods.push('Buffer');
-			if (image)   methods.push('Image');
+			if (consol) methods.push('console');
+			if (audio)  methods.push('Audio');
+			if (buffer) methods.push('Buffer');
+			if (image)  methods.push('Image');
 
 			if (methods.length === 0) {
 				console.error('bootstrap.js: Supported methods are NONE');
@@ -812,8 +809,8 @@
 
 		this.baseline   = 0;
 		this.charset    = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-		this.spacing    = 0;
 		this.kerning    = 0;
+		this.spacing    = 0;
 		this.lineheight = 1;
 
 		this.__buffer   = null;
@@ -887,7 +884,7 @@
 
 		measure: function(text) {
 
-			text = typeof text === 'string' ? text : null;
+			text = typeof text === 'string' ? text : '';
 
 
 			let buffer = this.__buffer;
@@ -1472,7 +1469,7 @@
 		this.__load = true;
 
 
-		if (url !== null && url.substr(0, 10) !== 'data:image') {
+		if (url !== null && url.startsWith('data:image') === false) {
 
 			if (_TEXTURE_CACHE[url] !== undefined) {
 				_clone_texture(_TEXTURE_CACHE[url], this);
@@ -1492,6 +1489,7 @@
 			if (typeof blob.buffer === 'string') {
 				this.buffer = new Buffer(blob.buffer.substr(22), 'base64');
 				this.__load = false;
+
 			}
 
 		},
@@ -1529,9 +1527,9 @@
 
 
 			let url = this.url;
-			if (url.substr(0, 5) === 'data:') {
+			if (url.startsWith('data:')) {
 
-				if (url.substr(0, 15) === 'data:image/png;') {
+				if (url.startsWith('data:image/png;')) {
 
 					let b64data = url.substr(15, url.length - 15);
 					this.buffer = new Buffer(b64data, 'base64');
@@ -1559,7 +1557,7 @@
 
 			} else {
 
-				if (url.split('.').pop() === 'png') {
+				if (url.endsWith('.png')) {
 
 					_load_asset({
 						url:      url,
@@ -1629,13 +1627,13 @@
 
 	const _execute_stuff = function(callback, stuff) {
 
-		let type = stuff.url.split('/').pop().split('.').pop();
-		if (type === 'js' && stuff.__ignore === false) {
+		let url = stuff.url;
+		if (url.endsWith('.js') && stuff.__ignore === false) {
 
-			_filename = stuff.url;
+			_filename = url;
 
 
-			let cid = lychee.environment.resolve(stuff.url);
+			let cid = lychee.environment.resolve(url);
 			if (require.cache[cid] !== undefined) {
 				delete require.cache[cid];
 			}
@@ -1702,11 +1700,10 @@
 		serialize: function() {
 
 			let blob = {};
-			let type = this.url.split('/').pop().split('.').pop();
 			let mime = 'application/octet-stream';
 
 
-			if (type === 'js') {
+			if (this.url.endsWith('.js')) {
 				mime = 'application/javascript';
 			}
 
@@ -1773,66 +1770,11 @@
 
 
 	/*
-	 * FEATURES
-	 */
-
-	const _FEATURES = {
-
-		require: function(id) {
-
-			if (id === 'child_process') return {};
-			if (id === 'fs')            return {};
-			if (id === 'http')          return {};
-			if (id === 'https')         return {};
-			if (id === 'net')           return {};
-			if (id === 'path')          return {};
-
-
-			throw new Error('Cannot find module \'' + id + '\'');
-
-		},
-
-		process: {
-			env: {
-				APPDATA: null,
-				HOME:    '/home/dev'
-			},
-			stdin: {
-				on: function() {}
-			},
-			stdout: {
-				on:    function() {},
-				write: function() {}
-			}
-		},
-
-		clearInterval: function() {},
-		clearTimeout:  function() {},
-		setInterval:   function() {},
-		setTimeout:    function() {}
-
-	};
-
-
-	Object.defineProperty(lychee.Environment, '__FEATURES', {
-
-		get: function() {
-			return _FEATURES;
-		},
-
-		set: function(value) {
-			return false;
-		}
-
-	});
-
-
-
-	/*
 	 * EXPORTS
 	 */
 
-	// global.Buffer  = Buffer; // Not necessary, node.js data type
+	// XXX: Buffer is node data type
+	// global.Buffer  = Buffer;
 	global.Config  = Config;
 	global.Font    = Font;
 	global.Music   = Music;
@@ -1842,7 +1784,7 @@
 	global.require = require;
 
 
-	Object.defineProperty(lychee.Environment, '__FILENAME', {
+	Object.defineProperty(lychee, 'FILENAME', {
 
 		get: function() {
 

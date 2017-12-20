@@ -16,7 +16,7 @@ lychee.define('game.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({
 
@@ -50,6 +50,13 @@ lychee.define('game.Main').requires([
 
 		_Main.call(this, settings);
 
+		settings = null;
+
+
+
+		/*
+		 * INITIALIZATION
+		 */
 
 		this.bind('load', function(oncomplete) {
 
