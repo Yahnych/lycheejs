@@ -108,6 +108,9 @@
 				"BITON": [
 					"json"
 				],
+				"DIXY": [
+					"json"
+				],
 				"JSON": [
 					"json"
 				]
@@ -126,6 +129,12 @@
 					"json"
 				],
 				"Package": [
+					"json"
+				],
+				"Simulation": [
+					"json"
+				],
+				"Specification": [
 					"json"
 				],
 				"lychee": [
@@ -568,20 +577,11 @@
 	},
 	"build": {
 		"environments": {
-			"html/dist": {
-				"build": "lychee.DIST",
-				"debug": false,
-				"sandbox": false,
-				"tags": {
-					"platform": [
-						"html"
-					]
-				},
-				"variant": "library"
-			},
 			"html-nwjs/dist": {
-				"build": "lychee.DIST",
 				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -589,11 +589,14 @@
 						"html"
 					]
 				},
+				"target": "lychee.DIST",
 				"variant": "library"
 			},
 			"html-webview/dist": {
-				"build": "lychee.DIST",
 				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -601,22 +604,28 @@
 						"html"
 					]
 				},
+				"target": "lychee.DIST",
 				"variant": "library"
 			},
-			"node/dist": {
-				"build": "lychee.DIST",
+			"html/dist": {
 				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
-						"node"
+						"html"
 					]
 				},
+				"target": "lychee.DIST",
 				"variant": "library"
 			},
 			"node-sdl/dist": {
-				"build": "lychee.DIST",
 				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -624,6 +633,21 @@
 						"node"
 					]
 				},
+				"target": "lychee.DIST",
+				"variant": "library"
+			},
+			"node/dist": {
+				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "lychee.DIST",
 				"variant": "library"
 			}
 		},
@@ -673,8 +697,17 @@
 					"js"
 				]
 			}
+		}
+	},
+	"review": {
+		"files": {
+			"core": {
+				"Definition": [
+					"js"
+				]
+			}
 		},
-		"tags": {}
+		"environments": {}
 	},
 	"source": {
 		"environments": {},
@@ -801,6 +834,9 @@
 				"BITON": [
 					"js"
 				],
+				"DIXY": [
+					"js"
+				],
 				"JSON": [
 					"js"
 				]
@@ -819,6 +855,12 @@
 					"js"
 				],
 				"Package": [
+					"js"
+				],
+				"Simulation": [
+					"js"
+				],
+				"Specification": [
 					"js"
 				],
 				"lychee": [
@@ -1006,6 +1048,9 @@
 					"bootstrap": [
 						"js"
 					],
+					"features": [
+						"js"
+					],
 					"net": {
 						"Server": [
 							"js"
@@ -1045,6 +1090,9 @@
 					"bootstrap": [
 						"js"
 					],
+					"features": [
+						"js"
+					],
 					"net": {
 						"Server": [
 							"js"
@@ -1074,6 +1122,9 @@
 				"html-webview": {
 					"bootstrap": [
 						"js"
+					],
+					"features": [
+						"js"
 					]
 				},
 				"node": {
@@ -1093,6 +1144,9 @@
 						"js"
 					],
 					"bootstrap": [
+						"js"
+					],
+					"features": [
 						"js"
 					],
 					"net": {
@@ -1126,6 +1180,9 @@
 				},
 				"node-sdl": {
 					"bootstrap": [
+						"js"
+					],
+					"features": [
 						"js"
 					]
 				}

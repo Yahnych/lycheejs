@@ -1,6 +1,5 @@
 
 lychee.define('harvester.Main').requires([
-	'lychee.Input',
 	'harvester.net.Admin',
 	'harvester.net.Server',
 	'harvester.Watcher'
@@ -67,7 +66,21 @@ lychee.define('harvester.Main').requires([
 
 		} else if (/:/g.test(host) === true) {
 
-			// TODO: Detect private IPv6 ranges?
+			let tmp = host.split(':');
+			if (tmp[0] !== '') {
+
+				let tmp2 = parseInt(tmp[0], 16);
+				if (tmp2 === 64512) {
+
+					return false;
+
+				} else if (tmp2 >= 65152 && tmp2 <= 65215) {
+
+					return false;
+
+				}
+
+			}
 
 		} else if (/\./g.test(host) === true) {
 
@@ -103,7 +116,7 @@ lychee.define('harvester.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(settings) {
+	const Composite = function(settings) {
 
 		this.settings = lychee.assignunlink({
 			host: null,
@@ -294,7 +307,6 @@ lychee.define('harvester.Main').requires([
 		getHosts: function() {
 
 			let filtered = [];
-
 
 			let server = this.server;
 			if (server !== null) {

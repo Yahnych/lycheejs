@@ -51,38 +51,60 @@
 	"build": {
 		"environments": {
 			"node-sdl/dist": {
-				"build": "strainer.Main",
 				"debug": false,
-				"packages": [
-					[
-						"strainer",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "strainer.Main",
 				"variant": "library"
 			},
 			"node/dist": {
-				"build": "strainer.Main",
 				"debug": false,
-				"packages": [
-					[
-						"strainer",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "strainer.Main",
 				"variant": "library"
+			},
+			"node/fixer": {
+				"debug": false,
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
+				"sandbox": true,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "strainer.Fixer",
+				"variant": "application"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
+				"sandbox": true,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "strainer.Main",
+				"variant": "application"
 			}
 		},
 		"files": {
@@ -100,8 +122,10 @@
 					]
 				}
 			}
-		},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

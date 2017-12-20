@@ -1,5 +1,5 @@
 
-lychee.define('Renderer').tags({
+lychee.define('lychee.Renderer').tags({
 	platform: 'node'
 }).supports(function(lychee, global) {
 
@@ -35,6 +35,12 @@ lychee.define('Renderer').tags({
 		}
 
 	};
+
+
+
+	/*
+	 * STRUCTS
+	 */
 
 	const _Buffer = function(width, height) {
 
@@ -97,7 +103,7 @@ lychee.define('Renderer').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -147,11 +153,11 @@ lychee.define('Renderer').tags({
 			let settings = {};
 
 
-			if (this.alpha !== 1.0)                           settings.alpha      = this.alpha;
-			if (this.background !== '#000000')                settings.background = this.background;
-			if (this.id.substr(0, 16) !== 'lychee-Renderer-') settings.id         = this.id;
-			if (this.width !== null)                          settings.width      = this.width;
-			if (this.height !== null)                         settings.height     = this.height;
+			if (this.alpha !== 1.0)                               settings.alpha      = this.alpha;
+			if (this.background !== '#000000')                    settings.background = this.background;
+			if (this.id.startsWith('lychee-Renderer-') === false) settings.id         = this.id;
+			if (this.width !== null)                              settings.width      = this.width;
+			if (this.height !== null)                             settings.height     = this.height;
 
 
 			return {

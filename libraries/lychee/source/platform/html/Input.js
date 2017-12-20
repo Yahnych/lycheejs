@@ -1,5 +1,5 @@
 
-lychee.define('Input').tags({
+lychee.define('lychee.Input').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
@@ -610,7 +610,7 @@ lychee.define('Input').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

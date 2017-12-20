@@ -11,7 +11,9 @@ lychee.define('lychee.ai.neat.Pool').exports(function(lychee, global, attachment
 
 	};
 
-	let Composite = function(data) {
+	const Composite = function(data) {
+
+		let settings = Object.assign({}, data);
 
 		this.species = [];
 		this.generation = 0;
@@ -20,6 +22,8 @@ lychee.define('lychee.ai.neat.Pool').exports(function(lychee, global, attachment
 		this.currentGenome = 1;
 		this.currentFrame = 0;
 		this.maxFitness = 0;
+
+		settings = null;
 
 	};
 

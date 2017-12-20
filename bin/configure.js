@@ -263,11 +263,13 @@
 		return files.map(function(value) {
 			return value.substr(1);
 		}).filter(function(value) {
-			return value.substr(0, 4) !== 'core' && value.substr(0, 8) !== 'platform';
+			return value.startsWith('core') === false;
+		}).filter(function(value) {
+			return value.startsWith('platform') === false;
 		}).map(function(value) {
 			return 'lychee.' + value.split('.')[0].split('/').join('.');
 		}).filter(function(value) {
-			return value.indexOf('__') === -1;
+			return value.includes('__') === false;
 		});
 
 	};
@@ -349,12 +351,15 @@
 
 				require(_path.resolve(_ROOT, './libraries/lychee/source/core/lychee.js'));
 				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Asset.js'));
+				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Package.js'));
 				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Definition.js'));
 				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Environment.js'));
-				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Package.js'));
+				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Specification.js'));
+				require(_path.resolve(_ROOT, './libraries/lychee/source/core/Simulation.js'));
+				require(_path.resolve(_ROOT, './libraries/lychee/source/platform/node/features.js'));
 				require(_path.resolve(_ROOT, './libraries/lychee/source/platform/node/bootstrap.js'));
 
-				lychee.envinit(null);
+				lychee.init(null);
 
 			} catch (err) {
 
@@ -434,16 +439,14 @@
 		let code = (function () {/*
 			lychee.define('lychee.DIST').requires([{{requires}}]).exports(function(lychee, global, attachments) {
 
-				let Composite = function() {};
-
-				Composite.prototype = {
+				const Module = {
 
 					// deserialize: function(blob) {},
 
 					serialize: function() {
 
 						return {
-							'constructor': 'lychee.DIST',
+							'reference': 'lychee.DIST',
 							'arguments': []
 						};
 
@@ -451,7 +454,7 @@
 
 				};
 
-				return Composite;
+				return Module;
 
 			});
 
@@ -542,7 +545,89 @@
 
 
 	/*
-	 * 2: PLATFORM GENERATION (ASYNC)
+	 * 3. PLATFORM DETECTION (SYNC)
+	 */
+
+	(function() {
+
+		let errors = 0;
+
+		console.log('Injecting lychee.js Fertilizer Platforms');
+
+
+		let platforms = Object.keys(_PACKAGE.source.tags.platform);
+		if (platforms.length > 0) {
+
+			_CORE += '\n';
+			_CORE += JSON.stringify(platforms) + '.forEach(function(platform) {\n';
+			_CORE += '\tif (lychee.PLATFORMS.includes(platform) === false) {\n';
+			_CORE += '\t\tlychee.PLATFORMS.push(platform);\n';
+			_CORE += '\t}\n';
+			_CORE += '});\n';
+			_CORE += '\n';
+
+		}
+
+		if (errors === 0) {
+			console.info('SUCCESS');
+		} else {
+			console.error('FAILURE');
+			_process.exit(1);
+		}
+
+	})();
+
+
+
+	/*
+	 * 3: FEATURE DETECTION (SYNC)
+	 */
+
+	(function() {
+
+		let errors = 0;
+
+
+		console.log('Injecting lychee.js Fertilizer Features');
+
+
+		let platforms = Object.keys(_PACKAGE.source.tags.platform);
+		if (platforms.length > 0) {
+
+			platforms.forEach(function(platform) {
+
+				let code = null;
+				let path = _path.resolve(_ROOT, './libraries/lychee/source/platform/' + platform + '/features.js');
+
+				try {
+					code = _fs.readFileSync(path, 'utf8');
+				} catch (err) {
+					code = null;
+					errors++;
+				}
+
+				if (code !== null) {
+					_CORE += code;
+				}
+
+			});
+
+		}
+
+
+		if (errors === 0) {
+			console.info('SUCCESS');
+		} else {
+			console.error('FAILURE');
+			_process.exit(1);
+		}
+
+	})();
+
+
+
+	/*
+	 * 4: PLATFORM GENERATION (ASYNC)
 	 */
 
 	(function() {
@@ -552,15 +637,20 @@
 			return value.substr(0, 8) === 'platform' && value.substr(-3) !== '.js';
 		});
 		let bootstrap = {};
-		let files     = _package_files(_PACKAGE).filter(function(value) {
-			return value.substr(0, 8) === 'platform' && value.indexOf('bootstrap.js') !== -1;
+
+		// XXX: This makes sure bootstrap.js comes first, always
+		let files = _package_files(_PACKAGE).filter(function(value) {
+			return value.startsWith('platform') && value.endsWith('bootstrap.js');
 		}).concat(_package_files(_PACKAGE).filter(function(value) {
-			return value.substr(0, 8) === 'platform' && value.indexOf('bootstrap.js') === -1;
+			return value.startsWith('platform') && value.endsWith('bootstrap.js') === false;
+		}).filter(function(value) {
+			return value.startsWith('platform') && value.endsWith('features.js') === false;
 		}).sort(function(a, b) {
 			if (a > b) return  1;
 			if (a < b) return -1;
 			return 0;
 		}));
+
 		let platforms = Object.keys(_PACKAGE.source.tags.platform).filter(function(platform) {
 			return _PLATFORM !== null ? platform === _PLATFORM : true;
 		});

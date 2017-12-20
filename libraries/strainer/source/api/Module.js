@@ -57,7 +57,10 @@ lychee.define('strainer.api.Module').requires([
 
 	};
 
-	const _find_reference = function(chunk, stream) {
+	const _find_reference = function(chunk, stream, fuzzy) {
+
+		fuzzy = fuzzy === true;
+
 
 		let ref = {
 			chunk:  '',
@@ -67,7 +70,13 @@ lychee.define('strainer.api.Module').requires([
 
 		let lines = stream.split('\n');
 		let line  = lines.findIndex(function(other) {
-			return other.trim() === chunk.trim();
+
+			if (fuzzy === true) {
+				return other.includes(chunk.trim());
+			} else {
+				return other.trim() === chunk.trim();
+			}
+
 		});
 
 		if (line !== -1) {
@@ -459,9 +468,10 @@ lychee.define('strainer.api.Module').requires([
 
 		},
 
-		check: function(asset) {
+		check: function(asset, header) {
 
-			asset = _validate_asset(asset) === true ? asset : null;
+			asset  = _validate_asset(asset) === true ? asset  : null;
+			header = header instanceof Object        ? header : {};
 
 
 			let errors = [];
@@ -484,25 +494,51 @@ lychee.define('strainer.api.Module').requires([
 				_parse_properties(result.properties, stream, errors);
 
 
-				if (
-					result.methods['serialize'] === undefined
-					|| result.methods['deserialize'] === undefined
-				) {
+				let ref = _find_reference('\n\tconst Module = {', stream, true);
+				if (ref.chunk === '') {
 
-					let ref = _find_reference('\n\tconst Module = {', stream);
+					ref = _find_reference('Module =', stream, true);
 
-					if (result.methods['serialize'] === undefined) {
+					errors.push({
+						url:       null,
+						rule:      'no-module',
+						reference: 'constructor',
+						message:   'Module is not constant (missing "const" declaration).',
+						line:      ref.line,
+						column:    ref.column
+					});
 
-						errors.push({
-							url:       null,
-							rule:      'no-serialize',
-							reference: 'serialize',
-							message:   'No "serialize()" method.',
-							line:      ref.line,
-							column:    ref.column
-						});
+				}
+
+
+				for (let name in memory) {
+
+					let entry = memory[name];
+					if (entry.type === 'lychee.Definition') {
+
+						let id = entry.value.reference;
+						if (header.requires.includes(id) === false) {
+
+							errors.push({
+								url:       null,
+								rule:      'no-requires',
+								reference: name,
+								message:   'Invalid Definition (missing requires() entry for "' + id + '").',
+								line:      0,
+								column:    0
+							});
+
+						}
 
 					}
+
+				}
+
+
+				if (
+					result.methods['deserialize'] === undefined
+					|| result.methods['serialize'] === undefined
+				) {
 
 					if (result.methods['deserialize'] === undefined) {
 
@@ -511,6 +547,19 @@ lychee.define('strainer.api.Module').requires([
 							rule:      'no-deserialize',
 							reference: 'deserialize',
 							message:   'No "deserialize()" method.',
+							line:      ref.line,
+							column:    ref.column
+						});
+
+					}
+
+					if (result.methods['serialize'] === undefined) {
+
+						errors.push({
+							url:       null,
+							rule:      'no-serialize',
+							reference: 'serialize',
+							message:   'No "serialize()" method.',
 							line:      ref.line,
 							column:    ref.column
 						});

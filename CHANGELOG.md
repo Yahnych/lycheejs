@@ -20,6 +20,26 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
+## [2017-Q4] - 2017-12-20
+
+- **Changed**: lychee.pkg environment settings changes to `{ packages: { namespace: url }}`.
+- **Changed**: lychee.Definition has `export(sandbox)` method to be independent of lychee.Environment.
+- **Removed**: `lychee.pkginit()` and `lychee.envinit()`.
+- **Added**: `lychee.pkg(type, id, callback)` to ease up reusage of package-defined environments.
+- **Added**: `lychee.init(env, settings, callback)` to ease up initialization process.
+- **Added**: Platform-specific `feature.js` to allow feature detection that lychee.js Strainer understands.
+- **Added**: lychee.js Strainer supports platform-specific APIs via feature detection.
+- Changed: lychee.Package supports Composite syntax.
+- Added: lychee.js Strainer supports autofixes for lychee.Definition syntax.
+- Added: lychee.FEATURES represents feature detection.
+- Added: lychee.FILENAME represents current definition url.
+- Added: lychee.PLATFORMS represents supported platforms.
+- Added: lychee.Specification and lychee.Simulation to allow integration tests per-environment-sandbox.
+- Added: `lychee.blobof(template, blob)` allows validation of deserializations without memory usage.
+- Added: lychee.codec.DIXY supports DIXY format with JSON-compatible data types.
+- Fixed: lychee.codec.BENCODE supports JSON-compatible data types.
+
+
 ## [2017-Q3] - 2017-09-28
 
 - **Changed**: harvester.mod.Harvester supports proper git flow.
@@ -58,9 +78,9 @@ and `fixed`.
 - Added: lychee.app.Main supports auto-sync of Stash and Storage instances.
 - Added: Project Immune as an RTS Game demo.
 - Added: lychee.app.Layer `query()` method.
-- Added: `lychee.data.tree` Stack implementation.
+- Added: lychee.data.tree Stack implementation.
 - Fixed: `lychee.inject()` and `lychee.define()` supports proper mappings of packages.
-- Fixed: `lychee.ui.entity.Upload` supports file dialog correctly (Browser-Bug).
+- Fixed: lychee.ui.entity.Upload supports file dialog correctly (Browser-Bug).
 - Fixed: `Font.prototype.measure()` improves cache usage and temporary usage.
 
 
@@ -70,15 +90,15 @@ and `fixed`.
 - **Changed**: All helper scripts support the `LYCHEEJS_ROOT` environment variable.
 - **Added**: lychee.js Helper supports `run:platform/identifier` syntax.
 - **Added**: lychee.js Legacy Library as `/libraries/legacy`.
-- **Fixed**: `lychee.app.Sprite` and `lychee.ui.Sprite` renders effects correctly.
+- **Fixed**: lychee.app.Sprite and `lychee.ui.Sprite` renders effects correctly.
 - Changed: Project Pong refactor to fit AI-relevant requirements.
-- Added: `lychee.ai` Stack refactor to fit `NEAT` requirements.
-- Added: `lychee.policy` Stack implements feature vectorization adapters.
+- Added: lychee.ai Stack refactor to fit `NEAT` requirements.
+- Added: lychee.policy Stack implements feature vectorization adapters.
 - Added: Project Pong-BNN as a Backpropagated NN demo.
 - Added: Project Flappy-ENN as an Evolutionary NN demo.
 - Added: lychee.js Harvester synchronizes to `harvester.artificial.engineering`.
 - Added: lychee.js Harvester beautifies JSON files.
-- Fixed: `lychee.Stash` creates recursive directories correctly.
+- Fixed: lychee.Stash creates recursive directories correctly.
 - Fixed: `html` platform plays `Music` and `Sound` correctly via (new) Promise API.
 
 
@@ -91,8 +111,8 @@ and `fixed`.
 - Added: lychee.js Strainer supports ESLint and automated code-refactoring features.
 - Added: lychee.js Strainer understands `Callback`, `Composite` or `Module` API.
 - Added: lychee.js Harvester uses a Watcher and faster bootup cycle.
-- Added: `lychee.ai.enn` Stack implements a feed-forward NN architecture.
-- Added: `lychee.ai.bnn` Stack implements a backpropagated NN architecture.
+- Added: lychee.ai.enn Stack implements a feed-forward NN architecture.
+- Added: lychee.ai.bnn Stack implements a backpropagated NN architecture.
 - Fixed: lychee.js Fertilizer supports `html` Application Cache manifests.
 - Fixed: lychee.app.Main `changeState()` handles invalid states correctly.
 - Fixed: `html-nwjs` platform has correct peer-to-peer Networking.
@@ -133,7 +153,7 @@ and `fixed`.
 - **Changed**: Migrated all Libraries to `/libraries` folder.
 - **Changed**: Migrated all Projects to `/projects` folder.
 - **Changed**: lychee.game renamed to lychee.app Stack.
-- Changed: Renamed `sorbet` Project to lychee.js Harvester`.
+- Changed: Renamed `sorbet` Project to lychee.js Harvester.
 - Changed: Project Lethalmaze as multiplayer tank game.
 - Changed: Project Boilerplate is compatible with AI.
 - Added: lychee.js Harvester is a reusable library and project.
@@ -152,7 +172,8 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...HEAD)
+- [2017-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...2017-Q4)
 - [2017-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q2...2017-Q3)
 - [2017-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q1...2017-Q2)
 - [2017-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2016-Q4...2017-Q1)

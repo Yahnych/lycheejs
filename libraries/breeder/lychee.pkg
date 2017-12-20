@@ -12,14 +12,11 @@
 	"build": {
 		"environments": {
 			"node-sdl/dist": {
-				"build": "breeder.Main",
 				"debug": false,
-				"packages": [
-					[
-						"breeder",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"breeder": "./lychee.pkg",
+					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -27,24 +24,38 @@
 						"node"
 					]
 				},
+				"target": "breeder.Main",
 				"variant": "library"
 			},
 			"node/dist": {
-				"build": "breeder.Main",
 				"debug": false,
-				"packages": [
-					[
-						"breeder",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"breeder": "./lychee.pkg",
+					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "breeder.Main",
 				"variant": "library"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"breeder": "./lychee.pkg",
+					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "breeder.Main",
+				"variant": "application"
 			}
 		},
 		"files": {
@@ -55,8 +66,10 @@
 					]
 				}
 			}
-		},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

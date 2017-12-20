@@ -57,7 +57,10 @@ lychee.define('strainer.api.Composite').requires([
 
 	};
 
-	const _find_reference = function(chunk, stream) {
+	const _find_reference = function(chunk, stream, fuzzy) {
+
+		fuzzy = fuzzy === true;
+
 
 		let ref = {
 			chunk:  '',
@@ -67,7 +70,13 @@ lychee.define('strainer.api.Composite').requires([
 
 		let lines = stream.split('\n');
 		let line  = lines.findIndex(function(other) {
-			return other.trim() === chunk.trim();
+
+			if (fuzzy === true) {
+				return other.includes(chunk.trim());
+			} else {
+				return other.trim() === chunk.trim();
+			}
+
 		});
 
 		if (line !== -1) {
@@ -91,7 +100,7 @@ lychee.define('strainer.api.Composite').requires([
 		let str1 = '\n\tComposite.' + key + ' = ';
 		let str2 = ';';
 
-		let i0 = stream.indexOf('\n\tlet Composite =');
+		let i0 = stream.indexOf('\n\tconst Composite =');
 		let i1 = stream.indexOf(str1, i0);
 		let i2 = stream.indexOf(str2, i1);
 
@@ -152,7 +161,7 @@ lychee.define('strainer.api.Composite').requires([
 	const _parse_memory = function(memory, stream, errors) {
 
 		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
-		let i2 = stream.indexOf('\n\tlet Composite =');
+		let i2 = stream.indexOf('\n\tconst Composite =');
 
 		if (i1 !== -1 && i2 !== -1) {
 
@@ -210,12 +219,12 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_constructor = function(constructor, stream) {
 
-		let i1 = stream.indexOf('\n\tlet Composite =');
+		let i1 = stream.indexOf('\n\tconst Composite =');
 		let i2 = stream.indexOf('\n\t};', i1);
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 18, i2 - i1 - 15).trim();
+			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (body.length > 0) {
 
 				constructor.body       = body;
@@ -230,12 +239,12 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_settings = function(settings, stream) {
 
-		let i1 = stream.indexOf('\n\tlet Composite =');
+		let i1 = stream.indexOf('\n\tconst Composite =');
 		let i2 = stream.indexOf('\n\t};', i1);
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 18, i2 - i1 - 15).trim();
+			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (body.length > 0) {
 
 				let object = _PARSER.settings(body);
@@ -255,12 +264,12 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_properties = function(properties, stream) {
 
-		let i1 = stream.indexOf('\n\tlet Composite =');
+		let i1 = stream.indexOf('\n\tconst Composite =');
 		let i2 = stream.indexOf('\n\t};', i1);
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 18, i2 - i1 - 15).trim();
+			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (body.length > 0) {
 
 				body.split('\n').forEach(function(line, l, self) {
@@ -307,8 +316,11 @@ lychee.define('strainer.api.Composite').requires([
 							if (
 								properties[name] === undefined
 								|| (
-									properties[name].value.type === 'undefined'
-									&& prop.type !== 'undefined'
+									prop.type !== 'undefined'
+									&& (
+										properties[name].value.type === 'undefined'
+										|| properties[name].value.type === 'null'
+									)
 								)
 							) {
 
@@ -333,7 +345,7 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_enums = function(enums, stream) {
 
-		let i1 = stream.indexOf('\n\t};', stream.indexOf('\n\tlet Composite =')) + 4;
+		let i1 = stream.indexOf('\n\t};', stream.indexOf('\n\tconst Composite =')) + 4;
 		let i2 = stream.indexOf('\n\tComposite.prototype =', i1);
 
 		if (i1 !== -1 && i2 !== -1) {
@@ -685,15 +697,20 @@ lychee.define('strainer.api.Composite').requires([
 
 		},
 
-		check: function(asset) {
+		check: function(asset, header) {
 
-			asset = _validate_asset(asset) === true ? asset : null;
+			asset  = _validate_asset(asset) === true ? asset  : null;
+			header = header instanceof Object        ? header : {};
 
 
 			let errors = [];
 			let memory = {};
 			let result = {
-				constructor: {},
+				constructor: {
+					body:       null,
+					hash:       null,
+					parameters: []
+				},
 				settings:    {},
 				properties:  {},
 				enums:       {},
@@ -724,7 +741,7 @@ lychee.define('strainer.api.Composite').requires([
 					} else if (/^(main|client|remote|server)$/g.test(check.name) === false) {
 
 						let chunk = result.constructor.body.split('\n')[0];
-						let ref   = _find_reference('\n\tlet Composite = ' + chunk, stream);
+						let ref   = _find_reference('\n\tconst Composite = ' + chunk, stream);
 
 						errors.push({
 							url:       null,
@@ -734,6 +751,114 @@ lychee.define('strainer.api.Composite').requires([
 							line:      ref.line,
 							column:    ref.column
 						});
+
+					}
+
+				} else {
+
+					let ref = _find_reference('\n\tconst Composite = function(', stream, true);
+					if (ref.chunk === '') {
+
+						ref = _find_reference('Composite =', stream, true);
+
+						errors.push({
+							url:       null,
+							rule:      'no-composite',
+							reference: 'constructor',
+							message:   'Composite is not constant (missing "const" declaration).',
+							line:      ref.line,
+							column:    ref.column
+						});
+
+					}
+
+				}
+
+
+				let body = result.constructor.body || null;
+				if (body !== null) {
+
+					let check = result.constructor.parameters[0] || null;
+					if (check !== null && check.name === 'data') {
+
+						let ref1 = _find_reference('\n\t\tlet settings = ',  body, true);
+						let ref2 = _find_reference('\n\t\tsettings = null;', body);
+
+						if (ref1.line !== 0 && ref2.line === 0) {
+
+							let ref = _find_reference('\n\t\tlet settings = ', stream, true);
+
+							errors.push({
+								url:       null,
+								rule:      'no-garbage',
+								reference: 'constructor',
+								message:   'Composite produces garbage (missing "settings = null" statement).',
+								line:      ref.line,
+								column:    ref.column
+							});
+
+						} else if (ref1.line === 0) {
+
+							let ref = _find_reference('\n\tconst Composite = function(', stream, true);
+
+							errors.push({
+								url:       null,
+								rule:      'no-settings',
+								reference: 'constructor',
+								message:   'Composite ignores settings (missing "let settings = Object.assign({}, data)" statement).',
+								line:      ref.line,
+								column:    ref.column
+							});
+
+						}
+
+					}
+
+
+					for (let name in memory) {
+
+						let entry = memory[name];
+						if (entry.type === 'lychee.Definition') {
+
+							let id  = entry.value.reference;
+							let ref = _find_reference('\n\t\t' + name + '.call(this', body, true);
+
+							if (header.includes.includes(id) === false && ref.line !== 0) {
+
+								errors.push({
+									url:       null,
+									rule:      'no-includes',
+									reference: name,
+									message:   'Invalid Definition (missing includes() entry for "' + id + '").',
+									line:      0,
+									column:    0
+								});
+
+							} else if (header.includes.includes(id) === true && ref.line === 0) {
+
+								errors.push({
+									url:       null,
+									rule:      'no-constructor-call',
+									reference: name,
+									message:   'Invalid Definition (missing constructor call for "' + id + '").',
+									line:      0,
+									column:    0
+								});
+
+							} else if (header.includes.includes(id) === false && header.requires.includes(id) === false) {
+
+								errors.push({
+									url:       null,
+									rule:      'no-requires',
+									reference: name,
+									message:   'Invalid Definition (missing requires() entry for "' + id + '").',
+									line:      0,
+									column:    0
+								});
+
+							}
+
+						}
 
 					}
 
@@ -779,24 +904,11 @@ lychee.define('strainer.api.Composite').requires([
 
 
 				if (
-					result.methods['serialize'] === undefined
-					|| result.methods['deserialize'] === undefined
+					result.methods['deserialize'] === undefined
+					|| result.methods['serialize'] === undefined
 				) {
 
-					let ref = _find_reference('\n\tComposite.prototype =', stream);
-
-					if (result.methods['serialize'] === undefined) {
-
-						errors.push({
-							url:       null,
-							rule:      'no-serialize',
-							reference: 'serialize',
-							message:    'No "serialize()" method.',
-							line:       ref.line,
-							column:     ref.column
-						});
-
-					}
+					let ref = _find_reference('\n\tComposite.prototype =', stream, true);
 
 					if (result.methods['deserialize'] === undefined) {
 
@@ -807,6 +919,19 @@ lychee.define('strainer.api.Composite').requires([
 							message:   'No "deserialize()" method.',
 							line:      ref.line,
 							column:    ref.column
+						});
+
+					}
+
+					if (result.methods['serialize'] === undefined) {
+
+						errors.push({
+							url:       null,
+							rule:      'no-serialize',
+							reference: 'serialize',
+							message:    'No "serialize()" method.',
+							line:       ref.line,
+							column:     ref.column
 						});
 
 					}

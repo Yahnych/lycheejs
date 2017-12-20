@@ -116,48 +116,30 @@
 	"build": {
 		"environments": {
 			"node-sdl/dist": {
-				"build": "harvester.Main",
 				"debug": false,
-				"packages": [
-					[
-						"harvester",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
-				"variant": "library"
-			},
-			"node/dist": {
-				"build": "harvester.Main",
-				"debug": false,
-				"packages": [
-					[
-						"harvester",
-						"./lychee.pkg"
-					]
-				],
-				"sandbox": false,
-				"tags": {
-					"platform": [
-						"node"
-					]
-				},
+				"target": "harvester.Main",
 				"variant": "library"
 			},
 			"node-sdl/main": {
-				"build": "harvester.Main",
 				"debug": false,
-				"packages": [
-					[
-						"harvester",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "./lychee.pkg"
+				},
+				"profile": {
+					"hosts": {
+						"localhost": null
+					},
+					"port": 8080
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -165,36 +147,42 @@
 						"node"
 					]
 				},
-				"variant": "application",
-				"profile": {
-					"port": 8080,
-					"hosts": {
-						"localhost": null
-					}
-				}
+				"target": "harvester.Main",
+				"variant": "application"
 			},
-			"node/main": {
-				"build": "harvester.Main",
+			"node/dist": {
 				"debug": false,
-				"packages": [
-					[
-						"harvester",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"harvester": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
-				"variant": "application",
+				"target": "harvester.Main",
+				"variant": "library"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"harvester": "./lychee.pkg"
+				},
 				"profile": {
-					"port": 8080,
 					"hosts": {
 						"localhost": null
-					}
-				}
+					},
+					"port": 8080
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "harvester.Main",
+				"variant": "application"
 			}
 		},
 		"files": {
@@ -212,8 +200,10 @@
 					]
 				}
 			}
-		},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

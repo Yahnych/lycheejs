@@ -158,7 +158,7 @@ lychee.define('lychee.ai.bnn.Brain').exports(function(lychee, global, attachment
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -338,7 +338,6 @@ lychee.define('lychee.ai.bnn.Brain').exports(function(lychee, global, attachment
 
 
 				// 4. Re-Calculate weights based on Gradient
-				let input_layer = layers[0];
 
 				for (let l = 0, ll = layers.length; l < ll; l++) {
 

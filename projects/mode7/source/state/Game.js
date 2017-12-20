@@ -18,7 +18,7 @@ lychee.define('game.state.Game').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(main) {
+	const Composite = function(main) {
 
 		_State.call(this, main);
 
@@ -141,7 +141,6 @@ lychee.define('game.state.Game').requires([
 				if (renderer !== null) {
 
 					let camera = this.camera;
-					// let width  = renderer.width;
 					let height = renderer.height;
 
 

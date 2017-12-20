@@ -2,18 +2,15 @@
 lychee.define('studio.data.Project').exports(function(lychee, global, attachments) {
 
 	const _DEFAULT_SETTINGS = {
-		"build": "app.Main",
 		"debug": false,
-		"packages": [
-			[
-				"app",
-				"./lychee.pkg"
-			]
-		],
+		"packages": {
+			"app": "./lychee.pkg"
+		},
 		"sandbox": false,
 		"tags": {
 			"platform": []
 		},
+		"target": "app.Main",
 		"variant": "application",
 		"profile": {}
 	};
@@ -78,17 +75,16 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 			if (environments[platform + '/' + id] === undefined) {
 
-				let settings  = lychee.assignunlink({}, _DEFAULT_SETTINGS);
-				let build     = this.__build;
+				let namespace = this.__target.split('.')[0];
 				let packages  = this.__packages;
 				let platforms = [];
+				let settings  = lychee.assignunlink({}, _DEFAULT_SETTINGS);
+				let target    = this.__target;
 
-				let found = this.__packages.find(function(other) {
-					return other[0] === build.split('.')[0];
-				}) || null;
 
-				if (found === null) {
-					packages.push([ build.split('.')[0], './lychee.pkg' ]);
+				let pkg = packages[namespace] || null;
+				if (pkg === null) {
+					packages[namespace] = './lychee.pkg';
 				}
 
 
@@ -106,9 +102,9 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 				if (id === 'main') {
 
-					settings.build         = build;
 					settings.packages      = packages;
 					settings.tags.platform = platforms;
+					settings.target        = target;
 					settings.variant       = 'application';
 					settings.profile       = {
 						client: platform !== 'node' ? '/api/server/connect?identifier=' + this.identifier : null
@@ -116,9 +112,9 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 				} else {
 
-					settings.build         = build;
 					settings.packages      = packages;
 					settings.tags.platform = platforms;
+					settings.target        = target;
 					settings.variant       = 'library';
 					settings.profile       = null;
 
@@ -157,28 +153,23 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 			if (settings instanceof Object) {
 
-				if (settings.packages instanceof Array) {
+				if (settings.packages instanceof Object) {
 
-					settings.packages.forEach(function(pkg) {
+					for (let pid in settings.packages) {
 
-						let pkg_id  = pkg[0];
-						let pkg_url = pkg[1];
-
-						let found = this.__packages.find(function(other) {
-							return other[0] === pkg_id;
-						}) || null;
-
-						if (found === null) {
-							this.__packages.push([ pkg_id, pkg_url ]);
+						let url = settings.packages[pid];
+						let pkg = this.__packages[pid] || null;
+						if (pkg === null) {
+							this.__packages[pid] = url;
 						}
 
-					}.bind(this));
+					}
 
 				}
 
 
 				this.platforms[platform] = true;
-				this.__build             = settings.build || null;
+				this.__target            = settings.target || null;
 
 			} else {
 
@@ -188,12 +179,12 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 		}
 
-		if (this.__build === null) {
-			this.__build = id === 'dist' ? 'app.DIST' : 'app.Main';
+		if (this.__target === null) {
+			this.__target = id === 'dist' ? 'app.DIST' : 'app.Main';
 		}
 
-		if (this.__packages.length === 0) {
-			this.__packages.push([ 'app', './lychee.pkg' ]);
+		if (Object.keys(this.__packages).length === 0) {
+			this.__packages['app'] = './lychee.pkg';
 		}
 
 	};
@@ -204,7 +195,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -221,8 +212,8 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 		};
 
 		this.__harvester = new Stuff(this.identifier + '/harvester.js', true);
-		this.__build     = null;
-		this.__packages  = [];
+		this.__packages  = {};
+		this.__target    = null;
 
 
 		settings = null;
@@ -322,7 +313,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			this.__harvester.onload = function(result) {
 
 				let line = (this.buffer || '').split('\n')[0];
-				if (line.substr(0, 2) === '#!') {
+				if (line.startsWith('#!')) {
 					that.setHarvester(true);
 				} else {
 					that.setHarvester(false);
@@ -375,7 +366,28 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			for (let f = 0, fl = files.length; f < fl; f++) {
 
 				let file = files[f];
-				if (file.substr(-3) === '.js') {
+				if (
+					(file.startsWith('app/') || file.startsWith('ui/'))
+					&& file.endsWith('.js')
+				) {
+					filtered.push(file);
+				}
+
+			}
+
+			return filtered;
+
+		},
+
+		getScenes: function() {
+
+			let filtered = [];
+			let files    = _package_files(this.config.buffer);
+
+			for (let f = 0, fl = files.length; f < fl; f++) {
+
+				let file = files[f];
+				if (file.startsWith('state/') && file.endsWith('.json')) {
 					filtered.push(file);
 				}
 

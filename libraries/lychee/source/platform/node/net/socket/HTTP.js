@@ -111,7 +111,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function() {
+	const Composite = function() {
 
 		this.__connection = null;
 		this.__protocol   = null;
@@ -154,7 +154,6 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 
 			let that     = this;
-			// let url      = /:/g.test(host) ? ('http://[' + host + ']:' + port) : ('http://' + host + ':' + port);
 			let protocol = null;
 
 

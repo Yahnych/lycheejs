@@ -1,5 +1,6 @@
 
 lychee.define('game.app.sprite.Portal').requires([
+	'lychee.app.Entity',
 	'lychee.effect.Sound',
 	'game.effect.Lightning'
 ]).includes([
@@ -62,7 +63,7 @@ lychee.define('game.app.sprite.Portal').requires([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data, main) {
+	const Composite = function(data, main) {
 
 		let settings = Object.assign({}, data);
 

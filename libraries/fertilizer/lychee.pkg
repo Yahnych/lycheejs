@@ -55,14 +55,10 @@
 	"build": {
 		"environments": {
 			"node-sdl/dist": {
-				"build": "fertilizer.Main",
 				"debug": false,
-				"packages": [
-					[
-						"fertilizer",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"fertilizer": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -70,24 +66,36 @@
 						"node"
 					]
 				},
+				"target": "fertilizer.Main",
 				"variant": "library"
 			},
 			"node/dist": {
-				"build": "fertilizer.Main",
 				"debug": false,
-				"packages": [
-					[
-						"fertilizer",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"fertilizer": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "fertilizer.Main",
 				"variant": "library"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"fertilizer": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "fertilizer.Main",
+				"variant": "application"
 			}
 		},
 		"files": {
@@ -98,8 +106,10 @@
 					]
 				}
 			}
-		},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

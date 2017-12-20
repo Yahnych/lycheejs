@@ -34,14 +34,14 @@
 	"build": {
 		"environments": {
 			"html-nwjs/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
+				"profile": {
+					"client": "/api/server/connect?identifier=/projects/text-chat",
+					"server": "/api/server/connect?identifier=/projects/text-chat"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
@@ -49,53 +49,45 @@
 						"html"
 					]
 				},
-				"variant": "application",
+				"target": "app.Main",
+				"variant": "application"
+			},
+			"html/main": {
+				"debug": false,
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"profile": {
 					"client": "/api/server/connect?identifier=/projects/text-chat",
 					"server": "/api/server/connect?identifier=/projects/text-chat"
-				}
-			},
-			"html/main": {
-				"build": "app.Main",
-				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"html"
 					]
 				},
-				"variant": "application",
-				"profile": {
-					"client": "/api/server/connect?identifier=/projects/text-chat",
-					"server": "/api/server/connect?identifier=/projects/text-chat"
-				}
+				"target": "app.Main",
+				"variant": "application"
 			},
 			"node/main": {
-				"build": "app.Main",
 				"debug": false,
-				"packages": [
-					[
-						"app",
-						"./lychee.pkg"
-					]
-				],
+				"packages": {
+					"app": "./lychee.pkg"
+				},
 				"sandbox": false,
 				"tags": {
 					"platform": [
 						"node"
 					]
 				},
+				"target": "app.Main",
 				"variant": "application"
 			}
-		},
-		"files": {},
-		"tags": {}
+		}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},

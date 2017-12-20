@@ -1,5 +1,5 @@
 
-lychee.define('Storage').tags({
+lychee.define('lychee.Storage').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
@@ -235,7 +235,7 @@ lychee.define('Storage').tags({
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 
@@ -328,8 +328,8 @@ lychee.define('Storage').tags({
 			let blob     = (data['blob'] || {});
 
 
-			if (this.id.substr(0, 15) !== 'lychee-Storage-') settings.id    = this.id;
-			if (Object.keys(this.model).length !== 0)        settings.model = this.model;
+			if (this.id.startsWith('lychee-Storage-') === false) settings.id    = this.id;
+			if (Object.keys(this.model).length !== 0)            settings.model = this.model;
 			if (this.type !== Composite.TYPE.persistent)         settings.type  = this.type;
 
 

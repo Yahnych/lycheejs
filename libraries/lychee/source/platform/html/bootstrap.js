@@ -1,8 +1,8 @@
 
 (function(lychee, global) {
 
-	let _filename = null;
-	let _protocol = null;
+	const _document = global.document;
+	let _protocol   = null;
 
 
 
@@ -49,7 +49,7 @@
 
 
 			let tmp3 = selfpath.split('/').slice(0, 3).join('/');
-			if (tmp3.substr(0, 13) === '/opt/lycheejs') {
+			if (tmp3.startsWith('/opt/lycheejs')) {
 				lychee.ROOT.lychee = tmp3;
 			}
 
@@ -64,7 +64,7 @@
 
 		}
 
-	})(global.location || {}, (document.currentScript || {}).src || '');
+	})(global.location || {}, (_document.currentScript || {}).src || '');
 
 
 
@@ -85,7 +85,7 @@
 			let xhr  = new XMLHttpRequest();
 
 
-			if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+			if (path.startsWith('/opt/lycheejs') && _protocol !== null) {
 				xhr.open('GET', _protocol + '://' + path, true);
 			} else {
 				xhr.open('GET', path, true);
@@ -520,7 +520,7 @@
 			if (encoding === 'base64' || encoding === 'binary') {
 
 				let url = this.src;
-				if (url !== '' && url.substr(0, 5) !== 'data:') {
+				if (url !== '' && url.startsWith('data:') === false) {
 
 					let buffer = _load_buffer(url);
 					if (buffer !== null) {
@@ -585,7 +585,7 @@
 			if (encoding === 'base64' || encoding === 'binary') {
 
 				let url = this.src;
-				if (url !== '' && url.substr(0, 5) !== 'data:') {
+				if (url !== '' && url.startsWith('data:') === false) {
 
 					let buffer = _load_buffer(url);
 					if (buffer !== null) {
@@ -648,7 +648,7 @@
 
 	const _clean_base64 = function(str) {
 
-		str = str.trim().replace(/[^+\/0-9A-z]/g, '');
+		str = str.trim().replace(/[^+/0-9A-z]/g, '');
 
 		while (str.length % 4 !== 0) {
 			str = str + '=';
@@ -1867,7 +1867,7 @@
 
 
 				let path = lychee.environment.resolve(url + '.' + type);
-				if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+				if (path.startsWith('/opt/lycheejs') && _protocol !== null) {
 					buffer.src = _protocol + '://' + path;
 				} else {
 					buffer.src = path;
@@ -2179,7 +2179,7 @@
 
 
 				let path = lychee.environment.resolve(url + '.' + type);
-				if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+				if (path.startsWith('/opt/lycheejs') && _protocol !== null) {
 					buffer.src = _protocol + '://' + path;
 				} else {
 					buffer.src = path;
@@ -2334,7 +2334,7 @@
 		this.__load = true;
 
 
-		if (url !== null && url.substr(0, 10) !== 'data:image') {
+		if (url !== null && url.startsWith('data:image') === false) {
 
 			if (_TEXTURE_CACHE[url] !== undefined) {
 				_clone_texture(_TEXTURE_CACHE[url], this);
@@ -2405,9 +2405,9 @@
 			let that = this;
 
 			let url = this.url;
-			if (url.substr(0, 5) === 'data:') {
+			if (url.startsWith('data:')) {
 
-				if (url.substr(0, 15) === 'data:image/png;') {
+				if (url.startsWith('data:image/png;')) {
 
 					buffer = new Image();
 
@@ -2459,7 +2459,7 @@
 
 			} else {
 
-				if (url.split('.').pop() === 'png') {
+				if (url.endsWith('.png')) {
 
 					buffer = new Image();
 
@@ -2497,7 +2497,7 @@
 
 
 					let path = lychee.environment.resolve(url);
-					if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+					if (path.startsWith('/opt/lycheejs') && _protocol !== null) {
 						buffer.src = _protocol + '://' + path;
 					} else {
 						buffer.src = path;
@@ -2543,15 +2543,12 @@
 
 	const _execute_stuff = function(callback, stuff) {
 
-		let type = stuff.url.split('/').pop().split('.').pop();
-		if (type === 'js' && stuff.__ignore === false) {
+		let url = stuff.url;
+		if (url.endsWith('.js') && stuff.__ignore === false) {
 
-			_filename = stuff.url;
+			let tmp = _document.createElement('script');
 
-
-			let tmp = document.createElement('script');
-
-			tmp._filename = stuff.url;
+			tmp._filename = url;
 			tmp.async     = true;
 
 			tmp.onload = function() {
@@ -2559,7 +2556,7 @@
 				callback.call(stuff, true);
 
 				// XXX: Don't move, it's causing serious bugs in Blink
-				document.body.removeChild(this);
+				_document.body.removeChild(this);
 
 			};
 			tmp.onerror = function() {
@@ -2567,19 +2564,19 @@
 				callback.call(stuff, false);
 
 				// XXX: Don't move, it's causing serious bugs in Blink
-				document.body.removeChild(this);
+				_document.body.removeChild(this);
 
 			};
 
 
-			let path = lychee.environment.resolve(stuff.url);
-			if (path.substr(0, 13) === '/opt/lycheejs' && _protocol !== null) {
+			let path = lychee.environment.resolve(url);
+			if (path.startsWith('/opt/lycheejs') && _protocol !== null) {
 				tmp.src = _protocol + '://' + path;
 			} else {
 				tmp.src = path;
 			}
 
-			document.body.appendChild(tmp);
+			_document.body.appendChild(tmp);
 
 		} else {
 
@@ -2634,11 +2631,10 @@
 		serialize: function() {
 
 			let blob = {};
-			let type = this.url.split('/').pop().split('.').pop();
 			let mime = 'application/octet-stream';
 
 
-			if (type === 'js') {
+			if (this.url.endsWith('.js')) {
 				mime = 'application/javascript';
 			}
 
@@ -2704,76 +2700,6 @@
 
 
 	/*
-	 * FEATURES
-	 */
-
-	const _ELEMENT = {
-		id:    '',
-		style: {
-			transform: ''
-		}
-	};
-
-	const _FEATURES = {
-
-		innerWidth:  1337,
-		innerHeight: 1337,
-
-		CanvasRenderingContext2D: function() {},
-		FileReader:               function() {},
-		Storage:                  function() {},
-		WebSocket:                function() {},
-		XMLHttpRequest:           function() {},
-
-		addEventListener:      function() {},
-		clearInterval:         function() {},
-		clearTimeout:          function() {},
-		requestAnimationFrame: function() {},
-		setInterval:           function() {},
-		setTimeout:            function() {},
-
-		document: {
-			createElement: function() {
-				return _ELEMENT;
-			},
-			querySelectorAll: function() {
-				return _ELEMENT;
-			},
-			body: {
-				appendChild: function() {}
-			}
-		},
-
-		location: {
-			href: 'file:///tmp/index.html'
-		},
-
-		localStorage: {
-		},
-
-		sessionStorage: {
-		}
-
-	};
-
-	_FEATURES.FileReader.prototype.readAsDataURL = function() {};
-
-
-	Object.defineProperty(lychee.Environment, '__FEATURES', {
-
-		get: function() {
-			return _FEATURES;
-		},
-
-		set: function(value) {
-			return false;
-		}
-
-	});
-
-
-
-	/*
 	 * EXPORTS
 	 */
 
@@ -2786,14 +2712,13 @@
 	global.Stuff   = Stuff;
 
 
-	Object.defineProperty(lychee.Environment, '__FILENAME', {
+	Object.defineProperty(lychee, 'FILENAME', {
 
 		get: function() {
 
-			if (document.currentScript) {
-				return document.currentScript._filename;
-			} else if (_filename !== null) {
-				return _filename;
+			let script = _document.currentScript || null;
+			if (script !== null) {
+				return script._filename;
 			}
 
 			return null;

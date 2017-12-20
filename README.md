@@ -1,5 +1,5 @@
 
-# lychee.js (2017-Q3)
+# lychee.js (2017-Q4)
 
 <img src="./guides/asset/qr-codes.png" align="right" width="500px">
 
@@ -12,8 +12,9 @@ Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin
 
 These are the things that we are currently working on:
 
-- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable (`feature/neat` branch).
 - lychee.net.protocol.MQTT is being implemented to support SCADA systems (`feature/mqtt` branch).
+- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable (`feature/neat` branch).
+- lychee.Simulation is being integrated with the AI stack and unstable.
 - lychee.js Guide is subject to change (to integrate new AI stack).
 
 

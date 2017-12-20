@@ -1,5 +1,7 @@
 
-lychee.define('game.ui.sprite.Tile').includes([
+lychee.define('game.ui.sprite.Tile').requires([
+	'lychee.ui.Entity'
+]).includes([
 	'lychee.ui.Sprite'
 ]).exports(function(lychee, global, attachments) {
 
@@ -14,7 +16,7 @@ lychee.define('game.ui.sprite.Tile').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
 		let settings = Object.assign({}, data);
 

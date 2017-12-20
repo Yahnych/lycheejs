@@ -4,13 +4,133 @@ lychee.define('strainer.api.PARSER').requires([
 ]).exports(function(lychee, global, attachments) {
 
 	const _DICTIONARY = attachments["json"].buffer;
+	const _FEATURES   = lychee.FEATURES;
 	const _MURMUR     = lychee.import('lychee.crypto.MURMUR');
+	const _PLATFORMS  = lychee.PLATFORMS;
 
 
 
 	/*
 	 * HELPERS
 	 */
+
+	const _resolve_reference = function(identifier) {
+
+		let pointer = this;
+
+		let ns = identifier.split('.');
+		for (let n = 0, l = ns.length; n < l; n++) {
+
+			let name = ns[n];
+			if (name.includes('(') && name.includes(')')) {
+
+				let args = null;
+
+				try {
+
+					let str = name.substr(name.indexOf('('));
+					str  = str.split('\'').join('"');
+					args = JSON.parse('[' + str.substr(1, str.length - 2) + ']');
+
+				} catch (err) {
+					args = null;
+				}
+
+
+				name = name.substr(0, name.indexOf('('));
+
+
+				if (typeof pointer[name] === 'function' && args !== null) {
+
+					try {
+						pointer = pointer[name].apply(pointer, args);
+					} catch (err) {
+						pointer = null;
+					}
+
+					if (pointer === null) {
+						break;
+					}
+
+				} else {
+
+					pointer = null;
+					break;
+
+				}
+
+			} else if (pointer[name] !== undefined) {
+
+				pointer = pointer[name];
+
+			} else {
+
+				pointer = null;
+				break;
+
+			}
+
+		}
+
+		return pointer;
+
+	};
+
+	const _resolve_value = function(val) {
+
+		let value = {
+			chunk: 'undefined',
+			type:  'undefined',
+			value: val
+		};
+
+
+		if (val === undefined) {
+
+			value.chunk = 'undefined';
+			value.type  = 'undefined';
+
+		} else if (val === null) {
+
+			value.chunk = 'null';
+			value.type  = 'null';
+
+		} else if (typeof val === 'boolean') {
+
+			value.chunk = (val).toString();
+			value.type  = 'Boolean';
+
+		} else if (typeof val === 'number') {
+
+			value.chunk = (val).toString();
+			value.type  = 'Number';
+
+		} else if (typeof val === 'string') {
+
+			value.chunk = val;
+			value.type  = 'String';
+
+		} else if (typeof val === 'function') {
+
+			value.chunk = val.toString();
+			value.type  = 'Function';
+
+		} else if (val instanceof Array) {
+
+			value.chunk = JSON.stringify(val);
+			value.type  = 'Array';
+
+		} else if (val instanceof Object) {
+
+			value.chunk = JSON.stringify(val);
+			value.type  = 'Object';
+
+		}
+
+
+		return value;
+
+	};
 
 	const _get_chunk = function(str1, str2, code) {
 
@@ -160,7 +280,24 @@ lychee.define('strainer.api.PARSER').requires([
 
 			} else if (str.startsWith('lychee.import') || str.startsWith('_lychee.import')) {
 
-				type = 'lychee.Definition';
+				let tmp = str.split(/lychee.import\('([A-Za-z0-9_.]+)'\)/g);
+				if (tmp.length === 3) {
+
+					let name = tmp[1].split('.');
+					let last = name[name.length - 1];
+					if (last.charAt(0).toUpperCase() === last.charAt(0)) {
+
+						if (name.length > 1) {
+							type = 'lychee.Definition';
+						} else {
+							type = last;
+						}
+
+					} else {
+						type = 'lychee.Namespace';
+					}
+
+				}
 
 			} else if (str.startsWith('lychee.interfaceof') || str.startsWith('_lychee.interfaceof')) {
 
@@ -512,16 +649,13 @@ lychee.define('strainer.api.PARSER').requires([
 			val.value = _detect_value(str);
 
 
+			let dictionary = [];
+
 			if (
 				val.chunk !== 'undefined'
 				&& val.chunk.includes('.') === false
 				&& val.value === undefined
 			) {
-
-				let dictionary = [];
-
-				// TODO: Add support for multiple
-				// types, values in dict entries
 
 				dictionary = _DICTIONARY.filter(function(other) {
 
@@ -551,29 +685,106 @@ lychee.define('strainer.api.PARSER').requires([
 					return 0;
 				});
 
+			} else if (
+				val.chunk !== 'undefined'
+				&& val.chunk.startsWith('global')
+				&& val.value === undefined
+			) {
 
-				let entry = dictionary[0] || null;
-				if (entry !== null) {
+				let reference = val.chunk.split('.').slice(1).join('.');
+				let platform  = null;
+				let pointer   = null;
 
-					if (entry.type !== undefined && entry.value !== undefined) {
+				for (let p = 0, pl = _PLATFORMS.length; p < pl; p++) {
 
-						val.type  = entry.type;
-						val.value = entry.value;
+					platform = _PLATFORMS[p];
 
-					} else if (entry.types !== undefined && entry.values !== undefined) {
+					if (_FEATURES[platform] !== undefined) {
 
-						val.type  = entry.types[0];
-						val.value = entry.values[0];
+						pointer = _resolve_reference.call(_FEATURES[platform], reference);
+
+						if (pointer !== null) {
+							break;
+						}
 
 					}
 
+				}
 
-					if (val.chunk !== entry.chunk) {
 
-						if (lychee.debug === true) {
-							console.info('strainer.api.PARSER: Fuzzy guessing for "' + val.chunk + '" with "' + entry.chunk + '".');
+				if (pointer !== null) {
+
+					let resolved = _resolve_value(pointer);
+					if (resolved.type !== 'undefined') {
+
+						val.value = resolved.value;
+						val.type  = resolved.type;
+						val.chunk = resolved.chunk;
+
+					}
+
+				} else {
+
+					console.warn('strainer.api.PARSER: Could not resolve "' + reference + '" via feature detection.');
+
+				}
+
+			} else if (
+				val.chunk !== 'undefined'
+				&& val.value === undefined
+			) {
+
+				dictionary = _DICTIONARY.filter(function(other) {
+
+					if (val.chunk === other.chunk) {
+
+						if (other.type !== undefined) {
+
+							if (val.type === 'undefined' || val.type === other.type) {
+								return true;
+							}
+
+						} else if (other.types !== undefined) {
+
+							if (val.type === 'undefined' || other.types.includes(val.type)) {
+								return true;
+							}
+
 						}
 
+					}
+
+					return false;
+
+				}).sort(function(a, b) {
+					if (a.chunk.length === b.chunk.length) return -1;
+					if (a.chunk.length !== b.chunk.length) return  1;
+					return 0;
+				});
+
+			}
+
+
+			let entry = dictionary[0] || null;
+			if (entry !== null) {
+
+				if (entry.type !== undefined && entry.value !== undefined) {
+
+					val.type  = entry.type;
+					val.value = entry.value;
+
+				} else if (entry.types !== undefined && entry.values !== undefined) {
+
+					val.type  = entry.types[0];
+					val.value = entry.values[0];
+
+				}
+
+
+				if (val.chunk !== entry.chunk) {
+
+					if (lychee.debug === true) {
+						console.info('strainer.api.PARSER: Fuzzy guessing for "' + val.chunk + '" with "' + entry.chunk + '".');
 					}
 
 				}

@@ -22,9 +22,10 @@
 		}
 	},
 	"build": {
-		"environments": {},
-		"files": {},
-		"tags": {}
+		"environments": {}
+	},
+	"review": {
+		"environments": {}
 	},
 	"source": {
 		"environments": {},
