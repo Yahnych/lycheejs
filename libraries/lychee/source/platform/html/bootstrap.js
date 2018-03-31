@@ -551,7 +551,7 @@
 		};
 
 
-		if (!image) {
+		if (image === false) {
 
 			Image = function() {
 
@@ -1733,44 +1733,45 @@
 
 			if (blob.buffer instanceof Object) {
 
-				let url  = null;
-				let type = null;
+				if (typeof blob.buffer.ogg === 'string') {
 
-				if (_audio_supports_ogg === true) {
+					let buffer = new Audio();
 
-					if (typeof blob.buffer.ogg === 'string') {
-						url  = url  || blob.buffer.ogg;
-						type = type || 'ogg';
-					}
+					buffer.addEventListener('ended', function() {
+						this.play();
+					}.bind(this), true);
 
-				} else if (_audio_supports_mp3 === true) {
+					buffer.autobuffer = true;
+					buffer.preload    = true;
+					buffer.src        = blob.buffer.ogg;
+					buffer.load();
 
-					if (typeof blob.buffer.mp3 === 'string') {
-						url  = url  || blob.buffer.mp3;
-						type = type || 'mp3';
-					}
+					this.__buffer.ogg = buffer;
+
+				}
+
+				if (typeof blob.buffer.mp3 === 'string') {
+
+					let buffer = new Audio();
+
+					buffer.addEventListener('ended', function() {
+						this.play();
+					}.bind(this), true);
+
+					buffer.autobuffer = true;
+					buffer.preload    = true;
+					buffer.src        = blob.buffer.mp3;
+					buffer.load();
+
+					this.__buffer.mp3 = buffer;
 
 				}
 
 
-				if (url !== null && type !== null) {
-
-					let that   = this;
-					let buffer = new Audio();
-
-					buffer.addEventListener('ended', function() {
-						that.play();
-					}, true);
-
-					buffer.autobuffer = true;
-					buffer.preload    = true;
-					buffer.src        = url;
-					buffer.load();
-
-					this.buffer         = buffer;
-					this.__buffer[type] = buffer;
-					this.__load         = false;
-
+				if (_audio_supports_ogg === true) {
+					this.buffer = this.__buffer.ogg || null;
+				} else if (_audio_supports_mp3 === true) {
+					this.buffer = this.__buffer.mp3 || null;
 				}
 
 			}
@@ -1834,13 +1835,13 @@
 				let that   = this;
 				let buffer = new Audio();
 
-				buffer.onload = function() {
+
+				buffer.onloadedmetadata = function() {
 
 					that.buffer         = this;
 					that.__buffer[type] = this;
 
-					this.toString('base64');
-					this.__load = false;
+					that.__load = false;
 
 					if (that.onload instanceof Function) {
 						that.onload(true);
@@ -1849,7 +1850,17 @@
 
 				};
 
+				buffer.onloadeddata = function() {
+					this.toString('base64');
+				};
+
+				// XXX: onerror is fired after onload -_-
 				buffer.onerror = function() {
+
+					if (that.buffer === this) {
+						that.buffer       = null;
+						that.buffer[type] = null;
+					}
 
 					if (that.onload instanceof Function) {
 						that.onload(false);
@@ -1859,8 +1870,8 @@
 				};
 
 				buffer.addEventListener('ended', function() {
-					that.play();
-				}, true);
+					this.play();
+				}.bind(this), true);
 
 				buffer.autobuffer = true;
 				buffer.preload    = true;
@@ -1875,7 +1886,6 @@
 
 
 				buffer.load();
-				buffer.onload();
 
 			} else {
 
@@ -2044,44 +2054,45 @@
 
 			if (blob.buffer instanceof Object) {
 
-				let url  = null;
-				let type = null;
+				if (typeof blob.buffer.ogg === 'string') {
 
-				if (_audio_supports_ogg === true) {
+					let buffer = new Audio();
 
-					if (typeof blob.buffer.ogg === 'string') {
-						url  = url  || blob.buffer.ogg;
-						type = type || 'ogg';
-					}
+					buffer.addEventListener('ended', function() {
+						this.stop();
+					}.bind(this), true);
 
-				} else if (_audio_supports_mp3 === true) {
+					buffer.autobuffer = true;
+					buffer.preload    = true;
+					buffer.src        = blob.buffer.ogg;
+					buffer.load();
 
-					if (typeof blob.buffer.mp3 === 'string') {
-						url  = url  || blob.buffer.mp3;
-						type = type || 'mp3';
-					}
+					this.__buffer.ogg = buffer;
+
+				}
+
+				if (typeof blob.buffer.mp3 === 'string') {
+
+					let buffer = new Audio();
+
+					buffer.addEventListener('ended', function() {
+						this.stop();
+					}.bind(this), true);
+
+					buffer.autobuffer = true;
+					buffer.preload    = true;
+					buffer.src        = blob.buffer.mp3;
+					buffer.load();
+
+					this.__buffer.mp3 = buffer;
 
 				}
 
 
-				if (url !== null && type !== null) {
-
-					let that   = this;
-					let buffer = new Audio();
-
-					buffer.addEventListener('ended', function() {
-						that.stop();
-					}, true);
-
-					buffer.autobuffer = true;
-					buffer.preload    = true;
-					buffer.src        = url;
-					buffer.load();
-
-					this.buffer         = buffer;
-					this.__buffer[type] = buffer;
-					this.__load         = false;
-
+				if (_audio_supports_ogg === true) {
+					this.buffer = this.__buffer.ogg || null;
+				} else if (_audio_supports_mp3 === true) {
+					this.buffer = this.__buffer.mp3 || null;
 				}
 
 			}
@@ -2145,13 +2156,12 @@
 				let that   = this;
 				let buffer = new Audio();
 
-				buffer.onload = function() {
+				buffer.onloadedmetadata = function() {
 
 					that.buffer         = this;
 					that.__buffer[type] = this;
 
-					this.toString('base64');
-					this.__load = false;
+					that.__load = false;
 
 					if (that.onload instanceof Function) {
 						that.onload(true);
@@ -2160,7 +2170,17 @@
 
 				};
 
+				buffer.onloadeddata = function() {
+					this.toString('base64');
+				};
+
+				// XXX: onerror is fired after onload -_-
 				buffer.onerror = function() {
+
+					if (that.buffer === this) {
+						that.buffer         = null;
+						that.__buffer[type] = null;
+					}
 
 					if (that.onload instanceof Function) {
 						that.onload(false);
@@ -2170,9 +2190,9 @@
 				};
 
 				buffer.addEventListener('ended', function() {
-					that.isIdle = true;
-					that.stop();
-				}, true);
+					this.isIdle = true;
+					this.stop();
+				}.bind(this), true);
 
 				buffer.autobuffer = true;
 				buffer.preload    = true;
@@ -2187,7 +2207,6 @@
 
 
 				buffer.load();
-				buffer.onload();
 
 			} else {
 

@@ -46,13 +46,13 @@ lychee.define('lychee.ui.Element').requires([
 
 		let entities = this.entities;
 		let entity   = null;
-		let label    = null;
 		let layout   = [
 			this.getEntity('@order'),
 			this.getEntity('@label'),
 			this.getEntity('@options-prev'),
 			this.getEntity('@options-next')
 		];
+		let type     = this.type;
 
 
 		let x1 = -1 / 2 * this.width;
@@ -76,55 +76,88 @@ lychee.define('lychee.ui.Element').requires([
 
 		if (entities.length > 4) {
 
-			let offset   = 64 + 16;
-			let boundary = 0;
+			let boundary_x = 0;
 
 			for (let e = 2, el = entities.length - 2; e < el; e += 2) {
 
-				label    = entities[e];
-				entity   = entities[e + 1];
-				boundary = 0;
-
+				let label  = entities[e];
+				let entity = entities[e + 1];
 
 				if (entity.visible === true) {
 
 					if (label.value !== '') {
+						boundary_x = Math.max(label.width, boundary_x);
+					}
 
-						label.position.x  = x1 + 16 + label.width / 2;
-						label.position.y  = y1 + offset + label.height / 2;
-						label.visible     = true;
+				}
 
-						entity.width      = 1 / 2 * (this.width - 32);
-						entity.position.x = 1 / 4 * (this.width - 32);
-						entity.position.y = y1 + offset + entity.height / 2;
-						entity.visible    = true;
-						entity.trigger('relayout');
+			}
 
-						boundary = Math.max(label.height, entity.height);
-						label.position.y  = y1 + offset + boundary / 2;
-						entity.position.y = y1 + offset + boundary / 2;
 
-						offset += boundary + 16;
+			let offset_x = Math.round(boundary_x / 16) * 16;
+			let offset_y = 64 + 16;
 
-					} else {
+			if (offset_x - boundary_x < 16) {
+				offset_x += 16;
+			}
 
-						label.position.x  = -1 / 2 * this.width;
-						label.position.y  = y1 + offset + label.height / 2;
-						label.visible     = false;
+			for (let e = 2, el = entities.length - 2; e < el; e += 2) {
 
-						entity.width      = this.width - 32;
+				let label  = entities[e];
+				let entity = entities[e + 1];
+
+				if (entity.visible === true) {
+
+					let has_label = label.value !== '';
+
+					label.position.x  = x1 + 16 + label.width / 2;
+					label.visible     = has_label;
+
+
+					if (type === Composite.TYPE.view) {
+
+						if (has_label === true) {
+
+							entity.width      = 1 / 2 * (this.width - 32);
+							entity.position.x = 1 / 4 * (this.width - 32);
+
+						} else {
+
+							entity.width      = this.width - 32;
+							entity.position.x = 0;
+
+						}
+
+					} else if (type === Composite.TYPE.full) {
+
 						entity.position.x = 0;
-						entity.position.y = y1 + offset + entity.height / 2;
-						entity.visible    = true;
-						entity.trigger('relayout');
 
-						boundary = Math.max(label.height, entity.height);
-						label.position.y  = y1 + offset + boundary / 2;
-						entity.position.y = y1 + offset + boundary / 2;
+					} else if (type === Composite.TYPE.auto) {
 
-						offset += boundary + 16;
+						if (has_label === true) {
+
+							entity.width      = this.width - offset_x - 32;
+							entity.position.x = (this.width - entity.width - 32) / 2;
+
+						} else {
+
+							entity.width      = this.width - 32;
+							entity.position.x = 0;
+
+						}
 
 					}
+
+
+					entity.trigger('relayout');
+
+
+					let boundary_y = Math.max(label.height, entity.height);
+
+					label.position.y  = y1 + offset_y + boundary_y / 2;
+					entity.position.y = y1 + offset_y + boundary_y / 2;
+
+					offset_y += boundary_y + 16;
 
 				} else {
 
@@ -175,6 +208,7 @@ lychee.define('lychee.ui.Element').requires([
 		this.label   = 'CONTENT';
 		this.options = [ 'Okay', 'Cancel' ];
 		this.order   = 1;
+		this.type    = Composite.TYPE.view;
 
 
 		settings.width    = typeof settings.width === 'number'     ? settings.width    : 256;
@@ -229,6 +263,7 @@ lychee.define('lychee.ui.Element').requires([
 		this.setLabel(settings.label);
 		this.setOptions(settings.options);
 		this.setOrder(settings.order);
+		this.setType(settings.type);
 
 
 		if (init_relayout === true) {
@@ -239,6 +274,13 @@ lychee.define('lychee.ui.Element').requires([
 
 		settings = null;
 
+	};
+
+
+	Composite.TYPE = {
+		view: 0,
+		full: 1,
+		auto: 2
 	};
 
 
@@ -266,7 +308,7 @@ lychee.define('lychee.ui.Element').requires([
 
 
 			if (this.label !== 'CONTENT')                 settings.label   = this.label;
-			if (this.options.join(',') !== 'Okay,Cancel') settings.options = this.options.slice(0, this.options.length);
+			if (this.options.join(',') !== 'Okay,Cancel') settings.options = Array.from(this.options);
 			if (this.order !== 1)                         settings.order   = this.order;
 
 
@@ -663,6 +705,28 @@ lychee.define('lychee.ui.Element').requires([
 				this.getEntity('@order').setValue('' + order);
 				this.order = order;
 
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setType: function(type) {
+
+			type = lychee.enumof(Composite.TYPE, type) ? type : null;
+
+
+			if (type !== null) {
+
+				this.type = type;
+
+				if (this.__relayout === true) {
+					this.trigger('relayout');
+				}
 
 				return true;
 

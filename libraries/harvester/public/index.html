@@ -2,12 +2,12 @@
 <html>
 <head>
 	<title>Welcome to lychee.js Engine</title>
+	<link rel="shortcut icon" type="image/png" href="/desktop.png">
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="robots" content="noindex">
-	<link rel="shortcut icon" type="image/png" href="/desktop.png">
 
 	<!-- BOOTSTRAP -->
 	<script src="/libraries/lychee/build/html/core.js"></script>
@@ -16,13 +16,14 @@
 	<link rel="stylesheet" href="/design/index.css">
 
 </head>
-<body>
-
+<body id="body">
 <header>
-	<h1><img alt="lychee.js Logo" src="/desktop.svg" width="128" height="128"></h1>
+	<h1>
+		<img alt="lychee.js Logo" src="/desktop.svg" width="128" height="128">
+		<img alt="lychee.js Retro Logo" src="/desktop-retro.png" width="128" height="128">
+	</h1>
 	<h2>lychee<span>js</span></h2>
 </header>
-
 <article>
 	<label>Welcome to lychee.js Engine</label>
 	<p>
@@ -31,7 +32,7 @@
 		Please also take a look at the <a href="lycheejs://file=/README.md">README.md</a> and the <a href="lycheejs://file=/CHANGELOG.md">CHANGELOG.md</a>.
 	</p>
 	<p>
-		Installed lychee.js Version: <span id="lychee-VERSION">2016-Q1</span>.
+		Installed lychee.js Version: <span id="lychee-VERSION">2017-Q4</span>.
 	</p>
 	<pre id="lychee-MESSAGE"><code># Please update your lychee.js Installation
 
@@ -39,17 +40,28 @@ cd /opt/lycheejs;
 ./bin/maintenance/do-update.sh;</code></pre>
 	<hr>
 	<div>
-		<button onclick="location.href='lycheejs://cmd=lycheejs-studio'">lychee.js&nbsp;Studio</button>
-		<button onclick="location.href='lycheejs://cmd=lycheejs-ranger'">lychee.js&nbsp;Ranger</button>
+		<a class="button" href="lycheejs://cmd=lycheejs-studio">lychee.js&nbsp;Studio</a>
+		<a class="button" href="lycheejs://cmd=lycheejs-ranger">lychee.js&nbsp;Ranger</a>
 	</div>
 	<hr>
 	<p>
 		Need Help? Join our IRC channel <a target="_blank" href="https://webchat.freenode.net/?channels=%23artificial-engineering">#artificial-engineering @ freenode</a>
 	</p>
 </article>
-
-<main id="main"><!-- LIBRARIES AND PROJECTS --></main>
-
+<main id="main">
+	<article id="warning" class="warning">
+		<label>Warning: lychee.js Harvester is unreachable</label>
+		<p>
+			Please make sure that the lychee.js Harvester is booted correctly
+			(<a href="lycheejs://file=/README.md">README.md</a>) and that no
+			Firewall or Browser Extension blocks connections to or from it.
+			<br><br>
+			The lychee.js Harvester uses ports <q>4848</q> and <q>8080</q> as
+			management ports and ports <q>49152 to 65534</q> as dynamic ports
+			for project- or library-specific websocket servers.
+		</p>
+	</article>
+</main>
 <script>
 (function(global) {
 
@@ -57,59 +69,114 @@ cd /opt/lycheejs;
 	 * HELPERS
 	 */
 
-	const $$ = function(name) {
+	const $api = function(url, callback) {
 
-		let filtered = [];
+		let config = new Config(url);
 
-		if (name.startsWith('#')) {
-			filtered = Array.from(global.document.querySelectorAll(name)).map(v => $(v)).filter(v => v !== null);
-		} else {
-			filtered.push($(name));
+		config.onload = function(result) {
+			callback(result === true ? this.buffer : []);
+		};
+
+		config.load();
+
+	};
+
+	const Wrap = function(element) {
+		this.element = element;
+	};
+
+	Wrap.prototype = {
+
+		appendTo: function(other) {
+
+			if (other.element !== null) {
+				other.element.appendChild(this.element);
+			} else {
+				other.appendChild(this.element);
+			}
+
+			return this;
+
+		},
+
+		clear: function() {
+
+			if (this.element.parentNode !== null) {
+				this.element.parentNode.removeChild(this.element);
+			}
+
+			return this;
+
+		},
+
+		html: function(html) {
+
+			this.element.innerHTML = html;
+
+			return this;
+
+		},
+
+		onclick: function(callback) {
+
+			this.element.onclick = function() {
+				callback();
+				return false;
+			};
+
+			return this;
+
+		},
+
+		set: function(options) {
+
+			for (let o in options) {
+
+				if (typeof this[o] === 'function') {
+					this[o](options[o]);
+				} else {
+					this.element.setAttribute(o, options[o]);
+				}
+
+			}
+
+			return this;
+
+		},
+
+		state: function(state) {
+
+			this.element.className = state;
+
+			return this;
+
 		}
-
-
-		return filtered;
 
 	};
 
 	const $ = function(name) {
 
-		let el = null;
+		let element = null;
 
 		if (name instanceof Element) {
 
-			el = name;
+			element = name;
 
 		} else if (typeof name === 'string') {
 
 			if (name.startsWith('#')) {
-				el = global.document.querySelector(name);
+				element = global.document.querySelector(name);
 			} else {
-				let tmp = name.split(/\.|\[|\]/g).filter(v => v !== '');
-				el = global.document.createElement(tmp[0]);
-				tmp[1] && (el.className = tmp[1]);
+				let tmp = name.split(/\.|\[|\]/g).filter(function(v) { return v !== ''; });
+				element = global.document.createElement(tmp[0]);
+				tmp[1] && (element.className = tmp[1]);
 			}
 
 		}
 
 
-		if (el !== null) {
-
-			let wrap = { _el: el };
-
-			wrap.state    = a => (el.className = a, wrap);
-			wrap.html     = a => (el.innerHTML = a, wrap);
-			wrap.append   = a => ((a._el && el.appendChild(a._el)) || el.appendChild(a), wrap);
-			wrap.appendTo = b => ((b._el && b._el.appendChild(el)) || b.appendChild(el), wrap);
-			wrap.onclick  = c => (el.onclick = _ => (c(), false), wrap);
-			wrap.remove   = b => ((b._el && el.removeChild(b._el)) || el.removeChild(b), wrap);
-			wrap.set      = o => {
-				for (let i in o) (typeof wrap[i] === 'function' && wrap[i](o[i])) || el.setAttribute(i, o[i]);
-				return wrap;
-			};
-
-			return wrap;
-
+		if (element !== null) {
+			return new Wrap(element);
 		}
 
 
@@ -121,48 +188,71 @@ cd /opt/lycheejs;
 
 		let article = $('article').set({
 			'data-id': project.identifier
-		}).append(
-			$('label').set({
-				html: project.identifier.split('/').pop()
-			})
-		).append(
-			$('img').set({
-				src: project.identifier + '/icon.png'
-			})
-		);
+		});
+
+		$('label').set({
+			html: project.identifier.split('/').pop()
+		}).appendTo(article);
+
+		$('img').set({
+			src: project.identifier + '/icon.png'
+		}).appendTo(article);
 
 
-		if (mask & 0b100) {
-			article.append(
-				$('a.button').set({
-					href:    'lycheejs://edit=' + project.identifier,
-					html:    'Edit',
-					onclick: _ => location.href = 'lycheejs://edit=' + project.identifier
-				})
-			);
+		if (mask[0] === 1) {
+
+			$('a.button').set({
+				href:    'lycheejs://edit=' + project.identifier,
+				html:    'Edit',
+				onclick: function() {
+					location.href = 'lycheejs://edit=' + project.identifier;
+				}
+			}).appendTo(article);
+
 		}
 
-		if (mask & 0b010) {
-			article.append(
-				$('a.button').set({
-					href:    'lycheejs://file=' + project.identifier,
-					html:    'File',
-					onclick: _ => location.href = 'lycheejs://file=' + project.identifier
-				})
-			);
+		if (mask[1] === 1) {
+
+			$('a.button').set({
+				href:    'lycheejs://file=' + project.identifier,
+				html:    'File',
+				onclick: function() {
+					location.href = 'lycheejs://file=' + project.identifier;
+				}
+			}).appendTo(article);
+
 		}
 
-		if (mask & 0b001) {
-			article.append(
-				$('a.button').set({
-					href:    project.identifier + '/index.html',
-					html:    'Open',
-					onclick: _ => global.open(project.identifier + '/index.html')
-				})
-			);
+		if (mask[2] === 1) {
+
+			$('a.button').set({
+				href:    project.identifier + '/index.html',
+				html:    'Open',
+				onclick: function() {
+					global.open(project.identifier + '/index.html');
+				}
+			}).appendTo(article);
+
 		}
 
 		return article;
+
+	};
+
+	const _retro = function() {
+
+		let body = $('#body');
+		if (body !== null) {
+
+			let time = new Date();
+			let hour = time.getHours() + time.getMinutes() / 60;
+			if (hour > 0 && hour < 6) {
+				body.state('retro');
+			} else {
+				body.state('');
+			}
+
+		}
 
 	};
 
@@ -172,11 +262,42 @@ cd /opt/lycheejs;
 	 * IMPLEMENTATION
 	 */
 
-	const version = $('#lychee-VERSION');
+	const body    = $('#body');
+	const main    = $('#main');
 	const message = $('#lychee-MESSAGE');
+	const version = $('#lychee-VERSION');
 
-	if (version !== null) {
-		version.html('' + lychee.VERSION);
+
+	if (main !== null) {
+
+		const host    = global.location.hostname || 'localhost';
+		const warning = $('#warning');
+
+
+		$api('http://' + host + ':4848/api/library/index', function(buffer) {
+
+			buffer.map(function(library) {
+				return _render(library, /ranger|studio/g.test(library.identifier) ? [0,1,1] : [0,1,0]);
+			}).forEach(function(article) {
+				article.appendTo(main);
+			});
+
+			warning.clear();
+
+		});
+
+		$api('http://' + host + ':4848/api/project/index', function(buffer) {
+
+			buffer.map(function(project) {
+				return _render(project, [1,1,1]);
+			}).forEach(function(article) {
+				article.appendTo(main);
+			});
+
+			warning.clear();
+
+		});
+
 	}
 
 	if (message !== null) {
@@ -200,66 +321,13 @@ cd /opt/lycheejs;
 
 	}
 
+	if (version !== null) {
+		version.html('' + lychee.VERSION);
+	}
 
-	const main = $('#main');
-
-	if (main !== null) {
-
-		let host    = global.location.hostname || 'localhost';
-		let config1 = new Config('http://' + host + ':4848/api/library/index');
-		let config2 = new Config('http://' + host + ':4848/api/project/index');
-		let warning = true;
-
-		config1.onload = function(result) {
-
-			if (result === true && this.buffer instanceof Array) {
-				this.buffer.map(p => _render(p, /ranger|studio/g.test(p.identifier) ? 0b011 : 0b010)).forEach(a => a.appendTo(main));
-				warning = false;
-			}
-
-		};
-
-		config2.onload = function(result) {
-
-			if (result === true && this.buffer instanceof Array) {
-				this.buffer.map(p => _render(p, 0b111)).forEach(a => a.appendTo(main));
-				warning = false;
-			}
-
-		};
-
-		config1.load();
-		config2.load();
-
-
-		setTimeout(_ => {
-
-			if (warning === true) {
-
-				$('article.warning').append(
-					$('label').set({
-						html: 'Warning'
-					})
-				).append(
-					$('p').set({
-						html: [
-							'The lychee.js Harvester is unreachable.',
-							'<br><br>',
-							'Please make sure that the lychee.js Harvester is booted correctly',
-							'(<a href="lycheejs://file=/README.md">README.md</a>) and that no ',
-							'Firewall or Browser Extensions blocks connections to or from it.',
-							'<br><br>',
-							'The lychee.js Harvester uses ports <q>4848</q> and <q>8080</q> as',
-							'management ports and ports <q>49152 to 65534</q> as dynamic ports',
-							'for project- or library-specific websocket servers.'
-						].join('\n')
-					})
-				).appendTo(main);
-
-			}
-
-		}, 2000);
-
+	if (body !== null) {
+		setInterval(_retro, 1000 * 60 * 15);
+		_retro();
 	}
 
 })(typeof global !== 'undefined' ? global : this);

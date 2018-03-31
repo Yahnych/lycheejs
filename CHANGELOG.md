@@ -20,6 +20,28 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
+## [2018-Q1] - UNRELEASED
+
+- **Changed**: `./bin/configure.js` supports source maps for core and platform adapters.
+- **Added**: lychee.js Strainer supports transcriptions.
+- **Fixed**: lychee.js Fertilizer's `auto` action exits correctly when subprocesses fail.
+- Changed: lychee.js Harvester API deprecates unnecessary `web` object.
+- Changed: lychee.Environment retries `10` times in case of unloaded packages.
+- Added: `html` platform supports now IE11 (added missing polyfills).
+- Added: `lychee.export(reference, sandbox)` exports a definition to a given sandbox.
+- Added: lychee.ENVIRONMENTS represents lychee.Environment cache.
+- Added: lychee.SIMULATIONS represents lychee.Simulation cache.
+- Added: lychee.ui.Element supports same `type` as lychee.ui.Blueprint.
+- Added: lychee.crypto.BLAKE2B.
+- Fixed: `Music` data type parallelizes the load process of buffers.
+- Fixed: `Sound` data type parallelizes the load process of buffers.
+- Fixed: lychee.Simulation respects correct `target` of lychee.Environment.
+- Fixed: lychee.Stash supports Music and Sound data types.
+- Fixed: lychee.js Studio supports Music and Sound data types.
+- Fixed: lychee.ui.element Stack supports correct `relayout` event flow.
+- Fixed: lychee.ui.entity.Select supports the rendering of buffers.
+
+
 ## [2017-Q4] - 2017-12-20
 
 - **Changed**: lychee.pkg environment settings changes to `{ packages: { namespace: url }}`.
@@ -172,7 +194,8 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q1...HEAD)
+- [2018-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...2018-Q1)
 - [2017-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...2017-Q4)
 - [2017-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q2...2017-Q3)
 - [2017-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q1...2017-Q2)

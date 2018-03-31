@@ -63,23 +63,24 @@
 		_create_webfont_dummy("Museo Sans Light");
 
 
-		setTimeout(function() {
+		lychee.pkg('build', 'html/main', function(environment, profile) {
 
-			lychee.pkg('build', 'html/main', function(environment, profile) {
+			if (environment !== null) {
 
-				if (environment !== null) {
-
-					lychee.init(environment, {
-						debug:   false,
-						sandbox: false,
-						profile: profile
-					});
-
+				let host = global.location.hostname || 'localhost';
+				if (host !== 'localhost') {
+					profile.client = "http://" + host + ":4848/api/server/connect?identifier=/libraries/studio";
 				}
 
-			});
+				lychee.init(environment, {
+					debug:   false,
+					sandbox: false,
+					profile: profile
+				});
 
-		}.bind(this), 200);
+			}
+
+		});
 
 	})(lychee, typeof global !== 'undefined' ? global : this);
 	</script>

@@ -1,9 +1,11 @@
 
 lychee.define('strainer.api.Callback').requires([
-	'strainer.api.PARSER'
+	'strainer.api.PARSER',
+	'strainer.api.TRANSCRIPTOR'
 ]).exports(function(lychee, global, attachments) {
 
-	const _PARSER = lychee.import('strainer.api.PARSER');
+	const _PARSER       = lychee.import('strainer.api.PARSER');
+	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
 
 
 
@@ -59,41 +61,32 @@ lychee.define('strainer.api.Callback').requires([
 
 	};
 
-	const _find_memory = function(key, stream) {
-
-		let str1 = 'const ' + key + ' = ';
-		let str2 = '\n\t};';
-
-		let i1 = stream.indexOf(str1);
-		let i2 = stream.indexOf(str2, i1);
-
-		if (i1 !== -1 && i2 !== -1) {
-			return stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
-		}
-
-		return 'undefined';
-
-	};
-
 	const _parse_memory = function(memory, stream, errors) {
 
 		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
-		let i2 = stream.indexOf('\n\tconst Module =');
+		let i2 = stream.indexOf('\n\tconst Callback =');
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48).trim();
+			let body = stream.substr(i1 + 48, i2 - i1 - 48);
 			if (body.length > 0) {
 
 				body.split('\n')
-					.map(function(line) {
-						return line.trim();
-					}).filter(function(line) {
-						return line.startsWith('const ');
-					}).forEach(function(line) {
+					.filter(line => {
+						return line.startsWith('\tconst ') || line.startsWith('\tlet ');
+					})
+					.map(line => line.trim())
+					.forEach(line => {
 
-						let tmp = line.substr(6).trim();
-						let i1  = tmp.indexOf('=');
+						let tmp = '';
+						if (line.startsWith('const ')) {
+							tmp = line.substr(6).trim();
+						} else if (line.startsWith('let ')) {
+							tmp = line.substr(4).trim();
+						}
+
+
+						let i1 = tmp.indexOf('=');
 						if (i1 !== -1) {
 
 							let key   = tmp.substr(0, i1).trim();
@@ -101,23 +94,14 @@ lychee.define('strainer.api.Callback').requires([
 
 							if (key !== '' && chunk !== '') {
 
-								if (chunk.startsWith('function(')) {
+								if (chunk.endsWith(';')) {
 
-									chunk = _find_memory(key, stream);
-
-									if (chunk.endsWith(';')) {
-										chunk = chunk.substr(0, chunk.length - 1);
-									}
-
-									memory[key] = {
-										body:       chunk,
-										hash:       _PARSER.hash(chunk),
-										parameters: _PARSER.parameters(chunk),
-										values:     _PARSER.values(chunk)
-									};
+									chunk = chunk.substr(0, chunk.length - 1);
+									memory[key] = _PARSER.detect(chunk);
 
 								} else {
 
+									chunk = _PARSER.find(key, body);
 									memory[key] = _PARSER.detect(chunk);
 
 								}
@@ -144,6 +128,7 @@ lychee.define('strainer.api.Callback').requires([
 			let body = stream.substr(i1 + 19, i2 - i1 - 16).trim();
 			if (body.length > 0) {
 
+				constructor.type       = 'function';
 				constructor.body       = body;
 				constructor.hash       = _PARSER.hash(body);
 				constructor.parameters = _PARSER.parameters(body);
@@ -225,6 +210,68 @@ lychee.define('strainer.api.Callback').requires([
 				memory: memory,
 				result: result
 			};
+
+		},
+
+		transcribe: function(asset) {
+
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
+			if (asset !== null) {
+
+				let code = [];
+
+
+				let api = asset.buffer;
+				if (api instanceof Object) {
+
+					let memory = api.memory || null;
+					let result = api.result || null;
+
+
+					if (memory instanceof Object) {
+
+						for (let m in memory) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(m, memory[m]);
+							if (chunk !== null) {
+								code.push('\t' + chunk);
+							}
+
+						}
+
+					}
+
+
+					let construct = result.constructor || null;
+					if (construct !== null) {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Callback', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\t' + chunk);
+						}
+
+					}
+
+
+					code.push('');
+					code.push('');
+					code.push('\treturn Callback;');
+
+				}
+
+
+				if (code.length > 0) {
+					return code.join('\n');
+				}
+
+			}
+
+
+			return null;
 
 		}
 

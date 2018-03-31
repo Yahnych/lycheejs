@@ -25,14 +25,38 @@
 				],
 				"PARSER": [
 					"json"
+				],
+				"Specification": [
+					"json"
+				],
+				"TRANSCRIPTOR": [
+					"json"
+				]
+			},
+			"fix": {
+				"API": [
+					"json"
+				],
+				"ESLINT": [
+					"json"
 				]
 			},
 			"flow": {
 				"Check": [
 					"json"
+				],
+				"Transcribe": [
+					"json"
 				]
 			},
 			"platform": {
+				"html": {
+					"plugin": {
+						"ESLINT": [
+							"json"
+						]
+					}
+				},
 				"node": {
 					"plugin": {
 						"ESLINT": [
@@ -50,6 +74,34 @@
 	},
 	"build": {
 		"environments": {
+			"html/dist": {
+				"debug": false,
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"target": "strainer.Main",
+				"variant": "library"
+			},
+			"html/main": {
+				"debug": false,
+				"packages": {
+					"strainer": "./lychee.pkg"
+				},
+				"sandbox": true,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"target": "strainer.Main",
+				"variant": "application"
+			},
 			"node-sdl/dist": {
 				"debug": false,
 				"packages": {
@@ -108,6 +160,13 @@
 			}
 		},
 		"files": {
+			"html": {
+				"dist": {
+					"index": [
+						"js"
+					]
+				}
+			},
 			"node": {
 				"dist": {
 					"index": [
@@ -131,6 +190,7 @@
 		"environments": {},
 		"tags": {
 			"platform": {
+				"html": "platform/html",
 				"node": "platform/node"
 			}
 		},
@@ -160,14 +220,38 @@
 				"PARSER": [
 					"js",
 					"json"
+				],
+				"Specification": [
+					"js"
+				],
+				"TRANSCRIPTOR": [
+					"js"
+				]
+			},
+			"fix": {
+				"API": [
+					"js"
+				],
+				"ESLINT": [
+					"js"
 				]
 			},
 			"flow": {
 				"Check": [
 					"js"
+				],
+				"Transcribe": [
+					"js"
 				]
 			},
 			"platform": {
+				"html": {
+					"plugin": {
+						"ESLINT": [
+							"js"
+						]
+					}
+				},
 				"node": {
 					"plugin": {
 						"ESLINT": [

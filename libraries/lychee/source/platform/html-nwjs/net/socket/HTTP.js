@@ -267,7 +267,6 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 				_disconnect_socket.call(this, connection, protocol);
 
-
 				return true;
 
 			}

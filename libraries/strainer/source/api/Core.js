@@ -95,9 +95,40 @@ lychee.define('strainer.api.Core').requires([
 			if (asset !== null) {
 
 				let stream = asset.buffer.toString('utf8');
-				let first  = stream.trim().split('\n')[0];
+
 
 				_parse_identifier(result, stream, errors);
+
+
+				let i1 = stream.indexOf('=');
+				let i2 = stream.indexOf(': (function(global) {\n', i1);
+				let i3 = stream.indexOf('= (function(global) {\n');
+
+				if (i1 === -1) {
+
+					errors.push({
+						url:       null,
+						rule:      'no-core-define',
+						reference: null,
+						message:   'Invalid Core (missing assignment).',
+						line:      0,
+						column:    0
+					});
+
+				}
+
+				if (i1 !== i3 && i2 === -1) {
+
+					errors.push({
+						url:       null,
+						rule:      'no-core-exports',
+						reference: null,
+						message:   'Invalid Core (missing (function(global) {})().',
+						line:      0,
+						column:    0
+					});
+
+				}
 
 			}
 
@@ -106,6 +137,46 @@ lychee.define('strainer.api.Core').requires([
 				errors: errors,
 				result: result
 			};
+
+		},
+
+		transcribe: function(asset) {
+
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
+			if (asset !== null) {
+
+				let code   = null;
+				let report = asset.buffer || {
+					header: {},
+					memory: {},
+					errors: [],
+					result: {}
+				};
+
+
+				if (report.header instanceof Object) {
+
+					let identifier = report.header.identifier || null;
+					if (identifier !== null) {
+
+						code = identifier + ' = typeof ' + identifier + ' !== undefined ? ' + identifier + ' : (function(global) {';
+						code += '\n\n%BODY%\n\n';
+						code += '})(typeof window !== undefined ? window : (typeof global !== undefined ? global : this));';
+						code += '\n';
+
+
+						return code;
+
+					}
+
+				}
+
+			}
+
+
+			return null;
 
 		}
 

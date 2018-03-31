@@ -117,11 +117,17 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		let candidates    = [];
 		let filter_values = function(tags, tag) {
 
-			return tags[tag].map(function(value) {
-				return _resolve_tag.call(that, tag, value) + '/' + candidatepath;
-			}).filter(function(path) {
-				return _resolve_path.call(that, path);
-			});
+			if (tags[tag] instanceof Array) {
+
+				return tags[tag].map(function(value) {
+					return _resolve_tag.call(that, tag, value) + '/' + candidatepath;
+				}).filter(function(path) {
+					return _resolve_path.call(that, path);
+				});
+
+			}
+
+			return [];
 
 		};
 
@@ -187,7 +193,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			let map = {
 				id:           id,
 				candidate:    null,
-				candidates:   [].concat(candidates),
+				candidates:   Array.from(candidates),
 				attachments:  [],
 				dependencies: [],
 				loading:      1
@@ -240,82 +246,87 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			if (result === true) {
 
-				let environment = that.environment;
-				let definition  = environment.definitions[identifier] || null;
-				if (definition !== null) {
+				let environment = that.environment || null;
+				if (environment !== null) {
 
-					map.candidate = this;
+					let definition  = environment.definitions[identifier] || null;
+					if (definition !== null) {
 
-
-					let attachmentIds = Object.keys(attachments);
-
-
-					// Temporary delete definition from environment and re-define it after attachments are all loaded
-					if (attachmentIds.length > 0) {
-
-						delete environment.definitions[identifier];
-
-						map.loading += attachmentIds.length;
+						map.candidate = this;
 
 
-						attachmentIds.forEach(function(assetId) {
+						let attachmentIds = Object.keys(attachments);
 
-							let url   = attachments[assetId];
-							let asset = new lychee.Asset(url);
-							if (asset !== null) {
 
-								asset.onload = function(result) {
+						// Temporary delete definition from environment and re-define it after attachments are all loaded
+						if (attachmentIds.length > 0) {
+
+							delete environment.definitions[identifier];
+
+							map.loading += attachmentIds.length;
+
+
+							attachmentIds.forEach(function(assetId) {
+
+								let url   = attachments[assetId];
+								let asset = new lychee.Asset(url);
+								if (asset !== null) {
+
+									asset.onload = function(result) {
+
+										map.loading--;
+
+										let tmp = {};
+										if (result === true) {
+											tmp[assetId] = this;
+										} else {
+											tmp[assetId] = null;
+										}
+
+										definition.attaches(tmp);
+
+
+										if (map.loading === 0) {
+											environment.definitions[identifier] = definition;
+										}
+
+									};
+
+									asset.load();
+
+								} else {
 
 									map.loading--;
 
-									let tmp = {};
-									if (result === true) {
-										tmp[assetId] = this;
-									} else {
-										tmp[assetId] = null;
-									}
+								}
 
-									definition.attaches(tmp);
+							});
+
+						}
 
 
-									if (map.loading === 0) {
-										environment.definitions[identifier] = definition;
-									}
+						for (let i = 0, il = definition._includes.length; i < il; i++) {
+							environment.load(definition._includes[i]);
+						}
 
-								};
+						for (let r = 0, rl = definition._requires.length; r < rl; r++) {
+							environment.load(definition._requires[r]);
+						}
 
-								asset.load();
 
-							} else {
-
-								map.loading--;
-
-							}
-
-						});
+						return true;
 
 					}
 
 
-					for (let i = 0, il = definition._includes.length; i < il; i++) {
-						environment.load(definition._includes[i]);
-					}
-
-					for (let r = 0, rl = definition._requires.length; r < rl; r++) {
-						environment.load(definition._requires[r]);
-					}
-
-
-					return true;
+					// If code runs through here, candidate was invalid
+					delete that.environment.definitions[identifier];
 
 				}
 
 			}
 
 
-
-			// If code runs through here, candidate was invalid
-			delete that.environment.definitions[identifier];
 			that.__blacklist[candidate] = 1;
 
 			// Load next candidate, if any available
@@ -428,8 +439,13 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					} else {
 
-						let info = Object.keys(tags).length > 0 ? ('(' + JSON.stringify(tags) + ')') : '';
-						console.error('lychee.Package-' + this.id + ': Invalid Definition "' + id + '" ' + info);
+						if (tags !== null) {
+							let info = Object.keys(tags).length > 0 ? (' (' + JSON.stringify(tags) + ')') : '.';
+							console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"' + info);
+						} else {
+							console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"');
+						}
+
 
 						return false;
 
@@ -518,19 +534,22 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 						&& buffer.source instanceof Object
 					) {
 
-						console.info('lychee.Package-' + that.id + ': Package at "' + this.url + '" ready.');
+						console.info('lychee.Package ("' + that.id + '"): Config "' + this.url + '" ready.');
 
 						that.config = this;
 
 					} else {
 
-						console.error('lychee.Package-' + that.id + ': Package at "' + this.url + '" corrupt.');
+						console.error('lychee.Package ("' + that.id + '"): Config "' + this.url + '" corrupt.');
 
 					}
 
 				};
 
 				config.load();
+
+
+				return true;
 
 			}
 
@@ -549,6 +568,10 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 				this.environment = environment;
 
 				return true;
+
+			} else {
+
+				this.environment = null;
 
 			}
 

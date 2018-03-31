@@ -142,6 +142,9 @@
 				]
 			},
 			"crypto": {
+				"BLAKE2B": [
+					"json"
+				],
 				"CRC32": [
 					"json"
 				],
@@ -371,6 +374,37 @@
 							"Download": [
 								"json"
 							],
+							"Helper": [
+								"json"
+							]
+						}
+					}
+				},
+				"nidium": {
+					"Input": [
+						"json"
+					],
+					"Renderer": [
+						"json"
+					],
+					"Stash": [
+						"json"
+					],
+					"Storage": [
+						"json"
+					],
+					"Viewport": [
+						"json"
+					],
+					"net": {
+						"socket": {
+							"HTTP": [
+								"json"
+							]
+						}
+					},
+					"ui": {
+						"entity": {
 							"Helper": [
 								"json"
 							]
@@ -621,6 +655,20 @@
 				"target": "lychee.DIST",
 				"variant": "library"
 			},
+			"nidium/dist": {
+				"debug": false,
+				"packages": {
+					"lychee": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"nidium"
+					]
+				},
+				"target": "lychee.DIST",
+				"variant": "library"
+			},
 			"node-sdl/dist": {
 				"debug": false,
 				"packages": {
@@ -682,6 +730,16 @@
 					]
 				}
 			},
+			"nidium": {
+				"core": [
+					"js"
+				],
+				"dist": {
+					"index": [
+						"js"
+					]
+				}
+			},
 			"node": {
 				"core": [
 					"js"
@@ -704,6 +762,15 @@
 			"core": {
 				"Definition": [
 					"js"
+				],
+				"Environment": [
+					"js"
+				],
+				"Package": [
+					"js"
+				],
+				"lychee": [
+					"js"
 				]
 			}
 		},
@@ -716,6 +783,7 @@
 				"html": "platform/html",
 				"html-nwjs": "platform/html-nwjs",
 				"html-webview": "platform/html-webview",
+				"nidium": "platform/nidium",
 				"node": "platform/node",
 				"node-sdl": "platform/node-sdl"
 			}
@@ -868,6 +936,9 @@
 				]
 			},
 			"crypto": {
+				"BLAKE2B": [
+					"js"
+				],
 				"CRC32": [
 					"js"
 				],
@@ -1126,6 +1197,45 @@
 					"features": [
 						"js"
 					]
+				},
+				"nidium": {
+					"Input": [
+						"js"
+					],
+					"Renderer": [
+						"js"
+					],
+					"Stash": [
+						"js"
+					],
+					"Storage": [
+						"js"
+					],
+					"Viewport": [
+						"js"
+					],
+					"bootstrap": [
+						"js"
+					],
+					"features": [
+						"js"
+					],
+					"net": {
+						"socket": {
+							"HTTP": [
+								"js"
+							]
+						}
+					},
+					"ui": {
+						"entity": {
+							"Helper": [
+								"js",
+								"json",
+								"png"
+							]
+						}
+					}
 				},
 				"node": {
 					"Input": [

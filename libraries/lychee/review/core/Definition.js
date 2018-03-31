@@ -10,185 +10,265 @@ lychee.specify('lychee.Definition').exports(function(lychee, sandbox) {
 	const _Stuff      = lychee.import('Stuff');
 
 
-	sandbox.describe('id', 12, function(expect, await) {
 
-		let id1 = 'foo.Bar';
-		let id2 = 'foo.bar.Qux';
+	/*
+	 * TESTS
+	 */
 
-		let def1 = new lychee.Definition();
-		let def2 = new lychee.Definition({
-			id: id1
-		});
+	sandbox.setSettings({
+		id:  'sandbox.foo.bar.Qux',
+		url: '/tmp/sandbox/source/foo/bar/Qux.js'
+	});
 
-		expect(def1.id,                    '');
-		expect(def1.setId(''),             false);
-		expect(def1.setId('not.$Allowed'), false);
-		expect(def1.setId(id1),            true);
-		expect(def1.id,                    id1);
-		expect(def1.setId(id2),            true);
-		expect(def1.id,                    id2);
+	sandbox.setBlob({
+		exports: 'function(lychee, global, attachments) {\n\n\tconst Module = {};\n\n\treturn Module;\n\n}',
+		includes: [
+			'sandbox.foo.Bar',
+			'sandbox.foo.Qux'
+		],
+		requires: [
+			'sandbox.foo.Doo'
+		],
+		tags: {
+			foo: 'bar',
+			bar: 'qux'
+		}
+	});
 
-		expect(def2.id,                    id1);
-		expect(def2.setId(''),             false);
-		expect(def2.setId('not.$Allowed'), false);
-		expect(def2.setId(id2),            true);
-		expect(def2.id,                    id2);
+	sandbox.setProperty('id', function(assert, expect) {
+
+		let id    = 'sandbox.foo.Bar';
+		let check = 'not.Allowed$';
+
+
+		assert(this.id, sandbox.settings.id);
+
+		assert(this.setId(id), true);
+		assert(this.id,        id);
+
+		assert(this.setId(check), false);
+		assert(this.id,           id);
+
+		assert(this.setId(sandbox.settings.id), true);
+		assert(this.id, sandbox.settings.id);
 
 	});
 
-	sandbox.describe('url', 17, function(expect, await) {
+	sandbox.setProperty('url', function(assert, expect) {
 
-		let prefix = lychee.environment.packages.find(function(pkg) {
-			return pkg.id === 'sandbox';
-		}) || '/tmp/sandbox';
+		let url = '/tmp/sandbox/source/foo/Bar.js';
 
-		let url1 = prefix + '/source/foo/Bar.js';
-		let url2 = prefix + '/source/foo/bar/Qux.js';
+		assert(this.url, '/tmp/sandbox/source/foo/bar/Qux.js');
 
-		let def1 = new lychee.Definition();
-		let def2 = new lychee.Definition({
-			url: url1
-		});
+		assert(this.setUrl(url), true);
+		assert(this.url,         url);
 
-		expect(def1.id, '');
-		expect(def1.url, null);
-		expect(def1.setUrl(''), false);
-		expect(def1.setUrl(url1), true);
-		expect(def1.url,          url1);
-		expect(def1.setId(''),    true);
-		expect(def1.id,           'sandbox.foo.Bar');
-		expect(def1.setUrl(url2), true);
-		expect(def1.setId(''),    true);
-		expect(def1.id,           'sandbox.foo.bar.Qux');
-
-		expect(def2.id,           'sandbox.foo.Bar');
-		expect(def2.url,          url1);
-		expect(def2.setUrl(''),   true);
-		expect(def2.url,          '');
-		expect(def2.setUrl(url2), true);
-		expect(def2.setId(''),    true);
-		expect(def2.id,           'sandbox.foo.bar.Qux');
+		assert(this.setId(''), false);
+		assert(this.id,        'sandbox.foo.bar.Qux');
 
 	});
 
+	sandbox.setMethod('attaches', function(assert, expect) {
 
-	sandbox.describe('attaches()', 6, function(expect, await) {
+		let config = new _Config();
 
-		let definition = new lychee.Definition({
-			id: 'Dummy'
+
+		assert(this._attaches.json instanceof _Config, false);
+		assert(this._attaches.json === config,         false);
+
+		this.attaches({
+			json: config
 		});
 
+		assert(this._attaches.json, config);
 
-		let config = new Config();
 
-		config.onload = function() {
+		expect(assert => {
 
-			definition.attaches({
-				'json': config
+			this._includes = [];
+			this._requires = [];
+
+			this.exports(function(lychee, global, attachments) {
+				assert(attachments['json'], config);
+				return {};
 			});
 
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['msc'], config);
+			expect(assert => {
+
+				let scope  = {};
+				let result = this.export(scope);
+
+				this.deserialize({
+					includes: sandbox.blob.includes,
+					requires: sandbox.blob.requires,
+					exports:  sandbox.blob.exports
+				});
+
+				assert(result, true);
+
 			});
 
-			definition.export(sandbox);
+		});
 
-		};
+	});
 
-		config.load();
+	sandbox.setMethod('check', function(assert, expect) {
+
+		assert(this._tags, sandbox.blob.tags);
 
 
-		let font = new Font();
+		let check1 = this.check({ foo: 'bar' });
+		let check2 = this.check({ bar: [ 'qux', 'doo' ] });
+		let check3 = this.check({ foo: 'qux' });
+		let check4 = this.check({ bar: [ 'doo', 'foo' ] });
 
-		font.onload = function() {
+		assert(check1.tagged,    true);
+		assert(check1.supported, true);
 
-			definition.attaches({
-				'fnt': font
+		assert(check2.tagged,    true);
+		assert(check2.supported, true);
+
+		assert(check3.tagged,    false);
+		assert(check3.supported, true);
+
+		assert(check4.tagged,    false);
+		assert(check4.supported, true);
+
+	});
+
+	sandbox.setMethod('export', function(assert, expect) {
+
+		assert(this.id, sandbox.settings.id);
+
+
+		expect(assert => {
+
+			this._includes = [];
+			this._requires = [];
+
+			this.exports(function(lychee, global, attachments) {
+				return { id: 'unique' };
 			});
 
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['msc'], config);
+			expect(assert => {
+
+				let scope  = {};
+				let result = this.export(scope);
+
+				assert(result, true);
+				assert(scope['sandbox']['foo']['bar']['Qux'].id, 'unique');
+
 			});
 
-			definition.export(sandbox);
-
-		};
-
-		font.load();
-
-
-		let music = new Music();
-
-		music.onload = function() {
-
-			definition.attaches({
-				'msc': music
+			this.deserialize({
+				includes: sandbox.blob.includes,
+				requires: sandbox.blob.requires,
+				exports:  sandbox.blob.exports
 			});
 
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['msc'], music);
+		});
+
+	});
+
+	sandbox.setMethod('exports', function(assert, expect) {
+
+		assert(this.id, sandbox.settings.id);
+
+
+		expect(assert => {
+
+			this._includes = [];
+			this._requires = [];
+
+			this.exports(function(lychee, global, attachments) {
+				return { id: 'unique' };
 			});
 
-			definition.export(sandbox);
+			expect(assert => {
 
-		};
+				let scope  = {};
+				let result = this.export(scope);
 
-		music.load();
+				assert(result, true);
+				assert(scope['sandbox']['foo']['bar']['Qux'].id, 'unique');
 
-
-		let sound = new Sound();
-
-		sound.onload = function() {
-
-			definition.attaches({
-				'snd': sound
 			});
 
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['snd'], sound);
+			this.deserialize({
+				includes: sandbox.blob.includes,
+				requires: sandbox.blob.requires,
+				exports:  sandbox.blob.exports
 			});
 
-			definition.export(sandbox);
+		});
 
-		};
+	});
 
-		sound.load();
+	sandbox.setMethod('includes', function(assert, expect) {
+
+		assert(this._includes,        sandbox.blob.includes);
+		assert(this._includes.length, sandbox.blob.includes.length);
+
+		this.includes([
+			'sandbox.foo.Bar'
+		]);
+
+		assert(this._includes.length, sandbox.blob.includes.length);
+
+		this.includes([
+			'sandbox.foo.Foo'
+		]);
+
+		assert(this._includes.length, sandbox.blob.includes.length + 1);
+
+	});
+
+	sandbox.setMethod('requires', function(assert, expect) {
+
+		assert(this._requires,        sandbox.blob.requires);
+		assert(this._requires.length, sandbox.blob.requires.length);
+
+		this.requires([
+			'sandbox.foo.Doo'
+		]);
+
+		assert(this._requires.length, sandbox.blob.requires.length);
+
+		this.requires([
+			'sandbox.foo.Foo'
+		]);
+
+		assert(this._requires.length, sandbox.blob.requires.length + 1);
+
+	});
+
+	sandbox.setMethod('supports', function(assert, expect) {
+
+		assert(this._supports, null);
+
+		this.supports(function(lychee, global) {
+			return true;
+		});
+
+		let check1 = this.check({});
+		assert(check1.supported, true);
 
 
-		let texture = new Texture();
+		this.supports(function(lychee, global) {
+			return false;
+		});
 
-		texture.onload = function() {
+		let check2 = this.check({});
+		assert(check2.supported, false);
 
-			definition.attaches({
-				'png': texture
-			});
+	});
 
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['png'], texture);
-			});
+	sandbox.setMethod('tags', function(assert, expect) {
 
-			definition.export(sandbox);
+		assert(this._tags, sandbox.blob.tags);
 
-		};
-
-
-		let stuff = new Stuff();
-
-		stuff.onload = function() {
-
-			definition.attaches({
-				'foo.js': stuff
-			});
-
-			definition.exports(function(lychee, global, attachments) {
-				expect(attachments['foo.js'], stuff);
-			});
-
-			definition.export(sandbox);
-
-		};
-
-		stuff.load();
+		this.tags({ qux: 'doo' });
+		assert(this._tags.qux, 'doo');
 
 	});
 

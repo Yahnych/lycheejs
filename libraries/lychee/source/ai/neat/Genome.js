@@ -29,12 +29,14 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 
 		let settings = Object.assign({}, data);
 
-		// this.genes   = [];
+		this.genes   = [];
 		this.fitness = 0;
-		this.adjustFitness = 0;
 		// this.network = {};
-		// this.maxneuron = 0;
 		this.globalRank = 0;
+
+
+		this.setGenes(settings.genes);
+		this.setFitness(settings.fitness);
 
 		settings = null;
 
@@ -64,15 +66,11 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 		 * CUSTOM API
 		 */
 
-		copyGenome: function() {
+		clone: function() {
 
-			let clone = new Composite();
-
-			clone.genes     = this.genes.map(gene => gene.copyGene());
-			clone.maxneuron = this.maxneuron;
-
-
-			return clone;
+			return new Composite({
+				genes: this.genes.map(lychee.serialize)
+			});
 
 		},
 
@@ -86,7 +84,7 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 					neurons.push(i);
 				});
 
-				this.genes.forEach(gene => {
+				this.genes.forEach(function(gene) {
 
 					if (neurons.indexOf(gene.into) === -1) {
 						neurons.push(gene.into);
@@ -100,7 +98,7 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 
 			} else {
 
-				this.genes.forEach(gene => {
+				this.genes.forEach(function(gene) {
 
 					if (neurons.indexOf(gene.into) === -1 && gene.into > inputs.length) {
 						neurons.push(gene.into);
