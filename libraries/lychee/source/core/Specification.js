@@ -19,8 +19,10 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 			for (let pid in lychee.environment.packages) {
 
-				let pkg = lychee.environment.packages[pid];
-				if (this.url.startsWith(pkg.url)) {
+				let pkg  = lychee.environment.packages[pid];
+				let base = pkg.url.split('/').slice(0, -1).join('/');
+
+				if (this.url.startsWith(base)) {
 					namespace = pkg.id;
 				}
 
@@ -38,11 +40,25 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 					ns[ns.length - 1] = tmp_s.split('.').slice(0, -1).join('.');
 				}
 
+				if (tmp_i !== -1 && ns[tmp_i + 1] === 'core') {
+
+					if (ns[tmp_i + 2] === 'lychee') {
+						ns.splice(tmp_i + 1, 2);
+					} else {
+						ns.splice(tmp_i + 1, 1);
+					}
+
+				}
+
 				if (tmp_i !== -1) {
 					id = ns.slice(tmp_i + 1).join('.');
 				}
 
-				found = namespace + '.' + id;
+				if (id !== '') {
+					found = namespace + '.' + id;
+				} else {
+					found = namespace;
+				}
 
 			}
 
@@ -111,8 +127,9 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 		this._exports  = null;
 
 
-		this.setId(settings.id);
+		// XXX: url has to be set first for fuzzing
 		this.setUrl(settings.url);
+		this.setId(settings.id);
 
 		settings = null;
 
@@ -201,13 +218,13 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 						this.id = fuzzed;
 
-						console.warn('lychee.Definition: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+						console.warn('lychee.Specification: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
 
 						return true;
 
 					} else {
 
-						console.error('lychee.Definition: Invalid Identifier "' + id + '" (' + this.url + ')');
+						console.error('lychee.Specification: Invalid Identifier "' + id + '" (' + this.url + ')');
 
 					}
 
@@ -258,11 +275,11 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 					try {
 						this._exports.call(
 							this._exports,
-							sandbox.lychee,
+							lychee,
 							sandbox
 						) || null;
 					} catch (err) {
-						lychee.Debugger.report(null, err, this);
+						lychee.Debugger.report(lychee.environment, err, this);
 					}
 
 
@@ -278,7 +295,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 						for (let i = 0, il = invalid_requires.length; i < il; i++) {
 							let tmp = invalid_requires[i];
-							console.error('lychee.Specification: Invalid Requirement of "' + tmp + '" in "' + id + '".');
+							console.error('lychee.Specification ("' + id + '"): Invalid Requirement of "' + tmp + '".');
 						}
 
 					}
@@ -318,7 +335,16 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 					let definition = definitions[d];
 					if (typeof definition === 'string') {
 
-						if (definition.indexOf('.') !== -1 && this._requires.indexOf(definition) === -1) {
+						let is_definition = definition.includes('.');
+						let is_namespace  = definition === definition.toLowerCase();
+
+						if (is_definition === true) {
+
+							if (this._requires.includes(definition) === false) {
+								this._requires.push(definition);
+							}
+
+						} else if (is_namespace === true) {
 							this._requires.push(definition);
 						}
 

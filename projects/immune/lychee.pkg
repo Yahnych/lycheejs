@@ -28,6 +28,11 @@
 					}
 				}
 			},
+			"logic": {
+				"Pathfinder": [
+					"json"
+				]
+			},
 			"state": {
 				"Game": [
 					"json"
@@ -127,9 +132,16 @@
 					}
 				}
 			},
+			"logic": {
+				"Pathfinder": [
+					"js"
+				]
+			},
 			"state": {
 				"Game": [
-					"js"
+					"js",
+					"json",
+					"levels.json"
 				],
 				"Menu": [
 					"js",

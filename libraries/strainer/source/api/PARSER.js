@@ -158,6 +158,10 @@ lychee.define('strainer.api.PARSER').requires([
 			type = 'null';
 		} else if (str === 'true' || str === 'false') {
 			type = 'Boolean';
+		} else if (str.startsWith('function')) {
+			type = 'function';
+		} else if (str.startsWith('(function(')) {
+			type = 'function';
 		} else if (str.includes('===') && !str.includes('?')) {
 			type = 'Boolean';
 		} else if (str.includes('&&') && !str.includes('?')) {
@@ -170,6 +174,8 @@ lychee.define('strainer.api.PARSER').requires([
 			type = 'Enum';
 		} else if (str.startsWith('new Composite')) {
 			type = 'Composite';
+		} else if (str.startsWith('new Promise')) {
+			type = 'Promise';
 		} else if (str.startsWith('new ')) {
 
 			let tmp = str.substr(4);
@@ -188,6 +194,8 @@ lychee.define('strainer.api.PARSER').requires([
 			type = 'String';
 		} else if (str.includes('toString(') || str.includes('join(')) {
 			type = 'String';
+		} else if (str.startsWith('/') || str.endsWith('/g')) {
+			type = 'RegExp';
 		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9.]+$/g.test(str) || /^-[0-9.]+$/g.test(str)) {
 			type = 'Number';
 		} else if (str === 'Infinity') {
@@ -402,6 +410,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 			let tmp = _parse_value(str);
 			if (tmp === undefined) {
+				//				console.log(str);
 				tmp = {};
 			}
 
@@ -410,6 +419,8 @@ lychee.define('strainer.api.PARSER').requires([
 		} else if (str.startsWith('Composite.')) {
 			value = str;
 		} else if (str.startsWith('new Composite')) {
+			value = str;
+		} else if (str.startsWith('new Promise')) {
 			value = str;
 		} else if (str.startsWith('new ')) {
 
@@ -437,6 +448,24 @@ lychee.define('strainer.api.PARSER').requires([
 			value = "<string>";
 		} else if (str.includes('toString(') || str.includes('join(')) {
 			value = "<string>";
+		} else if (str.startsWith('/') || str.endsWith('/g')) {
+
+			let tmp1 = str;
+			let tmp2 = str.substr(str.lastIndexOf('/') + 1);
+
+			if (tmp1.startsWith('/')) {
+				tmp1 = tmp1.substr(1);
+			}
+
+			if (tmp1.endsWith('/g')) {
+				tmp1 = tmp1.substr(0, tmp1.length - 2);
+			}
+
+			value = {
+				'constructor': 'RegExp',
+				'arguments':   [ tmp1, tmp2 ]
+			};
+
 		} else if (str.startsWith('0b') || str.startsWith('0x') || str.startsWith('0o') || /^[0-9.]+$/g.test(str) || /^-[0-9.]+$/g.test(str)) {
 			value = _parse_value(str);
 		} else if (str === 'Infinity') {
@@ -636,9 +665,9 @@ lychee.define('strainer.api.PARSER').requires([
 
 			let val = {
 				chunk: 'undefined',
-				type:  'undefined',
-				value: undefined
+				type:  'undefined'
 			};
+
 
 
 			// XXX: This is explicitely to prevent parser
@@ -646,7 +675,18 @@ lychee.define('strainer.api.PARSER').requires([
 
 			val.chunk = str;
 			val.type  = _detect_type(str);
-			val.value = _detect_value(str);
+
+			if (val.type === 'function') {
+
+				val.hash       = Module.hash(str);
+				val.parameters = Module.parameters(str);
+				val.values     = Module.values(str);
+
+			} else {
+
+				val.value = _detect_value(str);
+
+			}
 
 
 			let dictionary = [];
@@ -1016,6 +1056,91 @@ lychee.define('strainer.api.PARSER').requires([
 
 		},
 
+		find: function(key, code) {
+
+			key  = typeof key === 'string'  ? key  : null;
+			code = typeof code === 'string' ? code : null;
+
+
+			if (key !== null && code !== null) {
+
+				let str0 = 'const ' + key;
+				let i0   = code.indexOf(str0);
+				let i1   = code.indexOf('\n', i0);
+
+
+				if (i0 === -1) {
+					str0 = 'let   ' + key;
+					i0   = code.indexOf(str0);
+					i1   = code.indexOf('\n', i0);
+				}
+
+				if (i0 === -1) {
+					str0 = 'let ' + key;
+					i0   = code.indexOf(str0);
+					i1   = code.indexOf('\n', i0);
+				}
+
+
+				if (i0 !== -1 && i1 !== -1) {
+
+					let tmp1 = code.substr(i0 + str0.length, i1 - str0.length - i0).trim();
+					if (
+						tmp1.startsWith('=')
+						&& tmp1.endsWith(';')
+					) {
+
+						return tmp1.substr(1, tmp1.length - 2).trim();
+
+					} else if (
+						tmp1.startsWith('=')
+						&& tmp1.includes('(function(')
+						&& tmp1.endsWith('{')
+					) {
+
+						let str2 = '\n\t})';
+						let str3 = ');\n';
+						let i2   = code.indexOf(str2, i0);
+						let i3   = code.indexOf(str3, i2);
+
+						if (i2 !== -1 && i3 !== -1) {
+
+							let tmp2 = code.substr(i0 + str0.length, i3 - str0.length - i0 + str3.length).trim();
+							if (tmp2.startsWith('=') && tmp2.endsWith(';')) {
+								return tmp2.substr(1, tmp2.length - 2).trim();
+							}
+
+						}
+
+					} else if (
+						tmp1.startsWith('=')
+						&& tmp1.endsWith('{')
+					) {
+
+						let str2 = '\n\t};';
+						let i2   = code.indexOf(str2, i0);
+						if (i2 !== -1) {
+
+							let tmp2 = code.substr(i0 + str0.length, i2 - str0.length - i0 + str2.length).trim();
+							if (tmp2.startsWith('=') && tmp2.endsWith(';')) {
+
+								return tmp2.substr(1, tmp2.length - 2).trim();
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return 'undefined';
+
+		},
+
 		hash: function(code) {
 
 			code = typeof code === 'string' ? code : '';
@@ -1039,7 +1164,10 @@ lychee.define('strainer.api.PARSER').requires([
 			let first      = lines[0].trim();
 			let last       = lines[lines.length - 1].trim();
 
-			if (first.startsWith('function(') && first.endsWith(') {')) {
+			if (
+				(first.startsWith('function(') || first.startsWith('(function('))
+				&& first.endsWith(') {')
+			) {
 
 				lines.shift();
 
@@ -1270,7 +1398,10 @@ lychee.define('strainer.api.PARSER').requires([
 			let first      = lines[0].trim();
 			let last       = lines[lines.length - 1].trim();
 
-			if (first.startsWith('function(') && first.endsWith(') {')) {
+			if (
+				(first.startsWith('function(') || first.startsWith('(function('))
+				&& first.endsWith(') {')
+			) {
 				lines.shift();
 			}
 
@@ -1296,6 +1427,8 @@ lychee.define('strainer.api.PARSER').requires([
 				}
 
 
+				let result = false;
+
 				// XXX: Following algorithm crashes itself
 				if (
 					!line.includes('line.includes(')
@@ -1313,7 +1446,13 @@ lychee.define('strainer.api.PARSER').requires([
 							&& !line.includes('}, function')
 							&& line !== '}, {'
 						) {
+
+							if (line.startsWith('return ')) {
+								result = true;
+							}
+
 							nest_level++;
+
 						}
 
 					}
@@ -1347,12 +1486,12 @@ lychee.define('strainer.api.PARSER').requires([
 				}
 
 
-				if (nest_level === 0 && line.includes('return ')) {
-					return true;
+				if (result === false && nest_level === 0 && line.includes('return ')) {
+					result = true;
 				}
 
 
-				return false;
+				return result;
 
 			}).map(function(line) {
 

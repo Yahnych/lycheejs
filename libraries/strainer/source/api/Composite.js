@@ -1,9 +1,11 @@
 
 lychee.define('strainer.api.Composite').requires([
-	'strainer.api.PARSER'
+	'strainer.api.PARSER',
+	'strainer.api.TRANSCRIPTOR'
 ]).exports(function(lychee, global, attachments) {
 
-	const _PARSER = lychee.import('strainer.api.PARSER');
+	const _PARSER       = lychee.import('strainer.api.PARSER');
+	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
 
 
 
@@ -12,6 +14,7 @@ lychee.define('strainer.api.Composite').requires([
 	 */
 
 	const _SERIALIZE = {
+		type:       'function',
 		body:       'function() { return {}; }',
 		chunk:      'function() {',
 		hash:       _PARSER.hash('function() { return {}; }'),
@@ -27,6 +30,7 @@ lychee.define('strainer.api.Composite').requires([
 	};
 
 	const _DESERIALIZE = {
+		type:       'function',
 		body:       'function(blob) {}',
 		chunk:      'function(blob) {',
 		hash:       _PARSER.hash('function(blob) {}'),
@@ -125,22 +129,6 @@ lychee.define('strainer.api.Composite').requires([
 
 	};
 
-	const _find_memory = function(key, stream) {
-
-		let str1 = 'const ' + key + ' = ';
-		let str2 = '\n\t};';
-
-		let i1 = stream.indexOf(str1);
-		let i2 = stream.indexOf(str2, i1);
-
-		if (i1 !== -1 && i2 !== -1) {
-			return stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
-		}
-
-		return 'undefined';
-
-	};
-
 	const _find_method = function(key, stream) {
 
 		let str1 = '\n\t\t' + key + ': function';
@@ -165,18 +153,25 @@ lychee.define('strainer.api.Composite').requires([
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48).trim();
+			let body = stream.substr(i1 + 48, i2 - i1 - 48);
 			if (body.length > 0) {
 
 				body.split('\n')
-					.map(function(line) {
-						return line.trim();
-					}).filter(function(line) {
-						return line.startsWith('const ');
-					}).forEach(function(line) {
+					.filter(line => {
+						return line.startsWith('\tconst ') || line.startsWith('\tlet ');
+					})
+					.map(line => line.trim())
+					.forEach(line => {
 
-						let tmp = line.substr(6).trim();
-						let i1  = tmp.indexOf('=');
+						let tmp = '';
+						if (line.startsWith('const ')) {
+							tmp = line.substr(6).trim();
+						} else if (line.startsWith('let ')) {
+							tmp = line.substr(4).trim();
+						}
+
+
+						let i1 = tmp.indexOf('=');
 						if (i1 !== -1) {
 
 							let key   = tmp.substr(0, i1).trim();
@@ -184,23 +179,14 @@ lychee.define('strainer.api.Composite').requires([
 
 							if (key !== '' && chunk !== '') {
 
-								if (chunk.startsWith('function(')) {
+								if (chunk.endsWith(';')) {
 
-									chunk = _find_memory(key, stream);
-
-									if (chunk.endsWith(';')) {
-										chunk = chunk.substr(0, chunk.length - 1);
-									}
-
-									memory[key] = {
-										body:       chunk,
-										hash:       _PARSER.hash(chunk),
-										parameters: _PARSER.parameters(chunk),
-										values:     _PARSER.values(chunk)
-									};
+									chunk = chunk.substr(0, chunk.length - 1);
+									memory[key] = _PARSER.detect(chunk);
 
 								} else {
 
+									chunk = _PARSER.find(key, body);
 									memory[key] = _PARSER.detect(chunk);
 
 								}
@@ -227,6 +213,7 @@ lychee.define('strainer.api.Composite').requires([
 			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (body.length > 0) {
 
+				constructor.type       = 'function';
 				constructor.body       = body;
 				constructor.hash       = _PARSER.hash(body);
 				constructor.parameters = _PARSER.parameters(body);
@@ -239,12 +226,13 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_settings = function(settings, stream) {
 
-		let i1 = stream.indexOf('\n\tconst Composite =');
-		let i2 = stream.indexOf('\n\t};', i1);
+		let buffer = stream.split('\n');
+		let check1 = buffer.findIndex((line, l) => line.startsWith('\tconst Composite = '));
+		let check2 = buffer.findIndex((line, l) => (line === '\t};' && l > check1));
 
-		if (i1 !== -1 && i2 !== -1) {
+		if (check1 !== -1 && check2 !== -1) {
 
-			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
+			let body = buffer.slice(check1, check2).join('\n').trim().substr(18);
 			if (body.length > 0) {
 
 				let object = _PARSER.settings(body);
@@ -264,15 +252,16 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_properties = function(properties, stream) {
 
-		let i1 = stream.indexOf('\n\tconst Composite =');
-		let i2 = stream.indexOf('\n\t};', i1);
+		let buffer = stream.split('\n');
+		let check1 = buffer.findIndex((line, l) => line.startsWith('\tconst Composite = '));
+		let check2 = buffer.findIndex((line, l) => (line === '\t};' && l > check1));
 
-		if (i1 !== -1 && i2 !== -1) {
+		if (check1 !== -1 && check2 !== -1) {
 
-			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
+			let body = buffer.slice(check1, check2).join('\n').trim().substr(18);
 			if (body.length > 0) {
 
-				body.split('\n').forEach(function(line, l, self) {
+				body.split('\n').forEach(line => {
 
 					let chunk = line.trim();
 					if (chunk.startsWith('this.') && chunk.includes(' = ')) {
@@ -287,10 +276,7 @@ lychee.define('strainer.api.Composite').requires([
 						}
 
 
-						let tmp = chunk.split(/this\.([A-Za-z_]+)([\s]+)=([\s]+)([^\0]*);/g).filter(function(ch) {
-							return ch.trim() !== '';
-						});
-
+						let tmp = chunk.split(/this\.([A-Za-z_]+)([\s]+)=([\s]+)([^\0]*);/g).filter(ch => ch.trim() !== '');
 						if (tmp.length === 2) {
 
 							let name = tmp[0];
@@ -521,47 +507,39 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_methods = function(methods, stream, errors) {
 
-		let i1 = stream.indexOf('\n\tComposite.prototype = {');
-		let i2 = stream.indexOf('\n\t};', i1);
+		let buffer = stream.split('\n');
+		let check1 = buffer.findIndex((line, l) => (line === '\tComposite.prototype = {'));
+		let check2 = buffer.findIndex((line, l) => (line === '\t};' && l > check1));
 
-		if (i1 !== -1 && i2 !== -1) {
+		if (check1 !== -1 && check2 !== -1) {
 
-			stream.substr(i1 + 25, i2 - i1 - 25).split('\n')
-				.filter(function(line) {
+			buffer.slice(check1 + 1, check2).filter(line => {
 
-					if (line.startsWith('\t\t')) {
+				if (line.startsWith('\t\t')) {
 
-						let tmp = line.substr(2);
-						if (/^([A-Za-z0-9]+):\sfunction/g.test(tmp)) {
-							return true;
-						} else if (tmp.startsWith('// deserialize: function(blob) {}')) {
-							methods['deserialize'] = Object.assign({}, _DESERIALIZE);
-						} else if (tmp.startsWith('// serialize: function() {}')) {
-							methods['serialize'] = Object.assign({}, _SERIALIZE);
-						}
-
+					let tmp = line.substr(2);
+					if (/^([A-Za-z0-9]+):\sfunction/g.test(tmp)) {
+						return true;
+					} else if (tmp.startsWith('// deserialize: function(blob) {}')) {
+						methods['deserialize'] = Object.assign({}, _DESERIALIZE);
+					} else if (tmp.startsWith('// serialize: function() {}')) {
+						methods['serialize'] = Object.assign({}, _SERIALIZE);
 					}
 
-					return false;
+				}
 
-				}).forEach(function(chunk) {
+				return false;
 
-					let name = chunk.split(':')[0].trim();
-					let body = _find_method(name, stream);
+			}).forEach(chunk => {
 
-					if (body !== 'undefined') {
+				let name = chunk.split(':')[0].trim();
+				let body = _find_method(name, stream);
 
-						methods[name] = {
-							body:       body,
-							chunk:      chunk,
-							hash:       _PARSER.hash(body),
-							parameters: _PARSER.parameters(body),
-							values:     _PARSER.values(body)
-						};
+				if (body !== 'undefined') {
+					methods[name] = _PARSER.detect(body);
+				}
 
-					}
-
-				});
+			});
 
 
 			let deserialize = methods['deserialize'];
@@ -586,12 +564,7 @@ lychee.define('strainer.api.Composite').requires([
 
 				if (params.length > 0) {
 
-					let found = params.filter(function(other) {
-						return other.type === 'undefined' && other.value === undefined;
-					}).map(function(other) {
-						return other.name;
-					});
-
+					let found = params.filter(p => p.type === 'undefined' && p.value === undefined).map(p => p.name);
 					if (found.length > 0) {
 
 						if (/^(control|render|update|deserialize|serialize)$/g.test(mid) === false) {
@@ -644,7 +617,7 @@ lychee.define('strainer.api.Composite').requires([
 
 					if (/^(serialize|deserialize)$/g.test(mid) === false) {
 
-						values.forEach(function(val) {
+						values.forEach(val => {
 
 							if (val.type === 'undefined' && val.value === undefined) {
 
@@ -707,6 +680,7 @@ lychee.define('strainer.api.Composite').requires([
 			let memory = {};
 			let result = {
 				constructor: {
+					type:       null,
 					body:       null,
 					hash:       null,
 					parameters: []
@@ -946,6 +920,80 @@ lychee.define('strainer.api.Composite').requires([
 				memory: memory,
 				result: result
 			};
+
+		},
+
+		transcribe: function(asset) {
+
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
+			if (asset !== null) {
+
+				let code = [];
+
+
+				let api = asset.buffer;
+				if (api instanceof Object) {
+
+					let memory = api.memory || null;
+					let result = api.result || null;
+
+
+					if (memory instanceof Object) {
+
+						for (let m in memory) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(m, memory[m]);
+							if (chunk !== null) {
+								code.push('\t' + chunk);
+							}
+
+						}
+
+					}
+
+
+					let construct = result.constructor || null;
+					if (construct !== null) {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Composite', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\t' + chunk);
+						}
+
+					}
+
+
+					if (Object.keys(result.methods).length > 0) {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', result.methods, true);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\t' + chunk);
+						}
+
+					}
+
+
+					code.push('');
+					code.push('');
+					code.push('\treturn Composite;');
+
+				}
+
+
+				if (code.length > 0) {
+					return code.join('\n');
+				}
+
+			}
+
+
+			return null;
 
 		}
 

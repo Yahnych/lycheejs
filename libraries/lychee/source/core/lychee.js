@@ -16,6 +16,139 @@ lychee = (function(global) {
 	 * POLYFILLS
 	 */
 
+	if (typeof Array.from !== 'function') {
+
+		Array.from = function(alike/*, predicate, thisArg */) {
+
+			if (alike === null || alike === undefined) {
+				throw new TypeError('Array.from requires an array-like object - not null or undefined');
+			}
+
+
+			let construct = this;
+			let list      = Object(alike);
+			let predicate = arguments.length > 1 ? arguments[1] : void 0;
+			let thisArg   = arguments.length > 2 ? arguments[2] : void 0;
+
+			if (typeof predicate !== 'undefined') {
+
+				if (typeof predicate !== 'function') {
+					throw new TypeError('Array.from: when provided, the second argument must be a function');
+				}
+
+			}
+
+			let length = list.length >>> 0;
+			let array  = typeof construct === 'function' ? Object(new construct(length)) : new Array(length);
+
+			for (let i = 0; i < length; i++) {
+
+				let value = list[i];
+
+				if (predicate !== undefined) {
+
+					if (thisArg === undefined) {
+						array[i] = predicate(value, i);
+					} else {
+						array[i] = predicate.call(thisArg, value, i);
+					}
+
+				} else {
+					array[i] = value;
+				}
+
+			}
+
+			array.length = length;
+
+			return array;
+
+		};
+
+	}
+
+	if (typeof Array.prototype.find !== 'function') {
+
+		Array.prototype.find = function(predicate/*, thisArg */) {
+
+			if (this === null || this === undefined) {
+				throw new TypeError('Array.prototype.find called on null or undefined');
+			}
+
+			if (typeof predicate !== 'function') {
+				throw new TypeError('predicate must be a function');
+			}
+
+
+			let list    = Object(this);
+			let length  = list.length >>> 0;
+			let thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+			let value;
+
+			for (let i = 0; i < length; i++) {
+
+				if (i in list) {
+
+					value = list[i];
+
+					if (predicate.call(thisArg, value, i, list)) {
+						return value;
+					}
+
+				}
+
+			}
+
+
+			return undefined;
+
+		};
+
+	}
+
+	if (typeof Array.prototype.includes !== 'function') {
+
+		Array.prototype.includes = function(search/*, from */) {
+
+			if (this === null || this === undefined) {
+				throw new TypeError('Array.prototype.includes called on null or undefined');
+			}
+
+
+			let list   = Object(this);
+			let length = list.length >>> 0;
+			let from   = arguments.length >= 2 ? arguments[1] : 0;
+			let value;
+
+
+			if (length === 0 || from >= length) {
+				return false;
+			}
+
+
+			let start = Math.max(from >= 0 ? from : (length - Math.abs(from)), 0);
+
+			for (let i = start; i < length; i++) {
+
+				if (i in list) {
+
+					value = list[i];
+
+					if (value === search || (isNaN(value) && isNaN(search))) {
+						return true;
+					}
+
+				}
+
+			}
+
+
+			return false;
+
+		};
+
+	}
+
 	if (typeof Array.prototype.unique !== 'function') {
 
 		Array.prototype.unique = function() {
@@ -87,6 +220,39 @@ lychee = (function(global) {
 
 		Number.prototype.toJSON = function() {
 			return this.valueOf();
+		};
+
+	}
+
+	if (typeof Object.assign !== 'function') {
+
+		Object.assign = function(object /*, ... sources */) {
+
+			if (object !== Object(object)) {
+				throw new TypeError('Object.assign called on a non-object');
+			}
+
+
+			for (let a = 1, al = arguments.length; a < al; a++) {
+
+				let source = arguments[a];
+				if (source !== undefined && source !== null) {
+
+					for (let key in source) {
+
+						if (Object.prototype.hasOwnProperty.call(source, key) === true) {
+							object[key] = source[key];
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return object;
+
 		};
 
 	}
@@ -304,13 +470,38 @@ lychee = (function(global) {
 			let length = tmp.length >>> 0;
 
 
-			let chunk = value.substr(0, from - length);
+			let chunk = value.substr(from - length);
 			if (chunk === tmp) {
 				return true;
 			}
 
 
 			return false;
+
+		};
+
+	}
+
+	if (typeof String.prototype.includes !== 'function') {
+
+		String.prototype.includes = function(search/*, from */) {
+
+			if (this === null || this === undefined) {
+				throw new TypeError('String.prototype.includes called on null or undefined');
+			}
+
+
+			let value  = String(this);
+			let from   = arguments.length >= 2 ? (arguments[1] | 0) : 0;
+			let tmp    = String(search);
+			let length = tmp.length >>> 0;
+
+			if (from + length > value.length) {
+				return false;
+			}
+
+
+			return value.indexOf(search, from) !== -1;
 
 		};
 
@@ -506,13 +697,14 @@ lychee = (function(global) {
 		FEATURES:     {},
 		FILENAME:     null,
 		PLATFORMS:    [],
+		SIMULATIONS:  {},
 
 		ROOT: {
 			lychee:  '/opt/lycheejs',
 			project: null
 		},
 
-		VERSION: "2017-Q4",
+		VERSION: "2018-Q1",
 
 
 
@@ -577,16 +769,21 @@ lychee = (function(global) {
 
 						if (object.hasOwnProperty(prop) === true) {
 
-							let tvalue = target[prop];
 							let ovalue = object[prop];
-							if (tvalue instanceof Array && ovalue instanceof Array) {
+							if (ovalue instanceof Array) {
+
 								target[prop] = [];
 								Module.assignunlink(target[prop], object[prop]);
-							} else if (tvalue instanceof Object && ovalue instanceof Object) {
+
+							} else if (ovalue instanceof Object) {
+
 								target[prop] = {};
 								Module.assignunlink(target[prop], object[prop]);
+
 							} else {
+
 								target[prop] = object[prop];
+
 							}
 
 						}
@@ -611,7 +808,7 @@ lychee = (function(global) {
 			if (template !== null && blob !== null) {
 
 				let tname    = template.displayName;
-				let bname    = blob.constructor || blob.reference || null;
+				let bname    = blob.reference || blob.constructor || null;
 				let hashable = typeof tname === 'string' && typeof bname === 'string';
 				let hashmap  = _BLOBOF_CACHE;
 
@@ -665,7 +862,44 @@ lychee = (function(global) {
 			bobject = bobject !== undefined ? bobject : undefined;
 
 
-			if (aobject instanceof Object && bobject instanceof Object) {
+			if (aobject === bobject) {
+
+				return false;
+
+			} else if (aobject instanceof Array && bobject instanceof Array) {
+
+				for (let a = 0, al = aobject.length; a < al; a++) {
+
+					if (bobject[a] !== undefined) {
+
+						if (aobject[a] !== null && bobject[a] !== null) {
+
+							if (aobject[a] instanceof Object && bobject[a] instanceof Object) {
+
+								if (Module.diff(aobject[a], bobject[a]) === true) {
+
+									// Allows aobject[a].builds = {} and bobject[a].builds = { stuff: {}}
+									if (Object.keys(aobject[a]).length > 0) {
+										return true;
+									}
+
+								}
+
+							} else if (typeof aobject[a] !== typeof bobject[a]) {
+								return true;
+							} else if (aobject[a] !== bobject[a]) {
+								return true;
+							}
+
+						}
+
+					} else {
+						return true;
+					}
+
+				}
+
+			} else if (aobject instanceof Object && bobject instanceof Object) {
 
 				let akeys = Object.keys(aobject);
 				let bkeys = Object.keys(bobject);
@@ -695,6 +929,8 @@ lychee = (function(global) {
 								}
 
 							} else if (typeof aobject[key] !== typeof bobject[key]) {
+								return true;
+							} else if (aobject[key] !== bobject[key]) {
 								return true;
 							}
 
@@ -889,7 +1125,7 @@ lychee = (function(global) {
 					let resolved_composite = _resolve_reference.call(scope, data.constructor);
 					if (typeof resolved_composite === 'function') {
 
-						let bindargs = [].splice.call(data.arguments, 0).map(function(value) {
+						let bindargs = Array.from(data.arguments).map(function(value) {
 
 							if (typeof value === 'string' && value.charAt(0) === '#') {
 
@@ -979,9 +1215,9 @@ lychee = (function(global) {
 					} else if (typeof definition.displayName !== 'undefined') {
 
 						if (definition.prototype instanceof Object) {
-							console.info('lychee.deserialize: Define ' + (definition.displayName) + '.prototype.serialize() to serialize it.');
+							console.info('lychee.serialize: Define ' + (definition.displayName) + '.prototype.serialize() to serialize it.');
 						} else {
-							console.info('lychee.deserialize: Define ' + (definition.displayName) + '.serialize() to serialize it.');
+							console.info('lychee.serialize: Define ' + (definition.displayName) + '.serialize() to serialize it.');
 						}
 
 					} else {
@@ -1114,6 +1350,29 @@ lychee = (function(global) {
 
 
 			return null;
+
+		},
+
+		export: function(reference, sandbox) {
+
+			reference = typeof reference === 'string' ? reference : null;
+			sandbox   = sandbox !== undefined         ? sandbox   : global;
+
+
+			if (reference !== null && sandbox !== null) {
+
+				_bootstrap_environment.call(this);
+
+
+				let definition = this.environment.definitions[reference] || null;
+				if (definition !== null) {
+					return definition.export(sandbox);
+				}
+
+			}
+
+
+			return false;
 
 		},
 
@@ -1264,8 +1523,9 @@ lychee = (function(global) {
 
 				} else if (environment instanceof lychee.Simulation) {
 
-					let simulation  = environment;
-					let environment = simulation.environment;
+					let simulation = environment;
+
+					environment = simulation.environment;
 
 
 					if (callback === null) {

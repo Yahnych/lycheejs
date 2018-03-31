@@ -45,8 +45,43 @@ lychee.define('strainer.Fixer').requires([
 
 			if (file !== null && project !== null) {
 
-				lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
-				lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
+				let cwd = this.settings.cwd || null;
+
+				// XXX: lycheejs-strainer-fixer check /projects/my-project/source/Main.js
+				if (cwd === _lychee.ROOT.lychee) {
+
+					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
+					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
+
+				// XXX: cd /opt/lycheejs/projects && lycheejs-strainer-fixer check my-project/source/Main.js
+				} else if (cwd.startsWith(_lychee.ROOT.lychee)) {
+
+					if (project.startsWith(_lychee.ROOT.lychee)) {
+						project = project.substr(_lychee.ROOT.lychee.length);
+					}
+
+					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
+					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
+
+				// XXX: lycheejs-strainer-fixer check /home/whatever/my-project/source/Main.js
+				} else {
+
+					lychee.ROOT.lychee                            = '';
+					lychee.ROOT.project                           = project;
+					lychee.environment.global.lychee.ROOT.project = project;
+
+					// XXX: Disable sandbox for external projects
+					lychee.environment.resolve = function(url) {
+
+						if (url.startsWith('/libraries') || url.startsWith('/projects')) {
+							return '/opt/lycheejs' + url;
+						} else {
+							return url;
+						}
+
+					};
+
+				}
 
 
 				this.trigger('init');
@@ -141,7 +176,15 @@ lychee.define('strainer.Fixer').requires([
 
 					flow.errors.forEach(function(err) {
 
-						let path = '/opt/lycheejs' + err.url;
+						let path = err.url;
+						if (
+							path.startsWith('/opt/lycheejs') === false
+							&& path.startsWith(cwd) === false
+						) {
+							path = cwd + '/' + err.url;
+						}
+
+
 						let rule = err.rule    || 'parser-error';
 						let line = err.line    || 0;
 						let col  = err.column  || 0;

@@ -1,8 +1,8 @@
 
 lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation : (function(global) {
 
-	const _console = global.console;
 	let   _id      = 0;
+	const _console = global.console;
 	const _lychee  = global.lychee;
 
 
@@ -49,8 +49,9 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 	const _build_loop = function(cache) {
 
-		let load  = cache.load;
-		let trace = cache.trace;
+		let load    = cache.load;
+		let trace   = cache.trace;
+		let timeout = this.timeout;
 
 
 		for (let l = 0, ll = load.length; l < ll; l++) {
@@ -95,9 +96,9 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 				} else {
 
-					this.global._IDENTIFIER = identifier;
-					specification.export(this.global);
-					this.global._IDENTIFIER = null;
+					let sandbox = new _Sandbox(identifier, timeout);
+					specification.export(sandbox);
+					this.sandboxes[identifier] = sandbox;
 
 					trace.splice(t, 1);
 					tl--;
@@ -129,14 +130,16 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 		let console     = _get_console.call(this);
 		let debug       = _get_debug.call(this);
 		let environment = this.environment;
+		let sandboxes   = this.sandboxes;
+
 
 		if (debug === true) {
-			console.info('lychee-Simulation (' + this.id + '): BUILD END (' + (cache.end - cache.start) + 'ms)');
+			console.info('lychee.Simulation ("' + this.id + '"): BUILD END (' + (cache.end - cache.start) + 'ms).');
 		}
 
 
 		try {
-			callback.call(this.global, this.global);
+			callback.call(environment.global, sandboxes);
 		} catch (err) {
 			_lychee.Debugger.report(environment, err, null);
 		}
@@ -149,22 +152,23 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 		let debug       = _get_debug.call(this);
 		let environment = this.environment;
 
+
 		if (debug === true) {
-			console.warn('lychee-Simulation (' + this.id + '): BUILD TIMEOUT (' + (cache.end - cache.start) + 'ms)');
+			console.warn('lychee.Simulation ("' + this.id + '"): BUILD TIMEOUT (' + (cache.end - cache.start) + 'ms).');
 		}
 
 
 		if (cache.load.length > 0) {
 
-			console.error('lychee-Simulation (' + this.id + '): Invalid Dependencies\n' + cache.load.map(function(value) {
+			console.error('lychee.Simulation ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(function(value) {
 				return '\t - ' + value;
-			}).join('\n'));
+			}).join('\n') + '.');
 
 		}
 
 
 		try {
-			callback.call(this.global, null);
+			callback.call(environment.global, null);
 		} catch (err) {
 			_lychee.Debugger.report(environment, err, null);
 		}
@@ -196,13 +200,14 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 	const _resolve_dependencies = function(specification) {
 
 		let dependencies = [];
+		let sandboxes    = this.sandboxes;
 
 		if (specification instanceof _lychee.Specification) {
 
 			for (let r = 0, rl = specification._requires.length; r < rl; r++) {
 
 				let req   = specification._requires[r];
-				let check = _resolve.call(_get_global.call(this), req);
+				let check = sandboxes[req] || null;
 				if (check === null) {
 					dependencies.push(req);
 				}
@@ -222,26 +227,443 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 	 * STRUCTS
 	 */
 
-	const _Sandbox = function() {
+	const _assert = function(a, b) {
 
-		this.console = _console;
-		this.lychee  = _lychee;
+		let result = lychee.diff(a, b);
+		if (result === false) {
+			this.results.ok++;
+		}
 
-		this._IDENTIFIER = null;
-		this._TESTSUITE  = [];
+		this.results.all++;
+
+	};
+
+	const _expect = function(assert, callback) {
+
+		this._expect++;
+
+
+		let that = this;
+
+		callback(function(a, b) {
+			that._expect--;
+			assert(a, b);
+		});
+
+	};
+
+	const _Sandbox = function(identifier, timeout) {
+
+		this._IDENTIFIER = identifier || null;
+		this._INSTANCE   = null;
+		this._timeout    = timeout;
+
+		this.blob       = {};
+		this.settings   = {};
+		this.properties = {};
+		this.enums      = {};
+		this.events     = {};
+		this.methods    = {};
 
 	};
 
 	_Sandbox.prototype = {
 
-		describe: function(name, amount, callback) {
+		/*
+		 * ENTITY API
+		 */
 
-			this._TESTSUITE.push({
-				id:       this._IDENTIFIER,
-				name:     name,
-				amount:   amount,
-				callback: callback
-			});
+		deserialize: function(blob) {
+
+			if (blob.instance instanceof Object) {
+				this._INSTANCE = lychee.deserialize(blob.instance);
+			}
+
+			if (blob.settings instanceof Object) {
+				this.settings = lychee.deserialize(blob.settings);
+			}
+
+			if (blob.properties instanceof Object) {
+
+				for (let p in blob.properties) {
+					this.properties[p] = lychee.deserialize(blob.properties[p]);
+				}
+
+			}
+
+			if (blob.enums instanceof Object) {
+
+				for (let e in blob.enums) {
+					this.enums[e] = lychee.deserialize(blob.enums[e]);
+				}
+
+			}
+
+			if (blob.events instanceof Object) {
+
+				for (let e in blob.events) {
+					this.events[e] = lychee.deserialize(blob.events[e]);
+				}
+
+			}
+
+			if (blob.methods instanceof Object) {
+
+				for (let m in blob.methods) {
+					this.methods[m] = lychee.deserialize(blob.methods[m]);
+				}
+
+			}
+
+		},
+
+		serialize: function() {
+
+			let blob = {};
+
+
+			if (Object.keys(this.settings).length > 0) {
+				blob.settings = lychee.serialize(this.settings);
+			}
+
+			if (Object.keys(this.properties).length > 0) {
+
+				blob.properties = {};
+
+				for (let p in this.properties) {
+					blob.properties[p] = lychee.serialize(this.properties[p]);
+				}
+
+			}
+
+			if (Object.keys(this.enums).length > 0) {
+
+				blob.enums = {};
+
+				for (let e in this.enums) {
+					blob.enums[e] = lychee.serialize(this.enums[e]);
+				}
+
+			}
+
+			if (Object.keys(this.events).length > 0) {
+
+				blob.events = {};
+
+				for (let e in this.events) {
+					blob.events[e] = lychee.serialize(this.events[e]);
+				}
+
+			}
+
+			if (Object.keys(this.methods).length > 0) {
+
+				blob.methods = {};
+
+				for (let m in this.methods) {
+					blob.methods[m] = lychee.serialize(this.methods[m]);
+				}
+
+			}
+
+
+			if (this._INSTANCE !== null) {
+				blob.instance = lychee.serialize(this._INSTANCE);
+			}
+
+
+			return {
+				'constructor': '_Sandbox',
+				'arguments':   [ this._IDENTIFIER ],
+				'blob':        Object.keys(blob).length > 0 ? blob : null
+			};
+
+		},
+
+
+
+		/*
+		 * CUSTOM API
+		 */
+
+		evaluate: function(callback) {
+
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (callback !== null) {
+
+				let statistics = {
+					properties: {},
+					enums:      {},
+					events:     {},
+					methods:    {}
+				};
+
+
+				if (this._IDENTIFIER !== null) {
+
+					let Definition = lychee.import(this._IDENTIFIER);
+					if (Definition !== null) {
+
+						if (Definition.prototype instanceof Object) {
+
+							this._INSTANCE = new Definition(this.settings);
+
+							if (
+								Object.keys(this.blob).length > 0
+								&& typeof this._INSTANCE.deserialize === 'function'
+							) {
+								this._INSTANCE.deserialize(this.blob);
+							}
+
+						} else {
+							this._INSTANCE = Definition;
+						}
+
+					}
+
+
+					if (this._INSTANCE !== null) {
+
+						for (let id in this.properties) {
+
+							statistics.properties[id] = {
+								_expect: 0,
+								results: {
+									ok:  0,
+									all: 0
+								}
+							};
+
+							let assert = _assert.bind(statistics.properties[id]);
+							let expect = _expect.bind(statistics.properties[id], assert);
+
+							this.properties[id].call(this._INSTANCE, assert, expect);
+
+						}
+
+						for (let id in this.enums) {
+
+							statistics.enums[id] = {
+								_expect: 0,
+								results: {
+									ok:  0,
+									all: 0
+								}
+							};
+
+							let assert = _assert.bind(statistics.enums[id]);
+							let expect = _expect.bind(statistics.enums[id], assert);
+
+							this.enums[id].call(this._INSTANCE, assert, expect);
+
+						}
+
+						for (let id in this.events) {
+
+							statistics.events[id] = {
+								_expect: 0,
+								results: {
+									ok:  0,
+									all: 0
+								}
+							};
+
+							let assert = _assert.bind(statistics.events[id]);
+							let expect = _expect.bind(statistics.events[id], assert);
+
+							this.events[id].call(this._INSTANCE, assert, expect);
+
+						}
+
+						for (let id in this.methods) {
+
+							statistics.methods[id] = {
+								_expect: 0,
+								results: {
+									ok:  0,
+									all: 0
+								}
+							};
+
+							let assert = _assert.bind(statistics.methods[id]);
+							let expect = _expect.bind(statistics.methods[id], assert);
+
+							this.methods[id].call(this._INSTANCE, assert, expect);
+
+						}
+
+
+						let timeout  = Date.now() + this._timeout;
+						let interval = setInterval(function() {
+
+							if (Date.now() > timeout) {
+
+								clearInterval(interval);
+								interval = null;
+
+								callback(statistics);
+
+							} else {
+
+								let stop = true;
+
+								for (let type in statistics) {
+
+									for (let id in statistics[type]) {
+
+										if (statistics[type][id]._expect > 0) {
+											stop = false;
+											break;
+										}
+
+									}
+
+								}
+
+								if (stop === true) {
+
+									clearInterval(interval);
+									interval = null;
+
+									callback(statistics);
+
+								}
+
+							}
+
+						}.bind(this), 500);
+
+					} else {
+
+						if (callback !== null) {
+							callback(null);
+						}
+
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback(null);
+					}
+
+				}
+
+			}
+
+		},
+
+		setBlob: function(blob) {
+
+			blob = blob instanceof Object ? blob : null;
+
+
+			if (blob !== null) {
+
+				this.blob = blob;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setSettings: function(settings) {
+
+			settings = settings instanceof Object ? settings : null;
+
+
+			if (settings !== null) {
+
+				this.settings = settings;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setEnum: function(name, callback) {
+
+			name     = typeof name === 'string'     ? name     : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (name !== null && callback !== null) {
+
+				this.enums[name] = callback;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setEvent: function(name, callback) {
+
+			name     = typeof name === 'string'     ? name     : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (name !== null && callback !== null) {
+
+				this.events[name] = callback;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setMethod: function(name, callback) {
+
+			name     = typeof name === 'string'     ? name     : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (name !== null && callback !== null) {
+
+				this.methods[name] = callback;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setProperty: function(name, callback) {
+
+			name     = typeof name === 'string'     ? name     : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (name !== null && callback !== null) {
+
+				this.properties[name] = callback;
+
+				return true;
+
+			}
+
+
+			return false;
 
 		}
 
@@ -260,11 +682,11 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 		this.id             = 'lychee-Simulation-' + _id++;
 		this.environment    = null;
-		this.global         = new _Sandbox();
 		this.specifications = {};
 		this.target         = 'app.Main';
 		this.timeout        = 10000;
 
+		this.sandboxes  = {};
 		this.__cache    = {
 			active:        false,
 			assimilations: [],
@@ -315,9 +737,9 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 			let blob     = {};
 
 
-			if (this.id !== '')         settings.id      = this.id;
-			if (this.timeout !== 10000) settings.timeout = this.timeout;
-			// TODO: Further serialization of settings
+			if (this.id !== '')             settings.id      = this.id;
+			if (this.target !== 'app.Main') settings.target  = this.target;
+			if (this.timeout !== 10000)     settings.timeout = this.timeout;
 
 
 			if (Object.keys(this.specifications).length > 0) {
@@ -361,12 +783,12 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					let pkg = this.__packages[pkg_id] || null;
 					if (pkg !== null && pkg.config !== null) {
 
-						let result = pkg.load(def_id, this.tags);
+						let result = pkg.load(def_id);
 						if (result === true) {
 
 							let debug = _get_debug.call(this);
 							if (debug === true) {
-								console.log('lychee-Simulation (' + this.id + '): Loading "' + identifier + '" from Package "' + pkg.id + '"');
+								console.log('lychee.Simulation ("' + this.id + '"): Loading "' + identifier + '" from Package "' + pkg.id + '".');
 							}
 
 						}
@@ -408,8 +830,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 					for (let pid in packages) {
 
-						let pkg  = packages[pid];
-						let root = pkg.root;
+						let pkg = packages[pid];
 
 						if (url.startsWith(pkg.root)) {
 							new_pkg_id = pkg.id;
@@ -425,7 +846,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					if (assimilation === true) {
 
 						if (debug === true) {
-							console.log('lychee-Simulation (' + this.id + '): Assimilating Specification "' + specification.id + '"');
+							console.log('lychee.Simulation ("' + this.id + '"): Assimilating Specification "' + specification.id + '".');
 						}
 
 
@@ -434,7 +855,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					} else if (new_pkg_id !== null && new_pkg_id !== old_pkg_id) {
 
 						if (debug === true) {
-							console.log('lychee-Simulation (' + this.id + '): Injecting Specification "' + specification.id + '" into package "' + new_pkg_id + '"');
+							console.log('lychee.Simulation ("' + this.id + '"): Injecting Specification "' + specification.id + '" into Package "' + new_pkg_id + '".');
 						}
 
 
@@ -459,7 +880,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 
 				if (debug === true) {
-					console.log('lychee-Simulation (' + this.id + '): Mapping Specification "' + specification.id + '"');
+					console.log('lychee.Simulation ("' + this.id + '"): Mapping Specification "' + specification.id + '".');
 				}
 
 
@@ -471,7 +892,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 			}
 
 
-			console.error('lychee-Simulation (' + this.id + '): Invalid Specification "' + specification.id + '"');
+			console.error('lychee.Simulation ("' + this.id + '"): Invalid Specification "' + specification.id + '".');
 
 
 			return false;
@@ -490,13 +911,18 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 			let target      = this.target;
 
 
+			if (debug === true) {
+				global.lychee.SIMULATIONS[this.id] = this;
+			}
+
+
 			if (target !== null && environment !== null && cache.active === false) {
 
 				let result = this.load(target);
 				if (result === true) {
 
 					if (debug === true) {
-						console.info('lychee-Simulation (' + this.id + '): BUILD START ("' + target + '")');
+						console.info('lychee.Simulation ("' + this.id + '"): BUILD START ("' + target + '").');
 					}
 
 
@@ -507,6 +933,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					cache.active  = true;
 
 
+					let timeout  = this.timeout;
 					let interval = setInterval(function() {
 
 						let cache = this.__cache;
@@ -531,9 +958,9 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 									let specification = this.specifications[identifier] || null;
 									if (specification !== null) {
 
-										this.global._IDENTIFIER = identifier;
-										specification.export(this.global);
-										this.global._IDENTIFIER = null;
+										let sandbox = new _Sandbox(identifier, timeout);
+										specification.export(sandbox);
+										this.sandboxes[identifier] = sandbox;
 
 									}
 
@@ -563,7 +990,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					if (cache.retries < 3) {
 
 						if (debug === true) {
-							console.warn('lychee-Simulation (' + this.id + '): Package for "' + target + '" not ready, retrying in 100ms ...');
+							console.warn('lychee.Simulation ("' + this.id + '"): Unready Package "' + target + '" (retrying in 100ms ...).');
 						}
 
 						setTimeout(function() {
@@ -572,11 +999,11 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 					} else {
 
-						console.error('lychee-Simulation (' + this.id + '): Invalid Dependencies\n\t - ' + target + ' (target)');
+						console.error('lychee.Simulation ("' + this.id + '"): Invalid Dependencies\n\t - ' + target + ' (target).');
 
 
 						try {
-							callback.call(this.global, null);
+							callback.call(environment.global || null, null);
 						} catch (err) {
 							_lychee.Debugger.report(environment, err, null);
 						}
@@ -592,7 +1019,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 
 			try {
-				callback.call(this.global, null);
+				callback.call(environment.global || null, null);
 			} catch (err) {
 				_lychee.Debugger.report(environment, err, null);
 			}
@@ -609,9 +1036,8 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 			if (environment !== null) {
 
-				this.environment    = environment;
-				this.global.console = this.environment.global.console;
-				this.__packages     = {};
+				this.environment = environment;
+				this.__packages  = {};
 
 				for (let pid in environment.packages) {
 
@@ -629,9 +1055,8 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 			} else {
 
-				this.environment    = null;
-				this.global.console = _console;
-				this.__packages     = {};
+				this.environment = null;
+				this.__packages  = {};
 
 			}
 
@@ -730,5 +1155,5 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 	return Composite;
 
-});
+})(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));
 

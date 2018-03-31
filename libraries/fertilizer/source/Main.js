@@ -9,6 +9,8 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.template.html-nwjs.Library',
 	'fertilizer.template.html-webview.Application',
 	'fertilizer.template.html-webview.Library',
+	'fertilizer.template.nidium.Application',
+	'fertilizer.template.nidium.Library',
 	'fertilizer.template.node.Application',
 	'fertilizer.template.node.Library'
 ]).includes([
@@ -20,6 +22,35 @@ lychee.define('fertilizer.Main').requires([
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _Template = lychee.import('fertilizer.Template');
 	const _JSON     = lychee.import('lychee.codec.JSON');
+
+
+
+	/*
+	 * HELPERS
+	 */
+
+	const _on_failure = function(event, project, identifier, environment) {
+
+		console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "' + event + '" event');
+
+		if (typeof environment.global.console.serialize === 'function') {
+
+			let debug = environment.global.console.serialize();
+			if (debug.blob !== null) {
+
+				(debug.blob.stderr || '').trim().split('\n').map(function(line) {
+					return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
+				}).forEach(function(line) {
+					console.error('fertilizer: ' + line);
+				});
+
+			}
+
+		}
+
+		this.destroy(1);
+
+	};
 
 
 
@@ -113,7 +144,7 @@ lychee.define('fertilizer.Main').requires([
 						if (sandbox !== null) {
 
 							// XXX: Don't use Environment's imperative API here!
-							// Environment identifier is /libraries/lychee/main instead of /libraries/lychee/html/main
+							// XXX: /libraries/lychee/main instead of /libraries/lychee/html/main
 
 							environment.id       = project + '/' + identifier.split('/').pop();
 							environment.type     = 'build';
@@ -127,19 +158,30 @@ lychee.define('fertilizer.Main').requires([
 
 							that.trigger('init', [ project, identifier, platform, variant, environment, profile ]);
 
-						} else {
+						} else if (variant === 'library') {
 
-							console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "load" event');
+							let dependencies = {};
 
 							if (typeof environment.global.console.serialize === 'function') {
 
 								let debug = environment.global.console.serialize();
 								if (debug.blob !== null) {
 
-									(debug.blob.stderr || '').trim().split('\n').map(function(line) {
-										return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : '');
+									(debug.blob.stderr || '').trim().split('\n').filter(function(line) {
+										return line.includes('-') && line.includes('required by ');
 									}).forEach(function(line) {
-										console.error('fertilizer: ' + line);
+
+										let tmp = line.trim().split('-')[1];
+										if (tmp.endsWith('.')) tmp = tmp.substr(0, tmp.length - 1);
+
+										let dep = tmp.split('required by ')[0].trim();
+										let req = tmp.split('required by ')[1].trim();
+
+										if (dep.endsWith('(')) dep = dep.substr(0, dep.length - 1).trim();
+										if (req.endsWith(')')) req = req.substr(0, req.length - 1).trim();
+
+										dependencies[req] = dep;
+
 									});
 
 								}
@@ -147,7 +189,94 @@ lychee.define('fertilizer.Main').requires([
 							}
 
 
-							that.destroy(1);
+							if (Object.keys(dependencies).length > 0) {
+
+								environment.id       = project + '/' + identifier.split('/').pop();
+								environment.type     = 'build';
+								environment.debug    = that.defaults.settings.debug;
+								environment.sandbox  = that.defaults.settings.sandbox;
+								environment.packages = {};
+
+								_lychee.setEnvironment(null);
+
+
+								let remaining = Object.values(dependencies).length;
+								if (remaining > 0) {
+
+									let target = environment.definitions[environment.target] || null;
+
+									for (let req in dependencies) {
+
+										let dep = dependencies[req];
+
+										let definition = environment.definitions[req] || null;
+										if (definition !== null) {
+
+											let i0 = definition._requires.indexOf(dep);
+											if (i0 !== -1) {
+												definition._requires.splice(i0, 1);
+												remaining--;
+											}
+
+										}
+
+										if (target !== null) {
+
+											let i0 = target._requires.indexOf(req);
+											if (i0 !== -1) {
+												target._requires.splice(i0, 1);
+											}
+
+										}
+
+									}
+
+
+									if (remaining === 0) {
+
+										console.warn('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "load" event');
+
+
+										if (typeof environment.global.console.serialize === 'function') {
+
+											let debug = environment.global.console.serialize();
+											if (debug.blob !== null) {
+
+												(debug.blob.stderr || '').trim().split('\n').map(function(line) {
+													return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
+												}).forEach(function(line) {
+													console.warn('fertilizer: ' + line);
+												});
+
+											}
+
+										}
+
+
+										that.trigger('init', [ project, identifier, platform, variant, environment, profile, true ]);
+
+									} else {
+
+										_on_failure.call(that, 'load', project, identifier, environment);
+
+									}
+
+								} else {
+
+									_on_failure.call(that, 'load', project, identifier, environment);
+
+								}
+
+							} else {
+
+								_on_failure.call(that, 'load', project, identifier, environment);
+
+							}
+
+						} else {
+
+							_on_failure.call(that, 'load', project, identifier, environment);
+
 
 						}
 
@@ -178,7 +307,10 @@ lychee.define('fertilizer.Main').requires([
 
 		}, this, true);
 
-		this.bind('init', function(project, identifier, platform, variant, environment, profile) {
+		this.bind('init', function(project, identifier, platform, variant, environment, profile, modified) {
+
+			modified = modified === true;
+
 
 			let construct = null;
 			if (platform !== null && variant !== null && typeof _template[platform] === 'object') {
@@ -279,7 +411,7 @@ lychee.define('fertilizer.Main').requires([
 				template.bind('complete', function() {
 
 					console.info('fertilizer: SUCCESS ("' + project + ' | ' + identifier + '")');
-					this.destroy(0);
+					this.destroy(modified === true ? 2 : 0);
 
 				}, this);
 

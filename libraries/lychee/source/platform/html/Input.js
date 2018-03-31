@@ -493,7 +493,7 @@ lychee.define('lychee.Input').tags({
 
 	};
 
-	let _process_swipe = function(id, state, x, y) {
+	const _process_swipe = function(id, state, x, y) {
 
 		if (this.swipe === false) {
 			return false;
