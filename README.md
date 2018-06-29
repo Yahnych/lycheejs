@@ -1,5 +1,5 @@
 
-# lychee.js (2018-Q1)
+# lychee.js (2018-Q2)
 
 <img src="./guides/asset/qr-codes.png" align="right" width="500px">
 

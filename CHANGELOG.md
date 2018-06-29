@@ -20,7 +20,7 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
-## [2018-Q2] - UNRELEASED
+## [2018-Q2] - 2018-06-29
 
 - **Changed**: lychee.js Crux replaces old lychee.js Engine Core.
 - **Changed**: `settings` is renamed into `states` across the stack.
@@ -209,7 +209,8 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q1...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q2...HEAD)
+- [2018-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q1...2018-Q2)
 - [2018-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...2018-Q1)
 - [2017-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...2017-Q4)
 - [2017-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q2...2017-Q3)
