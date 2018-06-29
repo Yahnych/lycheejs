@@ -482,7 +482,7 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 
 				stream.write('\n');
 
-				return new Buffer(stream.toString(), 'utf8');
+				return Buffer.from(stream.toString(), 'utf8');
 
 			}
 

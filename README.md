@@ -12,73 +12,79 @@ Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin
 
 These are the things that we are currently working on:
 
-- lychee.net.protocol.MQTT is being implemented to support SCADA systems (`feature/mqtt` branch).
 - lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable (`feature/neat` branch).
-- lychee.Simulation is being integrated with the AI stack and unstable.
 - lychee.js Guide is subject to change (to integrate new AI stack).
 
 
 ## ELI5 - What is lychee.js?
 
-Okay. I kind of failed to explain what lychee.js is because there's currently no
-words for something like it in our language. So I'm trying to explain why which
-feature was integrated and what benefits resulted in its history of development.
+lychee.js is an Application Engine that has the core idea to reuse components
+and isomorphic code across all platforms it delivers to. These platforms can
+be incremental in its feature support, which means also low-end platforms like
+the Arduino variants are supported.
 
-First it was a Game / App Engine that had the idea to reuse components
-across all environments using so-called [Fertilizer Adapters](./libraries/lychee/source/platform)
-with a strong core definition system that allowed feature detection and automated
-isomorphic builds from and to every single platform it supports using the
-[lychee.js Fertilizer](./libraries/fertilizer).
+-------------------------------------------------------------------------------
 
-Then it got a strong serialization / deserialization concept that allowed
-simulations across all platforms. Errors could be reproduced everywhere, even
-network traffic and user interactions were put in event graphs and identified
-by neural networks to figure out what module (in the flow-based-programming
-sense) had corrupt data.
+The really only thing lychee.js requires to deliver a platform is a working
+`setTimeout(callback, timeout)`, `setInterval(callback, delay)` and an
+implemented [Stuff](./libraries/crux/source/platform/html/Stuff.js) data type
+that can load files. The shipped officially supported platforms are implemented
+by the [lychee.js Crux](./libraries/crux) Library.
 
-Then it got an evolutionary [lychee.ai](./libraries/lychee/source/ai) Stack
-(backpropagated ES/HyperNEAT) that allowed an AI to learn combinations of all
-Definitions using a Module Pattern or Composite Pattern. Class Pattern failed,
-because Classes are a time abstraction so they suck in complexity. Deal with it :)
+The lychee.js Engine delivers to different platforms using so-called
+[Fertilizer Adapters](./libraries/lychee/source/platform) which allow feature
+detection and automated isomorphic builds from and to every single platform it
+supports using the [lychee.js Fertilizer](./libraries/fertilizer).
 
-Then it got a generic plug/play neural network support; so that the [lychee.policy](./libraries/lychee/source/policy)
-Stack allowed to generically translate _every property_ in all Composites into
-what neural networks can understand. As everything in lychee.js is serializable
-and uses a Composite Pattern, things like traffic sharding, automated layouting
-or animation learning and debugging of it got inclusive.
+If a new platform wants full Application support, it requires an implementation
+of `lychee.Input`, `lychee.Renderer`, `lychee.Stash`, `lychee.Storage` and
+`lychee.Viewport`. If it wants full AI support it additionally requires
+`lychee.net.Client`, `lychee.net.Remote` and `lychee.net.Server`.
 
-Then it got an easier tool to create new boilerplates which allowed the possibility
-to reuse other projects as libraries and vice versa. Every single lychee.js
-Project or Library was fully isomorphic and could be forked, modified, back-merged,
-or included as a library using the [lychee.js Breeder](./libraries/breeder). Things
-like A/B testing new Composites or Definitions in-place now were a matter of
-literally seconds.
+-------------------------------------------------------------------------------
 
-Then the knowledge graph was reused to build a better fuzz-testing tool, the
-[lychee.js Strainer](./libraries/strainer), using some kind of tree that is similar
-to a multi-dimensional-quad-tree to identify similar data and behaviour for more
-efficient ANN testing and evaluation; so that ANNs were now able to learn what
-properties and methods and their relations (in the sense of states) mean and do.
+Underneath the lychee.js Engine has a strong serialization and deserialization
+concept that allows simulations and re-simulations across all platforms. Errors
+can be reproduced everywhere, even network traffic and user interactions are put
+in event graphs and identified and learned by neural networks in order to figure
+out what module (in the flow-based programming sense) had corrupt states or data.
 
-Then the [lychee.js Harvester](./libraries/harvester) got a peer-to-peer network
-infrastructure that allowed to share all knowledge graphs across the internet.
-That meant every single lychee.js Project on planet Earth now contributed to an
-AI learning how to build software and therefore helped auto-improving all written
-code that depends on each other using fuzz tests, flow graph tests and above
-Composite Pattern idea for evaluation of newly invented Composites.
+The [lychee.ai](./libraries/lychee/source/ai) and [lychee.policy](./libraries/lychee/source/policy)
+Stack allow generic plug/play usage and creation of neural networks that can
+translate generically _every property_ into vectorized features that neural
+networks can understand. As everything in lychee.js is serializable and uses a
+Composite Pattern, things like traffic sharding, automated layouting or animation
+learning and debugging are inclusive.
 
-Then the [lychee.js Studio](./libraries/studio) was built, trying to use above
-suggestions so that developers have some kind of "Zen Coding"-like autocompletion
-for Definitions they want to build, leveraging the first intelligent auto-complete
-using a mix of reinforced evolutionary learning and bayesian learning.
+The [lychee.js Breeder](./libraries/breeder) is a tool to create new Boilerplates
+and allows the reusage of Projects as Libraries and vice versa. Every lychee.js
+Project or Library is fully isomorphic and can be forked, modified, back-merged
+or included as a Library; which also allows A/B testing new Composites or Definitions
+in-place live in any Environment or Simulation.
 
-Oh, and it can compile, analyze, bugfix and improve itself, too. That's essentially
-what the [./bin/configure.sh](./bin/configure.sh) script does when it builds and
-distributes the lychee.js Library.
+The [lychee.js Strainer](./libraries/strainer) is a tool that lints your code
+and translates the code into a knowledge graph that allows the identification of
+enums, events, methods, properties and states that adaptive neural networks can
+use in order to automatically learn and generate code based on existing data.
 
-Then I thought well, I guess I'm mad - and have no idea how to explain what this
-Engine has gotten to be. - @cookiengineer
+The [lychee.js Harvester](./libraries/harvester) is a peer-to-peer server that
+allows the sharing of knowledge across the internet. Every lychee.js Project on
+this planet is part of a giant meshnet that helps every other lychee.js instance
+to learn and evolve more quickly; and stores the knowledge graph in a DHT (a custom
+Kademlia to allow shrinking similar to how gzip dictionaries work using MURMUR
+and BENCODE/BITON/JSON under the hood).
 
+The [lychee.js Studio](./libraries/studio) is the idea of a "Zen Coding" like
+autocompletion IDE that searches the local knowledge graph to quickly setup a
+Project/Library and its Definitions by leveraging both reinforced evolutionary
+and bayesian learning techniques.
+
+-------------------------------------------------------------------------------
+
+Oh, and lychee.js can compile, analyze, bugfix and improve itself, too. That's
+essentially what the [./bin/configure.sh](./bin/configure.sh) script does when
+it builds and distributes the [lychee.js Crux](./libraries/crux) Library and
+the [lychee.js Engine](./libraries/lychee) Library.
 
 
 ## Overview
@@ -89,7 +95,6 @@ The following Repositories are related to the lychee.js Engine:
 - [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide.git) contains architecture explanations and concept documentations (WIP).
 - [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
 - [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
-- [lychee.js Harvester](https://github.com/Artificial-Engineering/lycheejs-harvester.git) contains the lychee.js Harvester (forked from `/libraries/harvester`).
 - [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
 - [lychee.js Bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) generates the OS-ready lychee.js Bundles (published at [releases](https://github.com/Artificial-Engineering/lycheejs-bundle/releases) section).
 - [lychee.js Future](https://github.com/Artificial-Engineering/lycheejs-future.git) contains all Concepts and Ideas not yet finished.
@@ -108,20 +113,22 @@ Artificial Intelligence and better Software Architecture.
 Everything listed here requires zero lines of code overhead
 and is already fully integrated in the [lychee.js Boilerplate](./projects/boilerplate):
 
-The lychee.js Core and Definition System ([lychee](/libraries/lychee) and [legacy](/libraries/legacy)):
+The lychee.js Core and Definition System ([lychee.js Crux](/libraries/crux) and [lychee.js Legacy](/libraries/legacy)):
 
 - Isomorphic Application Engine (runs pretty much everywhere)
-- Language is only ES5/ES6 JavaScript Code, nothing else
+- Language is only ES2018+ Code, nothing else
 - Composite Pattern inspired Entity/Component System
 - Definition System embraces Simplicity and Feature Detection
 - Sandboxing System embraces automated Error Reports, Analytics and Debugging
 - Serialization System allows Re-Simulation on any Platform
 - Built-In Offline Storage Management and Network Synchronization
 
-The lychee.js Software Bots:
+The lychee.js Engine and Software Bots:
 
 - Graphical Asset Management and Entity/Scene Design Tool ([Studio](/libraries/studio))
 - Graphical Project Management and Server Maintenance Tool ([Ranger](/libraries/ranger))
+- Cross-Platform Compiler Bootstrapping Library ([Crux](/libraries/crux))
+- Cross-Platform Application Engine ([Lychee](/libraries/lychee))
 - Command-Line Continous Integration Server ([Harvester](/libraries/harvester))
 - Command-Line Wizard for Projects and Libraries ([Breeder](/libraries/breeder))
 - Command-Line Builder and Cross-Compiler ([Fertilizer](/libraries/fertilizer))
@@ -145,7 +152,7 @@ Features of the lychee.js Software Bots:
 The target platforms are described as so-called Fertilizers.
 Those Fertilizers cross-compile everything automagically
 using a serialized `lychee.Environment` that is setup in
-each project's or library's `lychee.pkg` file.
+each Project's or Library's `lychee.pkg` file.
 
 
 | Target       | Fertilizer                           | Package   | armv7 |  x86  | x86\_64 |
@@ -204,7 +211,7 @@ These are our official social media channels:
 ## License
 
 The lychee.js Engine (defined as `/libraries` and `/bin` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
-repository) is (c) 2012-2017 Artificial-Engineering and released under
+repository) is (c) 2012-2018 Artificial-Engineering and released under
 [MIT / Expat](./LICENSE_MIT.txt) license.
 
 The projects (defined as `/projects` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
@@ -219,7 +226,7 @@ As of now, the runtimes are licensed under the following terms:
 
 - MIT license for `node` platform (node.js)
 - MIT license for `html-nwjs` platform (nw.js)
-- MIT license for `html-webview` platform and (c) 2012-2017 Artificial Engineering
+- MIT license for `html-webview` platform and (c) 2012-2018 Artificial Engineering
 - Apache license for Android SDK toolchain
 
 ----------

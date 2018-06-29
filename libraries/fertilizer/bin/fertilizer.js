@@ -3,6 +3,7 @@
 const _child_process = require('child_process');
 const _fs            = require('fs');
 const _path          = require('path');
+const _BINARY        = process.execPath;
 const _PROCESSES     = [];
 const _ROOT          = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
@@ -17,10 +18,16 @@ const _print_autocomplete = function(target, project, flag) {
 	let targets = [];
 	let flags   = [ '--debug', '--sandbox' ];
 
-	_fs.readdirSync(_ROOT + '/libraries/lychee/build').sort().forEach(function(platform) {
-		targets.push(platform + '/dist');
-		targets.push(platform + '/main');
-	});
+	try {
+
+		_fs.readdirSync(_ROOT + '/libraries/lychee/build').sort().forEach(function(platform) {
+			targets.push(platform + '/dist');
+			targets.push(platform + '/main');
+		});
+
+	} catch (err) {
+	}
+
 
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
@@ -120,6 +127,7 @@ const _bootup = function(settings) {
 
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/fertilizer';
 
+	lychee.init(null);
 	lychee.pkg('build', 'node/main', function(environment) {
 
 		lychee.init(environment, {
@@ -173,35 +181,84 @@ const _bootup = function(settings) {
 
 };
 
-const _spawn = function(program, args) {
+const _spawn = function(args) {
 
-	let child = _child_process.spawn(program, args, {
-		detached: false
-	});
+	try {
 
-	_PROCESSES.push(child.pid);
+		let handle = _child_process.execFile(_BINARY, args, {
+			cwd: _ROOT + args[2]
+		}, function(error, stdout, stderr) {
+
+			stdout = (stdout.toString() || '').trim();
+			stderr = (stderr.toString() || '').trim();
 
 
-	child.on('exit', function(code) {
+			if (stderr !== '') {
 
-		let pid = this.pid;
+				let lines = stderr.split('\n').map(function(message) {
 
-		if (code === 0) {
-			console.info('SUCCESS (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
-		} else if (code === 2) {
-			console.warn('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
-		} else {
-			console.error('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
-		}
+					let prefix = '\u001b[41m\u001b[97m';
+					let suffix = '\u001b[39m\u001b[49m\u001b[0m';
 
-		let index = _PROCESSES.indexOf(pid);
-		if (index !== -1) {
-			_PROCESSES.splice(index, 1);
-		}
+					if (message.startsWith(prefix)) {
+						message = message.substr(prefix.length);
+					}
 
-	});
+					if (message.endsWith(suffix)) {
+						message = message.substr(0, message.length - suffix.length);
+					}
 
-	child.unref();
+					return message;
+
+				});
+
+
+				if (lines.length > 0) {
+
+					lines.forEach(function(message) {
+
+						let chunk = message.trim();
+						if (chunk.startsWith('(')) {
+							chunk = chunk.substr(3).trim();
+						}
+
+						if (chunk.length > 0) {
+							console.error(chunk);
+						}
+
+					});
+
+				}
+
+			}
+
+		});
+
+		handle.on('exit', function(code) {
+
+			let pid = this.pid;
+
+			if (code === 0) {
+				console.info('SUCCESS (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+			} else if (code === 2) {
+				console.warn('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+			} else {
+				console.error('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+			}
+
+			let index = _PROCESSES.indexOf(this.pid);
+			if (index !== -1) {
+				_PROCESSES.splice(index, 1);
+			}
+
+		});
+
+		_PROCESSES.push(handle.pid);
+
+		handle.unref();
+
+	} catch (err) {
+	}
 
 };
 
@@ -222,15 +279,14 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-if (_fs.existsSync(_ROOT + '/libraries/lychee/build/node/core.js') === false) {
+if (_fs.existsSync(_ROOT + '/libraries/crux/build/node/dist.js') === false) {
 	require(_ROOT + '/bin/configure.js');
 }
 
-const lychee    = require(_ROOT + '/libraries/lychee/build/node/core.js')(_ROOT);
+const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
-	let prog     = process.argv[0];
 	let settings = {
 		project:     null,
 		identifier:  null,
@@ -270,8 +326,16 @@ const _SETTINGS = (function() {
 				Object.keys(json.build.environments).forEach(function(identifier) {
 
 					if (identifier !== 'auto') {
+
 						found = true;
-						_spawn(prog, [ process.argv[1], identifier, project ]);
+
+						let args = [ process.argv[1], identifier, project ];
+						if (debug_flag === true) {
+							args.push('--debug');
+						}
+
+						_spawn(args);
+
 					}
 
 				});
@@ -338,8 +402,16 @@ const _SETTINGS = (function() {
 						});
 
 						if (valid === true) {
+
 							found = true;
-							_spawn(prog, [ process.argv[1], identifier, project ]);
+
+							let args = [ process.argv[1], identifier, project ];
+							if (debug_flag === true) {
+								args.push('--debug');
+							}
+
+							_spawn(args);
+
 						}
 
 					}

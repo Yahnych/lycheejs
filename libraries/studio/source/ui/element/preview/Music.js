@@ -13,18 +13,12 @@ lychee.define('studio.ui.element.preview.Music').requires([
 
 
 	/*
-	 * HELPERS
-	 */
-
-
-
-	/*
 	 * IMPLEMENTATION
 	 */
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
 		this.value = null;
@@ -32,11 +26,11 @@ lychee.define('studio.ui.element.preview.Music').requires([
 		this.__button = null;
 
 
-		settings.label   = 'Preview';
-		settings.options = [];
+		states.label   = 'Preview';
+		states.options = [];
 
 
-		_Element.call(this, settings);
+		_Element.call(this, states);
 
 
 
@@ -86,9 +80,9 @@ lychee.define('studio.ui.element.preview.Music').requires([
 		}, this);
 
 
-		this.setValue(settings.value);
+		this.setValue(states.value);
 
-		settings = null;
+		states = null;
 
 	};
 

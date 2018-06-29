@@ -17,10 +17,10 @@ lychee.define('fertilizer.template.node.Application').includes([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		_Template.call(this, settings);
+		_Template.call(this, states);
 
 
 		this.__core  = lychee.deserialize(lychee.serialize(_TEMPLATES.core));
@@ -39,7 +39,7 @@ lychee.define('fertilizer.template.node.Application').includes([
 
 			let that = this;
 			let load = 1;
-			let core = this.stash.read('/libraries/lychee/build/node/core.js');
+			let core = this.stash.read('/libraries/crux/build/node/dist.js');
 
 			if (core !== null) {
 
@@ -138,7 +138,7 @@ lychee.define('fertilizer.template.node.Application').includes([
 		}, this);
 
 
-		settings = null;
+		states = null;
 
 	};
 

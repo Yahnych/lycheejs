@@ -40,7 +40,18 @@ lychee.define('harvester.data.Filesystem').tags({
 
 		try {
 
-			is_directory = _fs.lstatSync(path).isDirectory();
+			let stat1 = _fs.lstatSync(path);
+			if (stat1.isSymbolicLink()) {
+
+				let tmp   = _fs.realpathSync(path);
+				let stat2 = _fs.lstatSync(tmp);
+				if (stat2.isDirectory()) {
+					is_directory = true;
+				}
+
+			} else if (stat1.isDirectory()) {
+				is_directory = true;
+			}
 
 		} catch (err) {
 
@@ -51,7 +62,20 @@ lychee.define('harvester.data.Filesystem').tags({
 				}
 
 				try {
-					is_directory = _fs.lstatSync(path).isDirectory();
+
+					let stat2 = _fs.lstatSync(path);
+					if (stat2.isSymbolicLink()) {
+
+						let tmp   = _fs.realpathSync(path);
+						let stat3 = _fs.lstatSync(tmp);
+						if (stat3.isDirectory()) {
+							is_directory = true;
+						}
+
+					} else if (stat2.isDirectory()) {
+						is_directory = true;
+					}
+
 				} catch (err) {
 				}
 
@@ -72,10 +96,10 @@ lychee.define('harvester.data.Filesystem').tags({
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		this.root = typeof settings.root === 'string' ? settings.root : null;
+		this.root = typeof states.root === 'string' ? states.root : null;
 
 		this.__root = _ROOT;
 
@@ -103,7 +127,7 @@ lychee.define('harvester.data.Filesystem').tags({
 
 		}
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -118,9 +142,15 @@ lychee.define('harvester.data.Filesystem').tags({
 
 		serialize: function() {
 
+			let states = {};
+
+
+			if (this.root !== null) states.root = this.root.substr(_ROOT.length);
+
+
 			return {
 				'constructor': 'harvester.data.Filesystem',
-				'arguments':   [ this.root.substr(_ROOT.length) ]
+				'arguments':   [ states ]
 			};
 
 		},

@@ -14,9 +14,8 @@ lychee.define('strainer.api.Module').requires([
 	 */
 
 	const _SERIALIZE = {
+		chunk:      'function() { return {}; }',
 		type:       'function',
-		body:       'function() { return {}; }',
-		chunk:      'function() {',
 		hash:       _PARSER.hash('function() { return {}; }'),
 		parameters: [],
 		values:     [{
@@ -30,9 +29,8 @@ lychee.define('strainer.api.Module').requires([
 	};
 
 	const _DESERIALIZE = {
+		chunk:      'function(blob) {}',
 		type:       'function',
-		body:       'function(blob) {}',
-		chunk:      'function(blob) {',
 		hash:       _PARSER.hash('function(blob) {}'),
 		parameters: [{
 			name:  'blob',
@@ -245,7 +243,7 @@ lychee.define('strainer.api.Module').requires([
 
 				let method = methods[mid];
 				let params = method.parameters;
-				let ref    = _find_reference(method.chunk, stream);
+				let ref    = _find_reference(mid + ': ' + method.chunk.split('\n')[0], stream, true);
 				let values = method.values;
 
 
@@ -381,6 +379,8 @@ lychee.define('strainer.api.Module').requires([
 
 							properties[name] = {
 								chunk: chunk,
+								type:  prop.type,
+								hash:  _PARSER.hash(chunk),
 								value: prop
 							};
 
@@ -407,6 +407,8 @@ lychee.define('strainer.api.Module').requires([
 
 							properties[name] = {
 								chunk: body,
+								type:  prop.type,
+								hash:  _PARSER.hash(body),
 								value: prop
 							};
 
@@ -451,7 +453,7 @@ lychee.define('strainer.api.Module').requires([
 			let memory = {};
 			let result = {
 				constructor: {},
-				settings:    {},
+				states:      {},
 				properties:  {},
 				enums:       {},
 				events:      {},

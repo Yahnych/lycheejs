@@ -36,20 +36,14 @@ lychee.define('lychee.net.socket.WS').tags({
 			socket.onmessage = function(event) {
 
 				let blob = null;
-				let view = null;
 
 				if (typeof event.data === 'string') {
 
-					blob = new Buffer(event.data, 'utf8');
+					blob = Buffer.from(event.data, 'utf8');
 
 				} else if (event.data instanceof ArrayBuffer) {
 
-					blob = new Buffer(event.data.byteLength);
-					view = new Uint8Array(event.data);
-
-					for (let v = 0, vl = blob.length; v < vl; v++) {
-						blob[v] = view[v];
-					}
+					blob = Buffer.from(event.data);
 
 				}
 

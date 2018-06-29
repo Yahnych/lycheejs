@@ -22,17 +22,33 @@ lychee.define('studio.codec.FONT').tags({
 
 }).exports(function(lychee, global, attachments) {
 
-	const _CANVAS  = global.document.createElement('canvas');
-	const _CONTEXT = _CANVAS.getContext('2d');
-	let   _FONT_ID = 0;
+	let _CANVAS  = null;
+	let _CONTEXT = null;
+	let _FONT_ID = 0;
 
 
-	(function(canvas) {
+	(function() {
 
-		canvas.style.webkitFontSmoothing = 'subpixel-antialiased';
-		canvas.style.fontSmoothing       = 'subpixel-antialiased';
+		let doc = global.document || null;
+		if (doc !== null) {
 
-	})(_CANVAS);
+			let canvas = doc.createElement('canvas');
+			if (canvas !== null) {
+
+				canvas.style.webkitFontSmoothing = 'subpixel-antialiased';
+				canvas.style.fontSmoothing       = 'subpixel-antialiased';
+
+				let context = canvas.getContext('2d');
+				if (context !== null) {
+					_CANVAS  = canvas;
+					_CONTEXT = context;
+				}
+
+			}
+
+		}
+
+	})();
 
 
 

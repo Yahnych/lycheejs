@@ -1,6 +1,7 @@
 
 lychee.define('strainer.flow.Check').requires([
 	'lychee.Stash',
+	'lychee.event.Queue',
 	'strainer.api.PARSER',
 	'strainer.plugin.API',
 	'strainer.plugin.ESLINT'
@@ -13,6 +14,7 @@ lychee.define('strainer.flow.Check').requires([
 		ESLINT: lychee.import('strainer.plugin.ESLINT')
 	};
 	const _Flow      = lychee.import('lychee.event.Flow');
+	const _Queue     = lychee.import('lychee.event.Queue');
 	const _Stash     = lychee.import('lychee.Stash');
 	const _PARSER    = lychee.import('strainer.api.PARSER');
 	const _PLATFORMS = lychee.PLATFORMS;
@@ -26,29 +28,60 @@ lychee.define('strainer.flow.Check').requires([
 	 * HELPERS
 	 */
 
-	const _walk_directory = function(files, node, path, attachments) {
+	const _resolve = function(identifier) {
+
+		let pointer   = this;
+		let namespace = identifier.split('.');
+		let id        = namespace.pop();
+
+		for (let n = 0, nl = namespace.length; n < nl; n++) {
+
+			let name = namespace[n];
+
+			if (pointer[name] === undefined) {
+				pointer[name] = {};
+			}
+
+			pointer = pointer[name];
+
+		}
+
+
+		let check = id.toLowerCase();
+		if (check === id) {
+
+			if (pointer[id] === undefined) {
+				pointer[id] = {};
+			}
+
+			return pointer[id];
+
+		} else {
+
+			if (pointer[id] !== undefined) {
+				return pointer[id];
+			}
+
+		}
+
+
+		return null;
+
+	};
+
+	const _walk_directory = function(files, node, path) {
 
 		if (node instanceof Array) {
 
-			if (node.indexOf('js') !== -1) {
+			if (node.includes('js')) {
 				files.push(path + '.js');
-			}
-
-			if (attachments === true) {
-
-				node.filter(function(ext) {
-					return ext !== 'js';
-				}).forEach(function(ext) {
-					files.push(path + '.' + ext);
-				});
-
 			}
 
 		} else if (node instanceof Object) {
 
-			Object.keys(node).forEach(function(child) {
-				_walk_directory(files, node[child], path + '/' + child, attachments);
-			});
+			for (let child in node) {
+				_walk_directory(files, node[child], path + '/' + child);
+			}
 
 		}
 
@@ -62,7 +95,7 @@ lychee.define('strainer.flow.Check').requires([
 		configs.filter(function(config) {
 			return config !== null;
 		}).map(function(config) {
-			return config.buffer.header || { requires: [], includes: [] };
+			return config.buffer.source.header || { requires: [], includes: [] };
 		}).forEach(function(header) {
 
 			if (header.requires.length > 0) {
@@ -97,7 +130,7 @@ lychee.define('strainer.flow.Check').requires([
 
 				let buffer = other.buffer;
 				if (buffer !== null) {
-					return identifier === buffer.header.identifier;
+					return identifier === buffer.source.header.identifier;
 				}
 
 				return false;
@@ -140,7 +173,7 @@ lychee.define('strainer.flow.Check').requires([
 
 							let buffer = other.buffer;
 							if (buffer !== null) {
-								return identifier === buffer.header.identifier;
+								return identifier === buffer.source.header.identifier;
 							}
 
 						}
@@ -151,8 +184,8 @@ lychee.define('strainer.flow.Check').requires([
 
 					if (config !== null) {
 
-						let memory = config.buffer.memory;
-						let result = config.buffer.result;
+						let memory = config.buffer.source.memory;
+						let result = config.buffer.source.result;
 						let check  = tmp.shift();
 
 						if (check === 'prototype') {
@@ -273,8 +306,8 @@ lychee.define('strainer.flow.Check').requires([
 	const _trace_method = function(mid, config) {
 
 		let configs = this.configs;
-		let header  = config.buffer.header;
-		let result  = config.buffer.result;
+		let header  = config.buffer.source.header;
+		let result  = config.buffer.source.result;
 
 
 		let found = null;
@@ -292,7 +325,7 @@ lychee.define('strainer.flow.Check').requires([
 
 					let buffer = other.buffer;
 					if (buffer !== null) {
-						return identifier === buffer.header.identifier;
+						return identifier === buffer.source.header.identifier;
 					}
 
 					return false;
@@ -317,33 +350,148 @@ lychee.define('strainer.flow.Check').requires([
 
 	};
 
-	const _package_files = function(json) {
+	const _package_files = function(json, type) {
 
 		let files = [];
 
 
 		if (json !== null) {
 
-			let root = json.source.files || null;
+			let root = json[type].files || null;
 			if (root !== null) {
-				_walk_directory(files, root, '', false);
+				_walk_directory(files, root, '');
 			}
 
 
 			files = files.map(function(value) {
 				return value.substr(1);
 			}).filter(function(value) {
-				return value.endsWith('bootstrap.js') === false;
-			}).filter(function(value) {
-				return value.endsWith('features.js') === false;
-			}).filter(function(value) {
-				return value.indexOf('__') === -1;
+				return value.includes('__') === false;
 			}).sort();
 
 		}
 
 
 		return files;
+
+	};
+
+	const _render_statistics = function(id, statistics) {
+
+		let types = Object.keys(statistics);
+		if (types.length > 0) {
+
+			let is_valid = false;
+
+			types.forEach(function(type) {
+
+				let names = Object.keys(statistics[type]);
+				if (names.length > 0) {
+
+					// XXX: This will log the headline only when
+					// it contains an actual statistics report
+					if (is_valid === false) {
+						console.log('strainer: SIMULATE-REVIEWS of "' + id + '":');
+						is_valid = true;
+					}
+
+
+					names.forEach(function(name) {
+
+						let obj   = statistics[type][name];
+						let title = name;
+						if (type === 'enums') {
+							title = '#' + name;
+						} else if (type === 'events') {
+							title = '@' + name;
+						} else if (type === 'methods') {
+							title = name + '()';
+						}
+
+
+						let info  = title + ': ' + obj.results.ok + '/' + obj.results.all;
+
+						if (obj._expect > 0) {
+							info += ' (' + obj._expect + ' incomplete)';
+						}
+
+						if (obj.results.ok < obj.results.all || obj._expect > 0) {
+							console.error('strainer: \t' + info);
+						} else {
+							console.log('strainer: \t' + info);
+						}
+
+					});
+
+				}
+
+			});
+
+		}
+
+	};
+
+	const _simulate = function(settings, oncomplete) {
+
+		console.log('strainer: SIMULATE-REVIEWS "' + settings.id + '"');
+
+
+		let simulation = new lychee.Simulation(settings);
+
+
+		lychee.setEnvironment(settings.environment);
+		lychee.setSimulation(simulation);
+
+
+		lychee.init(simulation, {
+		}, function(sandboxes) {
+
+			let remaining      = 0;
+			let specifications = Object.keys(simulation.specifications);
+			if (specifications.length > 0) {
+
+				specifications.map(function(sid) {
+
+					return {
+						id:      sid,
+						sandbox: _resolve.call(sandboxes, sid)
+					};
+
+				}).filter(function(entry) {
+
+					let sandbox = entry.sandbox || null;
+					if (sandbox !== null && typeof sandbox.evaluate === 'function') {
+						return true;
+					}
+
+					return false;
+
+				}).forEach(function(entry) {
+
+					remaining++;
+
+					entry.sandbox.evaluate(function(statistics) {
+						_render_statistics(entry.id, statistics);
+						remaining--;
+					});
+
+				});
+
+				setInterval(function() {
+
+					if (remaining === 0) {
+						oncomplete(true);
+					}
+
+				}, 250);
+
+			} else {
+
+				oncomplete(true);
+
+			}
+
+		});
 
 	};
 
@@ -355,30 +503,31 @@ lychee.define('strainer.flow.Check').requires([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		this.checks   = [];
-		this.codes    = [];
 		this.configs  = [];
 		this.errors   = [];
+		this.reviews  = [];
+		this.sources  = [];
 		this.sandbox  = '';
 		this.settings = {};
 		this.stash    = new _Stash({
 			type: _Stash.TYPE.persistent
 		});
 
-		this.__pkg      = null;
-		this.__packages = {};
+		this.__pkg         = null;
+		this.__packages    = {};
+		this.__simulations = [];
 
 
-		this.setSandbox(settings.sandbox);
-		this.setSettings(settings.settings);
+		this.setSandbox(states.sandbox);
+		this.setSettings(states.settings);
 
 
 		_Flow.call(this);
 
-		settings = null;
+		states = null;
 
 
 
@@ -386,7 +535,7 @@ lychee.define('strainer.flow.Check').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('read', function(oncomplete) {
+		this.bind('read-sources', function(oncomplete) {
 
 			let that    = this;
 			let project = this.settings.project;
@@ -395,19 +544,19 @@ lychee.define('strainer.flow.Check').requires([
 
 			if (sandbox !== '' && stash !== null) {
 
-				console.log('strainer: READ ' + project);
+				console.log('strainer: READ-SOURCES ' + project);
 
 				this.__pkg        = new Config(sandbox + '/lychee.pkg');
 				this.__pkg.onload = function(result) {
 
 					if (result === true) {
 
-						let files = _package_files(this.buffer);
-						if (files.length > 0) {
+						let sources = _package_files(this.buffer, 'source');
+						if (sources.length > 0) {
 
 							stash.bind('batch', function(type, assets) {
 
-								this.codes = assets.filter(function(asset) {
+								this.sources = assets.filter(function(asset) {
 									return asset !== null;
 								});
 
@@ -415,13 +564,13 @@ lychee.define('strainer.flow.Check').requires([
 
 							}, that, true);
 
-							stash.batch('read', files.map(function(value) {
+							stash.batch('read', sources.map(function(value) {
 								return sandbox + '/source/' + value;
 							}));
 
 						} else {
 
-							oncomplete(false);
+							oncomplete(true);
 
 						}
 
@@ -443,7 +592,49 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('check-eslint', function(oncomplete) {
+		this.bind('read-reviews', function(oncomplete) {
+
+			let that    = this;
+			let project = this.settings.project;
+			let sandbox = this.sandbox;
+			let stash   = this.stash;
+
+			if (sandbox !== '' && stash !== null) {
+
+				console.log('strainer: READ-REVIEWS ' + project);
+
+				let reviews = _package_files(this.__pkg.buffer, 'review');
+				if (reviews.length > 0) {
+
+					stash.bind('batch', function(type, assets) {
+
+						this.reviews = assets.filter(function(asset) {
+							return asset !== null;
+						});
+
+						oncomplete(true);
+
+					}, that, true);
+
+					stash.batch('read', reviews.map(function(value) {
+						return sandbox + '/review/' + value;
+					}));
+
+				} else {
+
+					oncomplete(true);
+
+				}
+
+			} else {
+
+				oncomplete(false);
+
+			}
+
+		}, this);
+
+		this.bind('lint-sources', function(oncomplete) {
 
 			let eslint  = _plugin.ESLINT || null;
 			let errors  = this.errors;
@@ -451,19 +642,14 @@ lychee.define('strainer.flow.Check').requires([
 
 			if (eslint !== null) {
 
-				console.log('strainer: CHECK-ESLINT ' + project);
+				console.log('strainer: LINT-SOURCES ' + project);
 
-				this.checks = this.codes.map(function(asset) {
+				this.sources.forEach(function(asset) {
 
-					let result         = [];
 					let eslint_report  = _plugin.ESLINT.check(asset);
 					let eslint_unfixed = _plugin.ESLINT.fix(asset, eslint_report);
 
-					if (eslint_report.length > 0 && eslint_unfixed.length === 0) {
-
-						return result;
-
-					} else if (eslint_unfixed.length > 0) {
+					if (eslint_unfixed.length > 0) {
 
 						eslint_unfixed.map(function(err) {
 
@@ -477,18 +663,11 @@ lychee.define('strainer.flow.Check').requires([
 
 						}).forEach(function(err) {
 
-							result.push(err);
 							errors.push(err);
 
 						});
 
-
-						return result;
-
 					}
-
-
-					return null;
 
 				});
 
@@ -503,7 +682,55 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('check-api', function(oncomplete) {
+		this.bind('lint-reviews', function(oncomplete) {
+
+			let eslint  = _plugin.ESLINT || null;
+			let errors  = this.errors;
+			let project = this.settings.project;
+
+			if (eslint !== null) {
+
+				console.log('strainer: LINT-REVIEWS ' + project);
+
+				this.reviews.forEach(function(asset) {
+
+					let eslint_report  = _plugin.ESLINT.check(asset);
+					let eslint_unfixed = _plugin.ESLINT.fix(asset, eslint_report);
+
+					if (eslint_unfixed.length > 0) {
+
+						eslint_unfixed.map(function(err) {
+
+							return {
+								url:     asset.url,
+								rule:    err.ruleId  || 'parser-error',
+								line:    err.line    || 0,
+								column:  err.column  || 0,
+								message: err.message || ''
+							};
+
+						}).forEach(function(err) {
+
+							errors.push(err);
+
+						});
+
+					}
+
+				});
+
+
+				oncomplete(true);
+
+			} else {
+
+				oncomplete(false);
+
+			}
+
+		}, this);
+
+		this.bind('check-sources', function(oncomplete) {
 
 			let api     = _plugin.API || null;
 			let errors  = this.errors;
@@ -511,10 +738,10 @@ lychee.define('strainer.flow.Check').requires([
 
 			if (api !== null) {
 
-				console.log('strainer: CHECK-API ' + project);
+				console.log('strainer: CHECK-SOURCES ' + project);
 
 
-				this.configs = this.codes.map(function(asset) {
+				this.configs = this.sources.map(function(asset) {
 
 					let result      = [];
 					let api_report  = _plugin.API.check(asset);
@@ -538,10 +765,20 @@ lychee.define('strainer.flow.Check').requires([
 
 						if (asset.url.includes('/source/')) {
 
-							let url    = asset.url.replace(/source/, 'api').replace(/\.js$/, '.json');
+							let url    = asset.url.replace('/source/', '/api/').replace(/\.js$/, '.json');
 							let config = new lychee.Asset(url, 'json', true);
 							if (config !== null) {
-								config.buffer = api_report;
+
+								config.buffer = {
+									errors: api_report.errors,
+									source: {
+										header: api_report.header,
+										memory: api_report.memory,
+										result: api_report.result
+									},
+									review: null
+								};
+
 							}
 
 							return config;
@@ -566,7 +803,69 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('trace-pkgs', function(oncomplete) {
+		this.bind('check-reviews', function(oncomplete) {
+
+			let api     = _plugin.API || null;
+			let configs = this.configs;
+			let errors  = this.errors;
+			let project = this.settings.project;
+
+			if (api !== null) {
+
+				console.log('strainer: CHECK-REVIEWS ' + project);
+
+				this.reviews.map(function(asset) {
+
+					let result      = [];
+					let api_report  = _plugin.API.check(asset);
+					let api_unfixed = _plugin.API.fix(asset, api_report);
+
+					if (api_report !== null) {
+
+						if (api_unfixed.length > 0) {
+
+							api_unfixed.forEach(function(err) {
+
+								result.push(err);
+								errors.push(err);
+
+							});
+
+							api_report.errors = result;
+
+						}
+
+					}
+
+
+					if (asset.url.includes('/review/')) {
+
+						let url    = asset.url.replace('/review/', '/api/').replace(/\.js$/, '.json');
+						let config = configs.find(function(other) {
+							return other.url === url;
+						}) || null;
+
+						if (config !== null) {
+
+							config.buffer.review = {
+								header: api_report.header,
+								memory: api_report.memory,
+								result: api_report.result
+							};
+
+						}
+
+					}
+
+				});
+
+			}
+
+			oncomplete(true);
+
+		}, this);
+
+		this.bind('trace-package', function(oncomplete) {
 
 			let errors  = this.errors;
 			let pkg     = this.__pkg;
@@ -575,7 +874,7 @@ lychee.define('strainer.flow.Check').requires([
 
 			if (pkg !== null) {
 
-				console.log('strainer: TRACE-PKGS ' + project);
+				console.log('strainer: TRACE-PACKAGE ' + project);
 
 
 				let packages     = this.__packages;
@@ -697,7 +996,7 @@ lychee.define('strainer.flow.Check').requires([
 		}, this);
 
 
-		this.bind('trace-deps', function(oncomplete) {
+		this.bind('trace-includes', function(oncomplete) {
 
 			let packages = this.__packages;
 			let project  = this.settings.project;
@@ -708,7 +1007,7 @@ lychee.define('strainer.flow.Check').requires([
 				let dependencies = _trace_dependencies.call(this);
 				if (dependencies.length > 0) {
 
-					console.log('strainer: TRACE-DEPS ' + project + ' (' + dependencies.length + ')');
+					console.log('strainer: TRACE-INCLUDES ' + project + ' (' + dependencies.length + ')');
 
 
 					let candidates = [];
@@ -766,13 +1065,13 @@ lychee.define('strainer.flow.Check').requires([
 
 							setTimeout(function() {
 
-								let unknown_deps = _trace_dependencies.call(this).filter(function(dependency) {
+								let unknown_includes = _trace_dependencies.call(this).filter(function(dependency) {
 									return dependencies.includes(dependency) === false;
 								});
 
-								if (unknown_deps.length > 0) {
+								if (unknown_includes.length > 0) {
 
-									this.trigger('trace-deps', [ oncomplete ]);
+									this.trigger('trace-includes', [ oncomplete ]);
 
 								} else {
 
@@ -806,7 +1105,7 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('trace-api', function(oncomplete) {
+		this.bind('trace-configs', function(oncomplete) {
 
 			let that    = this;
 			let errors  = this.errors;
@@ -815,15 +1114,15 @@ lychee.define('strainer.flow.Check').requires([
 
 			if (configs.length > 0) {
 
-				console.log('strainer: TRACE-API ' + project);
+				console.log('strainer: TRACE-CONFIGS ' + project);
 
 
 				configs.filter(function(config) {
 					return config !== null;
 				}).forEach(function(config) {
 
-					let result     = config.buffer.result;
-					let memory     = config.buffer.memory;
+					let result     = config.buffer.source.result;
+					let memory     = config.buffer.source.memory;
 					let methods    = result.methods    || {};
 					let properties = result.properties || {};
 					let scope      = properties;
@@ -930,14 +1229,14 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('clean-deps', function(oncomplete) {
+		this.bind('clean-includes', function(oncomplete) {
 
 			let configs = this.configs;
 			let project = this.settings.project;
 			let sandbox = this.sandbox;
 
 
-			let cleaned_deps = 0;
+			let cleaned_includes = 0;
 
 			for (let c = 0, cl = configs.length; c < cl; c++) {
 
@@ -946,7 +1245,7 @@ lychee.define('strainer.flow.Check').requires([
 
 					if (config.url.startsWith(sandbox) === false) {
 
-						cleaned_deps++;
+						cleaned_includes++;
 						configs.splice(c, 1);
 						cl--;
 						c--;
@@ -957,32 +1256,131 @@ lychee.define('strainer.flow.Check').requires([
 
 			}
 
-			console.log('strainer: CLEAN-DEPS ' + project + ' (' + cleaned_deps + ')');
+			console.log('strainer: CLEAN-INCLUDES ' + project + ' (' + cleaned_includes + ')');
 
 
 			oncomplete(true);
 
 		}, this);
 
-		this.bind('write-codes', function(oncomplete) {
+		this.bind('simulate-reviews', function(oncomplete) {
+
+			let cache   = this.__simulations;
+			let pkg     = this.__pkg;
+			let project = this.settings.project;
+			let sandbox = this.sandbox;
+
+			if (pkg !== null) {
+
+				console.log('strainer: SIMULATE-REVIEWS ' + project);
+
+
+				let simulations = pkg.buffer.review.simulations || null;
+				if (simulations !== null) {
+
+					for (let id in simulations) {
+
+						let raw      = simulations[id];
+						let settings = {
+							id: id
+						};
+
+
+						let env = raw.environment || null;
+						if (env !== null) {
+
+							let pkgs = raw.environment.packages;
+							if (pkgs instanceof Object) {
+
+								for (let ns in pkgs) {
+
+									let url = pkgs[ns];
+									if (url === './lychee.pkg') {
+										url = sandbox + '/lychee.pkg';
+									}
+
+									pkgs[ns] = url;
+
+								}
+
+							}
+
+
+							settings.environment = new lychee.Environment(raw.environment);
+
+							let target = raw.target || null;
+							if (target !== null) {
+								settings.target = target;
+								cache.push(settings);
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+
+			if (cache.length > 0) {
+
+				let env   = lychee.environment;
+				let queue = new _Queue();
+
+				queue.bind('update', _simulate, this);
+
+				queue.bind('complete', function() {
+
+					lychee.setEnvironment(env);
+					lychee.setSimulation(null);
+
+					oncomplete(true);
+
+				}, this);
+
+				queue.bind('error', function() {
+
+					lychee.setEnvironment(env);
+					lychee.setSimulation(null);
+
+					oncomplete(true);
+
+				}, this);
+
+				cache.forEach(function(entry) {
+					queue.then(entry);
+				});
+
+				queue.init();
+
+			} else {
+
+				oncomplete(true);
+
+			}
+
+		}, this);
+
+		this.bind('write-sources', function(oncomplete) {
 
 			let project = this.settings.project;
 			let stash   = this.stash;
 
 			if (project !== null && stash !== null) {
 
-				console.log('strainer: WRITE-CODES ' + project);
+				console.log('strainer: WRITE-SOURCES ' + project);
 
 
-				let codes = this.codes.filter(function(code, c) {
+				let sources = this.sources.filter(function(code, c) {
 					return code._MODIFIED === true;
 				});
 
-				if (codes.length > 0) {
+				if (sources.length > 0) {
 
 					stash.bind('batch', function(type, assets) {
 
-						if (assets.length === codes.length) {
+						if (assets.length === sources.length) {
 							oncomplete(true);
 						} else {
 							oncomplete(false);
@@ -990,9 +1388,9 @@ lychee.define('strainer.flow.Check').requires([
 
 					}, this, true);
 
-					stash.batch('write', codes.map(function(code) {
-						return code.url;
-					}), codes);
+					stash.batch('write', sources.map(function(asset) {
+						return asset.url;
+					}), sources);
 
 				} else {
 
@@ -1008,14 +1406,58 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('write-api', function(oncomplete) {
+		this.bind('write-reviews', function(oncomplete) {
 
 			let project = this.settings.project;
 			let stash   = this.stash;
 
 			if (project !== null && stash !== null) {
 
-				console.log('strainer: WRITE-API ' + project);
+				console.log('strainer: WRITE-REVIEWS ' + project);
+
+
+				let reviews = this.reviews.filter(function(code, c) {
+					return code._MODIFIED === true;
+				});
+
+				if (reviews.length > 0) {
+
+					stash.bind('batch', function(type, assets) {
+
+						if (assets.length === reviews.length) {
+							oncomplete(true);
+						} else {
+							oncomplete(false);
+						}
+
+					}, this, true);
+
+					stash.batch('write', reviews.map(function(asset) {
+						return asset.url;
+					}), reviews);
+
+				} else {
+
+					oncomplete(true);
+
+				}
+
+			} else {
+
+				oncomplete(false);
+
+			}
+
+		}, this);
+
+		this.bind('write-configs', function(oncomplete) {
+
+			let project = this.settings.project;
+			let stash   = this.stash;
+
+			if (project !== null && stash !== null) {
+
+				console.log('strainer: WRITE-CONFIGS ' + project);
 
 
 				let configs = this.configs.filter(function(config) {
@@ -1052,14 +1494,14 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('write-pkg', function(oncomplete) {
+		this.bind('write-package', function(oncomplete) {
 
 			let project = this.settings.project;
 			let stash   = this.stash;
 
 			if (project !== null && stash !== null) {
 
-				console.log('strainer: WRITE-PKG ' + project);
+				console.log('strainer: WRITE-PACKAGE ' + project);
 
 
 				let configs = this.configs.filter(function(config) {
@@ -1083,15 +1525,20 @@ lychee.define('strainer.flow.Check').requires([
 						for (let c = 0, cl = configs.length; c < cl; c++) {
 
 							let config     = configs[c];
-							let identifier = config.buffer.header.identifier;
-							let knowledge  = {};
-							let result     = config.buffer.result;
+							let identifier = config.buffer.source.header.identifier;
+							let result     = config.buffer.source.result;
 
 
-							knowledge.settings   = Object.keys(result.settings);
-							knowledge.properties = Object.keys(result.properties);
+							let knowledge = {};
+
+							knowledge.states     = Object.keys(result.states);
+							knowledge.properties = Object.keys(result.properties).map(function(pid) {
+								return [ pid, result.properties[pid].hash ];
+							});
 							knowledge.enums      = Object.keys(result.enums);
-							knowledge.events     = Object.keys(result.events);
+							knowledge.events     = Object.keys(result.events).map(function(eid) {
+								return [ eid, result.events[eid].hash ];
+							});
 							knowledge.methods    = Object.keys(result.methods).map(function(mid) {
 								return [ mid, result.methods[mid].hash ];
 							});
@@ -1135,19 +1582,26 @@ lychee.define('strainer.flow.Check').requires([
 		 * FLOW
 		 */
 
-		this.then('read');
+		this.then('read-sources');
+		this.then('read-reviews');
 
-		this.then('check-eslint');
-		this.then('check-api');
+		this.then('lint-sources');
+		this.then('lint-reviews');
 
-		this.then('trace-pkgs');
-		this.then('trace-deps');
-		this.then('trace-api');
-		this.then('clean-deps');
+		this.then('check-sources');
+		this.then('check-reviews');
 
-		this.then('write-codes');
-		this.then('write-api');
-		this.then('write-pkg');
+		this.then('trace-package');
+		this.then('trace-includes');
+		this.then('trace-configs');
+		this.then('clean-includes');
+
+		this.then('simulate-reviews');
+
+		this.then('write-sources');
+		this.then('write-reviews');
+		this.then('write-configs');
+		this.then('write-package');
 
 	};
 
@@ -1160,17 +1614,17 @@ lychee.define('strainer.flow.Check').requires([
 
 		deserialize: function(blob) {
 
-			if (blob.codes instanceof Array) {
+			if (blob.sources instanceof Array) {
 
-				let codes = [];
+				let sources = [];
 
-				for (let bc1 = 0, bc1l = blob.codes.length; bc1 < bc1l; bc1++) {
-					codes.push(lychee.deserialize(blob.codes[bc1]));
+				for (let bc1 = 0, bc1l = blob.sources.length; bc1 < bc1l; bc1++) {
+					sources.push(lychee.deserialize(blob.sources[bc1]));
 				}
 
-				if (codes.length > 0) {
+				if (sources.length > 0) {
 
-					this.codes = codes.filter(function(asset) {
+					this.sources = sources.filter(function(asset) {
 						return asset !== null;
 					});
 
@@ -1184,7 +1638,7 @@ lychee.define('strainer.flow.Check').requires([
 				let configs = [];
 
 				for (let bc2 = 0, bc2l = blob.configs.length; bc2 < bc2l; bc2++) {
-					configs.push(lychee.deserialize(blob.codes[bc2]));
+					configs.push(lychee.deserialize(blob.configs[bc2]));
 				}
 
 				if (configs.length > 0) {
@@ -1211,20 +1665,21 @@ lychee.define('strainer.flow.Check').requires([
 			data['constructor'] = 'strainer.flow.Check';
 
 
-			let settings = data['arguments'][0] || {};
-			let blob     = data['blob'] || {};
+			let states = data['arguments'][0] || {};
+			let blob   = data['blob'] || {};
 
 
-			if (this.sandbox !== '')                   settings.sandbox  = this.sandbox;
-			if (Object.keys(this.settings).length > 0) settings.settings = this.settings;
+			if (this.sandbox !== '')                   states.sandbox  = this.sandbox;
+			if (Object.keys(this.settings).length > 0) states.settings = this.settings;
 
 
 			if (this.stash !== null)     blob.stash   = lychee.serialize(this.stash);
-			if (this.codes.length > 0)   blob.codes   = this.codes.map(lychee.serialize);
 			if (this.configs.length > 0) blob.configs = this.configs.map(lychee.serialize);
+			if (this.reviews.length > 0) blob.reviews = this.reviews.map(lychee.serialize);
+			if (this.sources.length > 0) blob.sources = this.sources.map(lychee.serialize);
 
 
-			data['arguments'][0] = settings;
+			data['arguments'][0] = states;
 			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 

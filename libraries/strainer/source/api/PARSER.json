@@ -420,6 +420,11 @@
 		"value": "<unique identifier>"
 	},
 	{
+		"chunk": "filtered.sort()",
+		"type": "Array",
+		"value": []
+	},
+	{
 		"chunk": "width",
 		"type": "Number",
 		"value": 1337

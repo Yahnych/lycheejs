@@ -123,13 +123,14 @@
 				"target": "app.Main",
 				"variant": "application"
 			}
-		}
+		},
+		"files": {}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"files": {
 			"Main": [
 				"js"

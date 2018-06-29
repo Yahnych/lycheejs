@@ -79,13 +79,14 @@
 				"type": "folder",
 				"variant": "application"
 			}
-		}
+		},
+		"files": {}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"files": {
 			"Camera": [
 				"js"

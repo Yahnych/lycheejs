@@ -44,7 +44,7 @@ lychee.define('lychee.crypto.MURMUR').exports(function(lychee, global, attachmen
 
 		update: function(data) {
 
-			data = data instanceof Buffer ? data : new Buffer(data, 'utf8');
+			data = data instanceof Buffer ? data : Buffer.from(data, 'utf8');
 
 
 			let remain = data.length % 4;
@@ -116,7 +116,7 @@ lychee.define('lychee.crypto.MURMUR').exports(function(lychee, global, attachmen
 				hash = '0' + hash;
 			}
 
-			return new Buffer(hash, 'hex');
+			return Buffer.from(hash, 'hex');
 
 		}
 

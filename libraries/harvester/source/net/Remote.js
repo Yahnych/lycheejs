@@ -20,12 +20,12 @@ lychee.define('harvester.net.Remote').requires([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		_Tunnel.call(this, settings);
+		_Tunnel.call(this, states);
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -130,7 +130,7 @@ lychee.define('harvester.net.Remote').requires([
 				let payload = null;
 
 				if (typeof data === 'string') {
-					payload = new Buffer(data, 'utf8');
+					payload = Buffer.from(data, 'utf8');
 				} else if (data instanceof Buffer) {
 					payload = data;
 				}

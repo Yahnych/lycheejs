@@ -117,10 +117,10 @@
 		}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"tags": {
 			"platform": {
 				"node": "platform/node"

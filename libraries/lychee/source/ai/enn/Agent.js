@@ -1,14 +1,14 @@
 
 lychee.define('lychee.ai.enn.Agent').requires([
-	'lychee.ai.Genome',
-	'lychee.ai.enn.Brain'
+	'lychee.ai.enn.Brain',
+	'lychee.ai.enn.Genome'
 ]).includes([
 	'lychee.ai.Agent'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Agent          = lychee.import('lychee.ai.Agent');
-	const _Genome         = lychee.import('lychee.ai.Genome');
 	const _Brain          = lychee.import('lychee.ai.enn.Brain');
+	const _Genome         = lychee.import('lychee.ai.enn.Genome');
 	const _MUTATION_RANGE = 0.25;
 	const _MUTATION_RATE  = 0.1;
 
@@ -20,21 +20,21 @@ lychee.define('lychee.ai.enn.Agent').requires([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
 		this.genome = null;
 
 
-		settings.brain  = settings.brain  || new _Brain();
-		settings.genome = settings.genome || new _Genome();
+		states.brain  = states.brain  || new _Brain();
+		states.genome = states.genome || new _Genome();
 
-		_Agent.call(this, settings);
+		_Agent.call(this, states);
 
 
-		this.setGenome(settings.genome);
+		this.setGenome(states.genome);
 
-		settings = null;
+		states = null;
 
 	};
 

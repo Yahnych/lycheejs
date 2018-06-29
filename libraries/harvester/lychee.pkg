@@ -203,10 +203,10 @@
 		}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"files": {
 			"Main": [
 				"js"

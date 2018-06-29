@@ -109,14 +109,14 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 		let content_type = headers['content-type'] || 'text/plain';
 		if (/text\//g.test(content_type) === true) {
 
-			buffer = new Buffer(headers_length + payload_length + 4);
+			buffer = Buffer.alloc(headers_length + payload_length + 4);
 			buffer.write(headers_data, 0, headers_length, 'utf8');
 			payload_data.copy(buffer, headers_length, 0, payload_length);
 			buffer.write('\r\n\r\n', headers_length + payload_length, 4, 'utf8');
 
 		} else {
 
-			buffer = new Buffer(headers_length + payload_length + 4);
+			buffer = Buffer.alloc(headers_length + payload_length + 4);
 			buffer.write(headers_data, 0, headers_length, 'utf8');
 			payload_data.copy(buffer, headers_length, 0, payload_length);
 			buffer.write('\r\n\r\n', headers_length + payload_length, 4, 'utf8');
@@ -272,25 +272,27 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 				});
 
 
+				let tmp7 = JSON.stringify(tmp6);
+
 				chunk.bytes   = headers_length + payload_length;
-				chunk.payload = new Buffer(JSON.stringify(tmp6), 'utf8');
+				chunk.payload = Buffer.alloc(tmp7.length, tmp7, 'utf8');
 
 			} else {
 
 				chunk.bytes   = headers_length + payload_length;
-				chunk.payload = new Buffer('', 'utf8');
+				chunk.payload = Buffer.alloc(0, '', 'utf8');
 
 			}
 
 		} else if (check === 'OPTIONS') {
 
 			chunk.bytes   = headers_length + payload_length;
-			chunk.payload = new Buffer('', 'utf8');
+			chunk.payload = Buffer.alloc(0, '', 'utf8');
 
 		} else if (check === 'POST') {
 
 			chunk.bytes   = headers_length + payload_length;
-			chunk.payload = new Buffer(payload_data, 'utf8');
+			chunk.payload = Buffer.alloc(payload_data.length, payload_data, 'utf8');
 
 		} else {
 
@@ -298,7 +300,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 			if (status !== null) {
 
 				chunk.bytes   = headers_length + payload_length;
-				chunk.payload = new Buffer(payload_data, 'utf8');
+				chunk.payload = Buffer.alloc(payload_data.length, payload_data, 'utf8');
 
 			} else {
 
@@ -323,12 +325,12 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		this.type = lychee.enumof(Composite.TYPE, settings.type) ? settings.type : null;
+		this.type = lychee.enumof(Composite.TYPE, states.type) ? states.type : null;
 
-		this.__buffer   = new Buffer(0);
+		this.__buffer   = Buffer.alloc(0);
 		this.__isClosed = false;
 
 
@@ -340,7 +342,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 
 		}
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -385,9 +387,15 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 
 		serialize: function() {
 
+			let states = {};
+
+
+			if (this.type !== null) states.type = this.type;
+
+
 			return {
 				'constructor': 'lychee.net.protocol.HTTP',
-				'arguments':   [ this.type ],
+				'arguments':   [ states ],
 				'blob':        null
 			};
 
@@ -436,7 +444,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 				} else if (this.__isClosed === false) {
 
 					let buf = this.__buffer;
-					let tmp = new Buffer(buf.length + blob.length);
+					let tmp = Buffer.alloc(buf.length + blob.length);
 
 
 					buf.copy(tmp);
@@ -453,7 +461,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 						}
 
 
-						tmp = new Buffer(buf.length - chunk.bytes);
+						tmp = Buffer.alloc(buf.length - chunk.bytes);
 						buf.copy(tmp, 0, chunk.bytes);
 						buf = tmp;
 
@@ -482,7 +490,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 			if (this.__isClosed === false) {
 
 				// TODO: Close method should create a close status buffer
-				// let buffer = new Buffer(4);
+				// let buffer = Buffer.alloc(4);
 
 				// buffer[0]  = 128 + 0x08;
 				// buffer[1]  =   0 + 0x02;

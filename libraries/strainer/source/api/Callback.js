@@ -125,13 +125,13 @@ lychee.define('strainer.api.Callback').requires([
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 19, i2 - i1 - 16).trim();
-			if (body.length > 0) {
+			let chunk = stream.substr(i1 + 19, i2 - i1 - 16).trim();
+			if (chunk.length > 0) {
 
+				constructor.chunk      = chunk;
 				constructor.type       = 'function';
-				constructor.body       = body;
-				constructor.hash       = _PARSER.hash(body);
-				constructor.parameters = _PARSER.parameters(body);
+				constructor.hash       = _PARSER.hash(chunk);
+				constructor.parameters = _PARSER.parameters(chunk);
 
 			}
 
@@ -167,11 +167,12 @@ lychee.define('strainer.api.Callback').requires([
 			let memory = {};
 			let result = {
 				constructor: {
-					body:       null,
+					chunk:      null,
+					type:       null,
 					hash:       null,
 					parameters: []
 				},
-				settings:    {},
+				states:      {},
 				properties:  {},
 				enums:       {},
 				events:      {},

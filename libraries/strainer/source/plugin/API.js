@@ -5,6 +5,7 @@ lychee.define('strainer.plugin.API').requires([
 	'strainer.api.Core',
 	'strainer.api.Definition',
 	'strainer.api.Module',
+	'strainer.api.Sandbox',
 	'strainer.api.Specification',
 	'strainer.fix.API'
 ]).exports(function(lychee, global, attachments) {
@@ -16,6 +17,7 @@ lychee.define('strainer.plugin.API').requires([
 		Core:          lychee.import('strainer.api.Core'),
 		Definition:    lychee.import('strainer.api.Definition'),
 		Module:        lychee.import('strainer.api.Module'),
+		Sandbox:       lychee.import('strainer.api.Sandbox'),
 		Specification: lychee.import('strainer.api.Specification')
 	};
 
@@ -68,28 +70,36 @@ lychee.define('strainer.plugin.API').requires([
 				let first  = stream.trim().split('\n')[0];
 
 
-				let is_core          = asset.url.startsWith('/libraries/lychee/source/core') && first.endsWith('(function(global) {');
+				let is_core          = asset.url.startsWith('/libraries/crux/source') && first.endsWith('(function(global) {');
 				let is_definition    = first.startsWith('lychee.define(');
 				let is_specification = first.startsWith('lychee.specify(');
 				let i_callback       = stream.lastIndexOf('return Callback;');
 				let i_composite      = stream.lastIndexOf('return Composite;');
 				let i_module         = stream.lastIndexOf('return Module;');
 				let i_check          = Math.max(i_callback, i_composite, i_module);
-				let is_callback      = i_check === i_callback;
-				let is_composite     = i_check === i_composite;
-				let is_module        = i_check === i_module;
+				let is_callback      = i_check !== -1 && i_check === i_callback;
+				let is_composite     = i_check !== -1 && i_check === i_composite;
+				let is_module        = i_check !== -1 && i_check === i_module;
 
 
 				if (is_definition === true) {
+
 					header = _api['Definition'].check(asset);
+
 				} else if (is_specification === true) {
+
 					header = _api['Specification'].check(asset);
+					api    = _api['Sandbox'] || null;
+
 				} else if (is_core === true) {
+
 					header = _api['Core'].check(asset);
+
 				} else {
 
 					if (asset.url.includes('/review/')) {
 						header = _api['Specification'].check(asset);
+						api    = _api['Sandbox'] || null;
 					} else if (asset.url.includes('/source/')) {
 						header = _api['Definition'].check(asset);
 					} else {
@@ -102,12 +112,19 @@ lychee.define('strainer.plugin.API').requires([
 				}
 
 
-				if (is_callback === true) {
-					api = _api['Callback'] || null;
-				} else if (is_composite === true) {
-					api = _api['Composite'] || null;
-				} else if (is_module === true) {
-					api = _api['Module'] || null;
+				if (api === null) {
+
+					if (is_callback === true) {
+						header.result.type = 'Callback';
+						api = _api['Callback'] || null;
+					} else if (is_composite === true) {
+						header.result.type = 'Composite';
+						api = _api['Composite'] || null;
+					} else if (is_module === true) {
+						header.result.type = 'Module';
+						api = _api['Module'] || null;
+					}
+
 				}
 
 
@@ -127,7 +144,7 @@ lychee.define('strainer.plugin.API').requires([
 								hash:       null,
 								parameters: []
 							},
-							settings:    {},
+							states:      {},
 							properties:  {},
 							enums:       {},
 							events:      {},
@@ -159,15 +176,6 @@ lychee.define('strainer.plugin.API').requires([
 						}
 
 					});
-
-
-					if (is_callback === true) {
-						header.result.type = 'Callback';
-					} else if (is_composite === true) {
-						header.result.type = 'Composite';
-					} else if (is_module === true) {
-						header.result.type = 'Module';
-					}
 
 
 					return {
@@ -234,7 +242,7 @@ lychee.define('strainer.plugin.API').requires([
 
 
 				if (modified === true) {
-					asset.buffer    = new Buffer(code, 'utf8');
+					asset.buffer    = Buffer.alloc(code.length, code, 'utf8');
 					asset._MODIFIED = true;
 				}
 
@@ -269,7 +277,7 @@ lychee.define('strainer.plugin.API').requires([
 				let code   = null;
 
 
-				let is_core       = asset.url.startsWith('/libraries/lychee/source/core');
+				let is_core       = asset.url.startsWith('/libraries/crux/source');
 				let is_definition = is_core === false && asset.url.includes('/api/');
 
 

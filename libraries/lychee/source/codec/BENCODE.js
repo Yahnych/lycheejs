@@ -469,7 +469,7 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 				_encode(stream, data);
 
-				return new Buffer(stream.toString(), 'utf8');
+				return Buffer.from(stream.toString(), 'utf8');
 
 			}
 

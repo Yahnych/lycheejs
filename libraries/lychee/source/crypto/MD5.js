@@ -102,7 +102,7 @@ lychee.define('lychee.crypto.MD5').exports(function(lychee, global, attachments)
 
 		update: function(data) {
 
-			data = data instanceof Buffer ? data : new Buffer(data, 'utf8');
+			data = data instanceof Buffer ? data : Buffer.from(data, 'utf8');
 
 
 			let words = _bytes_to_words(data);
@@ -236,7 +236,7 @@ lychee.define('lychee.crypto.MD5').exports(function(lychee, global, attachments)
 			}
 
 
-			return new Buffer(hash, 'hex');
+			return Buffer.from(hash, 'hex');
 
 		}
 

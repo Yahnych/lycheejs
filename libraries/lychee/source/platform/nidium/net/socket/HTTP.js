@@ -41,7 +41,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _to_buffer = function(bytes) {
 
-		let buffer = new Buffer(bytes.byteLength);
+		let buffer = Buffer.alloc(bytes.byteLength);
 		let array  = new Uint8Array(bytes);
 
 		for (let b = 0; b < buffer.length; b++) {
@@ -61,7 +61,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 				let blob = null;
 				if (typeof data === 'string') {
-					blob = new Buffer(data, 'utf8');
+					blob = Buffer.from(data, 'utf8');
 				} else {
 					blob = _to_buffer(data);
 				}

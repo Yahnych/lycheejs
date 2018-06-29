@@ -167,7 +167,7 @@ lychee.define('lychee.crypto.SHA1').exports(function(lychee, global, attachments
 		this.__e = 0xc3d2e1f0 | 0;
 		this.__w = new Array(80);
 
-		this.__buffer  = new Buffer(64);
+		this.__buffer  = Buffer.alloc(64);
 		this.__length  = 0;
 		this.__pointer = 0;
 
@@ -199,7 +199,7 @@ lychee.define('lychee.crypto.SHA1').exports(function(lychee, global, attachments
 
 		update: function(data) {
 
-			data = data instanceof Buffer ? data : new Buffer(data, 'utf8');
+			data = data instanceof Buffer ? data : Buffer.from(data, 'utf8');
 
 
 			let buffer  = this.__buffer;
@@ -254,7 +254,7 @@ lychee.define('lychee.crypto.SHA1').exports(function(lychee, global, attachments
 			_update_chunk.call(this, buffer);
 
 
-			let hash = new Buffer(20);
+			let hash = Buffer.alloc(20);
 
 			_write_int32BE(hash, this.__a | 0,  0);
 			_write_int32BE(hash, this.__b | 0,  4);

@@ -20,7 +20,22 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
-## [2018-Q1] - UNRELEASED
+## [2018-Q2] - UNRELEASED
+
+- **Changed**: lychee.js Crux replaces old lychee.js Engine Core.
+- **Changed**: `settings` is renamed into `states` across the stack.
+- **Changed**: lychee.js Strainer supports simulations and reviews.
+- **Added**: lychee.Specification allows implementation of behaviour tests.
+- **Added**: lychee.Simulation allows simulations of sandboxes on lychee.Environments.
+- Added: lychee.js Harvester supports trailing `--debug` flag.
+- Added: `harvester.js` supports trailing `--debug` flag.
+- Added: `Buffer.alloc()` and `Buffer.from()` to be in sync with updated node.js API.
+- Added: `./bin/configure.js` supports reviews and specifications.
+- Fixed: `./bin/maintenance/do-install.sh` updates package-manager caches.
+- Fixed: lychee.js Breeder supports project folders that are symbolic links.
+
+
+## [2018-Q1] - 2018-03-31
 
 - **Changed**: `./bin/configure.js` supports source maps for core and platform adapters.
 - **Added**: lychee.js Strainer supports transcriptions.

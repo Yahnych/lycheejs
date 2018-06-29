@@ -80,7 +80,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 				for (let ext in mime) {
 
-					let blob = new Buffer(data.blob.buffer[ext], 'base64');
+					let blob = Buffer.from(data.blob.buffer[ext], 'base64');
 					let path = _HOME + '/' + name + '.' + mime[ext].ext;
 
 					_fs.writeFileSync(path, blob, mime[ext].enc);
@@ -89,7 +89,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 			} else {
 
-				let blob = new Buffer(data.blob.buffer, 'base64');
+				let blob = Buffer.from(data.blob.buffer, 'base64');
 				let path = _HOME + '/' + name + '.' + mime.ext;
 
 				if (url.startsWith('data:')) {
@@ -112,7 +112,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({
+		let states = Object.assign({
 			label: 'DOWNLOAD'
 		}, data);
 
@@ -120,14 +120,14 @@ lychee.define('lychee.ui.entity.Download').tags({
 		this.value = [];
 
 
-		this.setValue(settings.value);
+		this.setValue(states.value);
 
-		delete settings.value;
+		delete states.value;
 
 
-		_Button.call(this, settings);
+		_Button.call(this, states);
 
-		settings = null;
+		states = null;
 
 
 

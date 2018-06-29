@@ -12,7 +12,7 @@ if [ -z "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="/opt/lycheejs";
 fi;
 
-LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/lychee/source/core/lychee.js" | cut -d"\"" -f2);
+LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" | cut -d"\"" -f2);
 CHILD_PID="";
 
 
@@ -582,6 +582,12 @@ elif [ "$protocol" == "env" ]; then
 				$LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
 			fi;
 
+		elif [ "$platform" == "html-webview" ]; then
+
+			echo -e "\e[41m\e[97m (E) No html-webview emulator support. \e[39m\e[49m\e[0m";
+
+			exit 1;
+
 		elif [ "$platform" == "nidium" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
@@ -749,11 +755,7 @@ elif [ "$protocol" == "run" ]; then
 
 		elif [ "$platform" == "html-webview" ]; then
 
-			# XXX: Impossible to implement right now
-			# requires emulator binaries for all platform
-			# which is too much bloat
-
-			echo "Sorry, lychee.js ships no mobile emulators due to bloat size :(";
+			echo -e "\e[41m\e[97m (E) No html-webview emulator support. \e[39m\e[49m\e[0m";
 
 			exit 1;
 

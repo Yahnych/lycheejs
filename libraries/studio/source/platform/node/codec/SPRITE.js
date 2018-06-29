@@ -326,7 +326,9 @@ lychee.define('studio.codec.SPRITE').tags({
 		 * Export Config and Texture
 		 */
 
-		let config_blob  = 'data:application/json;base64,' + new Buffer(_JSON.encode(tmp_config), 'utf8').toString('base64');
+		let tmp1         = _JSON.encode(tmp_config);
+		let tmp2         = Buffer.alloc(tmp1.length, tmp1, 'utf8');
+		let config_blob  = 'data:application/json;base64,' + tmp2.toString('base64');
 		let texture_blob = _CANVAS.toDataURL('image/png');
 
 

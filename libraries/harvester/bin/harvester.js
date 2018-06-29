@@ -147,6 +147,7 @@ const _bootup = function(settings) {
 
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/harvester';
 
+	lychee.init(null);
 	lychee.pkg('build', 'node/main', function(environment) {
 
 		lychee.init(environment, {
@@ -224,11 +225,11 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-if (_fs.existsSync(_ROOT + '/libraries/lychee/build/node/core.js') === false) {
+if (_fs.existsSync(_ROOT + '/libraries/crux/build/node/dist.js') === false) {
 	require(_ROOT + '/bin/configure.js');
 }
 
-const lychee    = require(_ROOT + '/libraries/lychee/build/node/core.js')(_ROOT);
+const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');

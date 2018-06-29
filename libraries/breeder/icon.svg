@@ -6,9 +6,9 @@
 <path d="m398 315c-14 25-33 47-56 60 58 25 156 32 156 32s-50-60-100-92z"/>
 </g>
 <g stroke-miterlimit="10">
-<circle transform="rotate(90)" stroke="#d0494b" cy="-254" cx="244" r="137.05" stroke-width="3" fill="none"/>
-<ellipse rx="75" ry="137" stroke="#d0494b" transform="rotate(90)" cy="-254" cx="244" stroke-width="3" fill="none"/>
+<circle transform="rotate(90)" stroke="#d0494b" cy="-254" cx="244" r="144" stroke-width="12" fill="none"/>
+<ellipse rx="75" ry="137" stroke="#d0494b" transform="rotate(90)" cy="-254" cx="244" stroke-width="12" fill="none"/>
 <ellipse rx="33" ry="60" transform="rotate(90)" cy="-254" cx="244" fill="#d0494b"/>
-<ellipse rx="75" ry="137" stroke="#d0494b" transform="scale(-1)" cy="-244" cx="-254" stroke-width="3" fill="none"/>
+<ellipse rx="75" ry="137" stroke="#d0494b" transform="scale(-1)" cy="-244" cx="-254" stroke-width="12" fill="none"/>
 </g>
 </svg>

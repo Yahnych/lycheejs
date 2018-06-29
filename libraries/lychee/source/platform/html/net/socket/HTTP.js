@@ -45,21 +45,14 @@ lychee.define('lychee.net.socket.HTTP').tags({
 	const _receive_xhr = function(raw_headers, raw_payload) {
 
 		let blob = null;
-		let view = null;
-
 
 		if (typeof raw_payload === 'string') {
 
-			blob = new Buffer(raw_payload, 'utf8');
+			blob = Buffer.from(raw_payload, 'utf8');
 
 		} else if (raw_payload instanceof ArrayBuffer) {
 
-			blob = new Buffer(raw_payload.byteLength);
-			view = new Uint8Array(raw_payload);
-
-			for (let v = 0, vl = blob.length; v < vl; v++) {
-				blob[v] = view[v];
-			}
+			blob = Buffer.from(raw_payload);
 
 		}
 

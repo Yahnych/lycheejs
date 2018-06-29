@@ -1,47 +1,77 @@
 
 # Release Guide for lychee.js
 
-1. [Configure Token](#configure-token)
-2. [Log in NPM](#log-in-npm)
+1. [Install Buildbot](#install-buildbot)
+2. [Authentication](#authentication)
 3. [Update lychee.js](#update-lycheejs)
 4. [Release lychee.js](#release-lycheejs)
 
 
-## Configure Token
+## Install Buildbot
+
+The build server setup requires either an Arch Linux,
+Debian Jessie, Debian Testing or Ubuntu (non-LTS!)
+machine with at least 8GB of memory space in `/tmp`.
+
+If there's not enough memory space available in `/tmp`,
+the script will automatically set the `RELEASE_FOLDER`
+to `/mnt/lycheejs`.
+
+
+## Authentication
+
+### Authenticate GitHub API
 
 The Maintenance scripts require a configured GitHub Access
 Token. You must be member of the [Artificial-Engineering](https://github.com/Artificial-Engineering)
 organization and the [Personal Access Token](https://github.com/settings/tokens)
 with `repo` rights must be available in the `.github/TOKEN`
-file:
+file.
+
+It is recommended to use the [@humansneednotapply](https://github.com/humansneednotapply)
+build bot account for that purpose.
 
 ```bash
-cd /opt/lycheejs;
+# Create folder if it doesn't exist
+mkdir -p /opt/lycheejs/.github;
 
-echo "MY-PERSONAL-ACCESS-TOKEN" > .github/TOKEN;
+# Token for username @humansneednotapply
+echo "MY-PERSONAL-ACCESS-TOKEN" > /opt/lycheejs/.github/TOKEN;
 ```
 
+### Authenticate GitHub SSH
 
-## Log in NPM
-
-The NPM package manager is some kind of bloat, as it is
-not integrated with `git` and neither with `github` and
-therefore has its own publishing process.
-
-In order to have a machine setup for a successful `npm publish`,
-it is necessary to execute an initial `npm login` first.
-
-The account name for NPM is [~artificial-engineering](https://www.npmjs.com/~artificial-engineering).
-Contact [@cookiengineer](https://github.com/cookiengineer) to
-get a login token for your machine.
+If there's no SSH key pair, generate a new one. Setup git
+so that it uses the same user details as the [@humansneednotapply](https://github.com/humansneednotapply)
+account.
 
 ```bash
+yes "" | ssh-keygen -q -N "" -t rsa -b 8192 -C "robot [ insert an at here ] artificial.engineering";
+
+# Add this SSH key to @humansneednotapply's GitHub account
+cat ~/.ssh/id_rsa.pub;
+
+git config --global user.name "Robot";
+git config --global user.email "robot [ insert an at here ] artificial.engineering";
+```
+
+Follow [these instructions](https://help.github.com/articles/adding-a-new-ssh-key-to-your-github-account) afterwards.
+
+
+### Authenticate NPM
+
+Authenticate `npm` with the [~artificial-engineering](https://www.npmjs.com/~artificial-engineering)
+account.
+
+```bash
+npm whoami; # has to be artificial-engineering
 npm login;
 
-# Username: artificial-engineering
-# Password: Contact @cookiengineer
-# Email: robot [ insert an at here ] artificial.engineering
+# Enter username artificial-engineering
+# Enter email    robot [ insert an at here ] artificial.engineering
+# Enter password ...
 ```
+
 
 
 ## Update lychee.js
@@ -67,30 +97,52 @@ git checkout development;
 The lychee.js Release Tool is a wizard that automatically updates
 and creates the quaterly releases for everything including:
 
-- lycheejs (build, package and publish on github)
-- [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) (build, package and publish on github)
-- [lycheejs-harvester](https://github.com/Artificial-Engineering/lycheejs-harvester.git) (build, package and publish on github)
-- [lycheejs-library](https://github.com/Artificial-Engineering/lycheejs-library.git) (build, package and publish on NPM and Bower)
-- [lycheejs-bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) (build and package)
+- [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git) (build, package and publish to GitHub)
+- [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) (build, package and publish to GitHub)
+- [lycheejs-library](https://github.com/Artificial-Engineering/lycheejs-library.git) (build, package and publish to GitHub, NPM and Bower)
+- [lycheejs-bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) (build, package and publish to GitHub)
+
+Install the requirements, authenticate everything as instructed
+before and *THEN* execute the `do-release.sh` script. Either of
+`/tmp` or `/mnt` requires at least 8GB memory space available.
 
 ```bash
 cd /opt/lycheejs;
 
-./bin/maintenance/do-release.sh;
+# Some servers need to remount /tmp before
+# mount -o remount,size=8G,noatime /tmp;
+
+# Optionally enforce release folder
+# export RELEASE_FOLDER="/mnt/lycheejs";
+
+./bin/maintenance/do-release.sh --simulation;
 ```
 
-**IMPORTANT**: By default, the lychee.js Bundles are not published
-as this causes 3.0+ GB internet traffic. The bundles need to be
-verified and published manually after the build process.
+It is recommended to execute the `do-release.sh` script at least
+one time in simulation mode to verify that `git`, `ssh` and `npm`
+are working correctly (as yes/no dialogs of changed SSH keys or
+unknown hosts actually block a potential git clone).
 
-```bash
-cd /tmp/lycheejs/projects/lycheejs-bundle;
+The `RELEASE_FOLDER` environment variable is available to enforce
+a build path. The build workflow of all sub projects assume that
+they use a `-` (dash) in between to sandbox lychee.js installations.
 
-# Warning: 3.0+ GB internet traffic
-./bin/publish.sh;
-```
+For example, setting `export RELEASE_FOLDER="/tmp/lycheejs"` leads
+to the bundles being built inside `/tmp/lycheejs-bundles`.
 
-## Release Third-Party lychee.js Projects
+Further parameters and flags:
+
+`./bin/maintenance/do-install.sh`:
+
+- `-y` or `--yes` will skip all dialogs and assume yes for all questions.
+
+`./bin/maintenance/do-release.sh`:
+
+- `-y` or `--yes` will skip all dialogs and assume yes for all questions.
+- `-s` or `--simulation` will skip all dialogs and will skip the `publish` step for all projects.
+
+
+### Release Third-Party lychee.js Projects and Libraries
 
 After the release has been completed and successfully published,
 the lychee.js Fertilizer has to be run on the third-party projects

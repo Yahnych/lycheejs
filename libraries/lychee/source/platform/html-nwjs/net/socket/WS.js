@@ -54,7 +54,7 @@ lychee.define('lychee.net.socket.WS').tags({
 				// XXX: nwjs has global scope problems
 				// XXX: Internal Buffer is not our global.Buffer interface
 
-				let blob = new Buffer(raw.length);
+				let blob = Buffer.alloc(raw.length);
 				for (let b = 0; b < blob.length; b++) {
 					blob[b] = raw[b];
 				}
@@ -454,7 +454,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				} else {
 
-					let nonce     = new Buffer(16);
+					let nonce     = Buffer.alloc(16);
 					let connector = new _net.Socket({
 						// fd:       null,
 						readable: true,
