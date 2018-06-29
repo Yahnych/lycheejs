@@ -8,6 +8,7 @@ OS=`lowercase \`uname\``;
 USER_WHO=`whoami`;
 USER_LOG=`logname 2> /dev/null`;
 LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
+SYSTEMCTL_BIN=`which systemctl`;
 
 ALWAYS_YES="false";
 
@@ -34,11 +35,29 @@ _install() {
 
 
 if [ "$OS" == "darwin" ]; then
+
 	OS="osx";
+
 elif [ "$OS" == "linux" ]; then
+
 	OS="linux";
+
+	OS_CHECK=`lowercase \`uname -o\``;
+
+	if [ "$OS_CHECK" == "android" ]; then
+
+		TERMUX_CHECK=`which termux-info`;
+
+		if [ "$TERMUX_CHECK" != "" ]; then
+			USER_WHO="root";
+		fi;
+
+	fi;
+
 elif [ "$OS" == "freebsd" ] || [ "$OS" == "netbsd" ]; then
+
 	OS="bsd";
+
 fi;
 
 
@@ -63,9 +82,11 @@ elif [ "$OS" == "osx" ] && [ "$USER_WHO" == "root" ] && [ "$USER_LOG" == "root" 
 
 else
 
+	SELECTION_PACKAGES="";
+
 	if [ "$ALWAYS_YES" == "true" ]; then
 
-		SELECTION="required";
+		SELECTION_PACKAGES="required";
 
 	else
 
@@ -87,15 +108,40 @@ else
 		echo " (L) 2) minimal dependencies                              ";
 		echo " (L)    No mobile device support.                         ";
 		echo " (L) ";
-		echo " (L) ";
-
 
 		read -p " (L) Continue (1/2)? " -r
 
 		if [[ $REPLY =~ ^[1]$ ]]; then
-			SELECTION="optional";
+			SELECTION_PACKAGES="optional";
 		elif [[ $REPLY =~ ^[2]$ ]]; then
-			SELECTION="required";
+			SELECTION_PACKAGES="required";
+		else
+			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
+			exit 1;
+		fi;
+
+	fi;
+
+
+
+	SELECTION_SERVICE="";
+
+	if [ "$ALWAYS_YES" == "true" ] && [ "$SYSTEMCTL_BIN" != "" ]; then
+
+		SELECTION_SERVICE="systemd";
+
+	elif [ "$SYSTEMCTL_BIN" != "" ]; then
+
+		echo " (L) ";
+		echo " (L) Do you want systemd autostart integration on bootup? ";
+		echo " (L) ";
+
+		read -p " (L) Yes or No (y/n)? " -r
+
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			SELECTION_SERVICE="systemd";
+		elif [[ $REPLY =~ ^[Nn]$ ]]; then
+			SELECTION_SERVICE="";
 		else
 			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
 			exit 1;
@@ -110,70 +156,116 @@ else
 		# Arch
 		if [ -x "/usr/bin/pacman" ]; then
 			# XXX: libicns package not available (only AUR)
-			REQUIRED_LIST="bash binutils arm-none-eabi-binutils coreutils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils arm-none-eabi-binutils coreutils fakeroot sed zip unzip tar curl git npm";
 			REQUIRED_CMD="pacman -S --noconfirm --needed $REQUIRED_LIST";
 			OPTIONAL_LIST="jdk8-openjdk lib32-glibc lib32-libstdc++5 lib32-ncurses lib32-zlib";
 			OPTIONAL_CMD="pacman -S --noconfirm --needed $OPTIONAL_LIST";
+			UPDATE_CMD="pacman -Sy --noconfirm";
 
 		# Alpine
 		elif [ -x "/sbin/apk" ]; then
 
-			# XXX: libicns arm-none-eabi-binutils packages not available
-			REQUIRED_LIST="bash binutils coreutils sed zip unzip tar curl git";
+			# XXX: libicns arm-none-eabi-binutils not available
+			REQUIRED_LIST="bash binutils coreutils fakeroot sed zip unzip tar curl git npm";
 			REQUIRED_CMD="apk add --no-cache $REQUIRED_LIST";
-			# XXX: openjdk8 lib32-glibc lib32-libstdc++5 lib32-ncurses lib32-zlib packages not available
-			OPTIONAL_LIST="";
+			# XXX: lib32-glibc not available
+			OPTIONAL_LIST="openjdk8 libstdc++ ncurses-libs zlib";
 			OPTIONAL_CMD="apk add --no-cache $OPTIONAL_LIST";
+			UPDATE_CMD="apk update";
 
 		# Debian/Ubuntu
 		elif [ -x "/usr/bin/apt-get" ]; then
-			REQUIRED_LIST="bash binutils binutils-multiarch coreutils icnsutils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils binutils-multiarch coreutils fakeroot icnsutils sed zip unzip tar curl git npm";
 			REQUIRED_CMD="apt-get -y install $REQUIRED_LIST";
 			OPTIONAL_LIST="openjdk-8-jdk libc6-i386 lib32stdc++6 lib32ncurses5 lib32z1";
 			OPTIONAL_CMD="apt-get -y install $OPTIONAL_LIST";
+			UPDATE_CMD="apt-get -y update";
 
 		# Fedora
 		elif [ -x "/usr/bin/dnf" ]; then
-			REQUIRED_LIST="bash binutils binutils-arm-linux-gnu binutils-x86_64-linux-gnu coreutils libicns-utils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils binutils-arm-linux-gnu binutils-x86_64-linux-gnu coreutils fakeroot libicns-utils sed zip unzip tar curl git npm";
 			REQUIRED_CMD="dnf -y install $REQUIRED_LIST";
 			OPTIONAL_LIST="java-1.8.0-openjdk glibc.i686 libstdc++.i686 ncurses-libs.i686 zlib.i686";
 			OPTIONAL_CMD="dnf -y install $OPTIONAL_LIST";
+			UPDATE_CMD="";
 
 		# CentOS/old Fedora
 		elif [ -x "/usr/bin/yum" ]; then
-			REQUIRED_LIST="bash binutils binutils-arm-linux-gnu binutils-x86_64-linux-gnu coreutils libicns-utils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils binutils-arm-linux-gnu binutils-x86_64-linux-gnu coreutils fakeroot libicns-utils sed zip unzip tar curl git npm";
 			REQUIRED_CMD="yum --setopt=alwaysprompt=no install $REQUIRED_LIST";
 			OPTIONAL_LIST="java-1.8.0-openjdk glibc.i686 libstdc++.i686 ncurses-libs.i686 zlib.i686";
 			OPTIONAL_CMD="yum --setopt=alwaysprompt=no install $OPTIONAL_LIST";
+			UPDATE_CMD="yum updateinfo";
 
 		# openSUSE
 		elif [ -x "/usr/bin/zypper" ]; then
-			REQUIRED_LIST="bash binutils coreutils icns-utils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils coreutils fakeroot icns-utils sed zip unzip tar curl git npm";
 			REQUIRED_CMD="zypper --non-interactive install $REQUIRED_LIST";
 			OPTIONAL_LIST="java-1_8_0-openjdk glibc-32bit libstdc++6-32bit libncurses5-32bit libz1-32bit";
 			OPTIONAL_CMD="zypper --non-interactive install $OPTIONAL_LIST";
+			UPDATE_CMD="zypper update";
+
+		# Termux
+		elif [ -x "/data/data/com.termux/files/usr/bin/apt" ]; then
+			# XXX: fakeroot libicns not available
+			REQUIRED_LIST="bash binutils coreutils sed zip unzip tar curl git nodejs";
+			REQUIRED_CMD="apt install $REQUIRED_LIST";
+			# XXX: openjdk8 libstdc++ zlib not available
+			OPTIONAL_LIST="ncurses";
+			OPTIONAL_CMD="apt install $OPTIONAL_LIST";
+			UPDATE_CMD="apt update";
+
 		fi;
 
 	elif [ "$OS" == "bsd" ]; then
 
 		# FreeBSD, NetBSD
 		if [[ -x "/usr/sbin/pkg" ]]; then
+
 			export ASSUME_ALWAYS_YES="yes";
 			# XXX: icns-utils package not available
-			REQUIRED_LIST="bash binutils coreutils sed zip unzip tar curl git";
+			REQUIRED_LIST="bash binutils arm-none-eabi-binutils coreutils fakeroot gsed zip unzip tar curl git npm";
 			REQUIRED_CMD="pkg install $REQUIRED_LIST";
 			OPTIONAL_LIST="openjdk8 libstdc++ lzlib ncurses";
 			OPTIONAL_CMD="pkg install $OPTIONAL_LIST";
+			UPDATE_CMD="pkg update";
+
 		fi;
 
 	elif [ "$OS" == "osx" ]; then
 
 		if [[ -x "/usr/local/bin/brew" ]]; then
-			REQUIRED_LIST="binutils coreutils libicns gnu-sed gnu-tar curl git";
+			REQUIRED_LIST="binutils arm-linux-gnueabihf-binutils coreutils fakeroot libicns gnu-sed gnu-tar curl git node";
 			REQUIRED_CMD="sudo -u $USER_LOG brew install $REQUIRED_LIST --with-default-names";
+			OPTIONAL_LIST="lzlib ncurses";
+			OPTIONAL_CMD="sudo -u $USER_LOG brew install $OPTIONAL_LIST --with-default-names";
+
 		elif [[ -x "/opt/local/bin/port" ]]; then
-			REQUIRED_LIST="binutils coreutils libicns gsed zip unzip gnutar curl git";
+			REQUIRED_LIST="binutils arm-none-eabi-binutils coreutils fakeroot libicns gsed zip unzip gnutar curl git npm6";
 			REQUIRED_CMD="port install $REQUIRED_LIST";
+			OPTIONAL_LIST="openjdk10 zlib ncurses";
+			OPTIONAL_CMD="port install $OPTIONAL_LIST";
+
+		fi;
+
+	fi;
+
+
+
+	if [ "$UPDATE_CMD" != "" ]; then
+
+		echo " (L) ";
+		echo " (L) > Updating package information ...";
+
+
+		_install "$UPDATE_CMD";
+
+
+		if [ $? -eq 0 ]; then
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+		else
+			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
+			exit 1;
 		fi;
 
 	fi;
@@ -185,12 +277,15 @@ else
 		echo " (L) ";
 		echo " (L) > Installing required dependencies ...";
 
+
 		_install "$REQUIRED_CMD";
+
 
 		if [ $? -eq 0 ]; then
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 		else
 			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
+			exit 1;
 		fi;
 
 	elif [ "$REQUIRED_CMD" == "" ]; then
@@ -210,17 +305,20 @@ else
 
 	fi;
 
-	if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION" == "optional" ]; then
+	if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION_PACKAGES" == "optional" ]; then
 
 		echo " (L) ";
 		echo " (L) > Installing optional dependencies ...";
 
+
 		_install "$OPTIONAL_CMD";
+
 
 		if [ $? -eq 0 ]; then
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 		else
 			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
+			exit 1;
 		fi;
 
 	fi;
@@ -229,22 +327,39 @@ else
 
 	if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
+		if [ -d /usr/lib/systemd/system ] && [ "$SELECTION_SERVICE" == "systemd" ]; then
+
+			echo " (L) ";
+			echo " (L) > Integrating Harvester Service ...";
+
+
+			cp "$LYCHEEJS_ROOT/bin/helper/harvester.service" /usr/lib/systemd/system/lycheejs-harvester.service 2> /dev/null;
+			systemctl enable lycheejs-harvester.service                                                         2> /dev/null;
+
+			if [ $? == 0 ]; then
+				echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+			else
+				echo -e "\e[43m\e[97m (W) > FAILURE \e[0m";
+			fi;
+
+		fi;
+
 		if [ -d /usr/share/applications ]; then
 
 			echo " (L) ";
 			echo " (L) > Integrating GUI applications ...";
 
 
-			cp ./bin/helper/linux/lycheejs.svg /usr/share/icons/lycheejs.svg                                        2> /dev/null;
-			cp ./bin/helper/linux/helper.desktop /usr/share/applications/lycheejs-helper.desktop                    2> /dev/null;
+			cp "$LYCHEEJS_ROOT/bin/helper/linux/lycheejs.svg" /usr/share/icons/lycheejs.svg                         2> /dev/null;
+			cp "$LYCHEEJS_ROOT/bin/helper/linux/helper.desktop" /usr/share/applications/lycheejs-helper.desktop     2> /dev/null;
 			sed -i 's|__ROOT__|'$LYCHEEJS_ROOT'|g' "/usr/share/applications/lycheejs-helper.desktop"                2> /dev/null;
 
 			cp "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.desktop" /usr/share/applications/lycheejs-ranger.desktop 2> /dev/null;
-			ranger_root="$LYCHEEJS_ROOT/libraries/ranger"                                                           2> /dev/null;
+			ranger_root="$LYCHEEJS_ROOT/libraries/ranger";
 			sed -i 's|__ROOT__|'$ranger_root'|g' /usr/share/applications/lycheejs-ranger.desktop                    2> /dev/null;
 
 			cp "$LYCHEEJS_ROOT/libraries/studio/bin/studio.desktop" /usr/share/applications/lycheejs-studio.desktop 2> /dev/null;
-			studio_root="$LYCHEEJS_ROOT/libraries/studio"                                                           2> /dev/null;
+			studio_root="$LYCHEEJS_ROOT/libraries/studio";
 			sed -i 's|__ROOT__|'$studio_root'|g' /usr/share/applications/lycheejs-studio.desktop                    2> /dev/null;
 
 
@@ -263,6 +378,13 @@ else
 
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
+		fi;
+
+
+		BASH_RC="$HOME/.bashrc";
+
+		if [ "$SUDO_USER" != "" ] && [ -d "/home/$SUDO_USER" ]; then
+			BASH_RC="/home/$SUDO_USER/.bashrc";
 		fi;
 
 		if [ -d /usr/local/bin ]; then
@@ -292,15 +414,38 @@ else
 
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
-		fi;
+		elif [ -f "$BASH_RC" ]; then
 
+			echo " (L) ";
+			echo " (L) > Integrating CLI applications ...";
+
+			check=$(cat $BASH_RC | grep lycheejs-helper);
+
+			if [ "$check" == "" ]; then
+
+				echo -e "\n\n# lychee.js Engine\n"                                                                   >> $BASH_RC;
+				echo -e "alias lycheejs-helper=\"$LYCHEEJS_ROOT/bin/helper.sh\";"                                    >> $BASH_RC;
+				echo -e "alias lycheejs-breeder=\"$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh\";"                >> $BASH_RC;
+				echo -e "alias lycheejs-fertilizer=\"$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh\";"       >> $BASH_RC;
+				echo -e "alias lycheejs-harvester=\"$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh\";"          >> $BASH_RC;
+				echo -e "alias lycheejs-ranger=\"$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh\";"                   >> $BASH_RC;
+				echo -e "alias lycheejs-strainer=\"$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh\";"             >> $BASH_RC;
+				echo -e "alias lycheejs-strainer-fixer=\"$LYCHEEJS_ROOT/libraries/strainer/bin/strainer-fixer.sh\";" >> $BASH_RC;
+				echo -e "alias lycheejs-studio=\"$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh\";"                   >> $BASH_RC;
+
+			fi;
+
+			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+
+		fi;
 
 		if [ -d /usr/share/bash-completion/completions ]; then
 
 			echo " (L) ";
 			echo " (L) > Integrating CLI autocompletions ...";
 
-			cp ./bin/helper-autocomplete.sh /usr/share/bash-completion/completions/lycheejs;
+
+			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /usr/share/bash-completion/completions/lycheejs;
 
 			rm /usr/share/bash-completion/completions/lycheejs-breeder    2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-fertilizer 2> /dev/null;
@@ -319,7 +464,9 @@ else
 			echo " (L) ";
 			echo " (L) > Integrating CLI autocompletions ...";
 
-			cp ./bin/helper-autocomplete.sh /etc/bash_completion.d/lycheejs;
+
+			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /etc/bash_completion.d/lycheejs;
+
 
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 
@@ -379,7 +526,9 @@ else
 			echo " (L) ";
 			echo " (L) > Integrating CLI autocompletions ...";
 
-			cp ./bin/helper-autocomplete.sh /etc/bash_completion.d/lycheejs;
+
+			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /etc/bash_completion.d/lycheejs;
+
 
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 

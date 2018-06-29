@@ -202,7 +202,7 @@ lychee.define('lychee.crypto.BLAKE2B').exports(function(lychee, global, attachme
 
 		update: function(data) {
 
-			data = data instanceof Buffer ? data : new Buffer(data, 'utf8');
+			data = data instanceof Buffer ? data : Buffer.from(data, 'utf8');
 
 
 			let input  = new Uint8Array(data);
@@ -253,7 +253,7 @@ lychee.define('lychee.crypto.BLAKE2B').exports(function(lychee, global, attachme
 
 			}
 
-			return new Buffer(hash, 'hex');
+			return Buffer.from(hash, 'hex');
 
 		}
 

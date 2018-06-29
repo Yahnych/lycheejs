@@ -25,15 +25,15 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 		if (node instanceof Array) {
 
-			node.forEach(function(ext) {
-				files.push(path + '.' + ext);
-			});
+			for (let n = 0, nl = node.length; n < nl; n++) {
+				files.push(path + '.' + node[n]);
+			}
 
 		} else if (node instanceof Object) {
 
-			Object.keys(node).forEach(function(child) {
+			for (let child in node) {
 				_walk_directory(files, node[child], path + '/' + child);
-			});
+			}
 
 		}
 
@@ -60,7 +60,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			if (a < b) return -1;
 			return 0;
 		}).filter(function(value) {
-			return value.indexOf('__') === -1;
+			return value.includes('__') === false;
 		});
 
 	};
@@ -197,9 +197,9 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
-		this.identifier  = typeof settings.identifier === 'string' ? settings.identifier : '/projects/boilerplate';
+		this.identifier  = typeof states.identifier === 'string' ? states.identifier : '/projects/boilerplate';
 		this.config      = new Config(this.identifier + '/lychee.pkg');
 		this.icon        = new Texture(this.identifier + '/icon.png');
 		this.harvester   = true;
@@ -217,7 +217,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 		this.__target    = null;
 
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -261,7 +261,12 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 		serialize: function() {
 
-			let blob = {};
+			let states = {};
+			let blob   = {};
+
+
+			if (this.identifier !== '/projects/boilerplate') states.identifier = this.identifier;
+
 
 			if (this.harvester !== true) {
 
@@ -278,7 +283,6 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 				blob.settings.platforms = lychee.serialize(this.platforms);
 			}
 
-
 			if (this.config.buffer !== null)      blob.config    = lychee.serialize(this.config);
 			if (this.icon.buffer !== null)        blob.icon      = lychee.serialize(this.icon);
 			if (this.__harvester.buffer !== null) blob.harvester = lychee.serialize(this.__harvester);
@@ -286,7 +290,7 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 			return {
 				'constructor': 'studio.data.Project',
-				'arguments':   [ this.identifier ],
+				'arguments':   [ states ],
 				'blob':        Object.keys(blob).length > 0 ? blob : null
 			};
 

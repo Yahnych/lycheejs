@@ -4,7 +4,7 @@ const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 const _PORT = parseInt(process.argv[2], 10);
 const _HOST = process.argv[3] === 'null' ? null : process.argv[3];
 
-require(_ROOT + '/libraries/lychee/build/node/core.js')(__dirname);
+require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 
 
 

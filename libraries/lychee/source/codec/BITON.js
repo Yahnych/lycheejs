@@ -752,7 +752,7 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 				_encode(stream, data);
 
-				return new Buffer(stream.toString(), 'utf8');
+				return Buffer.from(stream.toString(), 'utf8');
 
 			}
 

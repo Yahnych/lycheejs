@@ -4,6 +4,21 @@
 set -e;
 
 
+ACCEPTED="false";
+SIMULATION="false";
+
+
+if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
+	ACCEPTED="true";
+fi;
+
+if [ "$1" == "--simulation" ] || [ "$1" == "-s" ] || [ "$2" == "--simulation" ] || [ "$2" == "-s" ]; then
+	ACCEPTED="true";
+	SIMULATION="true";
+fi;
+
+
+
 _get_version () {
 
 	local year=`date +%Y`;
@@ -25,35 +40,45 @@ _get_version () {
 }
 
 
-TMP_SIZE=$(df /tmp --output=avail | tail -n 1 | xargs);
-MNT_SIZE=$(df /mnt --output=avail | tail -n 1 | xargs);
+if [ "$RELEASE_FOLDER" != "" ]; then
 
-if [ "$TMP_SIZE" -gt "6144000" ]; then
-
-	NEW_FOLDER="/tmp/lycheejs";
-
-elif [ "$MNT_SIZE" -gt "6144000" ]; then
-
-	NEW_FOLDER="/mnt/lycheejs";
+	TARGET_FOLDER="$RELEASE_FOLDER";
 
 else
 
-	echo -e "\e[41m\e[97m";
-	echo " (E) Not enough memory available:                      ";
-	echo "     /tmp - $TMP_SIZE";
-	echo "     /mnt - $MNT_SIZE";
-	echo " (E) Please make space for 6G in either of above paths.";
-	echo -e "\e[0m";
+	TMP_SIZE=$(df /tmp --output=avail | tail -n 1 | xargs);
+	MNT_SIZE=$(df /mnt --output=avail | tail -n 1 | xargs);
 
-	exit 1;
+	if [ "$TMP_SIZE" -gt "6144000" ]; then
+
+		TARGET_FOLDER="/tmp/lycheejs";
+
+	elif [ "$MNT_SIZE" -gt "6144000" ]; then
+
+		TARGET_FOLDER="/mnt/lycheejs";
+
+	else
+
+		echo -e "\e[41m\e[97m";
+		echo " (E) Not enough memory available:                      ";
+		echo "     /tmp - $TMP_SIZE";
+		echo "     /mnt - $MNT_SIZE";
+		echo " (E) Please make space for 6G in either of above paths.";
+		echo -e "\e[0m";
+
+		exit 1;
+
+	fi;
+
 
 fi;
 
 
-OLD_FOLDER=$(cd "$(dirname "$0")/../../"; pwd);
-LYCHEEJS_FERTILIZER="$NEW_FOLDER/libraries/fertilizer/bin/fertilizer.sh";
-OLD_VERSION=$(cd $OLD_FOLDER && cat ./libraries/lychee/source/core/lychee.js | grep VERSION | cut -d\" -f2);
-NEW_VERSION=$(_get_version);
+
+CURRENT_FOLDER=$(cd "$(dirname "$0")/../../"; pwd);
+CURRENT_VERSION=$(cd $CURRENT_FOLDER && cat ./libraries/crux/source/lychee.js | grep VERSION | cut -d\" -f2);
+TARGET_VERSION=$(_get_version);
+LYCHEEJS_FERTILIZER="$TARGET_FOLDER/libraries/fertilizer/bin/fertilizer.sh";
 
 GITHUB_TOKEN=$(cat /opt/lycheejs/.github/TOKEN);
 NPM_BIN=`which npm`;
@@ -98,34 +123,35 @@ else
 fi;
 
 
-if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
+if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
-	echo " (L) ";
-	echo -e "\e[42m\e[97m (I) lychee.js Release Tool \e[0m";
-	echo " (L) ";
-	echo " (L) All your data are belong to us.                     ";
-	echo " (L) This tool creates a new lychee.js release.          ";
-	echo " (L) ";
-	echo " (L) You need to be member of the Artificial-Engineering ";
-	echo " (L) organization and you will be questioned again when  ";
-	echo " (L) the release is ready to publish it.                 ";
-	echo " (L) ";
-	echo " (L) Current lychee.js Folder:  $OLD_FOLDER";
-	echo " (L) Current lychee.js Version: $OLD_VERSION";
-	echo " (L) ";
-	echo " (L) Release lychee.js Folder:  $NEW_FOLDER";
-	echo " (L) Release lychee.js Version: $NEW_VERSION";
-	echo " (L) ";
-	echo " (L) ";
+	if [ "$ACCEPTED" == "false" ]; then
 
-	read -p " (L) Continue (y/n)? " -r
+		echo " (L) ";
+		echo -e "\e[42m\e[97m (I) lychee.js Release Tool \e[0m";
+		echo " (L) ";
+		echo " (L) All your data are belong to us.                     ";
+		echo " (L) This tool creates a new lychee.js release.          ";
+		echo " (L) ";
+		echo " (L) You need to be member of the Artificial-Engineering ";
+		echo " (L) organization and you will be questioned again when  ";
+		echo " (L) the release is ready to publish it.                 ";
+		echo " (L) ";
+		echo " (L) Current: $CURRENT_VERSION in $CURRENT_FOLDER";
+		echo " (L) Release: $TARGET_VERSION in $TARGET_FOLDER";
+		echo " (L) ";
+		echo " (L) ";
 
-	if [[ $REPLY =~ ^[Nn]$ ]]; then
-		echo -e "\e[41m\e[97m (E) ABORTED \e[0m";
-		exit 0;
-	elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
-		echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
-		exit 1;
+		read -p " (L) Continue (y/n)? " -r
+
+		if [[ $REPLY =~ ^[Nn]$ ]]; then
+			echo -e "\e[41m\e[97m (E) ABORTED \e[0m";
+			exit 0;
+		elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
+			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
+			exit 1;
+		fi;
+
 	fi;
 
 
@@ -134,28 +160,36 @@ if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# INIT lycheejs
 	#
 
-	if [ ! -d $NEW_FOLDER ]; then
-		mkdir -p $NEW_FOLDER;
-		git clone git@github.com:Artificial-Engineering/lycheejs.git $NEW_FOLDER;
+	if [ -d $TARGET_FOLDER ]; then
+
+		cd $TARGET_FOLDER;
+		git checkout development;
+		git pull origin development -f;
+
+	else
+
+		mkdir -p $TARGET_FOLDER;
+		git clone git@github.com:Artificial-Engineering/lycheejs.git $TARGET_FOLDER;
+
 	fi;
 
 
-	if [ ! -d $NEW_FOLDER/bin/runtime ]; then
+	if [ ! -d $TARGET_FOLDER/bin/runtime ]; then
 
-		if [ ! -f $NEW_FOLDER/bin/runtime.zip ]; then
+		if [ ! -f $TARGET_FOLDER/bin/runtime.zip ]; then
 
 			DOWNLOAD_URL=$(curl -s https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest | grep browser_download_url | grep lycheejs-runtime | head -n 1 | cut -d'"' -f4);
 
 			if [ "$DOWNLOAD_URL" != "" ]; then
 
-				cd $NEW_FOLDER/bin;
-				curl -sSL $DOWNLOAD_URL > $NEW_FOLDER/bin/runtime.zip;
+				cd $TARGET_FOLDER/bin;
+				curl -sSL $DOWNLOAD_URL > $TARGET_FOLDER/bin/runtime.zip;
 
 			else
 
 				echo -e "\e[41m\e[97m";
 				echo " (E) No lycheejs-runtime download URL found.                                   ";
-				echo "     Please download it manually to $NEW_FOLDER/bin/runtime.zip.               ";
+				echo "     Please download it manually to $TARGET_FOLDER/bin/runtime.zip.             ";
 				echo "     https://github.com/Artificial-Engineering/lycheejs-runtime/releases/latest";
 				echo -e "\e[0m";
 
@@ -166,109 +200,131 @@ if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 		fi;
 
 
-		mkdir $NEW_FOLDER/bin/runtime;
-		git clone --single-branch --branch master --depth 1 git@github.com:Artificial-Engineering/lycheejs-runtime.git $NEW_FOLDER/bin/runtime;
+		mkdir $TARGET_FOLDER/bin/runtime;
+		git clone --single-branch --branch master --depth 1 git@github.com:Artificial-Engineering/lycheejs-runtime.git $TARGET_FOLDER/bin/runtime;
 
-		cd $NEW_FOLDER/bin/runtime;
+		cd $TARGET_FOLDER/bin/runtime;
 		unzip -nq ../runtime.zip;
 
-		chmod +x $NEW_FOLDER/bin/runtime/bin/*.sh;
-		chmod +x $NEW_FOLDER/bin/runtime/*/update.sh;
-		chmod +x $NEW_FOLDER/bin/runtime/*/package.sh;
+		chmod +x $TARGET_FOLDER/bin/runtime/bin/*.sh     2> /dev/null;
+		chmod +x $TARGET_FOLDER/bin/runtime/*/update.sh  2> /dev/null;
+		chmod +x $TARGET_FOLDER/bin/runtime/*/package.sh 2> /dev/null;
 
-		rm $NEW_FOLDER/bin/runtime.zip;
+		# XXX: Keep runtime.zip for continues after fails
+		# rm $TARGET_FOLDER/bin/runtime.zip;
 
 	fi;
 
 
 
 	#
-	# UPDATE lycheejs HEAD
+	# UPDATE lycheejs
 	#
 
-	cd $NEW_FOLDER;
+	cd $TARGET_FOLDER;
 	git checkout development;
 
-	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$NEW_VERSION'|g' ./README.md;
-	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$NEW_VERSION'|g' ./libraries/lychee/source/core/lychee.js;
+	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$TARGET_VERSION'|g' ./README.md;
+	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$TARGET_VERSION'|g' ./libraries/crux/source/lychee.js;
 
-	git add ./README.md;
-	git add ./libraries/lychee/source/core/lychee.js;
-	git commit -m "lychee.js $NEW_VERSION release";
+	readme_diff=$(git diff README.md);
+	lychee_diff=$(git diff ./libraries/crux/source/lychee.js);
+
+	if [ "$readme_diff" != "" ] || [ "$lychee_diff" != "" ]; then
+
+		git add ./README.md;
+		git add ./libraries/crux/source/lychee.js;
+		git commit -m "lychee.js $TARGET_VERSION release";
+
+	fi;
 
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	$NEW_FOLDER/bin/configure.sh --sandbox;
-
-
-
-	#
-	# BUILD and UPDATE lycheejs-runtime
-	#
-
-	cd $NEW_FOLDER/bin/runtime;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	./bin/do-update.sh;
+	cd $TARGET_FOLDER;
+	export LYCHEEJS_ROOT="$TARGET_FOLDER";
+	bash $TARGET_FOLDER/bin/configure.sh;
 
 
 
 	#
-	# BUILD and PACKAGE lycheejs-harvester
+	# UPDATE lycheejs-runtime
 	#
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-harvester.git $NEW_FOLDER/projects/lycheejs-harvester;
-	$LYCHEEJS_FERTILIZER node/main /projects/lycheejs-harvester;
+	cd $TARGET_FOLDER/bin/runtime;
+	export LYCHEEJS_ROOT="$TARGET_FOLDER";
+	bash $TARGET_FOLDER/bin/runtime/bin/do-update.sh;
+	bash $TARGET_FOLDER/bin/runtime/bin/package.sh;
 
 
 
 	#
-	# BUILD and PACKAGE lycheejs-library
+	# UPDATE and FERTILIZE lycheejs-library
 	#
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-library.git $NEW_FOLDER/projects/lycheejs-library;
+	if [ ! -d "$TARGET_FOLDER/projects/lycheejs-library" ]; then
+
+		git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-library.git $TARGET_FOLDER/projects/lycheejs-library;
+
+	else
+
+		cd "$TARGET_FOLDER/projects/lycheejs-library";
+		git checkout master;
+		git pull origin master -f;
+
+	fi;
+
+	cd $TARGET_FOLDER;
+	export LYCHEEJS_ROOT="$TARGET_FOLDER";
 	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-library;
 
 
 
 	#
-	# BUILD and PACKAGE lycheejs-bundle
+	# FERTILIZE lycheejs-bundle
 	#
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-bundle.git $NEW_FOLDER/projects/lycheejs-bundle;
+	if [ ! -d "$TARGET_FOLDER/projects/lycheejs-bundle" ]; then
 
-	# XXX: Can only be done after lycheejs-runtime release
-	# $LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
+		git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-bundle.git $TARGET_FOLDER/projects/lycheejs-bundle;
+
+	else
+
+		cd "$TARGET_FOLDER/projects/lycheejs-bundle";
+		git checkout master;
+		git pull origin master -f;
+
+	fi;
+
+	cd $TARGET_FOLDER;
+	export LYCHEEJS_ROOT="$TARGET_FOLDER";
+	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
 
 
 
-	echo " (L) ";
-	echo " (L) Somebody set us up the bomb.                    ";
-	echo " (L) ";
-	echo " (L) If no error occured, you can publish the new    ";
-	echo " (L) lychee.js release to GitHub and the peer cloud. ";
-	echo " (L) ";
-	echo -e "\e[43m\e[97m";
-	echo " (W) WARNING: The publish process is irreversible.   ";
-	echo "     It is wise to manually check /tmp/lycheejs now. ";
-	echo -e "\e[0m";
-	echo " (L) ";
-	echo " (L) ";
+	if [ "$ACCEPTED" == "false" ]; then
 
-	read -p " (L) Continue (y/n)? " -r
+		echo " (L) ";
+		echo " (L) Somebody set us up the bomb.                    ";
+		echo " (L) ";
+		echo " (L) If no error occured, you can publish the new    ";
+		echo " (L) lychee.js release to GitHub and the peer cloud. ";
+		echo " (L) ";
+		echo -e "\e[43m\e[97m";
+		echo " (W) WARNING: The publish process is irreversible.   ";
+		echo "     It is wise to manually check $TARGET_FOLDER now. ";
+		echo -e "\e[0m";
+		echo " (L) ";
+		echo " (L) ";
 
-	if [[ $REPLY =~ ^[Nn]$ ]]; then
-		echo -e "\e[41m\e[97m (E) ABORTED \e[0m";
-		exit 0;
-	elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
-		echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
-		exit 1;
+		read -p " (L) Continue (y/n)? " -r
+
+		if [[ $REPLY =~ ^[Nn]$ ]]; then
+			echo -e "\e[41m\e[97m (E) ABORTED \e[0m";
+			exit 0;
+		elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
+			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
+			exit 1;
+		fi;
+
 	fi;
 
 
@@ -277,12 +333,21 @@ if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs
 	#
 
-	cd $NEW_FOLDER;
-	git push origin development;
+	cd $TARGET_FOLDER;
+
+	if [ "$SIMULATION" == "false" ]; then
+		git checkout development;
+		git push origin development;
+	fi;
+
 	git checkout master;
 	git merge --squash --no-commit development;
-	git commit -m "lychee.js $NEW_VERSION release";
-	git push origin master;
+	git commit -m "lychee.js $TARGET_VERSION release";
+
+	if [ "$SIMULATION" == "false" ]; then
+		git checkout master;
+		git push origin master;
+	fi;
 
 
 
@@ -290,8 +355,10 @@ if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs-library
 	#
 
-	cd $NEW_FOLDER/projects/lycheejs-library;
-	./bin/publish.sh;
+	if [ "$SIMULATION" == "false" ]; then
+		cd $TARGET_FOLDER/projects/lycheejs-library;
+		bash $TARGET_FOLDER/projects/lycheejs-library/bin/publish.sh;
+	fi;
 
 
 
@@ -299,43 +366,42 @@ if [ "$OLD_VERSION" != "$NEW_VERSION" ]; then
 	# PUBLISH lycheejs-runtime
 	#
 
-	cd $NEW_FOLDER/bin/runtime;
-	./bin/do-release.sh;
+	if [ "$SIMULATION" == "false" ]; then
+		cd $TARGET_FOLDER/bin/runtime;
+		bash $TARGET_FOLER/bin/runtime/bin/publish.sh;
+	fi;
 
 
 
 	#
-	# BUILD, PACKAGE and PUBLISH lycheejs-harvester
+	# PUBLISH lycheejs-bundle
 	#
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	$LYCHEEJS_FERTILIZER node/main /projects/lycheejs-harvester;
-
-	cd $NEW_FOLDER/projects/lycheejs-harvester;
-	./bin/publish.sh;
+	if [ "$SIMULATION" == "false" ]; then
+		cd $TARGET_FOLDER/projects/lycheejs-bundle;
+		bash $TARGET_FOLDER/projects/lycheejs-bundle/bin/publish.sh;
+	fi;
 
 
+	if [ "$SIMULATION" == "true" ]; then
 
-	#
-	# BUILD, PACKAGE and PUBLISH lycheejs-bundle
-	#
+		echo " (L) ";
+		echo -e "\e[42m\e[97m (I) SUCCESS \e[0m";
+		echo " (L) ";
+		echo " (L) Simulation complete.";
+		echo " (L) ";
 
-	cd $NEW_FOLDER;
-	export LYCHEEJS_ROOT="$NEW_FOLDER";
-	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
+	else
 
-	cd $NEW_FOLDER/projects/lycheejs-bundle;
-	./bin/publish.sh;
+		echo " (L) ";
+		echo -e "\e[42m\e[97m (I) SUCCESS \e[0m";
+		echo " (L) ";
+		echo " (L) Release complete.";
+		echo " (L) ";
+		echo " (L) - Create $TARGET_VERSION release of lycheejs-website repository. ";
+		echo " (L) ";
 
-
-	echo " (L) ";
-	echo -e "\e[42m\e[97m (I) SUCCESS \e[0m";
-	echo " (L) ";
-	echo " (L) Remaining manual steps:                                       ";
-	echo " (L) ";
-	echo " (L) - Create $NEW_VERSION release of lycheejs-website repository. ";
-	echo " (L) ";
+	fi;
 
 	exit 0;
 
@@ -344,7 +410,7 @@ else
 	echo " (L) ";
 	echo -e "\e[42m\e[97m (I) lychee.js Release Tool \e[0m";
 	echo " (L) ";
-	echo -e "\e[42m\e[97m (I) lychee.js $NEW_VERSION release already done. \e[0m";
+	echo -e "\e[42m\e[97m (I) lychee.js $TARGET_VERSION release already done. \e[0m";
 	echo " (L) ";
 
 	exit 0;

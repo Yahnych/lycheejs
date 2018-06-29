@@ -443,7 +443,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 				} else {
 
-					let nonce     = new Buffer(16);
+					let nonce     = Buffer.alloc(16);
 					let connector = new _net.Socket({
 						fd:       null,
 						readable: true,

@@ -15,22 +15,18 @@ lychee.define('strainer.Fixer').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(settings) {
+	const Composite = function(states) {
 
-		this.settings = _lychee.assignunlink({
+		this.settings = _lychee.assignsafe({
 			cwd:     lychee.ROOT.lychee,
 			file:    null,
 			project: null
-		}, settings);
-
-		this.defaults = _lychee.assignunlink({
-			cwd:     lychee.ROOT.lychee,
-			file:    null,
-			project: null
-		}, this.settings);
+		}, states);
 
 
 		_Emitter.call(this);
+
+		states = null;
 
 
 
@@ -102,8 +98,11 @@ lychee.define('strainer.Fixer').requires([
 			});
 
 
-			flow.unbind('read');
-			flow.bind('read', function(oncomplete) {
+			flow.unbind('read-sources');
+			flow.unbind('read-reviews');
+			flow.unbind('simulate-reviews');
+
+			flow.bind('read-sources', function(oncomplete) {
 
 				let file    = this.settings.file;
 				let project = this.settings.project;
@@ -112,7 +111,7 @@ lychee.define('strainer.Fixer').requires([
 
 				if (sandbox !== '' && stash !== null) {
 
-					console.log('strainer: READ ' + project);
+					console.log('strainer: READ-SOURCES ' + project);
 
 
 					let that  = this;
@@ -128,7 +127,7 @@ lychee.define('strainer.Fixer').requires([
 
 								if (result === true) {
 
-									that.codes = [ asset ];
+									that.sources = [ asset ];
 									oncomplete(true);
 
 								} else {
@@ -214,10 +213,16 @@ lychee.define('strainer.Fixer').requires([
 
 			}, this);
 
+			flow.bind('read-reviews', function(oncomplete) {
+				oncomplete(true);
+			}, flow);
+
+			flow.bind('simulate-reviews', function(oncomplete) {
+				oncomplete(true);
+			}, flow);
+
 			flow.bind('error', function(event) {
-
 				this.destroy(1);
-
 			}, this);
 
 
@@ -245,11 +250,11 @@ lychee.define('strainer.Fixer').requires([
 			data['constructor'] = 'strainer.Fixer';
 
 
-			let settings = _lychee.assignunlink({}, this.settings);
-			let blob     = data['blob'] || {};
+			let states = _lychee.assignunlink({}, this.settings);
+			let blob   = data['blob'] || {};
 
 
-			data['arguments'][0] = settings;
+			data['arguments'][0] = states;
 			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 

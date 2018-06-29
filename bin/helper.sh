@@ -12,7 +12,7 @@ if [ -z "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="/opt/lycheejs";
 fi;
 
-LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/lychee/source/core/lychee.js" | cut -d"\"" -f2);
+LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" | cut -d"\"" -f2);
 CHILD_PID="";
 
 
@@ -119,39 +119,113 @@ _trap() {
 
 }
 
-_start_env () {
+_start_bin () {
 
-	_trap _handle_signal INT HUP KILL TERM EXIT;
+	if [ -x "${1}" ]; then
+
+		${1};
+
+	else
+
+		local prog_native=`which $(basename "${1}")`;
+
+		if [ "$prog_native" != "" ] && [ -x "$prog_native" ]; then
+
+			$prog_native;
+
+		else
+
+			>&2 echo "lycheejs-helper: '$prog_native': No such file or directory";
+			exit 1;
+
+		fi;
+
+	fi;
+
+}
+
+_start_env () {
 
 	local args_length=$#;
 
-	# FUCK YOU, bash. Seriously, fuck you.
+	if [ -x "${1}" ]; then
 
-	if [ $args_length == 1 ]; then
-		"${1}" &
-	elif [ $args_length == 2 ]; then
-		"${1}" "${2}" &
-	elif [ $args_length == 3 ]; then
-		"${1}" "${2}" "${3}" &
-	elif [ $args_length == 4 ]; then
-		"${1}" "${2}" "${3}" "${4}" &
-	elif [ $args_length == 5 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" &
-	elif [ $args_length == 6 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" &
-	elif [ $args_length == 7 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" &
-	elif [ $args_length == 8 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" &
-	elif [ $args_length == 9 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" &
-	elif [ $args_length == 10 ]; then
-		"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" "${10}" &
+		_trap _handle_signal INT HUP KILL TERM EXIT;
+
+		# FUCK YOU, bash. Seriously, fuck you.
+
+		if [ $args_length == 1 ]; then
+			"${1}" &
+		elif [ $args_length == 2 ]; then
+			"${1}" "${2}" &
+		elif [ $args_length == 3 ]; then
+			"${1}" "${2}" "${3}" &
+		elif [ $args_length == 4 ]; then
+			"${1}" "${2}" "${3}" "${4}" &
+		elif [ $args_length == 5 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" &
+		elif [ $args_length == 6 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" &
+		elif [ $args_length == 7 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" &
+		elif [ $args_length == 8 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" &
+		elif [ $args_length == 9 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" &
+		elif [ $args_length == 10 ]; then
+			"${1}" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" "${10}" &
+		fi;
+
+
+		CHILD_PID=$!;
+		wait "$CHILD_PID";
+		exit $?;
+
+	else
+
+		local prog_native=`which $(basename "${1}")`;
+
+		if [ "$prog_native" != "" ] && [ -x "$prog_native" ]; then
+
+			_trap _handle_signal INT HUP KILL TERM EXIT;
+
+			# FUCK YOU, bash. Seriously, fuck you.
+
+			if [ $args_length == 1 ]; then
+				"$prog_native" &
+			elif [ $args_length == 2 ]; then
+				"$prog_native" "${2}" &
+			elif [ $args_length == 3 ]; then
+				"$prog_native" "${2}" "${3}" &
+			elif [ $args_length == 4 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" &
+			elif [ $args_length == 5 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" &
+			elif [ $args_length == 6 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" "${6}" &
+			elif [ $args_length == 7 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" &
+			elif [ $args_length == 8 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" &
+			elif [ $args_length == 9 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" &
+			elif [ $args_length == 10 ]; then
+				"$prog_native" "${2}" "${3}" "${4}" "${5}" "${6}" "${7}" "${8}" "${9}" "${10}" &
+			fi;
+
+
+			CHILD_PID=$!;
+			wait "$CHILD_PID";
+			exit $?;
+
+		else
+
+			>&2 echo "lycheejs-helper: '$prog_native': No such file or directory";
+			exit 1;
+
+		fi;
+
 	fi;
-
-
-	CHILD_PID=$!;
-	wait "$CHILD_PID";
 
 }
 
@@ -577,33 +651,39 @@ elif [ "$protocol" == "env" ]; then
 		elif [ "$platform" == "html-nwjs" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
 			elif [ "$OS" == "osx" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
 			fi;
+
+		elif [ "$platform" == "html-webview" ]; then
+
+			echo -e "\e[41m\e[97m (E) No html-webview emulator support. \e[39m\e[49m\e[0m";
+
+			exit 1;
 
 		elif [ "$platform" == "nidium" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/nidium/linux/$ARCH/nidium;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/nidium/linux/$ARCH/nidium;
 			elif [ "$OS" == "osx" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium;
 			fi;
 
 		elif [ "$platform" == "node" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node;
 			elif [ "$OS" == "osx" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node;
 			fi;
 
 		elif [ "$platform" == "node-sdl" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node;
 			elif [ "$OS" == "osx" ]; then
-				$LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node;
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node;
 			fi;
 
 		fi;
@@ -749,11 +829,7 @@ elif [ "$protocol" == "run" ]; then
 
 		elif [ "$platform" == "html-webview" ]; then
 
-			# XXX: Impossible to implement right now
-			# requires emulator binaries for all platform
-			# which is too much bloat
-
-			echo "Sorry, lychee.js ships no mobile emulators due to bloat size :(";
+			echo -e "\e[41m\e[97m (E) No html-webview emulator support. \e[39m\e[49m\e[0m";
 
 			exit 1;
 

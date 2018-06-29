@@ -8,7 +8,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
 	<!-- BOOTSTRAP -->
-	<script src="/libraries/lychee/build/html/core.js"></script>
+	<script src="/libraries/crux/build/html/dist.js"></script>
 
 	<style>
 		.lychee-Renderer {

@@ -236,8 +236,12 @@ lychee.define('strainer.plugin.ESLINT').tags({
 
 
 				if (modified === true) {
-					asset.buffer    = new Buffer(code.join('\n'), 'utf8');
+
+					let tmp = code.join('\n');
+
+					asset.buffer    = Buffer.alloc(tmp.length, tmp, 'utf8');
 					asset._MODIFIED = true;
+
 				}
 
 			}

@@ -21,17 +21,15 @@ lychee.define('ranger.Main').requires([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({
-
+		let states = Object.assign({
 			client: {},
 			server: null
-
 		}, data);
 
 
-		_Main.call(this, settings);
+		_Main.call(this, states);
 
-		settings = null;
+		states = null;
 
 
 
@@ -81,11 +79,11 @@ lychee.define('ranger.Main').requires([
 			let data = _Main.prototype.serialize.call(this);
 			data['constructor'] = 'ranger.Main';
 
-			let settings = data['arguments'][0] || {};
-			let blob     = data['blob'] || {};
+			let states = data['arguments'][0] || {};
+			let blob   = data['blob'] || {};
 
 
-			data['arguments'][0] = settings;
+			data['arguments'][0] = states;
 			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 

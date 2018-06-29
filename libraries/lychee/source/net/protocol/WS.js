@@ -39,7 +39,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		let type = this.type;
 		if (type === Composite.TYPE.remote) {
 
-			let buffer = new Buffer(2);
+			let buffer = Buffer.alloc(2);
 
 			// FIN, Pong
 			// Unmasked, 0 payload
@@ -62,7 +62,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		let type = this.type;
 		if (type === Composite.TYPE.client) {
 
-			let buffer = new Buffer(6);
+			let buffer = Buffer.alloc(6);
 
 			// FIN, Ping
 			// Masked, 0 payload
@@ -102,7 +102,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		if (type === Composite.TYPE.client) {
 
 			mask      = true;
-			mask_data = new Buffer(4);
+			mask_data = Buffer.alloc(4);
 
 			mask_data[0] = (Math.random() * 0xff) | 0;
 			mask_data[1] = (Math.random() * 0xff) | 0;
@@ -116,7 +116,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		} else {
 
 			mask         = false;
-			mask_data    = new Buffer(4);
+			mask_data    = Buffer.alloc(4);
 			payload_data = data.map(function(value) {
 				return value;
 			});
@@ -130,7 +130,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 			let lo = payload_length | 0;
 			let hi = (payload_length - lo) / 4294967296;
 
-			buffer = new Buffer((mask === true ? 14 : 10) + payload_length);
+			buffer = Buffer.alloc((mask === true ? 14 : 10) + payload_length);
 
 			buffer[0] = 128 + (binary === true ? 0x02 : 0x01);
 			buffer[1] = (mask === true ? 128 : 0) + 127;
@@ -161,7 +161,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		// 16 Bit Extended Payload Length
 		} else if (payload_length > 125) {
 
-			buffer = new Buffer((mask === true ? 8 : 4) + payload_length);
+			buffer = Buffer.alloc((mask === true ? 8 : 4) + payload_length);
 
 			buffer[0] = 128 + (binary === true ? 0x02 : 0x01);
 			buffer[1] = (mask === true ? 128 : 0) + 126;
@@ -185,7 +185,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		// 7 Bit Payload Length
 		} else {
 
-			buffer = new Buffer((mask === true ? 6 : 2) + payload_length);
+			buffer = Buffer.alloc((mask === true ? 6 : 2) + payload_length);
 
 			buffer[0] = 128 + (binary === true ? 0x02 : 0x01);
 			buffer[1] = (mask === true ? 128 : 0) + payload_length;
@@ -230,7 +230,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 		// let rsv3        = (buffer[0] & 16) === 16;
 		let operator       = buffer[0] & 15;
 		let mask           = (buffer[1] & 128) === 128;
-		let mask_data      = new Buffer(4);
+		let mask_data      = Buffer.alloc(4);
 		let payload_length = buffer[1] & 127;
 		let payload_data   = null;
 
@@ -307,7 +307,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 			if (payload_data !== null) {
 
-				let payload = new Buffer(fragment.payload.length + payload_length);
+				let payload = Buffer.alloc(fragment.payload.length + payload_length);
 
 				fragment.payload.copy(payload, 0);
 				payload_data.copy(payload, fragment.payload.length);
@@ -326,7 +326,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 				}
 
 				fragment.operator = 0x00;
-				fragment.payload  = new Buffer(0);
+				fragment.payload  = Buffer.alloc(0);
 
 			}
 
@@ -344,7 +344,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 			} else if (payload_data !== null) {
 
-				let payload = new Buffer(fragment.payload.length + payload_length);
+				let payload = Buffer.alloc(fragment.payload.length + payload_length);
 
 				fragment.payload.copy(payload, 0);
 				payload_data.copy(payload, fragment.payload.length);
@@ -368,7 +368,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 			} else if (payload_data !== null) {
 
-				let payload = new Buffer(fragment.payload.length + payload_length);
+				let payload = Buffer.alloc(fragment.payload.length + payload_length);
 
 				fragment.payload.copy(payload, 0);
 				payload_data.copy(payload, fragment.payload.length);
@@ -417,13 +417,16 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		this.type = lychee.enumof(Composite.TYPE, settings.type) ? settings.type : null;
+		this.type = lychee.enumof(Composite.TYPE, states.type) ? states.type : null;
 
-		this.__buffer   = new Buffer(0);
-		this.__fragment = { operator: 0x00, payload: new Buffer(0) };
+		this.__buffer   = Buffer.alloc(0);
+		this.__fragment = {
+			operator: 0x00,
+			payload:  Buffer.alloc(0)
+		};
 		this.__isClosed = false;
 
 
@@ -435,7 +438,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 		}
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -488,9 +491,15 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 		serialize: function() {
 
+			let states = {};
+
+
+			if (this.type !== null) states.type = this.type;
+
+
 			return {
 				'constructor': 'lychee.net.protocol.WS',
-				'arguments':   [ this.type ],
+				'arguments':   [ states ],
 				'blob':        null
 			};
 
@@ -541,7 +550,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 				} else if (this.__isClosed === false) {
 
 					let buf = this.__buffer;
-					let tmp = new Buffer(buf.length + blob.length);
+					let tmp = Buffer.alloc(buf.length + blob.length);
 
 
 					buf.copy(tmp);
@@ -560,12 +569,12 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 						if (buf.length - chunk.bytes > 0) {
 
-							tmp = new Buffer(buf.length - chunk.bytes);
+							tmp = Buffer.alloc(buf.length - chunk.bytes);
 							buf.copy(tmp, 0, chunk.bytes);
 							buf = tmp;
 
 						} else {
-							buf = new Buffer(0);
+							buf = Buffer.alloc(0);
 						}
 
 
@@ -593,7 +602,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 			if (this.__isClosed === false) {
 
-				let buffer = new Buffer(4);
+				let buffer = Buffer.alloc(4);
 
 				buffer[0]  = 128 + 0x08;
 				buffer[1]  =   0 + 0x02;

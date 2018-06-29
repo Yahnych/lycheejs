@@ -115,6 +115,7 @@ const _bootup = function(settings) {
 
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/breeder';
 
+	lychee.init(null);
 	lychee.pkg('build', 'node/main', function(environment) {
 
 		lychee.init(environment, {
@@ -186,11 +187,7 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-if (_fs.existsSync(_ROOT + '/libraries/lychee/build/node/core.js') === false) {
-	require(_ROOT + '/bin/configure.js');
-}
-
-const lychee    = require(_ROOT + '/libraries/lychee/build/node/core.js')(_ROOT);
+const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
@@ -216,7 +213,15 @@ const _SETTINGS = (function() {
 			try {
 
 				let stat1 = _fs.lstatSync(_ROOT + tmp);
-				if (stat1.isDirectory()) {
+				if (stat1.isSymbolicLink()) {
+
+					let tmp2  = _fs.realpathSync(_ROOT + tmp);
+					let stat2 = _fs.lstatSync(tmp2);
+					if (stat2.isDirectory()) {
+						settings.project = tmp;
+					}
+
+				} else if (stat1.isDirectory()) {
 					settings.project = tmp;
 				}
 
@@ -242,8 +247,23 @@ const _SETTINGS = (function() {
 
 				let stat1 = _fs.lstatSync(_ROOT + library);
 				let stat2 = _fs.lstatSync(_ROOT + library + '/lychee.pkg');
-				if (stat1.isDirectory() && stat2.isFile()) {
-					settings.library = library;
+
+				if (stat1.isSymbolicLink()) {
+
+					let tmp   = _fs.realpathSync(_ROOT + library);
+					let stat3 = _fs.lstatSync(tmp);
+					let stat4 = _fs.lstatSync(tmp + '/lychee.pkg');
+
+					if (stat3.isDirectory() && stat4.isFile()) {
+						settings.library = library;
+					}
+
+				} else if (stat1.isDirectory()) {
+
+					if (stat2.isFile()) {
+						settings.library = library;
+					}
+
 				}
 
 			} catch (err) {
@@ -290,7 +310,6 @@ const _SETTINGS = (function() {
 			debug:   settings.debug === true,
 			project: settings.project
 		});
-
 
 	} else if (action === 'fork' && has_project && has_library) {
 

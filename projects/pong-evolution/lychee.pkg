@@ -1,0 +1,148 @@
+{
+	"api": {
+		"files": {
+			"Main": [
+				"json"
+			],
+			"ai": {
+				"Agent": [
+					"json"
+				],
+				"Evolution": [
+					"json"
+				]
+			},
+			"app": {
+				"sprite": {
+					"Ball": [
+						"json"
+					],
+					"Paddle": [
+						"json"
+					]
+				}
+			},
+			"policy": {
+				"Ball": [
+					"json"
+				],
+				"Paddle": [
+					"json"
+				]
+			},
+			"state": {
+				"Game": [
+					"json"
+				],
+				"Simulation": [
+					"json"
+				]
+			},
+			"ui": {
+				"sprite": {
+					"Background": [
+						"json"
+					]
+				}
+			}
+		}
+	},
+	"build": {
+		"environments": {
+			"html-nwjs/main": {
+				"debug": false,
+				"packages": {
+					"game": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html-nwjs",
+						"html"
+					]
+				},
+				"target": "game.Main",
+				"variant": "application"
+			},
+			"html/main": {
+				"debug": false,
+				"packages": {
+					"game": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"target": "game.Main",
+				"variant": "application"
+			}
+		},
+		"files": {}
+	},
+	"review": {
+		"simulations": {},
+		"files": {}
+	},
+	"source": {
+		"files": {
+			"Main": [
+				"js"
+			],
+			"ai": {
+				"Agent": [
+					"js"
+				],
+				"Evolution": [
+					"js"
+				]
+			},
+			"app": {
+				"sprite": {
+					"Ball": [
+						"js",
+						"json",
+						"png"
+					],
+					"Paddle": [
+						"evil.png",
+						"good.png",
+						"js",
+						"json"
+					]
+				}
+			},
+			"policy": {
+				"Ball": [
+					"js"
+				],
+				"Paddle": [
+					"js"
+				]
+			},
+			"state": {
+				"Game": [
+					"js",
+					"json",
+					"ping.snd",
+					"pong.snd"
+				],
+				"Simulation": [
+					"js",
+					"json"
+				]
+			},
+			"ui": {
+				"sprite": {
+					"Background": [
+						"js",
+						"json",
+						"png"
+					]
+				}
+			}
+		},
+		"tags": {}
+	}
+}

@@ -26,6 +26,9 @@
 				"PARSER": [
 					"json"
 				],
+				"Sandbox": [
+					"json"
+				],
 				"Specification": [
 					"json"
 				],
@@ -184,10 +187,10 @@
 		}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"tags": {
 			"platform": {
 				"html": "platform/html",
@@ -220,6 +223,9 @@
 				"PARSER": [
 					"js",
 					"json"
+				],
+				"Sandbox": [
+					"js"
 				],
 				"Specification": [
 					"js"

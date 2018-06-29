@@ -22,8 +22,6 @@ lychee.define('studio.codec.SPRITE').tags({
 
 }).exports(function(lychee, global, attachments) {
 
-	const _CANVAS  = document.createElement('canvas');
-	const _CONTEXT = _CANVAS.getContext('2d');
 	const _BORDER  = [ 64, 128, 256, 512, 1024, 2048, 4096, 8192 ];
 	const _JSON    = {
 		encode: function(data) {
@@ -37,7 +35,30 @@ lychee.define('studio.codec.SPRITE').tags({
 		sphere:    2,
 		cuboid:    3
 	};
+	let _CANVAS    = null;
+	let _CONTEXT   = null;
 	let _SPRITE_ID = 0;
+
+
+	(function() {
+
+		let doc = global.document || null;
+		if (doc !== null) {
+
+			let canvas = doc.createElement('canvas');
+			if (canvas !== null) {
+
+				let context = canvas.getContext('2d');
+				if (context !== null) {
+					_CANVAS  = canvas;
+					_CONTEXT = context;
+				}
+
+			}
+
+		}
+
+	})();
 
 
 
@@ -312,7 +333,9 @@ lychee.define('studio.codec.SPRITE').tags({
 		 * Export Config and Texture
 		 */
 
-		let config_blob  = 'data:application/json;base64,' + new Buffer(_JSON.encode(tmp_config), 'utf8').toString('base64');
+		let tmp1         = _JSON.encode(tmp_config);
+		let tmp2         = Buffer.alloc(tmp1.length, tmp1, 'utf8');
+		let config_blob  = 'data:application/json;base64,' + tmp2.toString('base64');
 		let texture_blob = _CANVAS.toDataURL('image/png');
 
 

@@ -8,9 +8,6 @@
 				"Agent": [
 					"json"
 				],
-				"Genome": [
-					"json"
-				],
 				"Layer": [
 					"json"
 				],
@@ -20,6 +17,9 @@
 					],
 					"Brain": [
 						"json"
+					],
+					"Layer": [
+						"json"
 					]
 				},
 				"enn": {
@@ -27,6 +27,12 @@
 						"json"
 					],
 					"Brain": [
+						"json"
+					],
+					"Genome": [
+						"json"
+					],
+					"Layer": [
 						"json"
 					]
 				},
@@ -44,6 +50,9 @@
 						"json"
 					],
 					"Pool": [
+						"json"
+					],
+					"Species": [
 						"json"
 					]
 				}
@@ -112,32 +121,6 @@
 					"json"
 				],
 				"JSON": [
-					"json"
-				]
-			},
-			"core": {
-				"Asset": [
-					"json"
-				],
-				"Debugger": [
-					"json"
-				],
-				"Definition": [
-					"json"
-				],
-				"Environment": [
-					"json"
-				],
-				"Package": [
-					"json"
-				],
-				"Simulation": [
-					"json"
-				],
-				"Specification": [
-					"json"
-				],
-				"lychee": [
 					"json"
 				]
 			},
@@ -701,9 +684,6 @@
 		},
 		"files": {
 			"html": {
-				"core": [
-					"js"
-				],
 				"dist": {
 					"index": [
 						"js"
@@ -711,9 +691,6 @@
 				}
 			},
 			"html-nwjs": {
-				"core": [
-					"js"
-				],
 				"dist": {
 					"index": [
 						"js"
@@ -721,19 +698,6 @@
 				}
 			},
 			"html-webview": {
-				"core": [
-					"js"
-				],
-				"dist": {
-					"index": [
-						"js"
-					]
-				}
-			},
-			"nidium": {
-				"core": [
-					"js"
-				],
 				"dist": {
 					"index": [
 						"js"
@@ -741,43 +705,19 @@
 				}
 			},
 			"node": {
-				"core": [
-					"js"
-				],
 				"dist": {
 					"index": [
 						"js"
 					]
 				}
-			},
-			"node-sdl": {
-				"core": [
-					"js"
-				]
 			}
 		}
 	},
 	"review": {
-		"files": {
-			"core": {
-				"Definition": [
-					"js"
-				],
-				"Environment": [
-					"js"
-				],
-				"Package": [
-					"js"
-				],
-				"lychee": [
-					"js"
-				]
-			}
-		},
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"tags": {
 			"platform": {
 				"html": "platform/html",
@@ -796,9 +736,6 @@
 				"Agent": [
 					"js"
 				],
-				"Genome": [
-					"js"
-				],
 				"Layer": [
 					"js"
 				],
@@ -808,6 +745,9 @@
 					],
 					"Brain": [
 						"js"
+					],
+					"Layer": [
+						"js"
 					]
 				},
 				"enn": {
@@ -815,6 +755,12 @@
 						"js"
 					],
 					"Brain": [
+						"js"
+					],
+					"Genome": [
+						"js"
+					],
+					"Layer": [
 						"js"
 					]
 				},
@@ -832,6 +778,9 @@
 						"js"
 					],
 					"Pool": [
+						"js"
+					],
+					"Species": [
 						"js"
 					]
 				}
@@ -906,32 +855,6 @@
 					"js"
 				],
 				"JSON": [
-					"js"
-				]
-			},
-			"core": {
-				"Asset": [
-					"js"
-				],
-				"Debugger": [
-					"js"
-				],
-				"Definition": [
-					"js"
-				],
-				"Environment": [
-					"js"
-				],
-				"Package": [
-					"js"
-				],
-				"Simulation": [
-					"js"
-				],
-				"Specification": [
-					"js"
-				],
-				"lychee": [
 					"js"
 				]
 			},
@@ -1116,12 +1039,6 @@
 					"Viewport": [
 						"js"
 					],
-					"bootstrap": [
-						"js"
-					],
-					"features": [
-						"js"
-					],
 					"net": {
 						"Server": [
 							"js"
@@ -1158,12 +1075,6 @@
 					"Storage": [
 						"js"
 					],
-					"bootstrap": [
-						"js"
-					],
-					"features": [
-						"js"
-					],
 					"net": {
 						"Server": [
 							"js"
@@ -1190,14 +1101,7 @@
 						}
 					}
 				},
-				"html-webview": {
-					"bootstrap": [
-						"js"
-					],
-					"features": [
-						"js"
-					]
-				},
+				"html-webview": {},
 				"nidium": {
 					"Input": [
 						"js"
@@ -1212,12 +1116,6 @@
 						"js"
 					],
 					"Viewport": [
-						"js"
-					],
-					"bootstrap": [
-						"js"
-					],
-					"features": [
 						"js"
 					],
 					"net": {
@@ -1253,12 +1151,6 @@
 					"Viewport": [
 						"js"
 					],
-					"bootstrap": [
-						"js"
-					],
-					"features": [
-						"js"
-					],
 					"net": {
 						"Server": [
 							"js"
@@ -1288,14 +1180,7 @@
 						}
 					}
 				},
-				"node-sdl": {
-					"bootstrap": [
-						"js"
-					],
-					"features": [
-						"js"
-					]
-				}
+				"node-sdl": {}
 			},
 			"policy": {
 				"Alpha": [

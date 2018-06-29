@@ -3,6 +3,7 @@
 
 /lychee.store
 /bin/runtime
+/bin/runtime.zip
 /bin/harvester.pid
 /libraries/studio/index.html
 /libraries/studio/.fc-cache
@@ -35,10 +36,10 @@ Desktop.ini
 /libraries/*/api
 /libraries/*/build
 /libraries/*/lychee.store
-/libraries/lychee/source/DIST.js
 !/libraries/README.md
 
 !/libraries/breeder
+!/libraries/crux
 !/libraries/fertilizer
 !/libraries/harvester
 !/libraries/legacy
@@ -66,6 +67,7 @@ Desktop.ini
 !/projects/over-there
 !/projects/pong
 !/projects/pong-bnn
+!/projects/pong-evolution
 !/projects/text-chat
 !/projects/tictactoe
 

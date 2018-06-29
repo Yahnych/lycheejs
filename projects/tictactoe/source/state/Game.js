@@ -89,7 +89,7 @@ lychee.define('game.state.Game').requires([
 		for (let x = 1; x <= 3; x++) {
 
 			let vertical = tiles.filter(function(tile) {
-				return tile.x === x && tiles.state === state;
+				return tile.x === x && tile.state === state;
 			});
 
 			if (vertical.length === 3) {

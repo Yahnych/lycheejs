@@ -1,0 +1,346 @@
+{
+	"api": {
+		"files": {
+			"Asset": [
+				"json"
+			],
+			"Debugger": [
+				"json"
+			],
+			"Definition": [
+				"json"
+			],
+			"Environment": [
+				"json"
+			],
+			"Package": [
+				"json"
+			],
+			"Simulation": [
+				"json"
+			],
+			"Specification": [
+				"json"
+			],
+			"lychee": [
+				"json"
+			],
+			"platform": {
+				"html": {
+					"BOOTSTRAP": [
+						"json"
+					],
+					"Buffer": [
+						"json"
+					],
+					"Config": [
+						"json"
+					],
+					"FEATURES": [
+						"json"
+					],
+					"Font": [
+						"json"
+					],
+					"Music": [
+						"json"
+					],
+					"Sound": [
+						"json"
+					],
+					"Stuff": [
+						"json"
+					],
+					"Texture": [
+						"json"
+					],
+					"console": [
+						"json"
+					]
+				},
+				"html-nwjs": {
+					"BOOTSTRAP": [
+						"json"
+					],
+					"FEATURES": [
+						"json"
+					]
+				},
+				"html-webview": {
+					"FEATURES": [
+						"json"
+					]
+				},
+				"nidium": {
+					"BOOTSTRAP": [
+						"json"
+					],
+					"Buffer": [
+						"json"
+					],
+					"Config": [
+						"json"
+					],
+					"FEATURES": [
+						"json"
+					],
+					"Font": [
+						"json"
+					],
+					"Stuff": [
+						"json"
+					],
+					"Texture": [
+						"json"
+					],
+					"console": [
+						"json"
+					]
+				},
+				"node": {
+					"BOOTSTRAP": [
+						"json"
+					],
+					"Buffer": [
+						"json"
+					],
+					"Config": [
+						"json"
+					],
+					"FEATURES": [
+						"json"
+					],
+					"Font": [
+						"json"
+					],
+					"Music": [
+						"json"
+					],
+					"Sound": [
+						"json"
+					],
+					"Stuff": [
+						"json"
+					],
+					"Texture": [
+						"json"
+					],
+					"console": [
+						"json"
+					]
+				},
+				"node-sdl": {
+					"BOOTSTRAP": [
+						"json"
+					],
+					"FEATURES": [
+						"json"
+					]
+				}
+			}
+		}
+	},
+	"build": {
+		"environments": {},
+		"files": {
+			"html": {
+				"dist": [
+					"js"
+				]
+			},
+			"html-nwjs": {
+				"dist": [
+					"js"
+				]
+			},
+			"html-webview": {
+				"dist": [
+					"js"
+				]
+			},
+			"nidium": {
+				"dist": [
+					"js"
+				]
+			},
+			"node": {
+				"dist": [
+					"js"
+				]
+			},
+			"node-sdl": {
+				"dist": [
+					"js"
+				]
+			}
+		}
+	},
+	"review": {
+		"files": {
+			"Definition": [
+				"js"
+			],
+			"Environment": [
+				"js"
+			],
+			"Package": [
+				"js"
+			],
+			"lychee": [
+				"js"
+			]
+		},
+		"simulations": {}
+	},
+	"source": {
+		"tags": {
+			"platform": {
+				"html": "platform/html",
+				"html-nwjs": "platform/html-nwjs",
+				"html-webview": "platform/html-webview",
+				"nidium": "platform/nidium",
+				"node": "platform/node",
+				"node-sdl": "platform/node-sdl"
+			}
+		},
+		"files": {
+			"Asset": [
+				"js"
+			],
+			"Debugger": [
+				"js"
+			],
+			"Definition": [
+				"js"
+			],
+			"Environment": [
+				"js"
+			],
+			"Package": [
+				"js"
+			],
+			"Simulation": [
+				"js"
+			],
+			"Specification": [
+				"js"
+			],
+			"lychee": [
+				"js"
+			],
+			"platform": {
+				"html": {
+					"BOOTSTRAP": [
+						"js"
+					],
+					"Buffer": [
+						"js"
+					],
+					"Config": [
+						"js"
+					],
+					"FEATURES": [
+						"js"
+					],
+					"Font": [
+						"js"
+					],
+					"Music": [
+						"js"
+					],
+					"Sound": [
+						"js"
+					],
+					"Stuff": [
+						"js"
+					],
+					"Texture": [
+						"js"
+					],
+					"console": [
+						"js"
+					]
+				},
+				"html-nwjs": {
+					"BOOTSTRAP": [
+						"js"
+					],
+					"FEATURES": [
+						"js"
+					]
+				},
+				"html-webview": {
+					"FEATURES": [
+						"js"
+					]
+				},
+				"nidium": {
+					"BOOTSTRAP": [
+						"js"
+					],
+					"Buffer": [
+						"js"
+					],
+					"Config": [
+						"js"
+					],
+					"FEATURES": [
+						"js"
+					],
+					"Font": [
+						"js"
+					],
+					"Stuff": [
+						"js"
+					],
+					"Texture": [
+						"js"
+					],
+					"console": [
+						"js"
+					]
+				},
+				"node": {
+					"BOOTSTRAP": [
+						"js"
+					],
+					"Buffer": [
+						"js"
+					],
+					"Config": [
+						"js"
+					],
+					"FEATURES": [
+						"js"
+					],
+					"Font": [
+						"js"
+					],
+					"Music": [
+						"js"
+					],
+					"Sound": [
+						"js"
+					],
+					"Stuff": [
+						"js"
+					],
+					"Texture": [
+						"js"
+					],
+					"console": [
+						"js"
+					]
+				},
+				"node-sdl": {
+					"BOOTSTRAP": [
+						"js"
+					],
+					"FEATURES": [
+						"js"
+					]
+				}
+			}
+		}
+	}
+}

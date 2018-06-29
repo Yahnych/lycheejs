@@ -131,7 +131,7 @@ lychee.define('lychee.Renderer').tags({
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
 		this.alpha      = 1.0;
@@ -153,14 +153,14 @@ lychee.define('lychee.Renderer').tags({
 		_fix_css.call(this);
 
 
-		this.setAlpha(settings.alpha);
-		this.setBackground(settings.background);
-		this.setId(settings.id);
-		this.setWidth(settings.width);
-		this.setHeight(settings.height);
+		this.setAlpha(states.alpha);
+		this.setBackground(states.background);
+		this.setId(states.id);
+		this.setWidth(states.width);
+		this.setHeight(states.height);
 
 
-		settings = null;
+		states = null;
 
 	};
 
@@ -189,19 +189,19 @@ lychee.define('lychee.Renderer').tags({
 
 		serialize: function() {
 
-			let settings = {};
+			let states = {};
 
 
-			if (this.alpha !== 1.0)                               settings.alpha      = this.alpha;
-			if (this.background !== '#000000')                    settings.background = this.background;
-			if (this.id.startsWith('lychee-Renderer-') === false) settings.id         = this.id;
-			if (this.width !== null)                              settings.width      = this.width;
-			if (this.height !== null)                             settings.height     = this.height;
+			if (this.alpha !== 1.0)                               states.alpha      = this.alpha;
+			if (this.background !== '#000000')                    states.background = this.background;
+			if (this.id.startsWith('lychee-Renderer-') === false) states.id         = this.id;
+			if (this.width !== null)                              states.width      = this.width;
+			if (this.height !== null)                             states.height     = this.height;
 
 
 			return {
 				'constructor': 'lychee.Renderer',
-				'arguments':   [ settings ],
+				'arguments':   [ states ],
 				'blob':        null
 			};
 
@@ -479,27 +479,7 @@ lychee.define('lychee.Renderer').tags({
 					width  = buffer.width;
 					height = buffer.height;
 
-					ctx.drawImage(
-						buffer.__buffer,
-						x,
-						y,
-						width,
-						height,
-						x1,
-						y1,
-						width,
-						height
-					);
-
-				} else {
-
-					width  = map.w;
-					height = map.h;
-					x      = map.x;
-					y      = map.y;
-					r      = map.r || 0;
-
-					if (r === 0) {
+					if (width > 0 && height > 0) {
 
 						ctx.drawImage(
 							buffer.__buffer,
@@ -512,6 +492,34 @@ lychee.define('lychee.Renderer').tags({
 							width,
 							height
 						);
+
+					}
+
+				} else {
+
+					width  = map.w;
+					height = map.h;
+					x      = map.x;
+					y      = map.y;
+					r      = map.r || 0;
+
+					if (r === 0) {
+
+						if (width > 0 && height > 0) {
+
+							ctx.drawImage(
+								buffer.__buffer,
+								x,
+								y,
+								width,
+								height,
+								x1,
+								y1,
+								width,
+								height
+							);
+
+						}
 
 					} else {
 

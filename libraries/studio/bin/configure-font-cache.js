@@ -4,7 +4,7 @@ const _fs   = require('fs');
 const _path = require('path');
 const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
-require(_ROOT + '/libraries/lychee/build/node/core.js')(_path.resolve(__dirname, '..'));
+require(_ROOT + '/libraries/crux/build/node/dist.js')(_path.resolve(__dirname, '..'));
 
 
 

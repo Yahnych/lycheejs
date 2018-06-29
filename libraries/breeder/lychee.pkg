@@ -69,10 +69,10 @@
 		}
 	},
 	"review": {
-		"environments": {}
+		"simulations": {},
+		"files": {}
 	},
 	"source": {
-		"environments": {},
 		"tags": {},
 		"files": {
 			"Main": [

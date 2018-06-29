@@ -76,6 +76,42 @@ lychee.define('strainer.api.PARSER').requires([
 
 	};
 
+	const _resolve_variable = function(val) {
+
+		let tmp = val.trim();
+		if (tmp.includes(' ')) {
+			tmp = tmp.substr(0, tmp.indexOf(' ')).trim();
+		}
+
+		if (tmp.includes('.')) {
+			tmp = tmp.substr(0, tmp.indexOf('.'));
+		}
+
+		if (tmp.includes('[')) {
+			tmp = tmp.substr(0, tmp.indexOf('['));
+		}
+
+		if (tmp.includes('(')) {
+			tmp = tmp.substr(0, tmp.indexOf('('));
+		}
+
+
+		if (tmp.includes(')')) {
+			tmp = tmp.substr(0, tmp.indexOf(')'));
+		}
+
+		if (tmp.includes(',')) {
+			tmp = tmp.substr(0, tmp.indexOf(','));
+		}
+
+		if (tmp.includes(';')) {
+			tmp = tmp.substr(0, tmp.indexOf(';'));
+		}
+
+		return tmp;
+
+	};
+
 	const _resolve_value = function(val) {
 
 		let value = {
@@ -170,6 +206,8 @@ lychee.define('strainer.api.PARSER').requires([
 			type = 'Array';
 		} else if (str === '{}' || str.startsWith('{')) {
 			type = 'Object';
+		} else if (str.startsWith('Buffer.alloc(') || str.startsWith('Buffer.from(')) {
+			type = 'Buffer';
 		} else if (str.startsWith('Composite.')) {
 			type = 'Enum';
 		} else if (str.startsWith('new Composite')) {
@@ -273,6 +311,10 @@ lychee.define('strainer.api.PARSER').requires([
 					}
 
 				}
+
+			} else if (str.startsWith('lychee.assignsafe') || str.startsWith('_lychee.assignsafe')) {
+
+				type = 'Object';
 
 			} else if (str.startsWith('lychee.assignunlink') || str.startsWith('_lychee.assignunlink')) {
 
@@ -410,12 +452,13 @@ lychee.define('strainer.api.PARSER').requires([
 
 			let tmp = _parse_value(str);
 			if (tmp === undefined) {
-				//				console.log(str);
 				tmp = {};
 			}
 
 			value = tmp;
 
+		} else if (str.startsWith('Buffer.alloc(') || str.startsWith('Buffer.from(')) {
+			value = str;
 		} else if (str.startsWith('Composite.')) {
 			value = str;
 		} else if (str.startsWith('new Composite')) {
@@ -533,6 +576,10 @@ lychee.define('strainer.api.PARSER').requires([
 					}
 
 				}
+
+			} else if (str.startsWith('lychee.assignsafe') || str.startsWith('_lychee.assignsafe')) {
+
+				value = {};
 
 			} else if (str.startsWith('lychee.assignunlink') || str.startsWith('_lychee.assignunlink')) {
 
@@ -679,11 +726,13 @@ lychee.define('strainer.api.PARSER').requires([
 			if (val.type === 'function') {
 
 				val.hash       = Module.hash(str);
+				val.memory     = Module.memory(str);
 				val.parameters = Module.parameters(str);
 				val.values     = Module.values(str);
 
 			} else {
 
+				val.hash  = Module.hash(str);
 				val.value = _detect_value(str);
 
 			}
@@ -988,8 +1037,14 @@ lychee.define('strainer.api.PARSER').requires([
 
 					}
 
+					let code = 'function(' + tmp3.map(p => p.chunk).join(', ') + ') {}';
+					let hash = Module.hash(code);
+
 					return {
+						chunk:      code,
 						name:       tmp1,
+						type:       'event',
+						hash:       hash,
 						parameters: tmp3
 					};
 
@@ -1000,8 +1055,14 @@ lychee.define('strainer.api.PARSER').requires([
 					if (tmp1.startsWith('\'')) tmp1 = tmp1.substr(1);
 					if (tmp1.endsWith('\''))   tmp1 = tmp1.substr(0, tmp1.length - 1);
 
+					let code = 'function() {}';
+					let hash = Module.hash(code);
+
 					return {
+						chunk:      code,
 						name:       tmp1,
+						type:       'event',
+						hash:       hash,
 						parameters: []
 					};
 
@@ -1154,6 +1215,237 @@ lychee.define('strainer.api.PARSER').requires([
 
 		},
 
+		memory: function(code) {
+
+			code = typeof code === 'string' ? code : '';
+
+
+			let lines      = code.split('\n');
+			let memory     = [];
+			let is_comment = false;
+			let first      = lines[0].trim();
+			let last       = lines[lines.length - 1].trim();
+
+
+			if (
+				(first.startsWith('function(') || first.startsWith('(function('))
+				&& first.endsWith(') {')
+			) {
+				lines.shift();
+			}
+
+			if (last.endsWith('}')) {
+				lines.pop();
+			}
+
+
+			lines.map(function(line) {
+				return line.trim();
+			}).filter(function(line) {
+
+				if (line.startsWith('//')) {
+					return false;
+				} else if (line.startsWith('/*')) {
+					is_comment = true;
+					return false;
+				} else if (line.endsWith('*/')) {
+					is_comment = false;
+					return false;
+				} else if (is_comment === true) {
+					return false;
+				}
+
+
+				let result = false;
+
+				if (line.startsWith('_')) {
+
+					result = true;
+
+				} else if (line.includes('=')) {
+
+					let tmp = line.substr(line.indexOf('=') + 1).trim();
+					if (tmp.startsWith('_')) {
+						result = true;
+					}
+
+				} else if (line.includes(':')) {
+
+					let tmp = line.substr(line.indexOf(':') + 1).trim();
+					if (tmp.startsWith('_')) {
+						result = true;
+					}
+
+				} else if (line.includes('new _')) {
+
+					result = true;
+
+				} else if (line.includes('return _')) {
+
+					result = true;
+
+				} else if (line.includes('(_')) {
+
+					result = true;
+
+				} else if (line.includes(', _')) {
+
+					result = true;
+
+				}
+
+				return result;
+
+			}).map(function(line) {
+
+				if (line.startsWith('_')) {
+
+					return _resolve_variable(line);
+
+				} else if (line.includes('=')) {
+
+					let tmp = line.substr(line.indexOf('=') + 1).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				} else if (line.includes(':')) {
+
+					let tmp = line.substr(line.indexOf(':') + 1).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				} else if (line.includes('new _')) {
+
+					let tmp = line.substr(line.indexOf('new ') + 4).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				} else if (line.includes('return _')) {
+
+					let tmp = line.substr(line.indexOf('return ') + 7).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				} else if (line.includes('(_')) {
+
+					let tmp = line.substr(line.indexOf('(_') + 1).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				} else if (line.includes(', _')) {
+
+					let tmp = line.substr(line.indexOf(', _') + 2).trim();
+					if (tmp.startsWith('_')) {
+						return _resolve_variable(tmp);
+					}
+
+				}
+
+
+				return null;
+
+			}).forEach(function(variable) {
+
+				if (variable !== null) {
+
+					if (memory.includes(variable) === false) {
+						memory.push(variable);
+					}
+				}
+
+			});
+
+
+			memory = memory.sort();
+
+
+			return memory;
+
+		},
+
+		mutations: function(name, code) {
+
+			name = typeof name === 'string' ? name : 'undefined_variable';
+			code = typeof code === 'string' ? code : '';
+
+
+			let mutations = [];
+			let lines     = code.split('\n');
+
+
+			lines.filter(function(line) {
+
+				if (line.endsWith(';') || line.endsWith('= {')) {
+
+					let i1 = line.indexOf(name);
+					let i2 = line.indexOf('=', i1);
+					let i3 = line.indexOf('.', i1);
+					let i4 = line.indexOf('[', i1);
+
+					if (
+						i1 !== -1
+						&& i2 !== -1
+						&& (i3 === -1 || i3 > i2)
+						&& (i4 === -1 || i4 > i2)
+					) {
+						return true;
+					}
+
+				}
+
+				return false;
+
+			}).map(function(line) {
+
+				let tmp = line.trim();
+				if (tmp.endsWith(' = {')) {
+
+					let chunk = _get_chunk(line, '};', code);
+					if (chunk !== 'undefined') {
+						return tmp + chunk;
+					}
+
+				}
+
+				return tmp;
+
+			}).map(function(line) {
+
+				let i1 = line.indexOf('=');
+				let i2 = line.indexOf(';', i1);
+				if (i2 === -1) {
+					i2 = line.length;
+				}
+
+				return line.substr(i1 + 2, i2 - i1 - 2);
+
+			}).map(function(chunk) {
+				return Module.detect(chunk);
+			}).filter(function(val) {
+
+				let chunk = val.chunk;
+				let type  = val.type;
+
+				if (type !== 'undefined' || chunk.startsWith('_') || chunk.startsWith('this.')) {
+					return true;
+				}
+
+				return false;
+
+			}).forEach(function(val) {
+				mutations.push(val);
+			});
+
+
+			return mutations;
+
+		},
+
 		parameters: function(code) {
 
 			code = typeof code === 'string' ? code : '';
@@ -1254,15 +1546,15 @@ lychee.define('strainer.api.PARSER').requires([
 
 		},
 
-		settings: function(code) {
+		states: function(code) {
 
 			code = typeof code === 'string' ? code : '';
 
 
-			let settings = {};
-			let lines    = code.split('\n');
-			let first    = lines[0].trim();
-			let last     = lines[lines.length - 1].trim();
+			let states = {};
+			let lines  = code.split('\n');
+			let first  = lines[0].trim();
+			let last   = lines[lines.length - 1].trim();
 
 			if (first.startsWith('function(') && first.endsWith(') {')) {
 				lines.shift();
@@ -1291,11 +1583,11 @@ lychee.define('strainer.api.PARSER').requires([
 
 			}).forEach(function(line) {
 
-				if (line.startsWith('this.set') && line.includes('settings.')) {
+				if (line.startsWith('this.set') && line.includes('states.')) {
 
-					let tmp = line.split(/\(settings\.([A-Za-z]+)\);/g);
+					let tmp = line.split(/\(states\.([A-Za-z]+)\);/g);
 					if (tmp.pop() === '') {
-						settings[tmp[1]] = tmp[0].split('.').pop();
+						states[tmp[1]] = tmp[0].split('.').pop();
 					}
 
 				}
@@ -1303,85 +1595,7 @@ lychee.define('strainer.api.PARSER').requires([
 			});
 
 
-			return settings;
-
-		},
-
-		mutations: function(name, code) {
-
-			name = typeof name === 'string' ? name : 'undefined_variable';
-			code = typeof code === 'string' ? code : '';
-
-
-			let mutations = [];
-			let lines     = code.split('\n');
-
-
-			lines.filter(function(line) {
-
-				if (line.endsWith(';') || line.endsWith('= {')) {
-
-					let i1 = line.indexOf(name);
-					let i2 = line.indexOf('=', i1);
-					let i3 = line.indexOf('.', i1);
-					let i4 = line.indexOf('[', i1);
-
-					if (
-						i1 !== -1
-						&& i2 !== -1
-						&& (i3 === -1 || i3 > i2)
-						&& (i4 === -1 || i4 > i2)
-					) {
-						return true;
-					}
-
-				}
-
-				return false;
-
-			}).map(function(line) {
-
-				let tmp = line.trim();
-				if (tmp.endsWith(' = {')) {
-
-					let chunk = _get_chunk(line, '};', code);
-					if (chunk !== 'undefined') {
-						return tmp + chunk;
-					}
-
-				}
-
-				return tmp;
-
-			}).map(function(line) {
-
-				let i1 = line.indexOf('=');
-				let i2 = line.indexOf(';', i1);
-				if (i2 === -1) {
-					i2 = line.length;
-				}
-
-				return line.substr(i1 + 2, i2 - i1 - 2);
-
-			}).map(function(chunk) {
-				return Module.detect(chunk);
-			}).filter(function(val) {
-
-				let chunk = val.chunk;
-				let type  = val.type;
-
-				if (type !== 'undefined' || chunk.startsWith('_') || chunk.startsWith('this.')) {
-					return true;
-				}
-
-				return false;
-
-			}).forEach(function(val) {
-				mutations.push(val);
-			});
-
-
-			return mutations;
+			return states;
 
 		},
 

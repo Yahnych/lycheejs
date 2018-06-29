@@ -34,7 +34,6 @@ lychee.define('harvester.mod.Server').tags({
 	const _MIN_PORT      = 49152;
 	let   _CUR_PORT      = _MIN_PORT;
 	const _MAX_PORT      = 65534;
-	let   _LOG_PROJECT   = null;
 	const _ROOT          = lychee.ROOT.lychee;
 
 
@@ -43,9 +42,44 @@ lychee.define('harvester.mod.Server').tags({
 	 * HELPERS
 	 */
 
+	const _OFFSET  = new Array('harvester.mod.Server: '.length).fill(' ').join('');
 	const _MESSAGE = {
-		prefixes: [ '(I)', '(W)', '(E)' ],
-		consoles: [ console.info, console.warn, console.error ]
+		prefixes: [ '(L)', '(I)', '(W)', '(E)' ],
+		consoles: [ console.log, console.info, console.warn, console.error ]
+	};
+
+	const _on_message = function(raw) {
+
+		let prefix = '\u001b[41m\u001b[97m';
+		let suffix = '\u001b[39m\u001b[49m\u001b[0m';
+		let lines  = raw.trim().split('\n');
+		let last   = null;
+
+		for (let l = 0, ll = lines.length; l < ll; l++) {
+
+			let line = lines[l].trim();
+			if (line.startsWith('\u001b')) {
+				line = line.substr(prefix.length, line.length - prefix.length).trim();
+			}
+
+			if (line.endsWith('\u001b[0m')) {
+				line = line.substr(0, line.length - suffix.length).trim();
+			}
+
+
+			let type = line.substr(0, 3);
+			if (_MESSAGE.prefixes.includes(type)) {
+				line = line.substr(3).trim();
+				last = type;
+			}
+
+
+			if (line.length > 0) {
+				this.push(last + ' ' + line);
+			}
+
+		}
+
 	};
 
 	const _report_error = function(text) {
@@ -157,129 +191,67 @@ lychee.define('harvester.mod.Server').tags({
 
 			try {
 
-				// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', file, port, host ])
-				handle = _child_process.execFile(_BINARY, [
+				let stdout = [];
+				let stderr = [];
+				let args   = [
 					_ROOT + project + '/harvester.js',
 					port,
 					'null'
-				], {
+				];
+
+				if (lychee.debug === true) {
+					args.push('--debug');
+				}
+
+				// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', file, port, host ])
+				handle = _child_process.execFile(_BINARY, args, {
 					cwd: _ROOT + project
-				}, function(error, stdout, stderr) {
+				}, function(error) {
 
-					stderr = (stderr.trim() || '').toString();
+					if (stderr.length > 0) {
 
-
-					if (error !== null && error.signal !== 'SIGTERM') {
-
-						_LOG_PROJECT = project;
 						console.error('harvester.mod.Server: FAILURE (' + info + ')');
-						console.error(stderr);
 
-					} else if (stderr !== '') {
+						if (lychee.debug === true) {
 
-						_LOG_PROJECT = project;
-						console.error('harvester.mod.Server: FAILURE (' + info + ')');
-						_report_error(stderr);
+							for (let s = 0, sl = stdout.length; s < sl; s++) {
 
-					}
+								let line  = stdout[s];
+								let type  = line.substr(0, 3);
+								let chunk = _OFFSET + line.substr(3).trim();
 
-				});
+								let index = _MESSAGE.prefixes.indexOf(type);
+								if (index !== -1) {
+									_MESSAGE.consoles[index].call(console, chunk);
+								}
 
-				handle.stdout.on('data', function(lines) {
-
-					lines = lines.trim().split('\n').filter(function(message) {
-
-						if (message.charAt(0) !== '\u001b') {
-							return true;
-						}
-
-						return false;
-
-					});
-
-					if (lines.length > 0) {
-
-						if (_LOG_PROJECT !== project) {
-							console.log('harvester.mod.Server: LOG ("' + project + '")');
-							_LOG_PROJECT = project;
-						}
-
-						lines.forEach(function(message) {
-
-							let type = message.trim().substr(0, 3);
-							let line = message.trim().substr(3).trim();
-
-							if (type === '(L)') {
-								console.log('                      ' + line);
-							} else {
-								console.log('                      ' + message.trim());
 							}
 
-						});
-
-					}
-
-				});
-
-				handle.stderr.on('data', function(lines) {
-
-					lines = lines.trim().split('\n').filter(function(message) {
-
-						if (message.charAt(0) === '\u001b') {
-							return true;
 						}
 
-						return false;
+						for (let s = 0, sl = stderr.length; s < sl; s++) {
 
-					}).map(function(message) {
+							let line  = stderr[s];
+							let type  = line.substr(0, 3);
+							let chunk = _OFFSET + line.substr(3).trim();
 
-						let prefix = '\u001b[41m\u001b[97m';
-						let suffix = '\u001b[39m\u001b[49m\u001b[0m';
-
-						if (message.startsWith(prefix)) {
-							message = message.substr(prefix.length);
-						}
-
-						if (message.endsWith(suffix)) {
-							message = message.substr(0, message.length - suffix.length);
-						}
-
-						return message;
-
-					});
-
-
-					if (lines.length > 0) {
-
-						if (_LOG_PROJECT !== project) {
-							console.error('harvester.mod.Server: ERROR ("' + project + '")');
-							_LOG_PROJECT = project;
-						}
-
-						lines.forEach(function(message) {
-
-							let prefix = message.trim().substr(0, 3);
-							let index  = _MESSAGE.prefixes.indexOf(prefix);
+							let index = _MESSAGE.prefixes.indexOf(type);
 							if (index !== -1) {
-
-								let tmp = message.trim().substr(3).trim();
-								if (tmp.length > 0) {
-									_MESSAGE.consoles[index].call(console, '                      ' + tmp);
-								}
-
-							} else if (index === -1) {
-
-								let tmp = message.trim();
-								if (tmp.length > 0) {
-									console.error('                      ' + tmp);
-								}
-
+								_MESSAGE.consoles[index].call(console, chunk);
 							}
 
-						});
+						}
 
 					}
 
+				});
+
+				handle.stdout.on('data', function(raw) {
+					_on_message.call(stdout, raw);
+				});
+
+				handle.stderr.on('data', function(raw) {
+					_on_message.call(stderr, raw);
 				});
 
 				handle.on('error', function() {

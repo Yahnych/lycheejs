@@ -20,10 +20,10 @@ lychee.define('fertilizer.template.html.Application').includes([
 
 	const Composite = function(data) {
 
-		let settings = Object.assign({}, data);
+		let states = Object.assign({}, data);
 
 
-		_Template.call(this, settings);
+		_Template.call(this, states);
 
 
 		this.__appcache = lychee.deserialize(lychee.serialize(_TEMPLATES.appcache));
@@ -46,7 +46,7 @@ lychee.define('fertilizer.template.html.Application').includes([
 			let that   = this;
 			let load   = 3;
 			let config = this.stash.read('./manifest.json');
-			let core   = this.stash.read('/libraries/lychee/build/html/core.js');
+			let core   = this.stash.read('/libraries/crux/build/html/dist.js');
 			let icon   = this.stash.read('./icon.png');
 
 			if (config !== null) {
@@ -169,7 +169,7 @@ lychee.define('fertilizer.template.html.Application').includes([
 		}, this);
 
 
-		settings = null;
+		states = null;
 
 	};
 

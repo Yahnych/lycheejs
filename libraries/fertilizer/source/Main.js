@@ -1,7 +1,6 @@
 
 lychee.define('fertilizer.Main').requires([
 	'fertilizer.Template',
-	'lychee.codec.JSON',
 	'fertilizer.data.Shell',
 	'fertilizer.template.html.Application',
 	'fertilizer.template.html.Library',
@@ -21,7 +20,6 @@ lychee.define('fertilizer.Main').requires([
 	const _template = lychee.import('fertilizer.template');
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _Template = lychee.import('fertilizer.Template');
-	const _JSON     = lychee.import('lychee.codec.JSON');
 
 
 
@@ -58,13 +56,13 @@ lychee.define('fertilizer.Main').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(settings) {
+	const Composite = function(states) {
 
 		this.settings = _lychee.assignunlink({
 			project:    null,
 			identifier: null,
 			settings:   null
-		}, settings);
+		}, states);
 
 		this.defaults = _lychee.assignunlink({
 			project:    null,
@@ -75,7 +73,7 @@ lychee.define('fertilizer.Main').requires([
 
 		_Emitter.call(this);
 
-		settings = null;
+		states = null;
 
 
 
@@ -93,12 +91,12 @@ lychee.define('fertilizer.Main').requires([
 
 				let platform = data.tags.platform[0] || null;
 				let variant  = data.variant || null;
-				let settings = _JSON.decode(_JSON.encode(Object.assign({}, data, {
+				let settings = _lychee.assignunlink({}, data, {
 					debug:   false,
 					sandbox: true,
 					timeout: 5000,
 					type:    'export'
-				})));
+				});
 
 
 				let profile = {};
@@ -456,11 +454,11 @@ lychee.define('fertilizer.Main').requires([
 			data['constructor'] = 'fertilizer.Main';
 
 
-			let settings = _lychee.assignunlink({}, this.settings);
-			let blob     = data['blob'] || {};
+			let states = _lychee.assignunlink({}, this.settings);
+			let blob   = data['blob'] || {};
 
 
-			data['arguments'][0] = settings;
+			data['arguments'][0] = states;
 			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 

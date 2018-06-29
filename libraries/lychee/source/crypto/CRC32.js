@@ -82,7 +82,7 @@ lychee.define('lychee.crypto.CRC32').exports(function(lychee, global, attachment
 
 		update: function(data) {
 
-			data = data instanceof Buffer ? data : new Buffer(data, 'utf8');
+			data = data instanceof Buffer ? data : Buffer.from(data, 'utf8');
 
 
 			this.__crc = _bytes_to_value(data);
@@ -96,7 +96,7 @@ lychee.define('lychee.crypto.CRC32').exports(function(lychee, global, attachment
 				hash = '0' + hash;
 			}
 
-			return new Buffer(hash, 'hex');
+			return Buffer.from(hash, 'hex');
 
 		}
 

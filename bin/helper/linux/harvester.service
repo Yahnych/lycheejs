@@ -1,0 +1,17 @@
+[Unit]
+Description=lychee.js Harvester
+
+
+[Service]
+ExecStart=/bin/bash /opt/lycheejs/libraries/harvester/bin/harvester.sh start development
+#Restart=always
+#RestartSec=60
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=lycheejs-harvester
+#User=lycheejs
+#Group=lycheejs
+
+[Install]
+WantedBy=multi-user.target
+

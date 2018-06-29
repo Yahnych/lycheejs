@@ -14,10 +14,10 @@ lychee.define('strainer.api.Composite').requires([
 	 */
 
 	const _SERIALIZE = {
+		chunk:      'function() { return {}; }',
 		type:       'function',
-		body:       'function() { return {}; }',
-		chunk:      'function() {',
 		hash:       _PARSER.hash('function() { return {}; }'),
+		memory:     [],
 		parameters: [],
 		values:     [{
 			type: 'SerializationBlob',
@@ -30,10 +30,10 @@ lychee.define('strainer.api.Composite').requires([
 	};
 
 	const _DESERIALIZE = {
+		chunk:      'function(blob) {}',
 		type:       'function',
-		body:       'function(blob) {}',
-		chunk:      'function(blob) {',
 		hash:       _PARSER.hash('function(blob) {}'),
+		memory:     [],
 		parameters: [{
 			name:  'blob',
 			type:  'SerializationBlob',
@@ -210,13 +210,14 @@ lychee.define('strainer.api.Composite').requires([
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 20, i2 - i1 - 17).trim();
-			if (body.length > 0) {
+			let chunk = stream.substr(i1 + 20, i2 - i1 - 17).trim();
+			if (chunk.length > 0) {
 
+				constructor.chunk      = chunk;
 				constructor.type       = 'function';
-				constructor.body       = body;
-				constructor.hash       = _PARSER.hash(body);
-				constructor.parameters = _PARSER.parameters(body);
+				constructor.hash       = _PARSER.hash(chunk);
+				constructor.memory     = _PARSER.memory(chunk);
+				constructor.parameters = _PARSER.parameters(chunk);
 
 			}
 
@@ -224,7 +225,7 @@ lychee.define('strainer.api.Composite').requires([
 
 	};
 
-	const _parse_settings = function(settings, stream) {
+	const _parse_states = function(states, stream) {
 
 		let buffer = stream.split('\n');
 		let check1 = buffer.findIndex((line, l) => line.startsWith('\tconst Composite = '));
@@ -232,14 +233,14 @@ lychee.define('strainer.api.Composite').requires([
 
 		if (check1 !== -1 && check2 !== -1) {
 
-			let body = buffer.slice(check1, check2).join('\n').trim().substr(18);
-			if (body.length > 0) {
+			let chunk = buffer.slice(check1, check2).join('\n').trim().substr(18);
+			if (chunk.length > 0) {
 
-				let object = _PARSER.settings(body);
+				let object = _PARSER.states(chunk);
 				if (Object.keys(object).length > 0) {
 
 					for (let o in object) {
-						settings[o] = object[o];
+						states[o] = object[o];
 					}
 
 				}
@@ -312,6 +313,8 @@ lychee.define('strainer.api.Composite').requires([
 
 								properties[name] = {
 									chunk: chunk,
+									type:  prop.type,
+									hash:  _PARSER.hash(chunk),
 									value: prop
 								};
 
@@ -404,7 +407,10 @@ lychee.define('strainer.api.Composite').requires([
 		if (cache === undefined) {
 
 			cache = events[event.name] = {
+				chunk:      event.chunk,
 				name:       event.name,
+				type:       event.type,
+				hash:       event.hash,
 				methods:    [],
 				parameters: event.parameters
 			};
@@ -474,7 +480,7 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_events = function(constructor, methods, events, stream, errors) {
 
-		let construct = constructor.body || null;
+		let construct = constructor.chunk || null;
 		if (construct !== null) {
 
 			let ewents = _PARSER.events(construct);
@@ -491,8 +497,8 @@ lychee.define('strainer.api.Composite').requires([
 		for (let mid in methods) {
 
 			let method = methods[mid];
-			let body   = method.body;
-			let ewents = _PARSER.events(body);
+			let chunk  = method.chunk;
+			let ewents = _PARSER.events(chunk);
 			if (ewents.length > 0) {
 
 				ewents.forEach(function(event) {
@@ -544,12 +550,14 @@ lychee.define('strainer.api.Composite').requires([
 
 			let deserialize = methods['deserialize'];
 			if (deserialize !== undefined) {
+				if (deserialize.memory.length === 0)     deserialize.memory     = lychee.assignunlink([], _DESERIALIZE.memory);
 				if (deserialize.parameters.length === 0) deserialize.parameters = lychee.assignunlink([], _DESERIALIZE.parameters);
 				if (deserialize.values.length === 0)     deserialize.values     = lychee.assignunlink([], _DESERIALIZE.values);
 			}
 
 			let serialize = methods['serialize'];
 			if (serialize !== undefined) {
+				if (serialize.memory.length === 0)     serialize.memory     = lychee.assignunlink([], _SERIALIZE.memory);
 				if (serialize.parameters.length === 0) serialize.parameters = lychee.assignunlink([], _SERIALIZE.parameters);
 				if (serialize.values.length === 0)     serialize.values     = lychee.assignunlink([], _SERIALIZE.values);
 			}
@@ -559,7 +567,7 @@ lychee.define('strainer.api.Composite').requires([
 
 				let method = methods[mid];
 				let params = method.parameters;
-				let ref    = _find_reference(method.chunk, stream);
+				let ref    = _find_reference(mid + ': ' + method.chunk.split('\n')[0], stream, true);
 				let values = method.values;
 
 				if (params.length > 0) {
@@ -680,17 +688,18 @@ lychee.define('strainer.api.Composite').requires([
 			let memory = {};
 			let result = {
 				constructor: {
+					chunk:      null,
 					type:       null,
-					body:       null,
 					hash:       null,
 					parameters: []
 				},
-				settings:    {},
+				states:      {},
 				properties:  {},
 				enums:       {},
 				events:      {},
 				methods:     {}
 			};
+
 
 			if (asset !== null) {
 
@@ -698,7 +707,7 @@ lychee.define('strainer.api.Composite').requires([
 
 				_parse_memory(memory, stream, errors);
 				_parse_constructor(result.constructor, stream, errors);
-				_parse_settings(result.settings, stream, errors);
+				_parse_states(result.states, stream, errors);
 				_parse_properties(result.properties, stream, errors);
 				_parse_enums(result.enums, stream, errors);
 				_parse_methods(result.methods, stream, errors);
@@ -708,20 +717,20 @@ lychee.define('strainer.api.Composite').requires([
 				if (result.constructor.parameters.length === 1) {
 
 					let check = result.constructor.parameters[0];
-					if (check.name === 'data' || check.name === 'settings') {
+					if (check.name === 'data' || check.name === 'states') {
 
 						check.type = 'Object';
 
 					} else if (/^(main|client|remote|server)$/g.test(check.name) === false) {
 
-						let chunk = result.constructor.body.split('\n')[0];
+						let chunk = result.constructor.chunk.split('\n')[0];
 						let ref   = _find_reference('\n\tconst Composite = ' + chunk, stream);
 
 						errors.push({
 							url:       null,
 							rule:      'no-composite',
 							reference: 'constructor',
-							message:   'Composite has no "settings" object.',
+							message:   'Composite has no "states" object.',
 							line:      ref.line,
 							column:    ref.column
 						});
@@ -749,24 +758,24 @@ lychee.define('strainer.api.Composite').requires([
 				}
 
 
-				let body = result.constructor.body || null;
-				if (body !== null) {
+				let chunk = result.constructor.chunk || null;
+				if (chunk !== null) {
 
 					let check = result.constructor.parameters[0] || null;
 					if (check !== null && check.name === 'data') {
 
-						let ref1 = _find_reference('\n\t\tlet settings = ',  body, true);
-						let ref2 = _find_reference('\n\t\tsettings = null;', body);
+						let ref1 = _find_reference('\n\t\tlet states = ',  chunk, true);
+						let ref2 = _find_reference('\n\t\tstates = null;', chunk);
 
 						if (ref1.line !== 0 && ref2.line === 0) {
 
-							let ref = _find_reference('\n\t\tlet settings = ', stream, true);
+							let ref = _find_reference('\n\t\tlet states = ', stream, true);
 
 							errors.push({
 								url:       null,
 								rule:      'no-garbage',
 								reference: 'constructor',
-								message:   'Composite produces garbage (missing "settings = null" statement).',
+								message:   'Composite produces garbage (missing "states = null" statement).',
 								line:      ref.line,
 								column:    ref.column
 							});
@@ -777,9 +786,9 @@ lychee.define('strainer.api.Composite').requires([
 
 							errors.push({
 								url:       null,
-								rule:      'no-settings',
+								rule:      'no-states',
 								reference: 'constructor',
-								message:   'Composite ignores settings (missing "let settings = Object.assign({}, data)" statement).',
+								message:   'Composite ignores states (missing "let states = Object.assign({}, data)" statement).',
 								line:      ref.line,
 								column:    ref.column
 							});
@@ -795,7 +804,7 @@ lychee.define('strainer.api.Composite').requires([
 						if (entry.type === 'lychee.Definition') {
 
 							let id  = entry.value.reference;
-							let ref = _find_reference('\n\t\t' + name + '.call(this', body, true);
+							let ref = _find_reference('\n\t\t' + name + '.call(this', chunk, true);
 
 							if (header.includes.includes(id) === false && ref.line !== 0) {
 
