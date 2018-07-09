@@ -183,6 +183,14 @@ If you want to install lychee.js, the best way is to follow
 through the [Install Guide](./guides/INSTALL.md) or the
 [lychee.js Guide's Quickstart section](https://github.com/Artificial-Engineering/lycheejs-guide#quickstart-guide).
 
+```bash
+# Install lychee.js Engine into /opt/lycheejs
+sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
+```
+
+![Quickstart CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/asset/quickstart.svg)
+
+
 If you want to develop lychee.js Projects or Libraries, the
 [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide)
 helps you to get started easily.

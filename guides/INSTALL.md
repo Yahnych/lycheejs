@@ -1,7 +1,7 @@
 
 # Install Guide for lychee.js
 
-![./asset/quickstart.gif](./asset/quickstart.gif)
+![Quickstart CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/asset/quickstart.svg)
 
 This is the it-works-failsafe guide of how to install the lychee.js
 Engine on your development machine. For everything related to Bundles,
@@ -27,7 +27,7 @@ repository).
 
 Notes:
 
-- **Windows** is **unsupported** as development host. Use a VM, the [Docker Image (Arch Linux)](https://hub.docker.com/r/cookiengineer/lycheejs), the [Docker Mini Image (Alpine Linux)](https://hub.docker.com/r/cookiengineer/lycheejs-mini/) or the [Dockerfile](https://github.com/Artificial-Engineering/lycheejs-bundle/blob/master/bin/package/docker/Dockerfile) instead.
+- Windows 10 is supported via Windows Subsystem for Linux (WSL) and Ubuntu.
 - GNU/Linux requires either of `apk`, `apt-get`, `dnf`, `pacman`, `yum` or `zipper` installed beforehand.
 - Mac OSX requires [brew](https://brew.sh) installed beforehand.
 - FreeBSD/NetBSD requires `pkg` installed and [Linux Compatibility](https://www.freebsd.org/doc/handbook/linuxemu-lbc-install.html) activated beforehand.
