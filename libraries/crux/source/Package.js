@@ -8,6 +8,31 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 	 * HELPERS
 	 */
 
+	const _fuzz_id = function() {
+
+		let found = null;
+
+		if (this.url !== null) {
+
+			let url = this.url;
+			if (url.includes('/libraries/')) {
+
+				let ns    = url.split('/');
+				let tmp_i = ns.indexOf('libraries');
+				let tmp_s = ns[tmp_i + 1] || '';
+
+				if (tmp_s !== '') {
+					found = tmp_s;
+				}
+
+			}
+
+		}
+
+		return found;
+
+	};
+
 	const _resolve_root = function() {
 
 		let root = this.root;
@@ -447,8 +472,9 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		this.__warnings  = {};
 
 
-		this.setId(states.id);
+		// XXX: url has to be set first for fuzzing
 		this.setUrl(states.url);
+		this.setId(states.id);
 
 		this.setEnvironment(states.environment);
 		this.setSimulation(states.simulation);
@@ -816,16 +842,33 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		},
 
-		setId: function(identifier) {
+		setId: function(id) {
 
-			identifier = typeof identifier === 'string' ? identifier : null;
+			id = typeof id === 'string' ? id : null;
 
 
-			if (identifier !== null && /^([a-z]+)$/g.test(identifier)) {
+			if (id !== null && /^([a-z]+)$/g.test(id)) {
 
-				this.id = identifier;
+				this.id = id;
 
 				return true;
+
+			} else {
+
+				let fuzzed = _fuzz_id.call(this);
+				if (fuzzed !== null) {
+
+					this.id = fuzzed;
+
+					console.warn('lychee.Package: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+
+					return true;
+
+				} else {
+
+					console.error('lychee.Package: Invalid Identifier "' + id + '" (' + this.url + ')');
+
+				}
 
 			}
 

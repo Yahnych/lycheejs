@@ -39,13 +39,13 @@ lychee.specify('lychee.Package').exports(function(lychee, sandbox) {
 		assert(this.id, sandbox.states.id);
 
 		assert(this.setId(id1), false);
-		assert(this.id,         sandbox.states.id);
+		assert(this.id, sandbox.states.id);
 
 		assert(this.setId(id2), true);
-		assert(this.id,         id2);
+		assert(this.id, id2);
 
 		assert(this.setId(sandbox.states.id), true);
-		assert(this.id,                       sandbox.states.id);
+		assert(this.id, sandbox.states.id);
 
 	});
 
@@ -58,14 +58,14 @@ lychee.specify('lychee.Package').exports(function(lychee, sandbox) {
 		assert(this.url, sandbox.states.url);
 
 		assert(this.setUrl(url1), false);
-		assert(this.url,          sandbox.states.url);
+		assert(this.url, sandbox.states.url);
 
 		assert(this.setUrl(url2), true);
-		assert(this.url,          url2);
-		assert(this.root,         '/libraries/valid');
+		assert(this.url, url2);
+		assert(this.root, '/libraries/valid');
 
 		assert(this.setUrl(sandbox.states.url), true);
-		assert(this.url,                        sandbox.states.url);
+		assert(this.url, sandbox.states.url);
 
 	});
 
@@ -74,16 +74,50 @@ lychee.specify('lychee.Package').exports(function(lychee, sandbox) {
 		assert(this.type, sandbox.states.type);
 
 		assert(this.setType('build'), true);
-		assert(this.type,             'build');
+		assert(this.type, 'build');
 
 		assert(this.setType('review'), true);
-		assert(this.type,             'review');
+		assert(this.type, 'review');
 
 		assert(this.setType('source'), true);
-		assert(this.type,              'source');
+		assert(this.type, 'source');
 
 		assert(this.setType('invalid'), false);
-		assert(this.type,               'source');
+		assert(this.type, 'source');
+
+	});
+
+	sandbox.setMethod('getDefinitions', function(assert, expect) {
+
+		let definitions = this.getDefinitions();
+
+		assert(definitions instanceof Array, true);
+
+		assert(definitions.includes('Input'), true);
+		assert(definitions.includes('Renderer'), true);
+		assert(definitions.includes('Stash'), true);
+		assert(definitions.includes('Storage'), true);
+		assert(definitions.includes('Viewport'), true);
+		assert(definitions.includes('net.Client'), true);
+		assert(definitions.includes('net.Remote'), true);
+		assert(definitions.includes('net.Server'), true);
+
+	});
+
+	sandbox.setMethod('getFiles', function(assert, expect) {
+
+		let files = this.getFiles();
+
+		assert(files instanceof Array, true);
+
+		assert(files.includes('platform/html/Input.js'), true);
+		assert(files.includes('platform/html/Renderer.js'), true);
+		assert(files.includes('platform/html/Stash.js'), true);
+		assert(files.includes('platform/html/Storage.js'), true);
+		assert(files.includes('platform/html/Viewport.js'), true);
+		assert(files.includes('platform/html/net/Client.js'), true);
+		assert(files.includes('platform/html/net/Remote.js'), true);
+		assert(files.includes('platform/html/net/Server.js'), true);
 
 	});
 
