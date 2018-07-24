@@ -174,33 +174,33 @@ lychee.define('lychee.ui.Entity').includes([
 
 			if (position !== null) {
 
-				if (typeof position.x === 'number' && typeof position.y === 'number') {
-
-					let ax = position.x;
-					let ay = position.y;
-					let bx = this.position.x;
-					let by = this.position.y;
+				position.x = typeof position.x === 'number' ? position.x : 0;
+				position.y = typeof position.y === 'number' ? position.y : 0;
 
 
-					let shape = this.shape;
-					if (shape === Composite.SHAPE.circle) {
-
-						let dist = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
-						if (dist < this.radius) {
-							return true;
-						}
-
-					} else if (shape === Composite.SHAPE.rectangle) {
-
-						let hwidth  = this.width  / 2;
-						let hheight = this.height / 2;
-						let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
-						let colY    = (ay >= by - hheight) && (ay <= by + hheight);
+				let ax = position.x;
+				let ay = position.y;
+				let bx = this.position.x;
+				let by = this.position.y;
 
 
-						return colX && colY;
+				let shape = this.shape;
+				if (shape === Composite.SHAPE.circle) {
 
+					let dist = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+					if (dist < this.radius) {
+						return true;
 					}
+
+				} else if (shape === Composite.SHAPE.rectangle) {
+
+					let hwidth  = this.width  / 2;
+					let hheight = this.height / 2;
+					let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
+					let colY    = (ay >= by - hheight) && (ay <= by + hheight);
+
+
+					return colX && colY;
 
 				}
 

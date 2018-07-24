@@ -445,7 +445,6 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 	 * IMPLEMENTATION
 	 */
 
-
 	const Module = {
 
 		/*
@@ -485,6 +484,9 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 				return Buffer.from(stream.toString(), 'utf8');
 
 			}
+
+
+			return null;
 
 		},
 

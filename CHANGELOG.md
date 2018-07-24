@@ -22,6 +22,11 @@ and `fixed`.
 
 ## [2018-Q3] - UNRELEASED
 
+- Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Fixed: lychee.app.Entity `isAtPosition(position)` supports incremental coordinates.
+- Fixed: lychee.ui.Entity `isAtPosition(position)` supports incremental coordinates.
+- Fixed: lychee.codec.DIXY `encode(data)` returns `null` in error case.
+
 
 ## [2018-Q2] - 2018-06-29
 
@@ -212,7 +217,8 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q2...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q3...HEAD)
+- [2018-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q2...2018-Q3)
 - [2018-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q1...2018-Q2)
 - [2018-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...2018-Q1)
 - [2017-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...2017-Q4)

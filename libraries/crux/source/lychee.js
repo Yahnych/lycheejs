@@ -1388,13 +1388,23 @@ lychee = (function(global) {
 
 				let definition = this.environment.definitions[reference] || null;
 				if (definition !== null) {
-					return definition.export(sandbox);
+
+					let result = definition.export(sandbox);
+					if (result === true) {
+
+						let instance = _resolve_reference.call(sandbox, reference);
+						if (instance !== null) {
+							return instance;
+						}
+
+					}
+
 				}
 
 			}
 
 
-			return false;
+			return null;
 
 		},
 
@@ -1434,7 +1444,7 @@ lychee = (function(global) {
 
 
 				if (instance === null) {
-					console.info('lychee.deserialize: Require ' + (reference) + ' to import it.');
+					console.info('lychee.import: Require ' + (reference) + ' to import it.');
 				}
 
 
