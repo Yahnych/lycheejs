@@ -16,6 +16,10 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 		'\\': '\\\\'
 	};
 
+	const _format_date = function(n) {
+		return n < 10 ? '0' + n : '' + n;
+	};
+
 	const _desanitize_string = function(san) {
 
 		let str = san;
@@ -155,7 +159,7 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 		// "": String
 		} else if (typeof data === 'string') {
 
-			if (data.indexOf('\n') !== -1) {
+			if (data.includes('\n')) {
 
 				let lines = data.split('\n');
 				let first = _sanitize_string(lines[0]);
@@ -188,6 +192,20 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 
 			}
 
+		// 2021-12-31T11:12:13.123Z
+		} else if (data instanceof Date) {
+
+			let str = '';
+
+			str += data.getUTCFullYear()                + '-';
+			str += _format_date(data.getUTCMonth() + 1) + '-';
+			str += _format_date(data.getUTCDate())      + 'T';
+			str += _format_date(data.getUTCHours())     + ':';
+			str += _format_date(data.getUTCMinutes())   + ':';
+			str += _format_date(data.getUTCSeconds())   + 'Z';
+
+			stream.write(str);
+
 		// <index>:<value> Array
 		} else if (data instanceof Array) {
 
@@ -198,7 +216,7 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 
 				stream.write(indent + key + ': ');
 
-				if (val instanceof Array || val instanceof Object) {
+				if (val instanceof Array || (val instanceof Object && !(val instanceof Date))) {
 					stream.write('\n');
 				}
 
@@ -222,7 +240,7 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 
 				stream.write(indent + key + ': ');
 
-				if (val instanceof Array || val instanceof Object) {
+				if (val instanceof Array || (val instanceof Object && !(val instanceof Date))) {
 					stream.write('\n');
 				}
 
@@ -272,25 +290,36 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 			return _EOL;
 
 		} else if (chunk === 'null') {
+
 			return null;
 
 		} else if (chunk === 'undefined') {
+
 			return undefined;
 
 		} else if (chunk === 'false') {
+
 			return false;
 
 		} else if (chunk === 'true') {
+
 			return true;
 
 		} else if (chunk === 'Infinity') {
+
 			return Infinity;
 
 		} else if (chunk === '-Infinity') {
+
 			return -Infinity;
 
 		} else if (chunk === 'NaN') {
+
 			return NaN;
+
+		} else if (/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})?(Z|\.([0-9]{3})Z)$/g.test(chunk) === true) {
+
+			return new Date(chunk);
 
 		} else if (seek === '-' || isNaN(parseInt(seek, 10)) === false) {
 

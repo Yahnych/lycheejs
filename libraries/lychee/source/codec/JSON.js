@@ -16,6 +16,10 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 		'\\': '\\\\'
 	};
 
+	const _format_date = function(n) {
+		return n < 10 ? '0' + n : '' + n;
+	};
+
 	const _desanitize_string = function(san) {
 
 		let str = san;
@@ -217,6 +221,20 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 			stream.write('"');
 
 
+		// 2021-12-31T11:12:13.123Z
+		} else if (data instanceof Date) {
+
+			let str = '';
+
+			str += data.getUTCFullYear()                + '-';
+			str += _format_date(data.getUTCMonth() + 1) + '-';
+			str += _format_date(data.getUTCDate())      + 'T';
+			str += _format_date(data.getUTCHours())     + ':';
+			str += _format_date(data.getUTCMinutes())   + ':';
+			str += _format_date(data.getUTCSeconds())   + 'Z';
+
+			stream.write(str);
+
 		// []: Array
 		} else if (data instanceof Array) {
 
@@ -312,6 +330,17 @@ lychee.define('lychee.codec.JSON').exports(function(lychee, global, attachments)
 				stream.read(3);
 				value = NaN;
 
+			// 2021-12-31T11:12:13.123Z -> length is 24
+			// 2021-12-31T11:12:13Z     -> length is 20
+			} else if (stream.seek(20)[19] === 'Z' || stream.seek(24)[23] === 'Z') {
+
+				size  = stream.search([ 'Z' ]);
+				check = stream.seek(size + 1);
+
+				if (/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})?(Z|\.([0-9]{3})Z)$/g.test(check) === true) {
+					stream.read(size + 1);
+					value = new Date(check);
+				}
 
 			// 123, 12.3: Number
 			} else if (seek === '-' || isNaN(parseInt(seek, 10)) === false) {

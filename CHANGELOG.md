@@ -23,6 +23,7 @@ and `fixed`.
 ## [2018-Q3] - UNRELEASED
 
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Added: lychee.codec Stack supports Date.
 - Fixed: lychee.app.Entity `isAtPosition(position)` supports incremental coordinates.
 - Fixed: lychee.ui.Entity `isAtPosition(position)` supports incremental coordinates.
 - Fixed: lychee.codec.DIXY `encode(data)` returns `null` in error case.
