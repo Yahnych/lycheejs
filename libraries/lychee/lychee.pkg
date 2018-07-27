@@ -120,6 +120,9 @@
 				"DIXY": [
 					"json"
 				],
+				"INI": [
+					"json"
+				],
 				"JSON": [
 					"json"
 				]
@@ -722,10 +725,8 @@
 			"platform": {
 				"html": "platform/html",
 				"html-nwjs": "platform/html-nwjs",
-				"html-webview": "platform/html-webview",
 				"nidium": "platform/nidium",
-				"node": "platform/node",
-				"node-sdl": "platform/node-sdl"
+				"node": "platform/node"
 			}
 		},
 		"files": {
@@ -852,6 +853,9 @@
 					"js"
 				],
 				"DIXY": [
+					"js"
+				],
+				"INI": [
 					"js"
 				],
 				"JSON": [
@@ -1101,7 +1105,6 @@
 						}
 					}
 				},
-				"html-webview": {},
 				"nidium": {
 					"Input": [
 						"js"
@@ -1179,8 +1182,7 @@
 							]
 						}
 					}
-				},
-				"node-sdl": {}
+				}
 			},
 			"policy": {
 				"Alpha": [
