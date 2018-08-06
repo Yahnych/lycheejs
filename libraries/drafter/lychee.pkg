@@ -1,0 +1,58 @@
+{
+	"api": {
+		"files": {}
+	},
+	"build": {
+		"environments": {
+			"node/dist": {
+				"debug": false,
+				"packages": {
+					"drafter": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "drafter.Main",
+				"variant": "library"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"drafter": "./lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "drafter.Main",
+				"variant": "application"
+			}
+		},
+		"files": {}
+	},
+	"review": {
+		"simulations": {},
+		"files": {}
+	},
+	"source": {
+		"files": {
+			"flow": {
+				"Review": [
+					"js"
+				],
+				"Source": [
+					"js"
+				]
+			},
+			"Main": [
+				"js"
+			]
+		},
+		"tags": {}
+	}
+}

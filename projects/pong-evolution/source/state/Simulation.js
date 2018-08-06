@@ -28,7 +28,6 @@ lychee.define('game.state.Simulation').requires([
 
 
 		this.__evolution = new _Evolution({
-			history:    4,
 			population: 16
 		});
 
@@ -60,6 +59,7 @@ lychee.define('game.state.Simulation').requires([
 				let evolution  = this.__evolution;
 				let template   = this.getLayer('game-template');
 				let population = evolution.cycle();
+
 
 				console.log(population);
 

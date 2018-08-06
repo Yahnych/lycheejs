@@ -38,6 +38,7 @@ lychee.define('lychee.DIST').requires([
 	'lychee.codec.BENCODE',
 	'lychee.codec.BITON',
 	'lychee.codec.DIXY',
+	'lychee.codec.INI',
 	'lychee.codec.JSON',
 	'lychee.crypto.BLAKE2B',
 	'lychee.crypto.CRC32',
