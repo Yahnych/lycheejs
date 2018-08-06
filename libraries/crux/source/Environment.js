@@ -304,6 +304,37 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 	 * STRUCTS
 	 */
 
+	const _CRUX_CORE = [
+		'assignsafe',
+		'assignunlink',
+		'blobof',
+		'diff',
+		'enumof',
+		'interfaceof',
+		'deserialize',
+		'serialize',
+		'assimilate',
+		'define',
+		'export',
+		'import',
+		'init',
+		'inject',
+		'pkg',
+		'specify',
+		'setEnvironment',
+		'setSimulation'
+	];
+
+	const _CRUX_DEFINITIONS = [
+		'Asset',
+		'Debugger',
+		'Definition',
+		'Environment',
+		'Package',
+		'Simulation',
+		'Specification'
+	];
+
 	const _Sandbox = function(settings, platforms) {
 
 		settings  = settings instanceof Object ? settings  : null;
@@ -432,39 +463,13 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		this.lychee.ROOT.project = global.lychee.ROOT.project;
 		this.lychee.VERSION      = global.lychee.VERSION;
 
-		[
-			// core/lychee.js
-			'assignsafe',
-			'assignunlink',
-			'blobof',
-			'diff',
-			'enumof',
-			'interfaceof',
-			'deserialize',
-			'serialize',
 
-			'assimilate',
-			'define',
-			'import',
-			'init',
-			'inject',
-			'pkg',
-			'setEnvironment',
-			'setSimulation',
-
-			// core/<Identifier>.js
-			'Asset',
-			'Debugger',
-			'Definition',
-			'Environment',
-			'Package',
-			'Simulation',
-			'Specification'
-
-		].forEach(function(identifier) {
-
+		_CRUX_CORE.forEach(function(identifier) {
 			this.lychee[identifier] = _lychee[identifier];
+		}.bind(this));
 
+		_CRUX_DEFINITIONS.forEach(function(identifier) {
+			this.lychee[identifier] = _lychee[identifier];
 		}.bind(this));
 
 
@@ -789,6 +794,10 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 
 				let definition = this.definitions[identifier] || null;
 				if (definition !== null) {
+
+					return true;
+
+				} else if (pkg_id === 'lychee' && _CRUX_DEFINITIONS.includes(def_id) === true) {
 
 					return true;
 
