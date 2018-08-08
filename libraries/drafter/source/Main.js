@@ -8,6 +8,7 @@ lychee.define('drafter.Main').requires([
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');
+	const _flow    = lychee.import('drafter.flow');
 
 
 
@@ -72,7 +73,44 @@ lychee.define('drafter.Main').requires([
 
 		this.bind('init', function(project, action, identifier) {
 
-			console.log('INIT', project, action, identifier);
+			let flow = null;
+			let name = action.charAt(0).toUpperCase() + action.substr(1);
+
+			if (_flow[name] !== undefined) {
+
+				flow = new _flow[name]({
+					sandbox:  project,
+					settings: this.settings
+				});
+
+			}
+
+
+			if (flow !== null) {
+
+				flow.bind('complete', function() {
+
+					console.info('drafter: SUCCESS ("' + project + '")');
+
+					this.destroy(0);
+
+				}, this);
+
+				flow.bind('error', function(event) {
+
+					console.error('drafter: FAILURE ("' + project + '") at "' + event + '" event');
+
+					this.destroy(1);
+
+				}, this);
+
+
+				flow.init();
+
+			}
+
+
+			return true;
 
 		}, this, true);
 

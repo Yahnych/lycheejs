@@ -48,22 +48,125 @@ lychee.define('drafter.flow.Source').requires([
 
 		this.bind('read-package', function(oncomplete) {
 
-			let that    = this;
 			let sandbox = this.sandbox;
 
 			if (sandbox !== '') {
 
-				console.log(sandbox);
-				console.log(this.settings);
+				console.log('strainer: READ-PACKAGE ' + sandbox);
 
-				oncomplete(true);
+				if (sandbox !== '/libraries/lychee') {
 
-				// let pkg = new _Package({
-				// 	type: 'source'
-				// });
+					this.__packages['lychee'] = new _Package({
+						url:  '/libraries/lychee/lychee.pkg',
+						type: 'source'
+					});
+
+				}
+
+
+				let pkg = new _Package({
+					url:  sandbox + '/lychee.pkg',
+					type: 'source'
+				});
+
+
+				setTimeout(function() {
+					this.__packages[pkg.id] = pkg;
+					oncomplete(true);
+				}.bind(this), 200);
 
 			}
 
+		}, this);
+
+		this.bind('read-source', function(oncomplete) {
+
+			let identifier = this.settings.identifier || null;
+			if (identifier !== null) {
+
+				let tmp = identifier.split('.');
+				let pkg = this.__packages[tmp[0]] || null;
+				if (pkg !== null) {
+
+					let id     = tmp.slice(1).join('.');
+					let result = pkg.load(id);
+					if (result === true) {
+
+						setTimeout(function() {
+							oncomplete(true);
+						}, 100);
+
+					} else {
+
+						oncomplete(true);
+
+					}
+
+				} else {
+
+					oncomplete(false);
+
+				}
+
+			} else {
+
+				oncomplete(false);
+
+			}
+
+		}, this);
+
+		this.bind('read-includes', function(oncomplete) {
+
+			let identifier = this.settings.identifier;
+			let definition = lychee.environment.definitions[identifier] || null;
+			let stash      = this.stash;
+
+			if (definition !== null && stash !== null) {
+
+				let includes = definition._includes;
+				if (includes.length > 0) {
+
+					includes.map(function(identifier) {
+
+						let tmp = identifier.split('.');
+
+					});
+
+
+
+					stash.bind('batch', function(type, assets) {
+
+					}, this, true);
+
+					stash.batch('read', definition._includes.map(function(value) {
+
+					}));
+
+					console.log(definition);
+
+				} else {
+
+					oncomplete(true);
+
+				}
+
+			} else {
+
+				oncomplete(true);
+
+			}
+
+		}, this);
+
+		this.bind('trace-includes', function(oncomplete) {
+			// XXX: Trace API data of includes
+			oncomplete(true);
+		}, this);
+
+		this.bind('write-source', function(oncomplete) {
+			// XXX: Use strainer.transcribe(data)
+			oncomplete(true);
 		}, this);
 
 
@@ -73,8 +176,12 @@ lychee.define('drafter.flow.Source').requires([
 		 */
 
 		this.then('read-package');
+		this.then('read-source');
 
-		// this.then('write-source');
+		this.then('read-includes');
+		this.then('trace-includes');
+
+		this.then('write-source');
 
 
 	};
