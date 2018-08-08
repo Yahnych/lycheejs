@@ -472,9 +472,15 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		this.__warnings  = {};
 
 
-		// XXX: url has to be set first for fuzzing
-		this.setUrl(states.url);
-		this.setId(states.id);
+		let check = states.id || null;
+		if (check !== null && /^([a-z]+)$/g.test(check)) {
+			this.setId(states.id);
+			this.setUrl(states.url);
+		} else {
+			this.setUrl(states.url);
+			this.setId(states.id);
+		}
+
 
 		this.setEnvironment(states.environment);
 		this.setSimulation(states.simulation);
