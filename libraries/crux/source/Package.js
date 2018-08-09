@@ -38,7 +38,9 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		let root = this.root;
 		let type = this.type;
 
-		if (type === 'build') {
+		if (type === 'api') {
+			root += '/api';
+		} else if (type === 'build') {
 			root += '/build';
 		} else if (type === 'review') {
 			root += '/review';
@@ -69,6 +71,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		if (config !== null && path !== null) {
 
 			let pointer = config.buffer[this.type].files || null;
+
 			if (pointer !== null) {
 
 				for (let p = 0, pl = path.length; p < pl; p++) {
@@ -85,13 +88,12 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-
-			return pointer !== null ? true : false;
+			return pointer;
 
 		}
 
 
-		return false;
+		return null;
 
 	};
 
@@ -99,37 +101,19 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		let config      = this.config;
 		let attachments = {};
-		let path        = candidate.split('/');
 
-		if (config !== null && path.length > 0) {
+		if (config !== null) {
 
-			let pointer = config.buffer.source.files || null;
-			if (pointer !== null) {
+			let pointer = _resolve_path.call(this, candidate);
+			if (pointer !== null && pointer instanceof Array) {
 
-				for (let pa = 0, pal = path.length; pa < pal; pa++) {
+				let definition_path = _resolve_root.call(this) + '/' + candidate;
 
-					let name = path[pa];
-					if (pointer[name] !== undefined) {
-						pointer = pointer[name];
-					} else {
-						pointer = null;
-						break;
-					}
+				for (let po = 0, pol = pointer.length; po < pol; po++) {
 
-				}
-
-
-				if (pointer !== null && pointer instanceof Array) {
-
-					let definition_path = _resolve_root.call(this) + '/' + path.join('/');
-
-					for (let po = 0, pol = pointer.length; po < pol; po++) {
-
-						let type = pointer[po];
-						if (type !== 'js') {
-							attachments[type] = definition_path + '.' + type;
-						}
-
+					let type = pointer[po];
+					if (type !== 'js') {
+						attachments[type] = definition_path + '.' + type;
 					}
 
 				}
@@ -137,7 +121,6 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			}
 
 		}
-
 
 		return attachments;
 
@@ -158,7 +141,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 				return tags[tag].map(function(value) {
 					return _resolve_tag.call(that, tag, value) + '/' + candidatepath;
 				}).filter(function(path) {
-					return _resolve_path.call(that, path);
+					return _resolve_path.call(that, path) !== null;
 				});
 
 			}
@@ -189,7 +172,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		} else {
 
-			if (_resolve_path.call(this, candidatepath) === true) {
+			if (_resolve_path.call(this, candidatepath) !== null) {
 				candidates.push(candidatepath);
 			}
 
@@ -1197,7 +1180,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			if (type !== null) {
 
-				if (/^(build|review|source)$/g.test(type)) {
+				if (/^(api|build|review|source)$/g.test(type)) {
 
 					this.type = type;
 
