@@ -1,7 +1,7 @@
 
 lychee.define('strainer.flow.Check').requires([
+	'lychee.Package',
 	'lychee.Stash',
-	'lychee.event.Queue',
 	'strainer.api.PARSER',
 	'strainer.plugin.API',
 	'strainer.plugin.ESLINT'
@@ -14,7 +14,7 @@ lychee.define('strainer.flow.Check').requires([
 		ESLINT: lychee.import('strainer.plugin.ESLINT')
 	};
 	const _Flow      = lychee.import('lychee.event.Flow');
-	const _Queue     = lychee.import('lychee.event.Queue');
+	const _Package   = lychee.import('lychee.Package');
 	const _Stash     = lychee.import('lychee.Stash');
 	const _PARSER    = lychee.import('strainer.api.PARSER');
 	const _PLATFORMS = lychee.PLATFORMS;
@@ -27,65 +27,6 @@ lychee.define('strainer.flow.Check').requires([
 	/*
 	 * HELPERS
 	 */
-
-	const _resolve = function(identifier) {
-
-		let pointer   = this;
-		let namespace = identifier.split('.');
-		let id        = namespace.pop();
-
-		for (let n = 0, nl = namespace.length; n < nl; n++) {
-
-			let name = namespace[n];
-
-			if (pointer[name] === undefined) {
-				pointer[name] = {};
-			}
-
-			pointer = pointer[name];
-
-		}
-
-
-		let check = id.toLowerCase();
-		if (check === id) {
-
-			if (pointer[id] === undefined) {
-				pointer[id] = {};
-			}
-
-			return pointer[id];
-
-		} else {
-
-			if (pointer[id] !== undefined) {
-				return pointer[id];
-			}
-
-		}
-
-
-		return null;
-
-	};
-
-	const _walk_directory = function(files, node, path) {
-
-		if (node instanceof Array) {
-
-			if (node.includes('js')) {
-				files.push(path + '.js');
-			}
-
-		} else if (node instanceof Object) {
-
-			for (let child in node) {
-				_walk_directory(files, node[child], path + '/' + child);
-			}
-
-		}
-
-	};
 
 	const _trace_dependencies = function() {
 
@@ -350,151 +291,6 @@ lychee.define('strainer.flow.Check').requires([
 
 	};
 
-	const _package_files = function(json, type) {
-
-		let files = [];
-
-
-		if (json !== null) {
-
-			let root = json[type].files || null;
-			if (root !== null) {
-				_walk_directory(files, root, '');
-			}
-
-
-			files = files.map(function(value) {
-				return value.substr(1);
-			}).filter(function(value) {
-				return value.includes('__') === false;
-			}).sort();
-
-		}
-
-
-		return files;
-
-	};
-
-	const _render_statistics = function(id, statistics) {
-
-		let types = Object.keys(statistics);
-		if (types.length > 0) {
-
-			let is_valid = false;
-
-			types.forEach(function(type) {
-
-				let names = Object.keys(statistics[type]);
-				if (names.length > 0) {
-
-					// XXX: This will log the headline only when
-					// it contains an actual statistics report
-					if (is_valid === false) {
-						console.log('strainer: SIMULATE-REVIEWS of "' + id + '":');
-						is_valid = true;
-					}
-
-
-					names.forEach(function(name) {
-
-						let obj   = statistics[type][name];
-						let title = name;
-						if (type === 'enums') {
-							title = '#' + name;
-						} else if (type === 'events') {
-							title = '@' + name;
-						} else if (type === 'methods') {
-							title = name + '()';
-						}
-
-
-						let info  = title + ': ' + obj.results.ok + '/' + obj.results.all;
-
-						if (obj._expect > 0) {
-							info += ' (' + obj._expect + ' incomplete)';
-						}
-
-						if (obj.results.ok < obj.results.all || obj._expect > 0) {
-							console.error('strainer: \t' + info);
-						} else {
-							console.log('strainer: \t' + info);
-						}
-
-					});
-
-				}
-
-			});
-
-		}
-
-	};
-
-	const _simulate = function(settings, oncomplete) {
-
-		console.log('strainer: SIMULATE-REVIEWS "' + settings.id + '"');
-
-
-		let simulation = new lychee.Simulation(settings);
-
-
-		lychee.setEnvironment(settings.environment);
-		lychee.setSimulation(simulation);
-
-
-		lychee.init(simulation, {
-		}, function(sandboxes) {
-
-			let remaining      = 0;
-			let specifications = Object.keys(simulation.specifications);
-			if (specifications.length > 0) {
-
-				specifications.map(function(sid) {
-
-					return {
-						id:      sid,
-						sandbox: _resolve.call(sandboxes, sid)
-					};
-
-				}).filter(function(entry) {
-
-					let sandbox = entry.sandbox || null;
-					if (sandbox !== null && typeof sandbox.evaluate === 'function') {
-						return true;
-					}
-
-					return false;
-
-				}).forEach(function(entry) {
-
-					remaining++;
-
-					entry.sandbox.evaluate(function(statistics) {
-						_render_statistics(entry.id, statistics);
-						remaining--;
-					});
-
-				});
-
-				setInterval(function() {
-
-					if (remaining === 0) {
-						oncomplete(true);
-					}
-
-				}, 250);
-
-			} else {
-
-				oncomplete(true);
-
-			}
-
-		});
-
-	};
-
 
 
 	/*
@@ -516,9 +312,8 @@ lychee.define('strainer.flow.Check').requires([
 			type: _Stash.TYPE.persistent
 		});
 
-		this.__pkg         = null;
-		this.__packages    = {};
-		this.__simulations = [];
+		this.__namespace = null;
+		this.__packages  = {};
 
 
 		this.setSandbox(states.sandbox);
@@ -535,101 +330,213 @@ lychee.define('strainer.flow.Check').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('read-sources', function(oncomplete) {
+		this.bind('read-package', function(oncomplete) {
 
-			let that    = this;
-			let project = this.settings.project;
 			let sandbox = this.sandbox;
-			let stash   = this.stash;
+			if (sandbox !== '') {
 
-			if (sandbox !== '' && stash !== null) {
+				console.log('strainer: READ-PACKAGE ' + sandbox);
 
-				console.log('strainer: READ-SOURCES ' + project);
+				let pkg = new _Package({
+					url:  sandbox + '/lychee.pkg',
+					type: 'source'
+				});
 
-				this.__pkg        = new Config(sandbox + '/lychee.pkg');
-				this.__pkg.onload = function(result) {
+				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-					if (result === true) {
-
-						let sources = _package_files(this.buffer, 'source');
-						if (sources.length > 0) {
-
-							stash.bind('batch', function(type, assets) {
-
-								this.sources = assets.filter(function(asset) {
-									return asset !== null;
-								});
-
-								oncomplete(true);
-
-							}, that, true);
-
-							stash.batch('read', sources.map(function(value) {
-								return sandbox + '/source/' + value;
-							}));
-
-						} else {
-
-							oncomplete(true);
-
-						}
-
-					} else {
-
-						oncomplete(false);
-
-					}
-
-				};
-
-				this.__pkg.load();
-
-			} else {
-
-				oncomplete(false);
+				setTimeout(function() {
+					this.__namespace        = pkg.id;
+					this.__packages[pkg.id] = pkg;
+					oncomplete(true);
+				}.bind(this), 200);
 
 			}
 
 		}, this);
 
-		this.bind('read-reviews', function(oncomplete) {
+		this.bind('trace-package', function(oncomplete) {
 
-			let that    = this;
-			let project = this.settings.project;
-			let sandbox = this.sandbox;
-			let stash   = this.stash;
+			let errors    = this.errors;
+			let sandbox   = this.sandbox;
+			let namespace = this.__namespace;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && namespace !== null) {
 
-				console.log('strainer: READ-REVIEWS ' + project);
+				console.log('strainer: TRACE-PACKAGE ' + sandbox);
 
-				let reviews = _package_files(this.__pkg.buffer, 'review');
-				if (reviews.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
+				let pkg = this.__packages[namespace] || null;
+				if (pkg !== null) {
 
-						this.reviews = assets.filter(function(asset) {
-							return asset !== null;
+					pkg.setType('build');
+
+					let environments = pkg.getEnvironments();
+					if (environments.length > 0) {
+
+						environments.forEach(env => {
+
+							let pkgs = env.pkgs || null;
+							if (pkgs instanceof Array) {
+
+								errors.push({
+									url:     pkg.url,
+									rule:    'pkg-error',
+									line:    0,
+									column:  0,
+									message: 'Invalid settings for Environment "' + env.id + '" (Invalid packages).'
+								});
+
+							} else if (pkgs instanceof Object) {
+
+								for (let ns in pkgs) {
+
+									let url = pkgs[ns];
+									if (url === './lychee.pkg') {
+										url = sandbox + '/lychee.pkg';
+									}
+
+									if (pkgs[ns] === undefined) {
+
+										console.log('strainer: -> Mapping ' + url + ' as "' + ns + '"');
+
+										this.__packages[ns] = new _Package({
+											id:  ns,
+											url: url
+										});
+
+									} else if (this.__packages[ns].url !== url) {
+
+										errors.push({
+											url:     pkg.url,
+											rule:    'pkg-error',
+											line:    0,
+											column:  0,
+											message: 'Invalid settings for Package "' + ns + '" in Environment "' + env.id + '" (Invalid url).'
+										});
+
+									}
+
+								}
+
+							}
+
 						});
 
-						oncomplete(true);
+					}
 
-					}, that, true);
+					if (this.__packages['lychee'] === undefined) {
 
-					stash.batch('read', reviews.map(function(value) {
-						return sandbox + '/review/' + value;
-					}));
+						console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
 
-				} else {
+						this.__packages['lychee'] = new _Package({
+							id:  'lychee',
+							url: '/libraries/lychee/lychee.pkg'
+						});
 
-					oncomplete(true);
+					}
+
+					pkg.setType('source');
+
+
+					let interval_end = Date.now() + 1000;
+					let interval_id  = setInterval(_ => {
+
+						let all_ready = true;
+
+						for (let ns in this.__packages) {
+
+							let pkg = this.__packages[ns];
+							if (pkg.config === null) {
+								all_ready = false;
+								break;
+							}
+
+						}
+
+						if (all_ready === true) {
+
+							clearInterval(interval_id);
+							oncomplete(true);
+
+						} else if (Date.now() > interval_end) {
+
+							for (let ns in this.__packages) {
+
+								let pkg = this.__packages[ns];
+								if (pkg.config === null) {
+
+									errors.push({
+										url:     pkg.url,
+										rule:    'pkg-error',
+										line:    0,
+										column:  0,
+										message: 'Invalid Package "' + ns + '".'
+									});
+
+								}
+
+							}
+
+							clearInterval(interval_id);
+							oncomplete(true);
+
+						}
+
+					}, 100);
 
 				}
 
 			} else {
-
 				oncomplete(false);
+			}
 
+		}, this);
+
+
+
+		/*
+		 * SOURCES
+		 */
+
+		this.bind('read-sources', function(oncomplete) {
+
+			let sandbox   = this.sandbox;
+			let stash     = this.stash;
+			let namespace = this.__namespace;
+
+			if (sandbox !== '' && stash !== null && namespace !== null) {
+
+				console.log('strainer: READ-SOURCES ' + sandbox);
+
+
+				let pkg = this.__packages[namespace] || null;
+				if (pkg !== null) {
+
+					let sources = pkg.getFiles().filter(function(url) {
+						return url.endsWith('.js');
+					});
+
+					if (sources.length > 0) {
+
+						stash.bind('batch', function(type, assets) {
+							this.sources = assets.filter(asset => asset !== null);
+							oncomplete(true);
+						}, this, true);
+
+						stash.batch('read', sources.map(function(url) {
+							return sandbox + '/source/' + url;
+						}));
+
+					} else {
+						oncomplete(true);
+					}
+
+				} else {
+					oncomplete(false);
+				}
+
+			} else {
+				oncomplete(false);
 			}
 
 		}, this);
@@ -638,20 +545,20 @@ lychee.define('strainer.flow.Check').requires([
 
 			let eslint  = _plugin.ESLINT || null;
 			let errors  = this.errors;
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 
-			if (eslint !== null) {
+			if (eslint !== null && sandbox !== '') {
 
-				console.log('strainer: LINT-SOURCES ' + project);
+				console.log('strainer: LINT-SOURCES ' + sandbox);
 
-				this.sources.forEach(function(asset) {
+				this.sources.forEach(asset => {
 
 					let eslint_report  = _plugin.ESLINT.check(asset);
 					let eslint_unfixed = _plugin.ESLINT.fix(asset, eslint_report);
 
 					if (eslint_unfixed.length > 0) {
 
-						eslint_unfixed.map(function(err) {
+						eslint_unfixed.map(err => {
 
 							return {
 								url:     asset.url,
@@ -661,11 +568,7 @@ lychee.define('strainer.flow.Check').requires([
 								message: err.message || ''
 							};
 
-						}).forEach(function(err) {
-
-							errors.push(err);
-
-						});
+						}).forEach(err => errors.push(err));
 
 					}
 
@@ -675,57 +578,7 @@ lychee.define('strainer.flow.Check').requires([
 				oncomplete(true);
 
 			} else {
-
 				oncomplete(false);
-
-			}
-
-		}, this);
-
-		this.bind('lint-reviews', function(oncomplete) {
-
-			let eslint  = _plugin.ESLINT || null;
-			let errors  = this.errors;
-			let project = this.settings.project;
-
-			if (eslint !== null) {
-
-				console.log('strainer: LINT-REVIEWS ' + project);
-
-				this.reviews.forEach(function(asset) {
-
-					let eslint_report  = _plugin.ESLINT.check(asset);
-					let eslint_unfixed = _plugin.ESLINT.fix(asset, eslint_report);
-
-					if (eslint_unfixed.length > 0) {
-
-						eslint_unfixed.map(function(err) {
-
-							return {
-								url:     asset.url,
-								rule:    err.ruleId  || 'parser-error',
-								line:    err.line    || 0,
-								column:  err.column  || 0,
-								message: err.message || ''
-							};
-
-						}).forEach(function(err) {
-
-							errors.push(err);
-
-						});
-
-					}
-
-				});
-
-
-				oncomplete(true);
-
-			} else {
-
-				oncomplete(false);
-
 			}
 
 		}, this);
@@ -734,11 +587,11 @@ lychee.define('strainer.flow.Check').requires([
 
 			let api     = _plugin.API || null;
 			let errors  = this.errors;
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 
-			if (api !== null) {
+			if (api !== null && sandbox !== '') {
 
-				console.log('strainer: CHECK-SOURCES ' + project);
+				console.log('strainer: CHECK-SOURCES ' + sandbox);
 
 
 				this.configs = this.sources.map(function(asset) {
@@ -796,9 +649,98 @@ lychee.define('strainer.flow.Check').requires([
 				oncomplete(true);
 
 			} else {
-
 				oncomplete(false);
+			}
 
+		}, this);
+
+
+
+		/*
+		 * REVIEWS
+		 */
+
+		this.bind('read-reviews', function(oncomplete) {
+
+			let sandbox   = this.sandbox;
+			let stash     = this.stash;
+			let namespace = this.__namespace;
+
+			if (sandbox !== '' && stash !== null) {
+
+				console.log('strainer: READ-REVIEWS ' + sandbox);
+
+
+				let pkg = this.__packages[namespace] || null;
+				if (pkg !== null) {
+
+					pkg.setType('review');
+
+					let reviews = pkg.getFiles().filter(function(url) {
+						return url.endsWith('.json');
+					});
+
+					if (reviews.length > 0) {
+
+						stash.bind('batch', function(type, assets) {
+							this.reviews = assets.filter(asset => asset !== null);
+							oncomplete(true);
+						}, this, true);
+
+					} else {
+						oncomplete(true);
+					}
+
+					pkg.setType('source');
+
+				} else {
+					oncomplete(false);
+				}
+
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
+
+		this.bind('lint-reviews', function(oncomplete) {
+
+			let eslint  = _plugin.ESLINT || null;
+			let errors  = this.errors;
+			let sandbox = this.sandbox;
+
+			if (eslint !== null && sandbox !== '') {
+
+				console.log('strainer: LINT-REVIEWS ' + sandbox);
+
+				this.reviews.forEach(asset => {
+
+					let eslint_report  = _plugin.ESLINT.check(asset);
+					let eslint_unfixed = _plugin.ESLINT.fix(asset, eslint_report);
+
+					if (eslint_unfixed.length > 0) {
+
+						eslint_unfixed.map(err => {
+
+							return {
+								url:     asset.url,
+								rule:    err.ruleId  || 'parser-error',
+								line:    err.line    || 0,
+								column:  err.column  || 0,
+								message: err.message || ''
+							};
+
+						}).forEach(err => errors.push(err));
+
+					}
+
+				});
+
+
+				oncomplete(true);
+
+			} else {
+				oncomplete(false);
 			}
 
 		}, this);
@@ -808,11 +750,11 @@ lychee.define('strainer.flow.Check').requires([
 			let api     = _plugin.API || null;
 			let configs = this.configs;
 			let errors  = this.errors;
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 
-			if (api !== null) {
+			if (api !== null && sandbox !== '') {
 
-				console.log('strainer: CHECK-REVIEWS ' + project);
+				console.log('strainer: CHECK-REVIEWS ' + sandbox);
 
 				this.reviews.map(function(asset) {
 
@@ -865,159 +807,36 @@ lychee.define('strainer.flow.Check').requires([
 
 		}, this);
 
-		this.bind('trace-package', function(oncomplete) {
-
-			let errors  = this.errors;
-			let pkg     = this.__pkg;
-			let project = this.settings.project;
-			let sandbox = this.sandbox;
-
-			if (pkg !== null) {
-
-				console.log('strainer: TRACE-PACKAGE ' + project);
 
 
-				let packages     = this.__packages;
-				let environments = pkg.buffer.build.environments || null;
-				if (environments !== null) {
-
-					for (let id in environments) {
-
-						let pkgs = environments[id].packages || null;
-						if (pkgs instanceof Array) {
-
-							errors.push({
-								url:     pkg.url,
-								rule:    'pkg-error',
-								line:    0,
-								column:  0,
-								message: 'Invalid settings for Environment "' + id + '" (Invalid packages).'
-							});
-
-						} else if (pkgs instanceof Object) {
-
-							for (let ns in pkgs) {
-
-								let url = pkgs[ns];
-								if (url === './lychee.pkg') {
-									url = sandbox + '/lychee.pkg';
-								}
-
-
-								if (packages[ns] === undefined) {
-
-									packages[ns] = new lychee.Package({
-										id:  ns,
-										url: url
-									});
-
-								} else if (packages[ns].url !== url) {
-
-									errors.push({
-										url:     pkg.url,
-										rule:    'pkg-error',
-										line:    0,
-										column:  0,
-										message: 'Invalid settings for Package "' + ns + '" in Environment "' + id + '" (Invalid url).'
-									});
-
-								}
-
-							}
-
-						}
-
-					}
-
-				}
-
-
-				if (packages['lychee'] === undefined) {
-					packages['lychee'] = new lychee.Package({
-						id:  'lychee',
-						url: '/libraries/lychee/lychee.pkg'
-					});
-				}
-
-
-				let interval_end = Date.now() + 1000;
-				let interval_id  = setInterval(function() {
-
-					let all_ready = true;
-
-					for (let ns in packages) {
-
-						let pkg = packages[ns];
-						if (pkg.config === null) {
-							all_ready = false;
-							break;
-						}
-
-					}
-
-
-					if (all_ready === true) {
-
-						clearInterval(interval_id);
-						oncomplete(true);
-
-					} else if (Date.now() > interval_end) {
-
-						for (let ns in packages) {
-
-							let pkg = packages[ns];
-							if (pkg.config === null) {
-
-								errors.push({
-									url:     pkg.url,
-									rule:    'pkg-error',
-									line:    0,
-									column:  0,
-									message: 'Invalid Package "' + ns + '".'
-								});
-
-							}
-
-						}
-
-						clearInterval(interval_id);
-						oncomplete(true);
-
-					}
-
-				}, 100);
-
-			} else {
-
-				oncomplete(false);
-
-			}
-
-		}, this);
-
+		/*
+		 * INCLUDES
+		 */
 
 		this.bind('trace-includes', function(oncomplete) {
 
 			let packages = this.__packages;
-			let project  = this.settings.project;
+			let sandbox  = this.sandbox;
 			let stash    = this.stash;
 
-			if (stash !== null) {
+			if (sandbox !== '' && stash !== null) {
 
 				let dependencies = _trace_dependencies.call(this);
 				if (dependencies.length > 0) {
 
-					console.log('strainer: TRACE-INCLUDES ' + project + ' (' + dependencies.length + ')');
+					console.log('strainer: TRACE-INCLUDES ' + sandbox + ' (' + dependencies.length + ')');
 
 
 					let candidates = [];
 
-					dependencies.forEach(function(identifier) {
+					dependencies.forEach(identifier => {
 
 						let ns  = identifier.split('.')[0];
 						let id  = identifier.split('.').slice(1).join('.');
 						let pkg = packages[ns] || null;
 						if (pkg !== null) {
+
+							console.log('strainer: -> Tracing ' + identifier + ' in "' + ns + '"');
 
 							let prefix = pkg.url.split('/').slice(0, -1).join('/');
 							let found  = false;
@@ -1048,7 +867,6 @@ lychee.define('strainer.flow.Check').requires([
 						}
 
 					});
-
 
 					if (candidates.length > 0) {
 
@@ -1086,35 +904,29 @@ lychee.define('strainer.flow.Check').requires([
 						stash.batch('read', candidates);
 
 					} else {
-
 						oncomplete(true);
-
 					}
 
 				} else {
-
 					oncomplete(true);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);
 
-		this.bind('trace-configs', function(oncomplete) {
+		this.bind('learn-includes', function(oncomplete) {
 
 			let that    = this;
 			let errors  = this.errors;
 			let configs = this.configs;
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 
-			if (configs.length > 0) {
+			if (configs.length > 0 && sandbox !== '') {
 
-				console.log('strainer: TRACE-CONFIGS ' + project);
+				console.log('strainer: LEARN-INCLUDES ' + sandbox);
 
 
 				configs.filter(function(config) {
@@ -1232,87 +1044,23 @@ lychee.define('strainer.flow.Check').requires([
 		this.bind('clean-includes', function(oncomplete) {
 
 			let configs = this.configs;
-			let project = this.settings.project;
 			let sandbox = this.sandbox;
 
+			if (configs.length > 0 && sandbox !== '') {
 
-			let cleaned_includes = 0;
+				let cleaned_includes = 0;
 
-			for (let c = 0, cl = configs.length; c < cl; c++) {
+				for (let c = 0, cl = configs.length; c < cl; c++) {
 
-				let config = configs[c];
-				if (config !== null) {
+					let config = configs[c];
+					if (config !== null) {
 
-					if (config.url.startsWith(sandbox) === false) {
+						if (config.url.startsWith(sandbox) === false) {
 
-						cleaned_includes++;
-						configs.splice(c, 1);
-						cl--;
-						c--;
-
-					}
-
-				}
-
-			}
-
-			console.log('strainer: CLEAN-INCLUDES ' + project + ' (' + cleaned_includes + ')');
-
-
-			oncomplete(true);
-
-		}, this);
-
-		this.bind('simulate-reviews', function(oncomplete) {
-
-			let cache   = this.__simulations;
-			let pkg     = this.__pkg;
-			let project = this.settings.project;
-			let sandbox = this.sandbox;
-
-			if (pkg !== null) {
-
-				console.log('strainer: SIMULATE-REVIEWS ' + project);
-
-
-				let simulations = pkg.buffer.review.simulations || null;
-				if (simulations !== null) {
-
-					for (let id in simulations) {
-
-						let raw      = simulations[id];
-						let settings = {
-							id: id
-						};
-
-
-						let env = raw.environment || null;
-						if (env !== null) {
-
-							let pkgs = raw.environment.packages;
-							if (pkgs instanceof Object) {
-
-								for (let ns in pkgs) {
-
-									let url = pkgs[ns];
-									if (url === './lychee.pkg') {
-										url = sandbox + '/lychee.pkg';
-									}
-
-									pkgs[ns] = url;
-
-								}
-
-							}
-
-
-							settings.environment = new lychee.Environment(raw.environment);
-
-							let target = raw.target || null;
-							if (target !== null) {
-								settings.target = target;
-								cache.push(settings);
-							}
+							cleaned_includes++;
+							configs.splice(c, 1);
+							cl--;
+							c--;
 
 						}
 
@@ -1320,56 +1068,29 @@ lychee.define('strainer.flow.Check').requires([
 
 				}
 
-			}
-
-
-			if (cache.length > 0) {
-
-				let env   = lychee.environment;
-				let queue = new _Queue();
-
-				queue.bind('update', _simulate, this);
-
-				queue.bind('complete', function() {
-
-					lychee.setEnvironment(env);
-					lychee.setSimulation(null);
-
-					oncomplete(true);
-
-				}, this);
-
-				queue.bind('error', function() {
-
-					lychee.setEnvironment(env);
-					lychee.setSimulation(null);
-
-					oncomplete(true);
-
-				}, this);
-
-				cache.forEach(function(entry) {
-					queue.then(entry);
-				});
-
-				queue.init();
-
-			} else {
-
-				oncomplete(true);
+				console.log('strainer: CLEAN-INCLUDES ' + sandbox + ' (' + cleaned_includes + ')');
 
 			}
+
+
+			oncomplete(true);
 
 		}, this);
 
+
+
+		/*
+		 * WRITE
+		 */
+
 		this.bind('write-sources', function(oncomplete) {
 
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (project !== null && stash !== null) {
+			if (sandbox !== null && stash !== null) {
 
-				console.log('strainer: WRITE-SOURCES ' + project);
+				console.log('strainer: WRITE-SOURCES ' + sandbox);
 
 
 				let sources = this.sources.filter(function(code, c) {
@@ -1393,27 +1114,23 @@ lychee.define('strainer.flow.Check').requires([
 					}), sources);
 
 				} else {
-
 					oncomplete(true);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);
 
 		this.bind('write-reviews', function(oncomplete) {
 
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (project !== null && stash !== null) {
+			if (sandbox !== null && stash !== null) {
 
-				console.log('strainer: WRITE-REVIEWS ' + project);
+				console.log('strainer: WRITE-REVIEWS ' + sandbox);
 
 
 				let reviews = this.reviews.filter(function(code, c) {
@@ -1437,27 +1154,23 @@ lychee.define('strainer.flow.Check').requires([
 					}), reviews);
 
 				} else {
-
 					oncomplete(true);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);
 
 		this.bind('write-configs', function(oncomplete) {
 
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (project !== null && stash !== null) {
+			if (sandbox !== null && stash !== null) {
 
-				console.log('strainer: WRITE-CONFIGS ' + project);
+				console.log('strainer: WRITE-CONFIGS ' + sandbox);
 
 
 				let configs = this.configs.filter(function(config) {
@@ -1481,27 +1194,23 @@ lychee.define('strainer.flow.Check').requires([
 					}), configs);
 
 				} else {
-
 					oncomplete(true);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);
 
 		this.bind('write-package', function(oncomplete) {
 
-			let project = this.settings.project;
+			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (project !== null && stash !== null) {
+			if (sandbox !== null && stash !== null) {
 
-				console.log('strainer: WRITE-PACKAGE ' + project);
+				console.log('strainer: WRITE-PACKAGE ' + sandbox);
 
 
 				let configs = this.configs.filter(function(config) {
@@ -1511,7 +1220,7 @@ lychee.define('strainer.flow.Check').requires([
 
 				if (configs.length > 0) {
 
-					let index = stash.read(project + '/api/strainer.pkg');
+					let index = stash.read(sandbox + '/api/strainer.pkg');
 
 					index.onload = function(result) {
 
@@ -1563,15 +1272,11 @@ lychee.define('strainer.flow.Check').requires([
 					index.load();
 
 				} else {
-
 					oncomplete(true);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);
@@ -1582,21 +1287,20 @@ lychee.define('strainer.flow.Check').requires([
 		 * FLOW
 		 */
 
+		this.then('read-package');
+		this.then('trace-package');
+
 		this.then('read-sources');
-		this.then('read-reviews');
-
 		this.then('lint-sources');
-		this.then('lint-reviews');
-
 		this.then('check-sources');
+
+		this.then('read-reviews');
+		this.then('lint-reviews');
 		this.then('check-reviews');
 
-		this.then('trace-package');
 		this.then('trace-includes');
-		this.then('trace-configs');
+		this.then('learn-includes');
 		this.then('clean-includes');
-
-		this.then('simulate-reviews');
 
 		this.then('write-sources');
 		this.then('write-reviews');

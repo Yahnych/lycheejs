@@ -14,7 +14,7 @@ const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
 const _print_autocomplete = function(action, project, flag) {
 
-	let actions   = [ 'check', 'transcribe' ];
+	let actions   = [ 'check', 'simulate', 'transcribe' ];
 	let flags     = [ '--debug' ];
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
@@ -73,7 +73,7 @@ const _print_help = function() {
 	console.log('                                                            ');
 	console.log('Available Actions:                                          ');
 	console.log('                                                            ');
-	console.log('    check, transcribe                                       ');
+	console.log('    check, simulate, transcribe                             ');
 	console.log('                                                            ');
 	console.log('Available Libraries:                                        ');
 	console.log('                                                            ');
@@ -96,6 +96,7 @@ const _print_help = function() {
 	console.log('Examples:                                                   ');
 	console.log('                                                            ');
 	console.log('    lycheejs-strainer check /libraries/lychee;              ');
+	console.log('    lycheejs-strainer simulate /libraries/lychee;           ');
 	console.log('                                                            ');
 	console.log('    lycheejs-strainer transcribe /projects/pong /tmp/target;');
 	console.log('    lycheejs-strainer transcribe /tmp/source /projects/pong;');

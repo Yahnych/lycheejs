@@ -22,8 +22,10 @@ and `fixed`.
 
 ## [2018-Q3] - UNRELEASED
 
+- **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
+- **Added**: lychee.Package supports `getEnvironments(tags)` and `getSimulations(tags)`.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
-- Added: lychee.codec Stack supports Date.
+- Added: lychee.codec Stack supports `Date` data type.
 - Added: lychee.codec.INI supports INI format with JSON-compatible data types.
 - Fixed: lychee.Environment supports `requires()` and `includes()` of lychee.js Crux identifiers.
 - Fixed: lychee.app.Entity `isAtPosition(position)` supports incremental coordinates.

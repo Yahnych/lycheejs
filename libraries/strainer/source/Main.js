@@ -1,6 +1,7 @@
 
 lychee.define('strainer.Main').requires([
 	'strainer.flow.Check',
+	'strainer.flow.Simulate',
 	'strainer.flow.Transcribe'
 ]).includes([
 	'lychee.event.Emitter'

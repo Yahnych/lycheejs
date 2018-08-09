@@ -268,6 +268,114 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 	};
 
+	const _sort_by_tag = function(a, b) {
+
+		let rank_a = 0;
+		let rank_b = 0;
+
+		let check_a = a.includes('-');
+		let check_b = b.includes('-');
+
+		if (check_a && check_b) {
+
+			let tmp_a = a.split('-');
+			let tmp_b = b.split('-');
+
+			if (tmp_a[0] > tmp_b[0]) rank_a += 3;
+			if (tmp_b[0] > tmp_a[0]) rank_b += 3;
+
+			if (tmp_a[0] === tmp_b[0]) {
+				if (tmp_a[1] > tmp_b[1]) rank_a += 1;
+				if (tmp_b[1] > tmp_a[1]) rank_b += 1;
+			}
+
+		} else if (check_a && !check_b) {
+
+			let tmp_a = a.split('-');
+
+			if (tmp_a[0] > b)   rank_a += 3;
+			if (b > tmp_a[0])   rank_b += 3;
+			if (tmp_a[0] === b) rank_b += 1;
+
+		} else if (!check_a && check_b) {
+
+			let tmp_b = b.split('-');
+
+			if (a > tmp_b[0])   rank_a += 3;
+			if (tmp_b[0] > a)   rank_b += 3;
+			if (a === tmp_b[0]) rank_a += 1;
+
+		} else {
+
+			if (a > b) rank_a += 3;
+			if (b > a) rank_b += 3;
+
+		}
+
+		if (rank_a > rank_b) return  1;
+		if (rank_b > rank_a) return -1;
+		return 0;
+
+	};
+
+	const _validate_env_tags = function(source_tags, target_tags) {
+
+		for (let tag in source_tags) {
+
+			let source_value = source_tags[tag];
+			let target_value = target_tags[tag] || null;
+			if (target_value !== null) {
+
+				if (source_value instanceof Array && target_value instanceof Array) {
+
+					let valid = true;
+
+					for (let t = 0, tl = target_value.length; t < tl; t++) {
+
+						let check = source_value.includes(target_value[t]);
+						if (check === false) {
+							valid = false;
+							break;
+						}
+
+					}
+
+					if (valid === false) {
+						return false;
+					}
+
+				} else if (source_value instanceof Array && typeof target_value === 'string') {
+
+					let check = source_value.includes(target_value);
+					if (check === false) {
+						return false;
+					}
+
+				} else if (typeof source_value === 'string' && typeof target_value === 'string') {
+
+					let check = source_value === target_value;
+					if (check === false) {
+						return false;
+					}
+
+				} else if (typeof source_value === 'string' && target_value instanceof Array) {
+
+					let check = target_value.includes(source_value);
+					if (check === false) {
+						return false;
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return true;
+
+	};
+
 	const _load_candidate = function(id, candidates) {
 
 		if (candidates.length > 0) {
@@ -692,6 +800,58 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		},
 
+		getEnvironments: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let type         = this.type;
+					let environments = buffer[type].environments || null;
+
+					if (environments !== null) {
+
+						for (let id in environments) {
+
+							let environment = lychee.assignunlink({
+								id: id
+							}, environments[id]);
+
+
+							if (tags !== null) {
+
+								let valid = _validate_env_tags(environment.tags || {}, tags);
+								if (valid === true) {
+									filtered.push(environment);
+								}
+
+							} else {
+
+								filtered.push(environment);
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			return filtered.sort(function(a, b) {
+				return _sort_by_tag(a.id, b.id);
+			});
+
+		},
+
 		getFiles: function(tags) {
 
 			tags = tags instanceof Object ? tags : null;
@@ -766,6 +926,59 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			}
 
 			return filtered.sort();
+
+		},
+
+		getSimulations: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let type        = this.type;
+					let simulations = buffer[type].simulations || null;
+
+					if (simulations !== null) {
+
+						for (let id in simulations) {
+
+							let simulation = lychee.assignunlink({
+								id: id
+							}, simulations[id]);
+
+
+							let environment = simulation.environment || null;
+							if (environment instanceof Object && tags !== null) {
+
+								let valid = _validate_env_tags(environment.tags || {}, tags);
+								if (valid === true) {
+									filtered.push(simulation);
+								}
+
+							} else {
+
+								filtered.push(simulation);
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			return filtered.sort(function(a, b) {
+				return _sort_by_tag(a.id, b.id);
+			});
 
 		},
 
@@ -870,7 +1083,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					return true;
 
-				} else {
+				} else if (id !== null) {
 
 					console.error('lychee.Package: Invalid Identifier "' + id + '" (' + this.url + ')');
 

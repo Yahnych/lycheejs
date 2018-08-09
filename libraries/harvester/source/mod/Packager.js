@@ -161,11 +161,55 @@ lychee.define('harvester.mod.Packager').requires([
 
 			if (name === 'platform') {
 
-				// XXX: platform: [ 'html-webview', 'html' ] is wanted
+				// XXX: platform: [ 'html-webview', 'html', 'node-sdl', 'node' ]
 				return obj.sort(function(a, b) {
-					if (a.includes('-') && !b.includes('-')) return -1;
-					if (b.includes('-') && !a.includes('-')) return  1;
+
+					let rank_a = 0;
+					let rank_b = 0;
+
+					let check_a = a.includes('-');
+					let check_b = b.includes('-');
+
+					if (check_a && check_b) {
+
+						let tmp_a = a.split('-');
+						let tmp_b = b.split('-');
+
+						if (tmp_a[0] > tmp_b[0]) rank_a += 3;
+						if (tmp_b[0] > tmp_a[0]) rank_b += 3;
+
+						if (tmp_a[0] === tmp_b[0]) {
+							if (tmp_a[1] > tmp_b[1]) rank_a += 1;
+							if (tmp_b[1] > tmp_a[1]) rank_b += 1;
+						}
+
+					} else if (check_a && !check_b) {
+
+						let tmp_a = a.split('-');
+
+						if (tmp_a[0] > b)   rank_a += 3;
+						if (b > tmp_a[0])   rank_b += 3;
+						if (tmp_a[0] === b) rank_b += 1;
+
+					} else if (!check_a && check_b) {
+
+						let tmp_b = b.split('-');
+
+						if (a > tmp_b[0])   rank_a += 3;
+						if (tmp_b[0] > a)   rank_b += 3;
+						if (a === tmp_b[0]) rank_a += 1;
+
+					} else {
+
+						if (a > b) rank_a += 3;
+						if (b > a) rank_b += 3;
+
+					}
+
+					if (rank_a > rank_b) return  1;
+					if (rank_b > rank_a) return -1;
 					return 0;
+
 				});
 
 			} else {

@@ -100,62 +100,45 @@ lychee.define('strainer.Fixer').requires([
 
 			flow.unbind('read-sources');
 			flow.unbind('read-reviews');
-			flow.unbind('simulate-reviews');
 
 			flow.bind('read-sources', function(oncomplete) {
 
-				let file    = this.settings.file;
-				let project = this.settings.project;
-				let sandbox = this.sandbox;
-				let stash   = this.stash;
+				let file      = this.settings.file;
+				let sandbox   = this.sandbox;
+				let stash     = this.stash;
+				let namespace = this.__namespace;
 
-				if (sandbox !== '' && stash !== null) {
+				if (sandbox !== '' && stash !== null && namespace !== null) {
 
-					console.log('strainer: READ-SOURCES ' + project);
-
-
-					let that  = this;
-					let asset = new Stuff(sandbox + '/' + file, true);
+					console.log('strainer: READ-SOURCES ' + sandbox);
 
 
-					this.__pkg        = new Config(sandbox + '/lychee.pkg');
-					this.__pkg.onload = function(result) {
+					let pkg = this.__packages[namespace] || null;
+					if (pkg !== null) {
 
-						if (result === true) {
+						let source = new Stuff(sandbox + '/' + file, true);
 
-							asset.onload = function(result) {
+						source.onload = function(result) {
 
-								if (result === true) {
+							if (result === true) {
+								this.sources = [ source ];
+								oncomplete(true);
+							} else {
+								oncomplete(false);
+							}
 
-									that.sources = [ asset ];
-									oncomplete(true);
+						}.bind(this);
 
-								} else {
+						source.load();
 
-									oncomplete(false);
 
-								}
-
-							};
-
-							asset.load();
-
-						} else {
-
-							oncomplete(false);
-
-						}
-
-					};
-
-					this.__pkg.load();
+					} else {
+						oncomplete(false);
+					}
 
 				} else {
-
 					oncomplete(false);
-
 				}
-
 
 			}, flow);
 
@@ -214,10 +197,6 @@ lychee.define('strainer.Fixer').requires([
 			}, this);
 
 			flow.bind('read-reviews', function(oncomplete) {
-				oncomplete(true);
-			}, flow);
-
-			flow.bind('simulate-reviews', function(oncomplete) {
 				oncomplete(true);
 			}, flow);
 

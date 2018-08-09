@@ -269,9 +269,10 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 		this.setId(states.id);
 		this.setSpecifications(states.specifications);
 		this.setEnvironment(states.environment);
-
-		this.setTarget(states.target);
 		this.setTimeout(states.timeout);
+
+		// Needs this.__packages to be ready
+		this.setTarget(states.target);
 
 
 		states = null;
@@ -280,6 +281,10 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 
 	Composite.prototype = {
+
+		/*
+		 * ENTITY API
+		 */
 
 		deserialize: function(blob) {
 
@@ -326,6 +331,12 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 			};
 
 		},
+
+
+
+		/*
+		 * CUSTOM API
+		 */
 
 		load: function(identifier) {
 
