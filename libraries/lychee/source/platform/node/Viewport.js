@@ -92,10 +92,26 @@ lychee.define('lychee.Viewport').tags({
 
 		if (width > height) {
 
+			/*  ___________
+			 * |           |
+			 * |           |
+			 * |           |
+			 * |_[X][X][X]_|
+			 */
+
 			orientation = 'landscape';
 			rotation    = 'landscape';
 
 		} else {
+
+			/*  _______
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * [X][X][X]
+			 */
 
 			orientation = 'landscape';
 			rotation    = 'landscape';
