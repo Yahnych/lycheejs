@@ -23,6 +23,7 @@ lychee.define('strainer.Main').requires([
 			action:  null,
 			cwd:     lychee.ROOT.lychee,
 			debug:   false,
+			library: null,
 			project: null
 		}, states);
 
