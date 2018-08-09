@@ -1,16 +1,20 @@
 
 lychee.define('strainer.flow.Simulate').requires([
+	'lychee.Environment',
 	'lychee.Package',
+	'lychee.Simulation',
 	'lychee.Stash',
 	'lychee.event.Queue'
 ]).includes([
 	'lychee.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Flow    = lychee.import('lychee.event.Flow');
-	const _Package = lychee.import('lychee.Package');
-	const _Queue   = lychee.import('lychee.event.Queue');
-	const _Stash   = lychee.import('lychee.Stash');
+	const _Environment = lychee.import('lychee.Environment');
+	const _Flow        = lychee.import('lychee.event.Flow');
+	const _Package     = lychee.import('lychee.Package');
+	const _Queue       = lychee.import('lychee.event.Queue');
+	const _Simulation  = lychee.import('lychee.Simulation');
+	const _Stash       = lychee.import('lychee.Stash');
 
 
 
@@ -66,7 +70,7 @@ lychee.define('strainer.flow.Simulate').requires([
 
 			let is_valid = false;
 
-			types.forEach(function(type) {
+			types.forEach(type => {
 
 				let names = Object.keys(statistics[type]);
 				if (names.length > 0) {
@@ -74,12 +78,12 @@ lychee.define('strainer.flow.Simulate').requires([
 					// XXX: This will log the headline only when
 					// it contains an actual statistics report
 					if (is_valid === false) {
-						console.log('strainer: SIMULATE-REVIEWS of "' + id + '":');
+						console.log('strainer: CHECK-SIMULATIONS of "' + id + '":');
 						is_valid = true;
 					}
 
 
-					names.forEach(function(name) {
+					names.forEach(name => {
 
 						let obj   = statistics[type][name];
 						let title = name;
@@ -114,70 +118,6 @@ lychee.define('strainer.flow.Simulate').requires([
 
 	};
 
-	const _simulate = function(settings, oncomplete) {
-
-		console.log('strainer: SIMULATE-REVIEWS "' + settings.id + '"');
-
-
-		let simulation = new lychee.Simulation(settings);
-
-
-		lychee.setEnvironment(settings.environment);
-		lychee.setSimulation(simulation);
-
-
-		lychee.init(simulation, {
-		}, function(sandboxes) {
-
-			let remaining      = 0;
-			let specifications = Object.keys(simulation.specifications);
-			if (specifications.length > 0) {
-
-				specifications.map(function(sid) {
-
-					return {
-						id:      sid,
-						sandbox: _resolve.call(sandboxes, sid)
-					};
-
-				}).filter(function(entry) {
-
-					let sandbox = entry.sandbox || null;
-					if (sandbox !== null && typeof sandbox.evaluate === 'function') {
-						return true;
-					}
-
-					return false;
-
-				}).forEach(function(entry) {
-
-					remaining++;
-
-					entry.sandbox.evaluate(function(statistics) {
-						_render_statistics(entry.id, statistics);
-						remaining--;
-					});
-
-				});
-
-				setInterval(function() {
-
-					if (remaining === 0) {
-						oncomplete(true);
-					}
-
-				}, 250);
-
-			} else {
-
-				oncomplete(true);
-
-			}
-
-		});
-
-	};
-
 
 
 	/*
@@ -189,6 +129,7 @@ lychee.define('strainer.flow.Simulate').requires([
 		let states = Object.assign({}, data);
 
 
+		this.errors   = [];
 		this.sandbox  = '';
 		this.settings = {};
 		this.stash    = new _Stash({
@@ -196,8 +137,9 @@ lychee.define('strainer.flow.Simulate').requires([
 		});
 
 
-		this.__namespace = null;
-		this.__packages  = {};
+		this.__namespace   = null;
+		this.__packages    = {};
+		this.__simulations = [];
 
 
 		this.setSandbox(states.sandbox);
@@ -240,81 +182,147 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		this.bind('trace-simulations', function(oncomplete) {
 
-			// TODO: Trace simulations from package instance
+			let sandbox   = this.sandbox;
+			let namespace = this.__namespace;
 
-			oncomplete(true);
+			if (sandbox !== '' && namespace !== null) {
+
+				console.log('strainer: TRACE-SIMULATIONS ' + sandbox);
+
+
+				let pkg = this.__packages[namespace] || null;
+				if (pkg !== null) {
+
+					pkg.setType('review');
+
+					let simulations = pkg.getSimulations();
+					if (simulations.length > 0) {
+
+						simulations.forEach(sim => {
+
+							let settings = {
+								id: sim.id
+							};
+
+							let env    = sim.environment || null;
+							let target = sim.target || null;
+
+							if (env !== null && target !== null) {
+
+								let pkgs = sim.environment.packages || null;
+								if (pkgs instanceof Object) {
+
+									for (let ns in pkgs) {
+
+										let url = pkgs[ns];
+										if (url === './lychee.pkg') {
+											url = sandbox + '/lychee.pkg';
+										}
+
+										pkgs[ns] = url;
+
+									}
+
+								}
+
+								settings.environment = new _Environment(sim.environment);
+								settings.target      = target;
+
+								this.__simulations.push(settings);
+
+							}
+
+						});
+
+					}
+
+					pkg.setType('source');
+
+
+					oncomplete(true);
+
+				}
+
+			} else {
+				oncomplete(false);
+			}
 
 		}, this);
 
 		this.bind('check-simulations', function(oncomplete) {
 
-			let cache   = this.__simulations;
-			let pkg     = this.__pkg;
-			let sandbox = this.sandbox;
+			let sandbox     = this.sandbox;
+			let simulations = this.__simulations;
 
-			if (pkg !== null && sandbox !== '') {
+			if (sandbox !== '' && simulations.length > 0) {
 
 				console.log('strainer: CHECK-SIMULATIONS ' + sandbox);
 
 
-				let simulations = pkg.buffer.review.simulations || null;
-				if (simulations !== null) {
+				let default_env = lychee.environment;
+				let queue       = new _Queue();
 
-					for (let id in simulations) {
+				queue.bind('update', function(settings, oncomplete) {
 
-						let raw      = simulations[id];
-						let settings = {
-							id: id
-						};
+					console.log('strainer: CHECK-SIMULATIONS "' + settings.id + '"');
 
+					let simulation = new _Simulation(settings);
 
-						let env = raw.environment || null;
-						if (env !== null) {
+					lychee.setEnvironment(settings.environment);
+					lychee.setSimulation(simulation);
 
-							let pkgs = raw.environment.packages;
-							if (pkgs instanceof Object) {
+					lychee.init(simulation, {}, function(sandboxes) {
 
-								for (let ns in pkgs) {
+						let remaining      = 0;
+						let specifications = Object.keys(simulation.specifications);
+						if (specifications.length > 0) {
 
-									let url = pkgs[ns];
-									if (url === './lychee.pkg') {
-										url = sandbox + '/lychee.pkg';
-									}
+							specifications.map(sid => {
 
-									pkgs[ns] = url;
+								return {
+									id:      sid,
+									sandbox: _resolve.call(sandboxes, sid)
+								};
 
+							}).filter(entry => {
+
+								let sandbox = entry.sandbox || null;
+								if (sandbox !== null && typeof sandbox.evaluate === 'function') {
+									return true;
 								}
 
-							}
+								return false;
 
+							}).forEach(entry => {
 
-							settings.environment = new lychee.Environment(raw.environment);
+								remaining++;
 
-							let target = raw.target || null;
-							if (target !== null) {
-								settings.target = target;
-								cache.push(settings);
-							}
+								entry.sandbox.evaluate(function(statistics) {
+									_render_statistics(entry.id, statistics);
+									remaining--;
+								});
 
+							});
+
+							setInterval(_ => {
+
+								if (remaining === 0) {
+									oncomplete(true);
+								}
+
+							}, 250);
+
+						} else {
+							oncomplete(true);
 						}
 
-					}
+					});
 
-				}
-
-			}
-
-
-			if (cache.length > 0) {
-
-				let env   = lychee.environment;
-				let queue = new _Queue();
-
-				queue.bind('update', _simulate, this);
+				}, this);
 
 				queue.bind('complete', function() {
 
-					lychee.setEnvironment(env);
+					lychee.setEnvironment(default_env);
 					lychee.setSimulation(null);
 
 					oncomplete(true);
@@ -323,16 +331,14 @@ lychee.define('strainer.flow.Simulate').requires([
 
 				queue.bind('error', function() {
 
-					lychee.setEnvironment(env);
+					lychee.setEnvironment(default_env);
 					lychee.setSimulation(null);
 
-					oncomplete(true);
+					oncomplete(false);
 
 				}, this);
 
-				cache.forEach(function(entry) {
-					queue.then(entry);
-				});
+				simulations.forEach(sim => queue.then(sim));
 
 				queue.init();
 

@@ -90,13 +90,13 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 			let name = tmp[t];
 			let next = tmp[t + 1] || null;
 
-			if (/^([0-9]+)/g.test(name) === true) {
+			if (/^([0-9]+)$/g.test(name) === true) {
 				name = parseInt(name, 10);
 			}
 
 			if (next !== null) {
 
-				if (/^([0-9]+)/g.test(next) === true) {
+				if (/^([0-9]+)$/g.test(next) === true) {
 
 					if (typeof pointer[name] === 'undefined') {
 						pointer = pointer[name] = [];
@@ -124,14 +124,17 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 	};
 
-	const _resolve_reference = function(identifier) {
+	const _resolve_reference = function(path) {
 
 		let pointer = this;
 
-		let ns = identifier.split('/');
-		for (let n = 0, l = ns.length; n < l; n++) {
+		for (let p = 0, pl = path.length; p < pl; p++) {
 
-			let name = ns[n];
+			let name = path[p];
+
+			if (/^([0-9]+)$/g.test(name) === true) {
+				name = parseInt(name, 10);
+			}
 
 			if (pointer[name] !== undefined) {
 				pointer = pointer[name];
@@ -181,6 +184,28 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 	};
 
+	const _is_primitive_array = function(arr) {
+
+		let is_primitive = true;
+
+		for (let a = 0, al = arr.length; a < al; a++) {
+
+			let val = arr[a];
+			if (
+				val instanceof Object
+				&& !(val instanceof Array)
+				&& !(val instanceof Date)
+			) {
+				is_primitive = false;
+				break;
+			}
+
+		}
+
+		return is_primitive;
+
+	};
+
 
 
 	/*
@@ -216,30 +241,20 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 	 * ENCODER and DECODER
 	 */
 
-	const _encode_object_inline = function(stream, data, indent) {
+	const _is_primitive = function(data) {
 
-		let keys = Object.keys(data);
-
-		for (let k = 0, kl = keys.length; k < kl; k++) {
-
-			let key = keys[k];
-			let val = data[key];
-
-			if (val instanceof Object) {
-
-				_encode_object_inline(stream, val, indent + '.' + key);
-
-			} else {
-
-				stream.write(indent + '.' + key + '=');
-
-				_encode(stream, val, '');
-
-				stream.write('\n');
-
-			}
-
+		if (
+			data === null
+			|| data === undefined
+			|| typeof data === 'boolean'
+			|| typeof data === 'number'
+			|| typeof data === 'string'
+			|| data instanceof Date
+		) {
+			return true;
 		}
+
+		return false;
 
 	};
 
@@ -331,18 +346,26 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 			for (let d = 0, dl = data.length; d < dl; d++) {
 
 				let val = data[d];
+				if (_is_primitive(val) === true) {
 
-				if (val instanceof Object) {
-
-					_encode_object_inline(stream, val, (indent !== '' ? (indent + '.') : '') + d);
-
-				} else {
-
-					stream.write((indent !== '' ? (indent + '.') : '') + d + '=');
-
+					stream.write(d + '=');
 					_encode(stream, val);
-
 					stream.write('\n');
+
+				}
+
+			}
+
+			for (let d = 0, dl = data.length; d < dl; d++) {
+
+				let val = data[d];
+
+				if (_is_primitive(val) === false) {
+
+					let path = (indent !== '' ? (indent + '/') : '') + d;
+
+					stream.write('\n[' + path + ']\n');
+					_encode(stream, val, path);
 
 				}
 
@@ -357,27 +380,27 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 				let key = keys[k];
 				let val = data[key];
 
-				if (
-					val instanceof Object
-					&& !(val instanceof Array)
-					&& !(val instanceof Date)
-				) {
-
-					stream.write('\n');
-					stream.write('[' + (indent !== '' ? (indent + '/') : '') + key + ']');
-					stream.write('\n');
-
-					_encode(stream, val, (indent !== '' ? (indent + '/') : '') + key);
-
-				} else if (val instanceof Array) {
-
-					_encode(stream, val, key);
-
-				} else {
+				if (_is_primitive(val) === true) {
 
 					stream.write(key + '=');
 					_encode(stream, val);
 					stream.write('\n');
+
+				}
+
+			}
+
+			for (let k = 0, kl = keys.length; k < kl; k++) {
+
+				let key = keys[k];
+				let val = data[key];
+
+				if (_is_primitive(val) === false) {
+
+					let path = (indent !== '' ? (indent + '/') : '') + key;
+
+					stream.write('\n[' + path + ']\n');
+					_encode(stream, val, path);
 
 				}
 
@@ -409,6 +432,7 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 
 			let pointer = root;
+			let path    = [];
 
 			for (let l = 0, ll = lines.length; l < ll; l++) {
 
@@ -417,20 +441,55 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 					if (line.startsWith('[') && line.endsWith(']')) {
 
-						pointer = _resolve_reference.call(root, line.substr(1, line.length - 2));
+						path = line.substr(1, line.length - 2).split('/').map(function(val) {
+
+							if (/^([0-9]+)$/g.test(val)) {
+								return parseInt(val, 10);
+							} else {
+								return val;
+							}
+
+						});
+
+						let is_array = typeof path[path.length - 1] === 'number';
+						if (is_array === true) {
+
+							let name   = path[path.length - 2];
+							let parent = _resolve_reference.call(root, path.slice(0, path.length - 2));
+
+							if (parent !== null && !(parent[name] instanceof Array)) {
+								parent[name] = [];
+							}
+
+						}
+
+						pointer = _resolve_reference.call(root, path);
 
 					} else if (line.includes('=')) {
 
 						let tmp = line.split('=');
-						if (/^([A-Za-z0-9-_.]+)$/g.test(tmp[0])) {
+						if (/^([0-9]+)$/g.test(tmp[0])) {
+
+							if (!(pointer instanceof Array)) {
+
+								let name   = path[path.length - 1];
+								let parent = _resolve_reference.call(root, path.slice(0, path.length - 1));
+								if (parent !== null && !(parent[name] instanceof Array)) {
+									pointer = parent[name] = [];
+								}
+
+							}
+
 
 							let value = _decode_value(tmp.slice(1).join('='));
 
 							_set_value(pointer, tmp[0], value);
 
-						} else {
+						} else if (/^([A-Za-z0-9-_.]+)$/g.test(tmp[0])) {
 
-							console.warn('NOPE!', tmp);
+							let value = _decode_value(tmp.slice(1).join('='));
+
+							_set_value(pointer, tmp[0], value);
 
 						}
 

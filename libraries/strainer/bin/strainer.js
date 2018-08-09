@@ -192,12 +192,12 @@ const _SETTINGS = (function() {
 	};
 
 
-	let action     = args.find(val => /^(check|transcribe)$/g.test(val));
+	let action     = args.find(val => /^(check|simulate|transcribe)$/g.test(val));
 	let project    = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
 	let debug_flag = args.find(val => /--([debug]{5})/g.test(val));
 
 
-	if (action === 'check') {
+	if (action === 'check' || action === 'simulate') {
 
 		settings.action = action;
 
@@ -365,6 +365,15 @@ const _SETTINGS = (function() {
 
 
 	if (action === 'check' && has_project) {
+
+		_bootup({
+			cwd:     settings.cwd,
+			action:  settings.action,
+			debug:   settings.debug === true,
+			project: settings.project
+		});
+
+	} else if (action === 'simulate' && has_project) {
 
 		_bootup({
 			cwd:     settings.cwd,
