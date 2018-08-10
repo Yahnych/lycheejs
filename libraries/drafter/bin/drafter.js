@@ -6,6 +6,13 @@ const _path  = require('path');
 const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 
+if (process.argv.includes('--autocomplete')) {
+	console.log   = function() {};
+	console.info  = function() {};
+	console.warn  = function() {};
+	console.error = function() {};
+}
+
 
 
 /*

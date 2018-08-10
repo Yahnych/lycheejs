@@ -1,9 +1,17 @@
 #!/usr/local/bin/lycheejs-helper env:node
 
 
-const _fs   = require('fs');
-const _path = require('path');
-const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _fs    = require('fs');
+const _path  = require('path');
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
+
+if (process.argv.includes('--autocomplete')) {
+	console.log   = function() {};
+	console.info  = function() {};
+	console.warn  = function() {};
+	console.error = function() {};
+}
 
 
 
@@ -187,7 +195,6 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
