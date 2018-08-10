@@ -349,12 +349,12 @@ lychee.define('strainer.flow.Check').requires([
 				}
 
 
-				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
-
 				let pkg = new _Package({
 					url:  sandbox + '/lychee.pkg',
 					type: 'source'
 				});
+
+				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
 				setTimeout(function() {
 					this.__namespace        = pkg.id;
