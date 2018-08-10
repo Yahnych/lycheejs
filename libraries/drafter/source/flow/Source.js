@@ -24,13 +24,15 @@ lychee.define('drafter.flow.Source').requires([
 		let states = Object.assign({}, data);
 
 
+		this.errors   = [];
 		this.sandbox  = '';
 		this.settings = {};
 		this.stash    = new _Stash({
 			type: _Stash.TYPE.persistent
 		});
 
-		this.__packages = {};
+		this.__namespace = null;
+		this.__packages  = {};
 
 
 		this.setSandbox(states.sandbox);
@@ -49,12 +51,13 @@ lychee.define('drafter.flow.Source').requires([
 		this.bind('read-package', function(oncomplete) {
 
 			let sandbox = this.sandbox;
-
 			if (sandbox !== '') {
 
 				console.log('strainer: READ-PACKAGE ' + sandbox);
 
 				if (sandbox !== '/libraries/lychee') {
+
+					console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
 
 					this.__packages['lychee'] = new _Package({
 						url:  '/libraries/lychee/lychee.pkg',
@@ -64,17 +67,21 @@ lychee.define('drafter.flow.Source').requires([
 				}
 
 
+				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
+
 				let pkg = new _Package({
 					url:  sandbox + '/lychee.pkg',
 					type: 'source'
 				});
 
-
 				setTimeout(function() {
+					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
 				}.bind(this), 200);
 
+			} else {
+				oncomplete(false);
 			}
 
 		}, this);
@@ -97,21 +104,15 @@ lychee.define('drafter.flow.Source').requires([
 						}, 100);
 
 					} else {
-
 						oncomplete(true);
-
 					}
 
 				} else {
-
 					oncomplete(false);
-
 				}
 
 			} else {
-
 				oncomplete(false);
-
 			}
 
 		}, this);

@@ -67,6 +67,18 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 				console.log('strainer: READ-PACKAGE ' + library);
 
+				if (sandbox !== '/libraries/lychee') {
+
+					console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
+
+					this.__packages['lychee'] = new _Package({
+						id:  'lychee',
+						url: '/libraries/lychee/lychee.pkg'
+					});
+
+				}
+
+
 				let pkg = new _Package({
 					url:  library + '/lychee.pkg',
 					type: 'source'

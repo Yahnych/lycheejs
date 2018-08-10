@@ -241,6 +241,8 @@ lychee.define('strainer.flow.Simulate').requires([
 
 					oncomplete(true);
 
+				} else {
+					oncomplete(false);
 				}
 
 			} else {

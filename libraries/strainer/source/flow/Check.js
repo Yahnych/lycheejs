@@ -337,12 +337,24 @@ lychee.define('strainer.flow.Check').requires([
 
 				console.log('strainer: READ-PACKAGE ' + sandbox);
 
+				if (sandbox !== '/libraries/lychee') {
+
+					console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
+
+					this.__packages['lychee'] = new _Package({
+						id:  'lychee',
+						url: '/libraries/lychee/lychee.pkg'
+					});
+
+				}
+
+
+				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
+
 				let pkg = new _Package({
 					url:  sandbox + '/lychee.pkg',
 					type: 'source'
 				});
-
-				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
 				setTimeout(function() {
 					this.__namespace        = pkg.id;
@@ -422,17 +434,6 @@ lychee.define('strainer.flow.Check').requires([
 
 							}
 
-						});
-
-					}
-
-					if (this.__packages['lychee'] === undefined) {
-
-						console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
-
-						this.__packages['lychee'] = new _Package({
-							id:  'lychee',
-							url: '/libraries/lychee/lychee.pkg'
 						});
 
 					}
