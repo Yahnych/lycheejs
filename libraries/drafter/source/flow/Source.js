@@ -67,12 +67,12 @@ lychee.define('drafter.flow.Source').requires([
 				}
 
 
-				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
-
 				let pkg = new _Package({
 					url:  sandbox + '/lychee.pkg',
 					type: 'source'
 				});
+
+				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
 				setTimeout(function() {
 					this.__namespace        = pkg.id;
@@ -86,7 +86,7 @@ lychee.define('drafter.flow.Source').requires([
 
 		}, this);
 
-		this.bind('read-source', function(oncomplete) {
+		this.bind('read-sources', function(oncomplete) {
 
 			let identifier = this.settings.identifier || null;
 			if (identifier !== null) {
@@ -97,6 +97,7 @@ lychee.define('drafter.flow.Source').requires([
 
 					let id     = tmp.slice(1).join('.');
 					let result = pkg.load(id);
+
 					if (result === true) {
 
 						setTimeout(function() {
@@ -119,7 +120,7 @@ lychee.define('drafter.flow.Source').requires([
 
 		this.bind('read-includes', function(oncomplete) {
 
-			let identifier = this.settings.identifier;
+			let identifier = this.settings.identifier || null;
 			let definition = lychee.environment.definitions[identifier] || null;
 			let stash      = this.stash;
 
@@ -128,34 +129,106 @@ lychee.define('drafter.flow.Source').requires([
 				let includes = definition._includes;
 				if (includes.length > 0) {
 
-					includes.map(function(identifier) {
+					// includes.map(function(identifier) {
 
-						let tmp = identifier.split('.');
+					// 	let tmp = identifier.split('.');
 
-					});
+					// });
 
 
 
-					stash.bind('batch', function(type, assets) {
+					// stash.bind('batch', function(type, assets) {
 
-					}, this, true);
+					// }, this, true);
 
-					stash.batch('read', definition._includes.map(function(value) {
+					// stash.batch('read', definition._includes.map(function(value) {
 
-					}));
-
-					console.log(definition);
+					// }));
 
 				} else {
-
 					oncomplete(true);
+				}
+
+			} else if (identifier !== null && stash !== null) {
+
+				let tmp        = identifier.split('.');
+				let pkg_id     = tmp[0];
+				let def_id     = tmp.pop();
+				let candidates = [];
+
+				let check = tmp[tmp.length - 1];
+				if (check.charAt(0) !== check.charAt(0).toUpperCase()) {
+					check = tmp[tmp.length - 1] = check.charAt(0).toUpperCase() + check.substr(1).toLowerCase();
+				}
+
+				console.warn(tmp);
+
+				if (pkg_id === 'app') {
+					candidates.push('lychee.' + tmp.slice(0, tmp.length).join('.'));
+				}
+
+				if (tmp.length > 2) {
+					candidates.push('lychee.' + tmp.slice(1, tmp.length).join('.'));
+				}
+
+
+
+				let pkg = this.__packages['lychee'] || null;
+				if (pkg !== null) {
+
+					let namespaces  = pkg.getNamespaces();
+					let definitions = pkg.getDefinitions();
 
 				}
 
+				console.log(candidates);
+
+
+				// XXX: This should be the case when behaviour[1]
+				// is a namespace in lychee package
+				// (e.g. ai, crypto, codec, data, effect, event etc.)
+				// if (behaviour[0] === 'app' && behaviour[1] === 'ui') {
+				// 	behaviour.shift();
+				// }
+
+				// behaviour.unshift('lychee');
+
+
+				// XXX: Only exception: lychee.app.State
+				// if (check === 'State') {
+
+				// 	if (behaviour[0] !== 'app') {
+				// 		behaviour.unshift('app');
+				// 	}
+
+				// 	behaviour.unshift('lychee');
+
+				// } else if (namespace === 'app') {
+
+				// 	console.warn(behaviour);
+
+				// 	// if (behaviour[behaviour.length - 1] === check) {
+
+				// 	// 	if (behaviour[0] !== 'app') {
+				// 	// 		behaviour.unshift('app');
+				// 	// 	}
+
+				// 	// }
+
+				// 	behaviour.unshift('lychee');
+
+				// } else {
+
+				// 	behaviour.unshift('lychee');
+
+				// }
+
+
+				// console.warn(identifier);
+				// console.log(namespace, behaviour);
+
 			} else {
-
 				oncomplete(true);
-
 			}
 
 		}, this);
@@ -177,7 +250,7 @@ lychee.define('drafter.flow.Source').requires([
 		 */
 
 		this.then('read-package');
-		this.then('read-source');
+		this.then('read-sources');
 
 		this.then('read-includes');
 		this.then('trace-includes');
@@ -217,7 +290,7 @@ lychee.define('drafter.flow.Source').requires([
 			if (Object.keys(this.settings).length > 0) states.settings = this.settings;
 
 
-			if (this.stash !== null)     blob.stash   = lychee.serialize(this.stash);
+			if (this.stash !== null) blob.stash = lychee.serialize(this.stash);
 
 
 			data['arguments'][0] = states;

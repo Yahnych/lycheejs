@@ -152,7 +152,7 @@
 
 					let path = lychee.environment.resolve(url);
 
-					_fs.readFile(path, 'binary', function(error, buffer) {
+					_fs.readFile(path, function(error, buffer) {
 
 						this.buffer = buffer || null;
 						this.__load = false;

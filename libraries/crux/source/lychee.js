@@ -527,9 +527,9 @@ lychee = (function(global) {
 				let value = values[k];
 
 				if (value instanceof Array) {
-					value = JSON.stringify(value);
+					value = JSON.stringify(value, null, '\t');
 				} else if (value instanceof Object) {
-					value = JSON.stringify(value);
+					value = JSON.stringify(value, null, '\t');
 				} else if (typeof value !== 'string') {
 					value = '' + value;
 				}

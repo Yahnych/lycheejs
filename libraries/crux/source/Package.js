@@ -183,6 +183,40 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 	};
 
+	const _resolve_namespaces = function(node, namespaces, path) {
+
+		namespaces = namespaces instanceof Array ? namespaces : [];
+		path       = typeof path === 'string'    ? path       : '';
+
+
+		if (node instanceof Array) {
+
+			// Ignore Arrays specifically
+
+		} else if (node instanceof Object) {
+
+			if (path !== '' && namespaces.includes(path) === false) {
+				namespaces.push(path);
+			}
+
+			Object.keys(node).forEach(function(child) {
+
+				if (child.includes('__') === false) {
+
+					if (node[child] instanceof Array) {
+						// Ignore Arrays specifically
+					} else {
+						_resolve_namespaces(node[child], namespaces, (path !== '' ? (path + '.') : '') + child);
+					}
+
+				}
+
+			});
+
+		}
+
+	};
+
 	const _resolve_files = function(node, files, path, extensions) {
 
 		files      = files instanceof Array   ? files : [];
@@ -641,11 +675,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					let files = [];
 					let type  = this.type;
-					let root = buffer[type].files || null;
+					let root  = buffer[type].files || null;
+
 					if (root !== null) {
 						_resolve_files(root, files, '', false);
 					}
-
 
 					if (tags !== null) {
 
@@ -779,7 +813,10 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort();
+			filtered = filtered.sort();
+
+
+			return filtered;
 
 		},
 
@@ -829,9 +866,12 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort(function(a, b) {
+			filtered = filtered.sort(function(a, b) {
 				return _sort_by_tag(a.id, b.id);
 			});
+
+
+			return filtered;
 
 		},
 
@@ -850,11 +890,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					let files = [];
 					let type  = this.type;
-					let root = buffer[type].files || null;
+					let root  = buffer[type].files || null;
+
 					if (root !== null) {
 						_resolve_files(root, files, '', true);
 					}
-
 
 					if (tags !== null) {
 
@@ -908,7 +948,170 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort();
+			filtered = filtered.sort();
+
+
+			return filtered;
+
+		},
+
+		getNamespaces: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let namespaces = [];
+					let type       = this.type;
+					let root       = buffer[type].files || null;
+
+					if (root !== null) {
+						_resolve_namespaces(root, namespaces, '');
+					}
+
+					if (tags !== null) {
+
+						for (let tag in tags) {
+
+							if (tags[tag] instanceof Array) {
+
+								for (let t = 0, tl = tags[tag].length; t < tl; t++) {
+
+									let value  = tags[tag][t];
+									let prefix = _resolve_tag.call(this, tag, value).split('/').join('.');
+
+									for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+										let namespace = namespaces[n];
+										if (namespace.startsWith(prefix + '.')) {
+
+											let id = namespace.substr(prefix.length + 1);
+											if (filtered.includes(id) === false) {
+												filtered.push(id);
+											}
+
+										}
+
+									}
+
+								}
+
+							} else if (typeof tags[tag] === 'string') {
+
+								let value  = tags[tag];
+								let prefix = _resolve_tag.call(this, tag, value).split('/').join('.');
+
+								for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+									let namespace = namespaces[n];
+									if (namespace.startsWith(prefix + '.')) {
+
+										let id = namespace.substr(prefix.length + 1);
+										if (filtered.includes(id) === false) {
+											filtered.push(id);
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					} else {
+
+						let tags     = [];
+						let prefixes = [];
+						let pointer  = config.buffer[this.type].tags || null;
+						if (pointer !== null) {
+
+							for (let tag in pointer) {
+
+								tags.push(tag);
+
+
+								let pkg_tags = pointer[tag];
+								if (pkg_tags instanceof Object) {
+
+									for (let id in pkg_tags) {
+
+										let prefix = pkg_tags[id] || null;
+										if (prefix !== null) {
+											prefixes.push(prefix.split('/').join('.'));
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+
+						for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+							let namespace = namespaces[n];
+
+							for (let p = 0, pl = prefixes.length; p < pl; p++) {
+
+								let prefix = prefixes[p];
+
+								if (namespace.startsWith(prefix + '.')) {
+
+									let id = namespace.substr(prefix.length + 1);
+									if (filtered.includes(id) === false) {
+										filtered.push(id);
+									}
+
+								} else {
+
+									let untagged = true;
+
+									for (let t = 0, tl = tags.length; t < tl; t++) {
+
+										let tag = tags[t];
+
+										if (namespace.startsWith(tag)) {
+											untagged = false;
+											break;
+										}
+
+									}
+
+									if (untagged === true) {
+
+										let id = namespace;
+										if (filtered.includes(id) === false) {
+											filtered.push(id);
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			filtered = filtered.sort();
+
+
+			return filtered;
 
 		},
 

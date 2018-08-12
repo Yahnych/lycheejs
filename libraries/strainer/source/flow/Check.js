@@ -487,6 +487,8 @@ lychee.define('strainer.flow.Check').requires([
 
 					}, 100);
 
+				} else {
+					oncomplete(false);
 				}
 
 			} else {
@@ -801,9 +803,12 @@ lychee.define('strainer.flow.Check').requires([
 
 				});
 
-			}
 
-			oncomplete(true);
+				oncomplete(true);
+
+			} else {
+				oncomplete(false);
+			}
 
 		}, this);
 

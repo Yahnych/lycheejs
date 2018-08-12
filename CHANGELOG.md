@@ -24,6 +24,7 @@ and `fixed`.
 
 - **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
 - **Added**: lychee.Package supports `getEnvironments(tags)` and `getSimulations(tags)`.
+- **Fixed**: `node` platform fixes serialization of binary assets.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
 - Added: lychee.codec Stack supports `Date` data type.
 - Added: lychee.codec.INI supports INI format with JSON-compatible data types.
