@@ -1,5 +1,6 @@
 
 lychee.define('lychee.net.Service').requires([
+	'lychee.net.Tunnel'
 	// 'lychee.net.Tunnel' // XXX: Causes circular dependency
 ]).includes([
 	'lychee.event.Emitter'
@@ -86,7 +87,6 @@ lychee.define('lychee.net.Service').requires([
 
 		this.id     = 'lychee-net-Service-' + _id++;
 		this.tunnel = null;
-		this.type   = null;
 
 		this.__multicast = [];
 
@@ -99,20 +99,12 @@ lychee.define('lychee.net.Service').requires([
 
 		this.setId(states.id);
 		this.setTunnel(states.tunnel);
-		this.setType(states.type);
 
 
 		_Emitter.call(this);
 
 		states = null;
 
-	};
-
-
-	Composite.TYPE = {
-		// 'default': 0, (deactivated)
-		'client': 1,
-		'remote': 2
 	};
 
 
@@ -129,25 +121,26 @@ lychee.define('lychee.net.Service').requires([
 			let data = _Emitter.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.net.Service';
 
-			let id     = null;
-			let tunnel = null;
-			let type   = null;
+			let states = (data['arguments'][0] || {});
 			let blob   = (data['blob'] || {});
 
 
-			if (this.id !== null)   id   = this.id;
-			if (this.type !== null) type = this.type;
+			if (this.id !== null) states.id = this.id;
 
-			if (this.type === 'client') {
-				tunnel = '#MAIN.client';
-			} else {
-				tunnel = null;
+
+			let tunnel = this.tunnel;
+			if (tunnel !== null) {
+
+				if (tunnel.type === 'client') {
+					states.tunnel = '#MAIN.client';
+				} else {
+					states.tunnel = null;
+				}
+
 			}
 
 
-			data['arguments'][0] = id;
-			data['arguments'][1] = tunnel;
-			data['arguments'][2] = type;
+			data['arguments'][0] = states;
 			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 
@@ -172,21 +165,21 @@ lychee.define('lychee.net.Service').requires([
 			}
 
 
-			let type = this.type;
-			if (type === 'client') {
+			let tunnel = this.tunnel;
+			if (tunnel !== null) {
 
-				if (service === null) {
+				let type = tunnel.type;
+				if (type === 'client') {
 
-					service = {
-						id:    this.id,
-						event: 'multicast'
-					};
+					if (service === null) {
 
-				}
+						service = {
+							id:    this.id,
+							event: 'multicast'
+						};
 
+					}
 
-				let tunnel = this.tunnel;
-				if (tunnel !== null) {
 
 					tunnel.send({
 						data:    data,
@@ -196,31 +189,32 @@ lychee.define('lychee.net.Service').requires([
 						method: 'multicast'
 					});
 
+
 					return true;
 
-				}
+				} else if (type === 'remote') {
 
-			} else if (type === 'remote') {
+					if (data.service !== null) {
 
-				if (data.service !== null) {
+						for (let m = 0, ml = this.__multicast.length; m < ml; m++) {
 
-					for (let m = 0, ml = this.__multicast.length; m < ml; m++) {
+							let tunnel = this.__multicast[m];
+							if (tunnel !== this.tunnel) {
 
-						let tunnel = this.__multicast[m];
-						if (tunnel !== this.tunnel) {
+								data.data.tid = this.tunnel.host + ':' + this.tunnel.port;
 
-							data.data.tid = this.tunnel.host + ':' + this.tunnel.port;
+								tunnel.send(
+									data.data,
+									data.service
+								);
 
-							tunnel.send(
-								data.data,
-								data.service
-							);
+							}
 
 						}
 
-					}
+						return true;
 
-					return true;
+					}
 
 				}
 
@@ -242,21 +236,20 @@ lychee.define('lychee.net.Service').requires([
 			}
 
 
-			let type = this.type;
-			if (type === 'client') {
+			let tunnel = this.tunnel;
+			if (tunnel !== null) {
 
-				if (service === null) {
+				let type = tunnel.type;
+				if (type === 'client') {
 
-					service = {
-						id:    this.id,
-						event: 'broadcast'
-					};
+					if (service === null) {
 
-				}
+						service = {
+							id:    this.id,
+							event: 'broadcast'
+						};
 
-
-				let tunnel = this.tunnel;
-				if (tunnel !== null) {
+					}
 
 					tunnel.send({
 						data:    data,
@@ -266,45 +259,46 @@ lychee.define('lychee.net.Service').requires([
 						method: 'broadcast'
 					});
 
+
 					return true;
 
-				}
+				} else if (type === 'remote') {
 
-			} else if (type === 'remote') {
+					// XXX: Allow method calls from remote side
+					if (data !== null && service !== null) {
 
-				// XXX: Allow method calls from remote side
-				if (data !== null && service !== null) {
+						data = {
+							data:    data,
+							service: service
+						};
 
-					data = {
-						data:    data,
-						service: service
-					};
-
-				}
+					}
 
 
-				if (data.service !== null) {
+					if (data.service !== null) {
 
-					let broadcast = _SERVICES[this.id] || null;
-					if (broadcast !== null) {
+						let broadcast = _SERVICES[this.id] || null;
+						if (broadcast !== null) {
 
-						for (let b = 0, bl = broadcast.length; b < bl; b++) {
+							for (let b = 0, bl = broadcast.length; b < bl; b++) {
 
-							let tunnel = broadcast[b].tunnel;
-							if (tunnel !== this.tunnel) {
+								let tunnel = broadcast[b].tunnel;
+								if (tunnel !== this.tunnel) {
 
-								data.data.tid = this.tunnel.host + ':' + this.tunnel.port;
+									data.data.tid = this.tunnel.host + ':' + this.tunnel.port;
 
-								tunnel.send(
-									data.data,
-									data.service
-								);
+									tunnel.send(
+										data.data,
+										data.service
+									);
+
+								}
 
 							}
 
-						}
+							return true;
 
-						return true;
+						}
 
 					}
 
@@ -377,6 +371,46 @@ lychee.define('lychee.net.Service').requires([
 
 		},
 
+		send: function(data, headers) {
+
+			data    = data instanceof Object    ? data    : null;
+			headers = headers instanceof Object ? headers : null;
+
+
+			if (data !== null) {
+
+				let tunnel = this.tunnel;
+				if (tunnel !== null) {
+
+					if (headers !== null) {
+
+						if (typeof headers.id !== 'string') {
+							headers.id = this.id;
+						}
+
+						let result = tunnel.send(data, headers);
+						if (result === true) {
+							return true;
+						}
+
+					} else {
+
+						let result = tunnel.send(data);
+						if (result === true) {
+							return true;
+						}
+
+					}
+
+				}
+
+			}
+
+
+			return false;
+
+		},
+
 		setId: function(id) {
 
 			id = typeof id === 'string' ? id : null;
@@ -385,74 +419,6 @@ lychee.define('lychee.net.Service').requires([
 			if (id !== null) {
 
 				this.id = id;
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		setTunnel: function(tunnel) {
-
-			tunnel = lychee.interfaceof(_Tunnel, tunnel) ? tunnel : null;
-
-
-			if (tunnel !== null) {
-
-				this.tunnel = tunnel;
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		setType: function(type) {
-
-			type = typeof type === 'string' ? type : null;
-
-
-			if (type === 'client') {
-
-				if (this.type !== type) {
-
-					if (this.has('plug', _plug_broadcast, this) === true) {
-						this.unbind('plug', _plug_broadcast, this);
-					}
-
-					if (this.has('unplug', _unplug_broadcast, this) === true) {
-						this.unbind('unplug', _unplug_broadcast, this);
-					}
-
-					this.type = type;
-
-				}
-
-
-				return true;
-
-			} else if (type === 'remote') {
-
-				if (this.type !== type) {
-
-					if (this.has('plug', _plug_broadcast, this) === false) {
-						this.bind('plug', _plug_broadcast, this);
-					}
-
-					if (this.has('unplug', _unplug_broadcast, this) === false) {
-						this.bind('unplug', _unplug_broadcast, this);
-					}
-
-					this.type = type;
-
-				}
-
 
 				return true;
 
@@ -473,6 +439,50 @@ lychee.define('lychee.net.Service').requires([
 				this.__multicast = multicast.filter(function(instance) {
 					return lychee.interfaceof(lychee.net.Tunnel, instance);
 				});
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setTunnel: function(tunnel) {
+
+			tunnel = lychee.interfaceof(_Tunnel, tunnel) ? tunnel : null;
+
+
+			if (tunnel !== null) {
+
+				if (this.tunnel !== null) {
+
+					if (tunnel.type === 'client') {
+
+						if (this.has('plug', _plug_broadcast, this) === true) {
+							this.unbind('plug', _plug_broadcast, this);
+						}
+
+						if (this.has('unplug', _unplug_broadcast, this) === true) {
+							this.unbind('unplug', _unplug_broadcast, this);
+						}
+
+					} else if (tunnel.type === 'remote') {
+
+						if (this.has('plug', _plug_broadcast, this) === false) {
+							this.bind('plug', _plug_broadcast, this);
+						}
+
+						if (this.has('unplug', _unplug_broadcast, this) === false) {
+							this.bind('unplug', _unplug_broadcast, this);
+						}
+
+					}
+
+				}
+
+				this.tunnel = tunnel;
 
 				return true;
 

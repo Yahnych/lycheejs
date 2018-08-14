@@ -122,8 +122,9 @@ lychee.define('lychee.net.Tunnel').requires([
 		this.codec     = lychee.interfaceof(_JSON, states.codec) ? states.codec : _JSON;
 		this.host      = 'localhost';
 		this.port      = 1337;
+		this.protocol  = Composite.PROTOCOL.WS;
 		this.reconnect = 0;
-		this.type      = Composite.TYPE.WS;
+		this.type      = null;
 
 
 		this.__isConnected = false;
@@ -136,6 +137,7 @@ lychee.define('lychee.net.Tunnel').requires([
 
 		this.setHost(states.host);
 		this.setPort(states.port);
+		this.setProtocol(states.protocol);
 		this.setReconnect(states.reconnect);
 		this.setType(states.type);
 
@@ -190,7 +192,7 @@ lychee.define('lychee.net.Tunnel').requires([
 	};
 
 
-	Composite.TYPE = {
+	Composite.PROTOCOL = {
 		WS:   0,
 		HTTP: 1,
 		TCP:  2
@@ -230,11 +232,12 @@ lychee.define('lychee.net.Tunnel').requires([
 			let blob   = (data['blob'] || {});
 
 
-			if (this.codec !== _JSON)            states.codec     = lychee.serialize(this.codec);
-			if (this.host !== 'localhost')       states.host      = this.host;
-			if (this.port !== 1337)              states.port      = this.port;
-			if (this.reconnect !== 0)            states.reconnect = this.reconnect;
-			if (this.type !== Composite.TYPE.WS) states.type      = this.type;
+			if (this.codec !== _JSON)                    states.codec     = lychee.serialize(this.codec);
+			if (this.host !== 'localhost')               states.host      = this.host;
+			if (this.port !== 1337)                      states.port      = this.port;
+			if (this.protocol !== Composite.PROTOCOL.WS) states.protocol  = this.protocol;
+			if (this.reconnect !== 0)                    states.reconnect = this.reconnect;
+			if (this.type !== null)                      states.type      = this.type;
 
 
 			if (this.__socket !== null) blob.socket = lychee.serialize(this.__socket);
@@ -276,12 +279,12 @@ lychee.define('lychee.net.Tunnel').requires([
 
 			if (this.__isConnected === false) {
 
-				let type = this.type;
-				if (type === Composite.TYPE.WS) {
+				let protocol = this.protocol;
+				if (protocol === Composite.PROTOCOL.WS) {
 					this.__socket = new _socket.WS();
-				} else if (type === Composite.TYPE.HTTP) {
+				} else if (protocol === Composite.PROTOCOL.HTTP) {
 					this.__socket = new _socket.HTTP();
-				} else if (type === Composite.TYPE.TCP) {
+				} else if (protocol === Composite.PROTOCOL.TCP) {
 					this.__socket = new _socket.TCP();
 				}
 
@@ -479,6 +482,34 @@ lychee.define('lychee.net.Tunnel').requires([
 
 		},
 
+		setProtocol: function(protocol) {
+
+			protocol = lychee.enumof(Composite.PROTOCOL, protocol) ? protocol : null;
+
+
+			if (protocol !== null) {
+
+				if (this.protocol !== protocol) {
+
+					this.protocol = protocol;
+
+
+					if (this.__isConnected === true) {
+						this.disconnect();
+						this.connect();
+					}
+
+				}
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
 		setReconnect: function(reconnect) {
 
 			reconnect = typeof reconnect === 'number' ? (reconnect | 0) : null;
@@ -642,26 +673,18 @@ lychee.define('lychee.net.Tunnel').requires([
 
 		setType: function(type) {
 
-			type = lychee.enumof(Composite.TYPE, type) ? type : null;
+			type = typeof type === 'string' ? type : null;
 
 
 			if (type !== null) {
 
-				let oldtype = this.type;
-				if (oldtype !== type) {
+				if (/^(client|remote)$/g.test(type) === true) {
 
 					this.type = type;
 
-
-					if (this.__isConnected === true) {
-						this.disconnect();
-						this.connect();
-					}
+					return true;
 
 				}
-
-
-				return true;
 
 			}
 

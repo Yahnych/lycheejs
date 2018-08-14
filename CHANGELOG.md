@@ -22,6 +22,7 @@ and `fixed`.
 
 ## [2018-Q3] - UNRELEASED
 
+- **Changed**: lychee.net.Tunnel `setType(type)` is renamed into `setProtocol(protocol)`.
 - **Added**: lychee.js Strainer supports `no-composite`.
 - **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
 - **Added**: lychee.Package supports `getEnvironments(tags)` and `getSimulations(tags)`.
