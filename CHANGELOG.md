@@ -22,8 +22,11 @@ and `fixed`.
 
 ## [2018-Q3] - UNRELEASED
 
+- **Added**: lychee.js Strainer supports `no-composite`.
 - **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
 - **Added**: lychee.Package supports `getEnvironments(tags)` and `getSimulations(tags)`.
+- **Added**: lychee.event.Emitter supports `has(event, callback, scope)` syntax.
+- **Added**: lychee.net.Service supports Composite syntax.
 - **Fixed**: `node` platform fixes serialization of binary assets.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
 - Added: lychee.codec Stack supports `Date` data type.

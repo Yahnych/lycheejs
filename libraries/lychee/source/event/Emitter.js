@@ -5,6 +5,58 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 	 * HELPERS
 	 */
 
+	const _has = function(event, callback, scope) {
+
+		let found = false;
+
+		if (event !== null) {
+
+			found = _has_event.call(this, event, callback, scope);
+
+		} else {
+
+			for (event in this.___events) {
+
+				let result = _has_event.call(this, event, callback, scope);
+				if (result === true) {
+					found = true;
+					break;
+				}
+
+			}
+
+		}
+
+		return found;
+
+	};
+
+	const _has_event = function(event, callback, scope) {
+
+		if (this.___events !== undefined && this.___events[event] !== undefined) {
+
+			let found = false;
+
+			for (let e = 0, el = this.___events[event].length; e < el; e++) {
+
+				let entry = this.___events[event][e];
+
+				if ((callback === null || entry.callback === callback) && (scope === null || entry.scope === scope)) {
+					found = true;
+					break;
+				}
+
+			}
+
+			return found;
+
+		}
+
+
+		return false;
+
+	};
+
 	const _bind = function(event, callback, scope, once) {
 
 		if (event === null || callback === null) {
@@ -164,7 +216,6 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 
 		}
 
-
 		return found;
 
 	};
@@ -190,7 +241,6 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 				}
 
 			}
-
 
 			return found;
 
@@ -322,6 +372,31 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 		/*
 		 * CUSTOM API
 		 */
+
+		has: function(event, callback, scope) {
+
+			event    = typeof event === 'string'    ? event    : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			let result = _has.call(this, event, callback, scope);
+			if (result === true && lychee.debug === true) {
+
+				this.___timeline.has.push({
+					time:     Date.now(),
+					event:    event,
+					callback: lychee.serialize(callback),
+					// scope:    lychee.serialize(scope)
+					scope:    null
+				});
+
+			}
+
+
+			return result;
+
+		},
 
 		bind: function(event, callback, scope, once) {
 

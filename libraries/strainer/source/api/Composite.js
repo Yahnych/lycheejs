@@ -737,6 +737,20 @@ lychee.define('strainer.api.Composite').requires([
 
 					}
 
+				} else if (result.constructor.parameters.length > 1) {
+
+					let chunk = result.constructor.chunk.split('\n')[0];
+					let ref   = _find_reference('\n\tconst Composite = ' + chunk, stream);
+
+					errors.push({
+						url:       null,
+						rule:      'no-composite',
+						reference: 'constructor',
+						message:   'Composite has too many arguments.',
+						line:      ref.line,
+						column:    ref.column
+					});
+
 				} else {
 
 					let ref = _find_reference('\n\tconst Composite = function(', stream, true);

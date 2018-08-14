@@ -1092,10 +1092,11 @@ lychee.define('strainer.flow.Check').requires([
 
 		this.bind('write-sources', function(oncomplete) {
 
+			let debug   = this.settings.debug === true;
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && stash !== null && debug === false) {
 
 				console.log('strainer: WRITE-SOURCES ' + sandbox);
 
@@ -1119,6 +1120,8 @@ lychee.define('strainer.flow.Check').requires([
 					oncomplete(true);
 				}
 
+			} else if (debug === true) {
+				oncomplete(true);
 			} else {
 				oncomplete(false);
 			}
@@ -1127,10 +1130,11 @@ lychee.define('strainer.flow.Check').requires([
 
 		this.bind('write-reviews', function(oncomplete) {
 
+			let debug   = this.settings.debug === true;
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && stash !== null && debug === false) {
 
 				console.log('strainer: WRITE-REVIEWS ' + sandbox);
 
@@ -1154,6 +1158,8 @@ lychee.define('strainer.flow.Check').requires([
 					oncomplete(true);
 				}
 
+			} else if (debug === true) {
+				oncomplete(true);
 			} else {
 				oncomplete(false);
 			}
@@ -1162,10 +1168,11 @@ lychee.define('strainer.flow.Check').requires([
 
 		this.bind('write-configs', function(oncomplete) {
 
+			let debug   = this.settings.debug === true;
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && stash !== null && debug === true) {
 
 				console.log('strainer: WRITE-CONFIGS ' + sandbox);
 
@@ -1189,6 +1196,8 @@ lychee.define('strainer.flow.Check').requires([
 					oncomplete(true);
 				}
 
+			} else if (debug === true) {
+				oncomplete(true);
 			} else {
 				oncomplete(false);
 			}
@@ -1197,10 +1206,11 @@ lychee.define('strainer.flow.Check').requires([
 
 		this.bind('write-package', function(oncomplete) {
 
+			let debug   = this.settings.debug === true;
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && stash !== null && debug === false) {
 
 				console.log('strainer: WRITE-PACKAGE ' + sandbox);
 
@@ -1263,6 +1273,8 @@ lychee.define('strainer.flow.Check').requires([
 					oncomplete(true);
 				}
 
+			} else if (debug === true) {
+				oncomplete(true);
 			} else {
 				oncomplete(false);
 			}

@@ -23,6 +23,8 @@ lychee.define('lychee.net.Remote').requires([
 		let states = Object.assign({}, data);
 
 
+		states.type = 'remote';
+
 		_Tunnel.call(this, states);
 
 		states = null;

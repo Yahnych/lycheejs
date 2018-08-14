@@ -5,8 +5,10 @@ lychee.define('lychee.net.Service').requires([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
+	let   _id       = 0;
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _SERVICES = {};
+	let   _Tunnel   = lychee.import('lychee.net.Tunnel');
 
 
 
@@ -77,46 +79,32 @@ lychee.define('lychee.net.Service').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(id, tunnel, type) {
+	const Composite = function(data) {
 
-		this.id     = typeof id === 'string'                        ? id     : null;
-		this.tunnel = lychee.interfaceof(lychee.net.Tunnel, tunnel) ? tunnel : null;
-		this.type   = lychee.enumof(Composite.TYPE, type)           ? type   : null;
+		let states = Object.assign({}, data);
+
+
+		this.id     = 'lychee-net-Service-' + _id++;
+		this.tunnel = null;
+		this.type   = null;
 
 		this.__multicast = [];
 
 
-		if (lychee.debug === true) {
-
-			if (this.id === null) {
-				console.error('lychee.net.Service: Invalid (string) id. It has to be kept in sync with the lychee.net.Client and lychee.net.Remote instance.');
-			}
-
-			if (this.tunnel === null) {
-				console.error('lychee.net.Service: Invalid (lychee.net.Tunnel) tunnel.');
-			}
-
-			if (this.type === null) {
-				console.error('lychee.net.Service: Invalid (lychee.net.Service.TYPE) type.');
-			}
-
+		// XXX: Circular Dependency Problem
+		if (_Tunnel === null) {
+			_Tunnel = lychee.import('lychee.net.Tunnel');
 		}
+
+
+		this.setId(states.id);
+		this.setTunnel(states.tunnel);
+		this.setType(states.type);
 
 
 		_Emitter.call(this);
 
-
-
-		/*
-		 * INITIALIZATION
-		 */
-
-		if (this.type === Composite.TYPE.remote) {
-
-			this.bind('plug',   _plug_broadcast,   this);
-			this.bind('unplug', _unplug_broadcast, this);
-
-		}
+		states = null;
 
 	};
 
@@ -150,7 +138,7 @@ lychee.define('lychee.net.Service').requires([
 			if (this.id !== null)   id   = this.id;
 			if (this.type !== null) type = this.type;
 
-			if (this.type === Composite.TYPE.client) {
+			if (this.type === 'client') {
 				tunnel = '#MAIN.client';
 			} else {
 				tunnel = null;
@@ -185,7 +173,7 @@ lychee.define('lychee.net.Service').requires([
 
 
 			let type = this.type;
-			if (type === Composite.TYPE.client) {
+			if (type === 'client') {
 
 				if (service === null) {
 
@@ -197,9 +185,10 @@ lychee.define('lychee.net.Service').requires([
 				}
 
 
-				if (this.tunnel !== null) {
+				let tunnel = this.tunnel;
+				if (tunnel !== null) {
 
-					this.tunnel.send({
+					tunnel.send({
 						data:    data,
 						service: service
 					}, {
@@ -211,7 +200,7 @@ lychee.define('lychee.net.Service').requires([
 
 				}
 
-			} else if (type === Composite.TYPE.remote) {
+			} else if (type === 'remote') {
 
 				if (data.service !== null) {
 
@@ -254,7 +243,7 @@ lychee.define('lychee.net.Service').requires([
 
 
 			let type = this.type;
-			if (type === Composite.TYPE.client) {
+			if (type === 'client') {
 
 				if (service === null) {
 
@@ -266,9 +255,10 @@ lychee.define('lychee.net.Service').requires([
 				}
 
 
-				if (this.tunnel !== null) {
+				let tunnel = this.tunnel;
+				if (tunnel !== null) {
 
-					this.tunnel.send({
+					tunnel.send({
 						data:    data,
 						service: service
 					}, {
@@ -280,7 +270,7 @@ lychee.define('lychee.net.Service').requires([
 
 				}
 
-			} else if (type === Composite.TYPE.remote) {
+			} else if (type === 'remote') {
 
 				// XXX: Allow method calls from remote side
 				if (data !== null && service !== null) {
@@ -379,6 +369,92 @@ lychee.define('lychee.net.Service').requires([
 					return true;
 
 				}
+
+			}
+
+
+			return false;
+
+		},
+
+		setId: function(id) {
+
+			id = typeof id === 'string' ? id : null;
+
+
+			if (id !== null) {
+
+				this.id = id;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setTunnel: function(tunnel) {
+
+			tunnel = lychee.interfaceof(_Tunnel, tunnel) ? tunnel : null;
+
+
+			if (tunnel !== null) {
+
+				this.tunnel = tunnel;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setType: function(type) {
+
+			type = typeof type === 'string' ? type : null;
+
+
+			if (type === 'client') {
+
+				if (this.type !== type) {
+
+					if (this.has('plug', _plug_broadcast, this) === true) {
+						this.unbind('plug', _plug_broadcast, this);
+					}
+
+					if (this.has('unplug', _unplug_broadcast, this) === true) {
+						this.unbind('unplug', _unplug_broadcast, this);
+					}
+
+					this.type = type;
+
+				}
+
+
+				return true;
+
+			} else if (type === 'remote') {
+
+				if (this.type !== type) {
+
+					if (this.has('plug', _plug_broadcast, this) === false) {
+						this.bind('plug', _plug_broadcast, this);
+					}
+
+					if (this.has('unplug', _unplug_broadcast, this) === false) {
+						this.bind('unplug', _unplug_broadcast, this);
+					}
+
+					this.type = type;
+
+				}
+
+
+				return true;
 
 			}
 

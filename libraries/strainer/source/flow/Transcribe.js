@@ -206,10 +206,11 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 		this.bind('write-sources', function(oncomplete) {
 
+			let debug   = this.settings.debug === true;
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null) {
+			if (sandbox !== '' && stash !== null && debug === false) {
 
 				console.log('strainer: WRITE-SOURCES ' + sandbox);
 
@@ -236,6 +237,8 @@ lychee.define('strainer.flow.Transcribe').requires([
 					oncomplete(true);
 				}
 
+			} else if (debug === true) {
+				oncomplete(true);
 			} else {
 				oncomplete(false);
 			}

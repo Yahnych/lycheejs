@@ -23,6 +23,8 @@ lychee.define('lychee.net.Client').requires([
 		let states = Object.assign({}, data);
 
 
+		states.type = 'client';
+
 		_Tunnel.call(this, states);
 
 		states = null;
