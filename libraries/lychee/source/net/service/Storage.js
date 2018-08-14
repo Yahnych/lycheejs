@@ -1,5 +1,5 @@
 
-lychee.define('lychee.net.remote.Storage').includes([
+lychee.define('lychee.net.service.Storage').includes([
 	'lychee.net.Service'
 ]).exports(function(lychee, global, attachments) {
 
@@ -11,9 +11,14 @@ lychee.define('lychee.net.remote.Storage').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(remote) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'storage', remote, _Service.TYPE.remote);
+		let states = Object.assign({}, data);
+
+
+		_Service.call(this, states);
+
+		states = null;
 
 
 
@@ -23,10 +28,14 @@ lychee.define('lychee.net.remote.Storage').includes([
 
 		this.bind('sync', function(data) {
 
-			this.broadcast(data, {
-				id:    this.id,
-				event: 'sync'
-			});
+			let tunnel = this.tunnel;
+			if (tunnel !== null && tunnel.type === 'remote') {
+
+				this.broadcast(data, {
+					event: 'sync'
+				});
+
+			}
 
 		}, this);
 
@@ -44,8 +53,7 @@ lychee.define('lychee.net.remote.Storage').includes([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'lychee.net.remote.Storage';
-			data['arguments']   = [];
+			data['constructor'] = 'lychee.net.service.Storage';
 
 
 			return data;
@@ -63,18 +71,14 @@ lychee.define('lychee.net.remote.Storage').includes([
 			objects = objects instanceof Array ? objects : null;
 
 
-			if (objects !== null && this.tunnel !== null) {
+			if (objects !== null) {
 
-				this.tunnel.send({
+				return this.send({
 					timestamp: Date.now(),
 					objects:   objects
 				}, {
-					id:    'storage',
 					event: 'sync'
 				});
-
-
-				return true;
 
 			}
 

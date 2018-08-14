@@ -248,23 +248,6 @@
 				"Tunnel": [
 					"json"
 				],
-				"client": {
-					"Chat": [
-						"json"
-					],
-					"Debugger": [
-						"json"
-					],
-					"Session": [
-						"json"
-					],
-					"Stash": [
-						"json"
-					],
-					"Storage": [
-						"json"
-					]
-				},
 				"protocol": {
 					"HTTP": [
 						"json"
@@ -273,7 +256,7 @@
 						"json"
 					]
 				},
-				"remote": {
+				"service": {
 					"Chat": [
 						"json"
 					],
@@ -983,23 +966,6 @@
 				"Tunnel": [
 					"js"
 				],
-				"client": {
-					"Chat": [
-						"js"
-					],
-					"Debugger": [
-						"js"
-					],
-					"Session": [
-						"js"
-					],
-					"Stash": [
-						"js"
-					],
-					"Storage": [
-						"js"
-					]
-				},
 				"protocol": {
 					"HTTP": [
 						"js"
@@ -1008,7 +974,7 @@
 						"js"
 					]
 				},
-				"remote": {
+				"service": {
 					"Chat": [
 						"js"
 					],

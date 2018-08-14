@@ -1,5 +1,5 @@
 
-lychee.define('lychee.net.client.Stash').includes([
+lychee.define('lychee.net.service.Stash').includes([
 	'lychee.net.Service'
 ]).exports(function(lychee, global, attachments) {
 
@@ -11,9 +11,33 @@ lychee.define('lychee.net.client.Stash').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(client) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'stash', client, _Service.TYPE.client);
+		let states = Object.assign({}, data);
+
+
+		_Service.call(this, states);
+
+		states = null;
+
+
+
+		/*
+		 * INITIALIZATION
+		 */
+
+		this.bind('sync', function(data) {
+
+			let tunnel = this.tunnel;
+			if (tunnel !== null && tunnel.type === 'remote') {
+
+				this.broadcast(data, {
+					event: 'sync'
+				});
+
+			}
+
+		}, this);
 
 	};
 
@@ -29,8 +53,7 @@ lychee.define('lychee.net.client.Stash').includes([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'lychee.net.client.Stash';
-			data['arguments']   = [ data['arguments'][1] ];
+			data['constructor'] = 'lychee.net.service.Stash';
 
 
 			return data;
@@ -48,7 +71,7 @@ lychee.define('lychee.net.client.Stash').includes([
 			assets = assets instanceof Object ? assets : null;
 
 
-			if (assets !== null && this.tunnel !== null) {
+			if (assets !== null) {
 
 				let data = {};
 
@@ -57,16 +80,12 @@ lychee.define('lychee.net.client.Stash').includes([
 				}
 
 
-				this.tunnel.send({
+				return this.send({
 					timestamp: Date.now(),
 					assets:    data
 				}, {
-					id:    'stash',
 					event: 'sync'
 				});
-
-
-				return true;
 
 			}
 
