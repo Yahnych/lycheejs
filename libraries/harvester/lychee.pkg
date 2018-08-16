@@ -42,24 +42,7 @@
 				"Server": [
 					"json"
 				],
-				"client": {
-					"Console": [
-						"json"
-					],
-					"Harvester": [
-						"json"
-					],
-					"Library": [
-						"json"
-					],
-					"Profile": [
-						"json"
-					],
-					"Project": [
-						"json"
-					]
-				},
-				"remote": {
+				"service": {
 					"Console": [
 						"json"
 					],
@@ -249,24 +232,7 @@
 				"Server": [
 					"js"
 				],
-				"client": {
-					"Console": [
-						"js"
-					],
-					"Harvester": [
-						"js"
-					],
-					"Library": [
-						"js"
-					],
-					"Profile": [
-						"js"
-					],
-					"Project": [
-						"js"
-					]
-				},
-				"remote": {
+				"service": {
 					"Console": [
 						"js"
 					],

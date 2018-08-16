@@ -48,32 +48,32 @@ lychee.define('harvester.net.Admin').requires([
 
 			remote.addService(new _service.Console({
 				id: 'console',
-				tunnel: this
+				tunnel: remote
 			}));
 
 			remote.addService(new _service.Harvester({
 				id: 'harvester',
-				tunnel: this
+				tunnel: remote
 			}));
 
 			remote.addService(new _service.Library({
 				id: 'library',
-				tunnel: this
+				tunnel: remote
 			}));
 
 			remote.addService(new _service.Profile({
 				id: 'profile',
-				tunnel: this
+				tunnel: remote
 			}));
 
 			remote.addService(new _service.Project({
 				id: 'project',
-				tunnel: this
+				tunnel: remote
 			}));
 
 			remote.addService(new _service.Server({
 				id: 'server',
-				tunnel: this
+				tunnel: remote
 			}));
 
 
