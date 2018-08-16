@@ -72,6 +72,18 @@
 				}
 			},
 			"platform": {
+				"html": {
+					"data": {
+						"Filesystem": [
+							"json"
+						]
+					},
+					"mod": {
+						"Server": [
+							"json"
+						]
+					}
+				},
 				"node": {
 					"data": {
 						"Filesystem": [
@@ -262,6 +274,18 @@
 				}
 			},
 			"platform": {
+				"html": {
+					"data": {
+						"Filesystem": [
+							"js"
+						]
+					},
+					"mod": {
+						"Server": [
+							"js"
+						]
+					}
+				},
 				"node": {
 					"data": {
 						"Filesystem": [
@@ -287,6 +311,7 @@
 		},
 		"tags": {
 			"platform": {
+				"html": "platform/html",
 				"node": "platform/node"
 			}
 		}

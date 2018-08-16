@@ -5,6 +5,7 @@ lychee.define('harvester.net.Client').requires([
 	'harvester.net.service.Library',
 	'harvester.net.service.Profile',
 	'harvester.net.service.Project',
+	'harvester.net.service.Server',
 	'lychee.codec.BENCODE',
 	'lychee.codec.BITON',
 	'lychee.codec.JSON',
