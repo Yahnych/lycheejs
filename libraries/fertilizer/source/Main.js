@@ -202,6 +202,7 @@ lychee.define('fertilizer.Main').requires([
 								if (remaining > 0) {
 
 									let target = environment.definitions[environment.target] || null;
+									let info   = [ 'fertilizer: Fixing Dependencies' ];
 
 									for (let req in dependencies) {
 
@@ -210,19 +211,40 @@ lychee.define('fertilizer.Main').requires([
 										let definition = environment.definitions[req] || null;
 										if (definition !== null) {
 
-											let i0 = definition._requires.indexOf(dep);
-											if (i0 !== -1) {
-												definition._requires.splice(i0, 1);
+											let i0 = definition._includes.indexOf(dep);
+											let i1 = definition._requires.indexOf(dep);
+
+											if (i0 !== -1 || i1 !== -1) {
+												info.push('fertilizer: Removing "' + dep + '" from Definition "' + definition.id + '".');
 												remaining--;
+											}
+
+											if (i0 !== -1) {
+												definition._includes.splice(i0, 1);
+											}
+
+											if (i1 !== -1) {
+												definition._requires.splice(i1, 1);
 											}
 
 										}
 
+
 										if (target !== null) {
 
-											let i0 = target._requires.indexOf(req);
+											let i0 = target._includes.indexOf(req);
+											let i1 = target._requires.indexOf(req);
+
+											if (i0 !== -1 || i1 !== -1) {
+												info.push('fertilizer: Removing "' + req + '" from Definition "' + target.id + '".');
+											}
+
 											if (i0 !== -1) {
-												target._requires.splice(i0, 1);
+												target._includes.splice(i0, 1);
+											}
+
+											if (i1 !== -1) {
+												target._requires.splice(i1, 1);
 											}
 
 										}
@@ -233,7 +255,6 @@ lychee.define('fertilizer.Main').requires([
 									if (remaining === 0) {
 
 										console.warn('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "load" event');
-
 
 										if (typeof environment.global.console.serialize === 'function') {
 
@@ -250,6 +271,10 @@ lychee.define('fertilizer.Main').requires([
 
 										}
 
+
+										info.forEach(function(line) {
+											console.warn(line);
+										});
 
 										that.trigger('init', [ project, identifier, platform, variant, environment, profile, true ]);
 
