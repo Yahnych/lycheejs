@@ -1,6 +1,5 @@
 
 lychee.define('lychee.net.Service').requires([
-	'lychee.net.Tunnel'
 	// 'lychee.net.Tunnel' // XXX: Causes circular dependency
 ]).includes([
 	'lychee.event.Emitter'

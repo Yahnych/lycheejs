@@ -247,10 +247,17 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 	bash ./libraries/crux/bin/configure.sh;
 	_echo_result $? 1;
 
-	echo -e " (L) Distributing lychee.js Engine";
-	export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
-	bash ./libraries/fertilizer/bin/fertilizer.sh auto /libraries/lychee;
-	_echo_result $? 1;
+
+	if [ "$CORE_FLAG" == "false" ]; then
+
+		echo -e " (L) Distributing lychee.js Engine";
+
+		export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
+		bash ./libraries/fertilizer/bin/fertilizer.sh auto /libraries/lychee;
+
+		_echo_result $? 1;
+
+	fi;
 
 
 	if [ "$CORE_FLAG" == "false" ]; then

@@ -30,6 +30,7 @@ and `fixed`.
 - **Added**: lychee.net.Service supports Composite syntax.
 - **Fixed**: `node` platform fixes serialization of binary assets.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Added: lychee.Environment supports detection of cyclic dependencies.
 - Added: lychee.codec Stack supports `Date` data type.
 - Added: lychee.codec.INI supports INI format with JSON-compatible data types.
 - Fixed: lychee.Environment supports `requires()` and `includes()` of lychee.js Crux identifiers.

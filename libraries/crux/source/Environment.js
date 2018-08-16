@@ -121,12 +121,96 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 
 				let other = cache.required_by[index] || null;
 				if (other === null) {
-					other = 'lychee.environment';
+					other = this.target;
 				}
 
 				return '\t - ' + value + ' (required by ' + other + ')';
 
-			}).join('\n') + '.');
+			}.bind(this)).join('\n'));
+
+		}
+
+
+		// XXX: Always show Cyclic Dependencies
+		if (cache.trace.length > 0) {
+
+			let cyclic_dependencies = {};
+
+			cache.trace.forEach(function(id) {
+
+				let definition = this.definitions[id] || null;
+				if (definition !== null) {
+
+					for (let i = 0, il = definition._requires.length; i < il; i++) {
+
+						let require = definition._requires[i];
+						if (cache.trace.includes(require)) {
+
+							let entry = cyclic_dependencies[id] || null;
+							if (entry === null) {
+								entry = cyclic_dependencies[id] = [];
+							}
+
+							entry.push(require);
+
+						}
+
+					}
+
+					for (let i = 0, il = definition._includes.length; i < il; i++) {
+
+						let include = definition._includes[i];
+						if (cache.trace.includes(include)) {
+
+							let entry = cyclic_dependencies[id] || null;
+							if (entry === null) {
+								entry = cyclic_dependencies[id] = [];
+							}
+
+							entry.push(include);
+
+						}
+
+					}
+
+				}
+
+			}.bind(this));
+
+
+			for (let id in cyclic_dependencies) {
+
+				let entry = cyclic_dependencies[id];
+
+				for (let e = 0, el = entry.length; e < el; e++) {
+
+					let other = cyclic_dependencies[entry[e]] || [];
+					if (other.includes(id) === false) {
+						delete cyclic_dependencies[id];
+						break;
+					}
+
+				}
+
+			}
+
+
+			let entries = Object.values(cyclic_dependencies);
+			if (entries.length > 0) {
+
+				let others = Object.keys(cyclic_dependencies);
+
+				this.global.console.error('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + entries.map(function(values, index) {
+
+					let other = others[index];
+
+					return values.map(function(value) {
+						return '\t - ' + value + ' (required by ' + other + ')';
+					}).join('\n');
+
+				}).join('\n'));
+
+			}
 
 		}
 
