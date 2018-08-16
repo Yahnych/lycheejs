@@ -33,10 +33,10 @@ lychee.define('game.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService({
+			this.addService(new _Control({
 				id: 'control',
 				tunnel: this
-			});
+			}));
 
 			if (lychee.debug === true) {
 				console.log('game.net.Client: Remote connected');

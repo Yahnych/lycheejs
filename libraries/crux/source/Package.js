@@ -1162,9 +1162,12 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort(function(a, b) {
+			filtered = filtered.sort(function(a, b) {
 				return _sort_by_tag(a.id, b.id);
 			});
+
+
+			return filtered;
 
 		},
 

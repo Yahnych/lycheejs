@@ -7,8 +7,10 @@ lychee.define('game.Main').requires([
 	'lychee.app.Main'
 ]).exports(function(lychee, global, attachments) {
 
-	const _game   = lychee.import('game');
+	const _Client = lychee.import('game.net.Client');
+	const _Game   = lychee.import('game.state.Game');
 	const _Main   = lychee.import('lychee.app.Main');
+	const _Server = lychee.import('game.net.Server');
 
 
 
@@ -75,7 +77,7 @@ lychee.define('game.Main').requires([
 			let gameclient = this.settings.gameclient;
 			if (gameclient !== null) {
 
-				this.client = new _game.net.Client(gameclient);
+				this.client = new _Client(gameclient);
 				this.client.bind('connect', function() {
 					this.changeState('game');
 				}, this);
@@ -84,7 +86,7 @@ lychee.define('game.Main').requires([
 
 			let gameserver = this.settings.gameserver;
 			if (gameserver !== null) {
-				this.server = new _game.net.Server(gameserver);
+				this.server = new _Server(gameserver);
 			}
 
 
@@ -92,7 +94,7 @@ lychee.define('game.Main').requires([
 			this.viewport.unbind('hide');
 
 
-			this.setState('game', new _game.state.Game(this));
+			this.setState('game', new _Game(this));
 
 		}, this, true);
 

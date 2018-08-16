@@ -16,7 +16,7 @@ lychee.define('game.app.sprite.Item').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({}, data);
 

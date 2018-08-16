@@ -63,7 +63,7 @@ lychee.define('game.app.sprite.Portal').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({}, data);
 

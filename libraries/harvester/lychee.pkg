@@ -42,6 +42,14 @@
 				"Server": [
 					"json"
 				],
+				"server": {
+					"File": [
+						"json"
+					],
+					"Redirect": [
+						"json"
+					]
+				},
 				"service": {
 					"Console": [
 						"json"
@@ -59,14 +67,6 @@
 						"json"
 					],
 					"Server": [
-						"json"
-					]
-				},
-				"server": {
-					"File": [
-						"json"
-					],
-					"Redirect": [
 						"json"
 					]
 				}
@@ -232,6 +232,14 @@
 				"Server": [
 					"js"
 				],
+				"server": {
+					"File": [
+						"js"
+					],
+					"Redirect": [
+						"js"
+					]
+				},
 				"service": {
 					"Console": [
 						"js"
@@ -249,14 +257,6 @@
 						"js"
 					],
 					"Server": [
-						"js"
-					]
-				},
-				"server": {
-					"File": [
-						"js"
-					],
-					"Redirect": [
 						"js"
 					]
 				}

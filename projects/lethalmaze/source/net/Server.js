@@ -31,10 +31,10 @@ lychee.define('game.net.Server').requires([
 
 		this.bind('connect', function(remote) {
 
-			remote.addService({
+			remote.addService(new _Control({
 				id: 'control',
 				tunnel: remote
-			});
+			}));
 
 			console.log('game.net.Server: Remote connected (' + remote.id + ')');
 

@@ -46,12 +46,7 @@
 				"Server": [
 					"json"
 				],
-				"client": {
-					"Control": [
-						"json"
-					]
-				},
-				"remote": {
+				"service": {
 					"Control": [
 						"json"
 					]
@@ -217,12 +212,7 @@
 				"Server": [
 					"js"
 				],
-				"client": {
-					"Control": [
-						"js"
-					]
-				},
-				"remote": {
+				"service": {
 					"Control": [
 						"js"
 					]
