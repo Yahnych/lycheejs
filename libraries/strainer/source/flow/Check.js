@@ -1172,7 +1172,7 @@ lychee.define('strainer.flow.Check').requires([
 			let sandbox = this.sandbox;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null && debug === true) {
+			if (sandbox !== '' && stash !== null) {
 
 				console.log('strainer: WRITE-CONFIGS ' + sandbox);
 

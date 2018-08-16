@@ -1,5 +1,5 @@
 
-lychee.define('studio.net.Server').requires([
+lychee.define('studio.net.Server').includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 

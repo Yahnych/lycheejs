@@ -215,7 +215,7 @@ lychee.define('fertilizer.Main').requires([
 											let i1 = definition._requires.indexOf(dep);
 
 											if (i0 !== -1 || i1 !== -1) {
-												info.push('fertilizer: Removing "' + dep + '" from Definition "' + definition.id + '".');
+												info.push('fertilizer: -> Removing "' + dep + '" from "' + definition.id + '".');
 												remaining--;
 											}
 
@@ -236,7 +236,7 @@ lychee.define('fertilizer.Main').requires([
 											let i1 = target._requires.indexOf(req);
 
 											if (i0 !== -1 || i1 !== -1) {
-												info.push('fertilizer: Removing "' + req + '" from Definition "' + target.id + '".');
+												info.push('fertilizer: -> Removing "' + req + '" from "' + target.id + '".');
 											}
 
 											if (i0 !== -1) {

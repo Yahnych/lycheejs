@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.client.Library').includes([
+lychee.define('harvester.net.service.Console').includes([
 	'lychee.net.Service'
 ]).exports(function(lychee, global, attachments) {
 
@@ -14,11 +14,11 @@ lychee.define('harvester.net.client.Library').includes([
 
 	const _on_sync = function(data) {
 
-		if (data instanceof Array) {
+		if (data instanceof Object) {
 
-			data.forEach(function(object) {
-				_CACHE[object.identifier] = object;
-			});
+			for (let prop in data) {
+				_CACHE[prop] = data[prop];
+			}
 
 		}
 
@@ -30,10 +30,20 @@ lychee.define('harvester.net.client.Library').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(client) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'library', client, _Service.TYPE.client);
+		let states = Object.assign({}, data);
 
+
+		_Service.call(this, states);
+
+		states = null;
+
+
+
+		/*
+		 * INITIALIZATION: CLIENT
+		 */
 
 		this.bind('sync', _on_sync, this);
 
@@ -51,7 +61,7 @@ lychee.define('harvester.net.client.Library').includes([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.net.client.Library';
+			data['constructor'] = 'harvester.net.service.Console';
 
 
 			return data;
@@ -64,18 +74,29 @@ lychee.define('harvester.net.client.Library').includes([
 		 * CUSTOM API
 		 */
 
+		index: function() {
+
+			return this.send(lychee.serialize(console), {
+				event: 'sync'
+			});
+
+		},
+
 		sync: function() {
 
 			let tunnel = this.tunnel;
 			if (tunnel !== null) {
 
-				let result = tunnel.send({}, {
-					id:     this.id,
-					method: 'index'
-				});
+				if (tunnel.type === 'client') {
 
-				if (result === true) {
-					return true;
+					return this.send({}, {
+						method: 'index'
+					});
+
+				} else if (tunnel.type === 'remote') {
+
+					return this.index();
+
 				}
 
 			}

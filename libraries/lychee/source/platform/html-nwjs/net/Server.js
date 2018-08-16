@@ -53,11 +53,11 @@ lychee.define('lychee.net.Server').tags({
 		let states = Object.assign({}, data);
 
 
-		this.codec  = _JSON;
-		this.host   = null;
-		this.port   = 1337;
-		this.remote = _Remote;
-		this.type   = Composite.TYPE.WS;
+		this.codec    = _JSON;
+		this.host     = null;
+		this.port     = 1337;
+		this.protocol = Composite.PROTOCOL.WS;
+		this.remote   = _Remote;
 
 
 		this.__isConnected = false;
@@ -67,8 +67,8 @@ lychee.define('lychee.net.Server').tags({
 		this.setCodec(states.codec);
 		this.setHost(states.host);
 		this.setPort(states.port);
+		this.setProtocol(states.protocol);
 		this.setRemote(states.remote);
-		this.setType(states.type);
 
 
 		_Emitter.call(this);
@@ -110,7 +110,7 @@ lychee.define('lychee.net.Server').tags({
 	};
 
 
-	Composite.TYPE = {
+	Composite.PROTOCOL = {
 		WS:   0,
 		HTTP: 1,
 		TCP:  2
@@ -130,14 +130,14 @@ lychee.define('lychee.net.Server').tags({
 			let data = _Emitter.prototype.serialize.call(this);
 			data['constructor'] = 'lychee.net.Server';
 
-			let states = {};
+			let states = (data['arguments'][0] || {});
 
 
-			if (this.codec !== _JSON)            states.codec  = lychee.serialize(this.codec);
-			if (this.host !== 'localhost')       states.host   = this.host;
-			if (this.port !== 1337)              states.port   = this.port;
-			if (this.remote !== _Remote)         states.remote = lychee.serialize(this.remote);
-			if (this.type !== Composite.TYPE.WS) states.type   = this.type;
+			if (this.codec !== _JSON)                    states.codec    = lychee.serialize(this.codec);
+			if (this.host !== 'localhost')               states.host     = this.host;
+			if (this.port !== 1337)                      states.port     = this.port;
+			if (this.protocol !== Composite.PROTOCOL.WS) states.protocol = this.protocol;
+			if (this.remote !== _Remote)                 states.remote   = lychee.serialize(this.remote);
 
 
 			data['arguments'][0] = states;
@@ -162,46 +162,36 @@ lychee.define('lychee.net.Server').tags({
 				}
 
 
-				let that   = this;
 				let server = new _net.Server({
 					allowHalfOpen:  true,
 					pauseOnConnect: true
 				});
 
-
-				server.on('connection', function(socket) {
+				server.on('connection', socket => {
 
 					let host   = socket.remoteAddress || socket.server._connectionKey.split(':')[1];
 					let port   = socket.remotePort    || socket.server._connectionKey.split(':')[2];
-					let remote = new that.remote({
-						codec: that.codec,
-						host:  host,
-						port:  port,
-						type:  that.type
+					let remote = new this.remote({
+						codec:    this.codec,
+						host:     host,
+						port:     port,
+						protocol: this.protocol
 					});
 
-					that.trigger('preconnect', [ remote ]);
+					this.trigger('preconnect', [ remote ]);
 
-					remote.bind('connect', function() {
-						that.trigger('connect', [ this ]);
-					});
-
-					remote.bind('disconnect', function() {
-						that.trigger('disconnect', [ this ]);
-					});
-
+					remote.bind('connect',    _ => this.trigger('connect', [ remote ]));
+					remote.bind('disconnect', _ => this.trigger('disconnect', [ remote ]));
 
 					remote.connect(socket);
 
 				});
 
-				server.on('error', function() {
-					this.close();
-				});
+				server.on('error', _ => server.close());
 
-				server.on('close', function() {
-					that.__isConnected = false;
-					that.__server      = null;
+				server.on('close', _ => {
+					this.__isConnected = false;
+					this.__server      = null;
 				});
 
 				server.listen(this.port, this.host);
@@ -304,17 +294,16 @@ lychee.define('lychee.net.Server').tags({
 
 		},
 
-		setRemote: function(remote) {
+		setProtocol: function(protocol) {
 
-			remote = lychee.interfaceof(_Remote, remote) ? remote : null;
+			protocol = lychee.enumof(Composite.PROTOCOL, protocol) ? protocol : null;
 
 
-			if (remote !== null) {
+			if (protocol !== null) {
 
-				let oldremote = this.remote;
-				if (oldremote !== remote) {
+				if (this.protocol !== protocol) {
 
-					this.remote = remote;
+					this.protocol = protocol;
 
 
 					if (this.__isConnected === true) {
@@ -334,17 +323,16 @@ lychee.define('lychee.net.Server').tags({
 
 		},
 
-		setType: function(type) {
+		setRemote: function(remote) {
 
-			type = lychee.enumof(Composite.TYPE, type) ? type : null;
+			remote = lychee.interfaceof(_Remote, remote) ? remote : null;
 
 
-			if (type !== null) {
+			if (remote !== null) {
 
-				let oldtype = this.type;
-				if (oldtype !== type) {
+				if (this.remote !== remote) {
 
-					this.type = type;
+					this.remote = remote;
 
 
 					if (this.__isConnected === true) {

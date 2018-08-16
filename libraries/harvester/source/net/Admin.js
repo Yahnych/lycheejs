@@ -1,21 +1,21 @@
 
 lychee.define('harvester.net.Admin').requires([
 	'harvester.net.Remote',
-	'harvester.net.remote.Console',
-	'harvester.net.remote.Harvester',
-	'harvester.net.remote.Library',
-	'harvester.net.remote.Profile',
-	'harvester.net.remote.Project',
-	'harvester.net.remote.Server',
+	'harvester.net.service.Console',
+	'harvester.net.service.Harvester',
+	'harvester.net.service.Library',
+	'harvester.net.service.Profile',
+	'harvester.net.service.Project',
+	'harvester.net.service.Server',
 	'lychee.codec.JSON'
 ]).includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
-	const _remote = lychee.import('harvester.net.remote');
-	const _Remote = lychee.import('harvester.net.Remote');
-	const _Server = lychee.import('lychee.net.Server');
-	const _JSON   = lychee.import('lychee.codec.JSON');
+	const _service = lychee.import('harvester.net.service');
+	const _Remote  = lychee.import('harvester.net.Remote');
+	const _Server  = lychee.import('lychee.net.Server');
+	const _JSON    = lychee.import('lychee.codec.JSON');
 
 
 
@@ -26,11 +26,11 @@ lychee.define('harvester.net.Admin').requires([
 	const Composite = function(data) {
 
 		let states = Object.assign({
-			host:   'localhost',
-			port:   4848,
-			codec:  _JSON,
-			remote: _Remote,
-			type:   _Server.TYPE.HTTP
+			codec:    _JSON,
+			host:     'localhost',
+			port:     4848,
+			protocol: _Server.PROTOCOL.HTTP,
+			remote:   _Remote
 		}, data);
 
 
@@ -46,12 +46,35 @@ lychee.define('harvester.net.Admin').requires([
 
 		this.bind('connect', function(remote) {
 
-			remote.addService(new _remote.Console(remote));
-			remote.addService(new _remote.Harvester(remote));
-			remote.addService(new _remote.Library(remote));
-			remote.addService(new _remote.Profile(remote));
-			remote.addService(new _remote.Project(remote));
-			remote.addService(new _remote.Server(remote));
+			remote.addService(new _service.Console({
+				id: 'console',
+				tunnel: this
+			}));
+
+			remote.addService(new _service.Harvester({
+				id: 'harvester',
+				tunnel: this
+			}));
+
+			remote.addService(new _service.Library({
+				id: 'library',
+				tunnel: this
+			}));
+
+			remote.addService(new _service.Profile({
+				id: 'profile',
+				tunnel: this
+			}));
+
+			remote.addService(new _service.Project({
+				id: 'project',
+				tunnel: this
+			}));
+
+			remote.addService(new _service.Server({
+				id: 'server',
+				tunnel: this
+			}));
 
 
 			remote.bind('receive', function(payload, headers) {

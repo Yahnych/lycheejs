@@ -31,6 +31,22 @@ lychee.define('drafter.flow.Review').includes([
 
 	Composite.prototype = {
 
+		deserialize: function(blob) {
+
+			_Flow.prototype.deserialize.call(this, blob);
+
+		},
+
+		serialize: function() {
+
+			let data = _Flow.prototype.serialize.call(this);
+			data['constructor'] = 'drafter.flow.Review';
+
+
+			return data;
+
+		}
+
 	};
 
 

@@ -237,8 +237,7 @@ lychee.define('breeder.Template').requires([
 					_ASSET + '/source/Main.js',
 					_ASSET + '/source/net/Client.js',
 					_ASSET + '/source/net/Server.js',
-					_ASSET + '/source/net/client/Ping.js',
-					_ASSET + '/source/net/remote/Ping.js',
+					_ASSET + '/source/net/service/Ping.js',
 					_ASSET + '/source/state/Welcome.js',
 					_ASSET + '/source/state/Welcome.json'
 

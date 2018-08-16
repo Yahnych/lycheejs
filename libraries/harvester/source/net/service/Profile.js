@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.remote.Profile').requires([
+lychee.define('harvester.net.service.Profile').requires([
 	'harvester.data.Filesystem',
 	'lychee.codec.JSON'
 ]).includes([
@@ -86,13 +86,11 @@ lychee.define('harvester.net.remote.Profile').requires([
 			if (profile !== null) {
 
 				profile.identifier = identifier;
-				profile.host       = data.host    || 'localhost';
-				profile.port       = data.port    || 8080;
-				profile.debug      = data.debug   || false;
-
+				profile.host       = data.host  || 'localhost';
+				profile.port       = data.port  || 8080;
+				profile.debug      = data.debug || false;
 
 				_save_profile(profile);
-
 
 				this.accept('Profile updated ("' + identifier + '")');
 
@@ -110,16 +108,46 @@ lychee.define('harvester.net.remote.Profile').requires([
 
 	};
 
+	const _on_sync = function(data) {
+
+		if (data instanceof Array) {
+
+			data.forEach(function(object) {
+				_CACHE[object.identifier] = object;
+			});
+
+		}
+
+	};
+
 
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(remote) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'profile', remote, _Service.TYPE.remote);
+		let states = Object.assign({}, data);
 
+
+		_Service.call(this, states);
+
+		states = null;
+
+
+
+		/*
+		 * INITIALIZATION: CLIENT
+		 */
+
+		this.bind('sync', _on_sync, this);
+
+
+
+		/*
+		 * INITIALIZATION: REMOTE
+		 */
 
 		this.bind('save', _on_save, this);
 
@@ -137,7 +165,7 @@ lychee.define('harvester.net.remote.Profile').requires([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.net.remote.Profile';
+			data['constructor'] = 'harvester.net.service.Profile';
 
 
 			return data;
@@ -152,16 +180,32 @@ lychee.define('harvester.net.remote.Profile').requires([
 
 		index: function() {
 
-			let tunnel = this.tunnel;
-			if (tunnel !== null) {
+			return this.send(Object.values(_CACHE).map(_serialize), {
+				event: 'sync'
+			});
 
-				let result = tunnel.send(Object.values(_CACHE).map(_serialize), {
-					id:    this.id,
-					event: 'sync'
-				});
+		},
 
-				if (result === true) {
-					return true;
+		save: function(data) {
+
+			data = data instanceof Object ? data : null;
+
+
+			if (data !== null) {
+
+				let profile = {
+					identifier: typeof data.identifier === 'string' ? data.identifier : null,
+					host:       typeof data.host === 'string'       ? data.host       : null,
+					port:       typeof data.port === 'string'       ? data.port       : null,
+					debug:      data.debug   === true
+				};
+
+				if (profile.identifier !== null && profile.host !== null && profile.port !== null) {
+
+					return this.send(profile, {
+						event: 'save'
+					});
+
 				}
 
 			}
@@ -172,7 +216,27 @@ lychee.define('harvester.net.remote.Profile').requires([
 		},
 
 		sync: function() {
-			return this.index();
+
+			let tunnel = this.tunnel;
+			if (tunnel !== null) {
+
+				if (tunnel.type === 'client') {
+
+					return this.send({}, {
+						method: 'index'
+					});
+
+				} else if (tunnel.type === 'remote') {
+
+					return this.index();
+
+				}
+
+			}
+
+
+			return false;
+
 		}
 
 	};

@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.remote.Project').requires([
+lychee.define('harvester.net.service.Project').requires([
 	'harvester.mod.Server'
 ]).includes([
 	'lychee.net.Service'
@@ -7,6 +7,7 @@ lychee.define('harvester.net.remote.Project').requires([
 
 	const _Service = lychee.import('lychee.net.Service');
 	const _Server  = lychee.import('harvester.mod.Server');
+	const _CACHE   = {};
 
 
 
@@ -109,16 +110,46 @@ lychee.define('harvester.net.remote.Project').requires([
 
 	};
 
+	const _on_sync = function(data) {
+
+		if (data instanceof Array) {
+
+			data.forEach(function(object) {
+				_CACHE[object.identifier] = object;
+			});
+
+		}
+
+	};
+
 
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(remote) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'project', remote, _Service.TYPE.remote);
+		let states = Object.assign({}, data);
 
+
+		_Service.call(this, states);
+
+		states = null;
+
+
+
+		/*
+		 * INITIALIZATION: CLIENT
+		 */
+
+		this.bind('sync', _on_sync, this);
+
+
+
+		/*
+		 * INITIALIZATION: REMOTE
+		 */
 
 		this.bind('start', _on_start, this);
 		this.bind('stop',  _on_stop,  this);
@@ -137,7 +168,7 @@ lychee.define('harvester.net.remote.Project').requires([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.net.remote.Project';
+			data['constructor'] = 'harvester.net.service.Project';
 
 
 			return data;
@@ -152,26 +183,39 @@ lychee.define('harvester.net.remote.Project').requires([
 
 		index: function() {
 
-			let main   = global.MAIN || null;
-			let tunnel = this.tunnel;
+			let main = global.MAIN || null;
+			if (main !== null) {
 
-			if (main !== null && tunnel !== null) {
-
-				let result = tunnel.send(Object.values(main._projects).map(_serialize), {
-					id:    this.id,
+				return this.send(Object.values(main._projects).map(_serialize), {
 					event: 'sync'
 				});
-
-				if (result === true) {
-					return true;
-				}
 
 			}
 
 		},
 
 		sync: function() {
-			return this.index();
+
+			let tunnel = this.tunnel;
+			if (tunnel !== null) {
+
+				if (tunnel.type === 'client') {
+
+					return this.send({}, {
+						method: 'index'
+					});
+
+				} else if (tunnel.type === 'remote') {
+
+					return this.index();
+
+				}
+
+			}
+
+
+			return false;
+
 		}
 
 	};

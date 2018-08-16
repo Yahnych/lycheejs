@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.remote.Server').includes([
+lychee.define('harvester.net.service.Server').includes([
 	'lychee.net.Service'
 ]).exports(function(lychee, global, attachments) {
 
@@ -96,9 +96,14 @@ lychee.define('harvester.net.remote.Server').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(remote) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'server', remote, _Service.TYPE.remote);
+		let states = Object.assign({}, data);
+
+
+		_Service.call(this, states);
+
+		states = null;
 
 	};
 
@@ -114,7 +119,7 @@ lychee.define('harvester.net.remote.Server').includes([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.net.remote.Server';
+			data['constructor'] = 'harvester.net.service.Server';
 
 
 			return data;
@@ -134,10 +139,7 @@ lychee.define('harvester.net.remote.Server').includes([
 
 			if (data !== null) {
 
-				let host   = data['@host'] || null;
-				let main   = global.MAIN   || null;
-				let tunnel = this.tunnel;
-
+				let host = data['@host'] || null;
 				if (host !== null) {
 
 					if (host.endsWith(':4848')) {
@@ -146,7 +148,9 @@ lychee.define('harvester.net.remote.Server').includes([
 
 				}
 
-				if (main !== null && tunnel !== null) {
+
+				let main = global.MAIN || null;
+				if (main !== null) {
 
 					let all       = [];
 					let projects  = Object.values(main._projects);
@@ -166,14 +170,9 @@ lychee.define('harvester.net.remote.Server').includes([
 					});
 
 
-					let result = tunnel.send(all.map(_serialize), {
-						id:    this.id,
+					return this.send(all.map(_serialize), {
 						event: 'sync'
 					});
-
-					if (result === true) {
-						return true;
-					}
 
 				}
 
@@ -191,11 +190,7 @@ lychee.define('harvester.net.remote.Server').includes([
 
 			if (data !== null) {
 
-				let host       = data['@host']   || null;
-				let identifier = data.identifier || null;
-				let main       = global.MAIN     || null;
-				let tunnel     = this.tunnel;
-
+				let host = data['@host'] || null;
 				if (host !== null) {
 
 					if (host.endsWith(':4848')) {
@@ -204,21 +199,19 @@ lychee.define('harvester.net.remote.Server').includes([
 
 				}
 
-				if (identifier !== null && main !== null && tunnel !== null) {
+
+				let identifier = data.identifier || null;
+				let main       = global.MAIN     || null;
+				if (identifier !== null && main !== null) {
 
 					let project = _serialize(main._libraries[identifier] || main._projects[identifier]);
 					if (project !== null) {
 
 						project.host = project.host !== 'localhost' ? project.host : host;
 
-						let result = tunnel.send(project, {
-							id:    this.id,
+						return this.send(project, {
 							event: 'connect'
 						});
-
-						if (result === true) {
-							return result;
-						}
 
 					} else {
 

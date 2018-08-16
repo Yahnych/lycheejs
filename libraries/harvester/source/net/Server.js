@@ -12,12 +12,8 @@ lychee.define('harvester.net.Server').requires([
 	const _Remote   = lychee.import('harvester.net.Remote');
 	const _Server   = lychee.import('lychee.net.Server');
 	const _CODEC    = {
-		encode: function(data) {
-			return data;
-		},
-		decode: function(data) {
-			return data;
-		}
+		encode: data => data,
+		decode: data => data
 	};
 
 
@@ -29,9 +25,9 @@ lychee.define('harvester.net.Server').requires([
 	const Composite = function(data) {
 
 		let states = Object.assign({
-			codec:  _CODEC,
-			remote: _Remote,
-			type:   _Server.TYPE.HTTP
+			codec:    _CODEC,
+			protocol: _Server.PROTOCOL.HTTP,
+			remote:   _Remote
 		}, data);
 
 

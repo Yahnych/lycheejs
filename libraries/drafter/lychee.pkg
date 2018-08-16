@@ -41,6 +41,9 @@
 	},
 	"source": {
 		"files": {
+			"Main": [
+				"js"
+			],
 			"flow": {
 				"Review": [
 					"js"
@@ -48,10 +51,7 @@
 				"Source": [
 					"js"
 				]
-			},
-			"Main": [
-				"js"
-			]
+			}
 		},
 		"tags": {}
 	}

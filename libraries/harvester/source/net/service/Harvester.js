@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.remote.Harvester').requires([
+lychee.define('harvester.net.service.Harvester').requires([
 	'lychee.Storage'
 ]).includes([
 	'lychee.net.Service'
@@ -7,6 +7,7 @@ lychee.define('harvester.net.remote.Harvester').requires([
 
 	const _Service = lychee.import('lychee.net.Service');
 	const _Storage = lychee.import('lychee.Storage');
+	let   _ID      = null;
 	const _storage = new _Storage({
 		id:    'harvester',
 		type:  _Storage.TYPE.persistent,
@@ -32,11 +33,10 @@ lychee.define('harvester.net.remote.Harvester').requires([
 	const _serialize = function(harvester) {
 
 		return {
-			id:        harvester.id,
-			type:      'harvester',
-			networks:  harvester.networks  || [],
-			libraries: harvester.libraries || [],
-			projects:  harvester.projects  || []
+			id:        _ID || null,
+			networks:  harvester.getNetworks(),
+			libraries: Object.keys(harvester._libraries),
+			projects:  Object.keys(harvester._projects)
 		};
 
 	};
@@ -57,17 +57,11 @@ lychee.define('harvester.net.remote.Harvester').requires([
 			obj.id = id;
 
 
-			let tunnel = this.tunnel || null;
-			if (tunnel !== null) {
-
-				tunnel.send({
-					id: id
-				}, {
-					id:    this.id,
-					event: 'handshake'
-				});
-
-			}
+			this.send({
+				id: id
+			}, {
+				event: 'handshake'
+			});
 
 		}
 
@@ -94,16 +88,42 @@ lychee.define('harvester.net.remote.Harvester').requires([
 
 	};
 
+	const _on_handshake = function(data) {
+
+		if (typeof data.id === 'string') {
+			_ID = data.id;
+		}
+
+	};
+
 
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(remote) {
+	const Composite = function(data) {
 
-		_Service.call(this, 'harvester', remote, _Service.TYPE.remote);
+		let states = Object.assign({}, data);
 
+
+		_Service.call(this, states);
+
+		states = null;
+
+
+
+		/*
+		 * INITIALIZATION: CLIENT
+		 */
+
+		this.bind('handshake', _on_handshake, this);
+
+
+
+		/*
+		 * INITIALIZATION: REMOTE
+		 */
 
 		this.bind('connect',     _on_connect,    this);
 		this.bind('disconnect',  _on_disconnect, this);
@@ -122,7 +142,7 @@ lychee.define('harvester.net.remote.Harvester').requires([
 		serialize: function() {
 
 			let data = _Service.prototype.serialize.call(this);
-			data['constructor'] = 'harvester.net.remote.Harvester';
+			data['constructor'] = 'harvester.net.service.Harvester';
 
 
 			return data;
@@ -135,30 +155,47 @@ lychee.define('harvester.net.remote.Harvester').requires([
 		 * CUSTOM API
 		 */
 
-		index: function() {
+		connect: function() {
 
-			let main   = global.MAIN || null;
-			let tunnel = this.tunnel;
+			let main = global.MAIN || null;
+			if (main !== null) {
 
-			if (main !== null && tunnel !== null) {
-
-				let harvesters = _storage.filter(function(harvester) {
-					return true;
+				return this.send(_serialize(main), {
+					event: 'connect'
 				});
-
-				let result = tunnel.send(harvesters, {
-					id:    this.id,
-					event: 'sync'
-				});
-
-				if (result === true) {
-					return true;
-				}
 
 			}
 
 
 			return false;
+
+		},
+
+		disconnect: function() {
+
+			let main = global.MAIN || null;
+			if (main !== null) {
+
+				return this.send({
+					id: _ID
+				}, {
+					event: 'disconnect'
+				});
+
+			}
+
+
+			return false;
+
+		},
+
+		index: function() {
+
+			return this.send(_storage.filter(function(harvester) {
+				return true;
+			}), {
+				event: 'sync'
+			});
 
 		},
 
