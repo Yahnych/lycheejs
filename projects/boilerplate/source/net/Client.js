@@ -1,12 +1,12 @@
 
 lychee.define('app.net.Client').requires([
-	'app.net.client.Ping'
+	'app.net.service.Ping'
 ]).includes([
 	'lychee.net.Client'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Client = lychee.import('lychee.net.Client');
-	const _Ping   = lychee.import('app.net.client.Ping');
+	const _Ping   = lychee.import('app.net.service.Ping');
 
 
 
@@ -33,7 +33,10 @@ lychee.define('app.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new _Ping(this));
+			this.addService(new _Ping({
+				id: 'ping',
+				tunnel: this
+			}));
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote connected');

@@ -1,12 +1,9 @@
 
 lychee.define('studio.net.Client').requires([
-	'lychee.net.client.Stash'
-]).includes([
 	'lychee.net.Client'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Client = lychee.import('lychee.net.Client');
-	const _Stash  = lychee.import('lychee.net.client.Stash');
 
 
 
@@ -32,8 +29,6 @@ lychee.define('studio.net.Client').requires([
 		 */
 
 		this.bind('connect', function() {
-
-			this.addService(new _Stash(this));
 
 			if (lychee.debug === true) {
 				console.log('studio.net.Client: Remote connected');

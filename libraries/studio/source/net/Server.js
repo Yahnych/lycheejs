@@ -1,12 +1,9 @@
 
 lychee.define('studio.net.Server').requires([
-	'lychee.net.remote.Stash'
-]).includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Server = lychee.import('lychee.net.Server');
-	const _Stash  = lychee.import('lychee.net.remote.Stash');
 
 
 
@@ -46,8 +43,7 @@ lychee.define('studio.net.Server').requires([
 
 	const Composite = function(data, main) {
 
-		let states = Object.assign({
-		}, data);
+		let states = Object.assign({}, data);
 
 
 		_Server.call(this, states);
@@ -63,8 +59,6 @@ lychee.define('studio.net.Server').requires([
 		this.bind('connect', function(remote) {
 
 			console.log('studio.net.Server: Remote connected (' + remote.id + ')');
-
-			remote.addService(new _Stash(remote));
 
 
 			let service = remote.getService('stash');

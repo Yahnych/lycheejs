@@ -95,12 +95,7 @@
 				"Server": [
 					"js"
 				],
-				"client": {
-					"Ping": [
-						"js"
-					]
-				},
-				"remote": {
+				"service": {
 					"Ping": [
 						"js"
 					]

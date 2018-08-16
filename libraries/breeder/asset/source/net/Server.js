@@ -1,11 +1,11 @@
 
 lychee.define('app.net.Server').requires([
-	'app.net.remote.Ping'
+	'app.net.service.Ping'
 ]).includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Ping   = lychee.import('app.net.remote.Ping');
+	const _Ping   = lychee.import('app.net.service.Ping');
 	const _Server = lychee.import('lychee.net.Server');
 
 
@@ -16,8 +16,7 @@ lychee.define('app.net.Server').requires([
 
 	const Composite = function(data) {
 
-		let states = Object.assign({
-		}, data);
+		let states = Object.assign({}, data);
 
 
 		_Server.call(this, states);
@@ -34,7 +33,10 @@ lychee.define('app.net.Server').requires([
 
 			console.log('app.net.Server: Remote connected (' + remote.id + ')');
 
-			remote.addService(new _Ping(remote));
+			remote.addService(new _Ping({
+				id: 'ping',
+				tunnel: remote
+			}));
 
 		}, this);
 
