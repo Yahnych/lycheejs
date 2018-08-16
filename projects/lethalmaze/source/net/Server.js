@@ -1,11 +1,11 @@
 
 lychee.define('game.net.Server').requires([
-	'game.net.remote.Control'
+	'game.net.service.Control'
 ]).includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Control = lychee.import('game.net.remote.Control');
+	const _Control = lychee.import('game.net.service.Control');
 	const _Server  = lychee.import('lychee.net.Server');
 
 
@@ -16,8 +16,7 @@ lychee.define('game.net.Server').requires([
 
 	const Composite = function(data) {
 
-		let states = Object.assign({
-		}, data);
+		let states = Object.assign({}, data);
 
 
 		_Server.call(this, states);
@@ -32,9 +31,12 @@ lychee.define('game.net.Server').requires([
 
 		this.bind('connect', function(remote) {
 
-			console.log('game.net.Server: Remote connected (' + remote.id + ')');
+			remote.addService({
+				id: 'control',
+				tunnel: remote
+			});
 
-			remote.addService(new _Control(remote));
+			console.log('game.net.Server: Remote connected (' + remote.id + ')');
 
 		}, this);
 

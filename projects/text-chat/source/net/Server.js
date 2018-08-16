@@ -1,11 +1,11 @@
 
 lychee.define('app.net.Server').requires([
-	'lychee.net.remote.Chat'
+	'lychee.net.service.Chat'
 ]).includes([
 	'lychee.net.Server'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Chat   = lychee.import('lychee.net.remote.Chat');
+	const _Chat   = lychee.import('lychee.net.service.Chat');
 	const _Server = lychee.import('lychee.net.Server');
 
 
@@ -16,8 +16,7 @@ lychee.define('app.net.Server').requires([
 
 	const Composite = function(data) {
 
-		let states = Object.assign({
-		}, data);
+		let states = Object.assign({}, data);
 
 
 		_Server.call(this, states);
@@ -32,8 +31,10 @@ lychee.define('app.net.Server').requires([
 
 		this.bind('connect', function(remote) {
 
-			remote.addService(new _Chat('chat', remote, {
-				limit: 64
+			remote.addService(new _Chat({
+				id:     'chat',
+				limit:  64,
+				tunnel: remote
 			}));
 
 			console.log('app.net.Server: Remote connected (' + remote.id + ')');

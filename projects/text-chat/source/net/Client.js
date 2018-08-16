@@ -1,11 +1,11 @@
 
 lychee.define('app.net.Client').requires([
-	'lychee.net.client.Chat'
+	'lychee.net.service.Chat'
 ]).includes([
 	'lychee.net.Client'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Chat   = lychee.import('lychee.net.client.Chat');
+	const _Chat   = lychee.import('lychee.net.service.Chat');
 	const _Client = lychee.import('lychee.net.Client');
 
 
@@ -33,7 +33,10 @@ lychee.define('app.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new _Chat('chat', this));
+			this.addService({
+				id:     'chat',
+				tunnel: this
+			});
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote connected');

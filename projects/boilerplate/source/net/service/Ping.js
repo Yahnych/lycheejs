@@ -53,6 +53,7 @@ lychee.define('app.net.service.Ping').includes([
 
 		let states = Object.assign({}, data);
 
+
 		_Service.call(this, states);
 
 		states = null;
