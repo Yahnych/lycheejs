@@ -1,15 +1,17 @@
 
 lychee.define('drafter.flow.Source').requires([
+	'lychee.Definition',
 	'lychee.Package',
 	'lychee.Stash'
 ]).includes([
 	'lychee.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Flow    = lychee.import('lychee.event.Flow');
-	const _Package = lychee.import('lychee.Package');
-	const _Stash   = lychee.import('lychee.Stash');
-	const _STASH   = new _Stash({
+	const _Definition = lychee.import('lychee.Definition');
+	const _Flow       = lychee.import('lychee.event.Flow');
+	const _Package    = lychee.import('lychee.Package');
+	const _Stash      = lychee.import('lychee.Stash');
+	const _STASH      = new _Stash({
 		type: _Stash.TYPE.persistent
 	});
 
@@ -161,8 +163,6 @@ lychee.define('drafter.flow.Source').requires([
 					check = tmp[tmp.length - 1] = check.charAt(0).toUpperCase() + check.substr(1).toLowerCase();
 				}
 
-				console.warn(tmp);
-
 				if (pkg_id === 'app') {
 					candidates.push('lychee.' + tmp.slice(0, tmp.length).join('.'));
 				}
@@ -176,56 +176,30 @@ lychee.define('drafter.flow.Source').requires([
 				let pkg = this.__packages['lychee'] || null;
 				if (pkg !== null) {
 
-					let namespaces  = pkg.getNamespaces();
-					let definitions = pkg.getDefinitions();
+					let definitions = pkg.getDefinitions().map(function(id) {
+						return 'lychee.' + id;
+					});
 
+					candidates = candidates.filter(function(id) {
+						return definitions.includes(id);
+					});
+
+
+					let candidate = candidates[0] || null;
+					if (candidate !== null) {
+
+						// TODO: Create lychee.Definition instance
+						// TODO: Set includes()
+						// TODO: Write source from Definition afterwards
+						console.log(candidate);
+
+					} else {
+						oncomplete(false);
+					}
+
+				} else {
+					oncomplete(false);
 				}
-
-				console.log(candidates);
-
-
-				// XXX: This should be the case when behaviour[1]
-				// is a namespace in lychee package
-				// (e.g. ai, crypto, codec, data, effect, event etc.)
-				// if (behaviour[0] === 'app' && behaviour[1] === 'ui') {
-				// 	behaviour.shift();
-				// }
-
-				// behaviour.unshift('lychee');
-
-
-				// XXX: Only exception: lychee.app.State
-				// if (check === 'State') {
-
-				// 	if (behaviour[0] !== 'app') {
-				// 		behaviour.unshift('app');
-				// 	}
-
-				// 	behaviour.unshift('lychee');
-
-				// } else if (namespace === 'app') {
-
-				// 	console.warn(behaviour);
-
-				// 	// if (behaviour[behaviour.length - 1] === check) {
-
-				// 	// 	if (behaviour[0] !== 'app') {
-				// 	// 		behaviour.unshift('app');
-				// 	// 	}
-
-				// 	// }
-
-				// 	behaviour.unshift('lychee');
-
-				// } else {
-
-				// 	behaviour.unshift('lychee');
-
-				// }
-
-
-				// console.warn(identifier);
-				// console.log(namespace, behaviour);
 
 			} else {
 				oncomplete(true);
