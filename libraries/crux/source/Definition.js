@@ -310,6 +310,14 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 		this.setUrl(states.url);
 		this.setId(states.id);
 
+
+		this.tags(states.tags);
+		this.requires(states.requires);
+		this.includes(states.includes);
+		this.supports(states.supports);
+		this.exports(states.exports);
+
+
 		states = null;
 
 	};

@@ -153,9 +153,8 @@ lychee.define('drafter.flow.Source').requires([
 
 			} else if (identifier !== null && stash !== null) {
 
-				let tmp        = identifier.split('.');
+				let tmp        = identifier.split('.').slice(0, -1);
 				let pkg_id     = tmp[0];
-				let def_id     = tmp.pop();
 				let candidates = [];
 
 				let check = tmp[tmp.length - 1];
@@ -188,10 +187,20 @@ lychee.define('drafter.flow.Source').requires([
 					let candidate = candidates[0] || null;
 					if (candidate !== null) {
 
+						let definition = new _Definition({
+							id:       identifier,
+							includes: [
+								candidate
+							]
+						});
+
+
+						console.log(definition);
+
 						// TODO: Create lychee.Definition instance
 						// TODO: Set includes()
 						// TODO: Write source from Definition afterwards
-						console.log(candidate);
+						// console.log(candidate);
 
 					} else {
 						oncomplete(false);
