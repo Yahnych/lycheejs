@@ -1,6 +1,18 @@
 {
 	"api": {
-		"files": {}
+		"files": {
+			"Main": [
+				"json"
+			],
+			"flow": {
+				"Review": [
+					"json"
+				],
+				"Source": [
+					"json"
+				]
+			}
+		}
 	},
 	"build": {
 		"environments": {

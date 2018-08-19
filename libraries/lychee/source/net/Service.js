@@ -1,14 +1,12 @@
 
-lychee.define('lychee.net.Service').requires([
-	// 'lychee.net.Tunnel' // XXX: Causes circular dependency
-]).includes([
+lychee.define('lychee.net.Service').includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
 	let   _id       = 0;
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _SERVICES = {};
-	let   _Tunnel   = lychee.import('lychee.net.Tunnel');
+	let   _Tunnel   = null;
 
 
 
