@@ -86,10 +86,15 @@
 				"json",
 				"main.tpl"
 			],
-			"flow": {
-				"Init": [
-					"js"
-				]
+			"event": {
+				"flow": {
+					"Fork": [
+						"js"
+					],
+					"Init": [
+						"js"
+					]
+				}
 			}
 		}
 	}

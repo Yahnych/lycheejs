@@ -1,5 +1,5 @@
 
-lychee.define('breeder.flow.Init').requires([
+lychee.define('breeder.event.flow.Init').requires([
 	'lychee.Package',
 	'lychee.Stash',
 	'strainer.Main'
@@ -407,8 +407,7 @@ lychee.define('breeder.flow.Init').requires([
 
 						let mockup   = _create_config.call(this, identifier, includes);
 						let strainer = new _Main({
-							// debug:   debug,
-							debug:   false,
+							debug:   debug,
 							library: project,
 							project: project
 						});
@@ -639,7 +638,7 @@ lychee.define('breeder.flow.Init').requires([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'breeder.flow.Init';
+			data['constructor'] = 'breeder.event.flow.Init';
 
 
 			let states = data['arguments'][0] || {};
