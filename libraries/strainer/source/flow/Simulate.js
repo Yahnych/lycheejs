@@ -129,21 +129,21 @@ lychee.define('strainer.flow.Simulate').requires([
 		let states = Object.assign({}, data);
 
 
-		this.errors   = [];
-		this.sandbox  = '';
-		this.settings = {};
-		this.stash    = new _Stash({
+		this.errors  = [];
+
+		this.debug   = false;
+		this.project = null;
+		this.stash   = new _Stash({
 			type: _Stash.TYPE.persistent
 		});
-
 
 		this.__namespace   = null;
 		this.__packages    = {};
 		this.__simulations = [];
 
 
-		this.setSandbox(states.sandbox);
-		this.setSettings(states.settings);
+		this.setDebug(states.debug);
+		this.setProject(states.project);
 
 
 		_Flow.call(this);
@@ -158,13 +158,14 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		this.bind('read-package', function(oncomplete) {
 
-			let sandbox = this.sandbox;
-			if (sandbox !== '') {
+			let project = this.project;
+			if (project !== null) {
 
-				console.log('strainer: READ-PACKAGE ' + sandbox);
+				console.log('strainer: SIMULATE/READ-PACKAGE "' + project + '"');
+
 
 				let pkg = new _Package({
-					url:  sandbox + '/lychee.pkg',
+					url:  project + '/lychee.pkg',
 					type: 'source'
 				});
 
@@ -182,12 +183,12 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		this.bind('trace-simulations', function(oncomplete) {
 
-			let sandbox   = this.sandbox;
 			let namespace = this.__namespace;
+			let project   = this.project;
 
-			if (sandbox !== '' && namespace !== null) {
+			if (namespace !== null && project !== null) {
 
-				console.log('strainer: TRACE-SIMULATIONS ' + sandbox);
+				console.log('strainer: SIMULATE/TRACE-SIMULATIONS "' + project + '"');
 
 
 				let pkg = this.__packages[namespace] || null;
@@ -216,7 +217,7 @@ lychee.define('strainer.flow.Simulate').requires([
 
 										let url = pkgs[ns];
 										if (url === './lychee.pkg') {
-											url = sandbox + '/lychee.pkg';
+											url = project + '/lychee.pkg';
 										}
 
 										pkgs[ns] = url;
@@ -253,12 +254,12 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		this.bind('check-simulations', function(oncomplete) {
 
-			let sandbox     = this.sandbox;
+			let project     = this.project;
 			let simulations = this.__simulations;
 
-			if (sandbox !== '' && simulations.length > 0) {
+			if (project !== null && simulations.length > 0) {
 
-				console.log('strainer: CHECK-SIMULATIONS ' + sandbox);
+				console.log('strainer: SIMULATE/CHECK-SIMULATIONS "' + project + '"');
 
 
 				let default_env = lychee.environment;
@@ -368,8 +369,10 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		deserialize: function(blob) {
 
-			if (blob.simulations instanceof Object) {
+			if (blob.simulations instanceof Array) {
+				this.__simulations = blob.simulations.map(lychee.deserialize).filter(simulation => simulation !== null);
 			}
+
 
 			let stash = lychee.deserialize(blob.stash);
 			if (stash !== null) {
@@ -388,11 +391,12 @@ lychee.define('strainer.flow.Simulate').requires([
 			let blob   = data['blob'] || {};
 
 
-			if (this.sandbox !== '')                   states.sandbox  = this.sandbox;
-			if (Object.keys(this.settings).length > 0) states.settings = this.settings;
+			if (this.debug !== false)  states.debug   = this.debug;
+			if (this.project !== null) states.project = this.project;
 
 
-			if (this.stash !== null) blob.stash = lychee.serialize(this.stash);
+			if (this.stash !== null)           blob.stash       = lychee.serialize(this.stash);
+			if (this.__simulations.length > 0) blob.simulations = this.__simulations.map(lychee.serialize);
 
 
 			data['arguments'][0] = states;
@@ -409,15 +413,14 @@ lychee.define('strainer.flow.Simulate').requires([
 		 * CUSTOM API
 		 */
 
-		setSandbox: function(sandbox) {
+		setDebug: function(debug) {
 
-			sandbox = typeof sandbox === 'string' ? sandbox : null;
+			debug = typeof debug === 'boolean' ? debug : null;
 
 
-			if (sandbox !== null) {
+			if (debug !== null) {
 
-				this.sandbox = sandbox;
-
+				this.debug = debug;
 
 				return true;
 
@@ -428,14 +431,14 @@ lychee.define('strainer.flow.Simulate').requires([
 
 		},
 
-		setSettings: function(settings) {
+		setProject: function(project) {
 
-			settings = settings instanceof Object ? settings : null;
+			project = typeof project === 'string' ? project : null;
 
 
-			if (settings !== null) {
+			if (project !== null) {
 
-				this.settings = settings;
+				this.project = project;
 
 				return true;
 

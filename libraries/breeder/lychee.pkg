@@ -15,7 +15,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -31,7 +31,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -46,7 +46,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -85,7 +85,12 @@
 				"js",
 				"json",
 				"main.tpl"
-			]
+			],
+			"flow": {
+				"Init": [
+					"js"
+				]
+			}
 		}
 	}
 }

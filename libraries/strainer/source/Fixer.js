@@ -92,14 +92,15 @@ lychee.define('strainer.Fixer').requires([
 
 		this.bind('init', function() {
 
+			let debug   = this.settings.debug   || false;
 			let file    = this.settings.file    || null;
 			let project = this.settings.project || null;
 
 			if (file !== null && project !== null) {
 
 				let flow = new _Check({
-					sandbox:  project,
-					settings: this.settings
+					debug:   debug,
+					project: project
 				});
 
 				flow.unbind('read-sources');
@@ -107,19 +108,18 @@ lychee.define('strainer.Fixer').requires([
 
 				flow.bind('read-sources', function(oncomplete) {
 
-					let file      = this.settings.file;
 					let namespace = this.__namespace;
-					let sandbox   = this.sandbox;
+					let project   = this.project;
 					let stash     = this.stash;
 
-					if (file !== null && namespace !== null && sandbox !== '' && stash !== null) {
+					if (namespace !== null && project !== null && stash !== null) {
 
-						console.log('strainer: READ-SOURCES ' + sandbox);
+						console.log('strainer: CHECK/READ-SOURCES "' + project + '"');
 
 						let pkg = this.__packages[namespace] || null;
 						if (pkg !== null) {
 
-							let source = new Stuff(sandbox + '/' + file, true);
+							let source = new Stuff(project + '/' + file, true);
 
 							source.onload = function(result) {
 
@@ -133,7 +133,6 @@ lychee.define('strainer.Fixer').requires([
 							}.bind(this);
 
 							source.load();
-
 
 						} else {
 							oncomplete(false);

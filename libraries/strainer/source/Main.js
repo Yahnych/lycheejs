@@ -101,6 +101,8 @@ lychee.define('strainer.Main').requires([
 		this.bind('init', function() {
 
 			let action  = this.settings.action  || null;
+			let debug   = this.settings.debug   || false;
+			let library = this.settings.library || null;
 			let project = this.settings.project || null;
 
 			if (action !== null && project !== null) {
@@ -110,22 +112,23 @@ lychee.define('strainer.Main').requires([
 				if (action === 'check') {
 
 					flow = new _Check({
-						sandbox:  project,
-						settings: this.settings
+						debug:   debug,
+						project: project
 					});
 
 				} else if (action === 'simulate') {
 
 					flow = new _Simulate({
-						sandbox:  project,
-						settings: this.settings
+						debug:   debug,
+						project: project
 					});
 
 				} else if (action === 'transcribe') {
 
 					flow = new _Transcribe({
-						sandbox:  project,
-						settings: this.settings
+						debug:   debug,
+						library: library,
+						project: project
 					});
 
 				}
@@ -272,8 +275,8 @@ lychee.define('strainer.Main').requires([
 				if (project !== null) {
 
 					let flow = new _Check({
-						sandbox:  project,
-						settings: this.settings
+						debug:   this.settings.debug || false,
+						project: project
 					});
 
 					flow.unbind('read-sources');
@@ -336,12 +339,15 @@ lychee.define('strainer.Main').requires([
 
 			if (asset !== null && callback !== null) {
 
+				let library = this.settings.library;
 				let project = this.settings.project;
-				if (project !== null) {
+
+				if (library !== null && project !== null) {
 
 					let flow = new _Transcribe({
-						sandbox:  project,
-						settings: this.settings
+						debug:   this.settings.debug || false,
+						library: library,
+						project: project
 					});
 
 					flow.unbind('read-configs');

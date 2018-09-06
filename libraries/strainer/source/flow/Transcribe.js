@@ -30,12 +30,14 @@ lychee.define('strainer.flow.Transcribe').requires([
 		let states = Object.assign({}, data);
 
 
-		this.configs  = [];
-		this.errors   = [];
-		this.sources  = [];
-		this.sandbox  = '';
-		this.settings = {};
-		this.stash    = new _Stash({
+		this.configs = [];
+		this.errors  = [];
+		this.sources = [];
+
+		this.debug   = false;
+		this.library = null;
+		this.project = null;
+		this.stash   = new _Stash({
 			type: _Stash.TYPE.persistent
 		});
 
@@ -43,8 +45,9 @@ lychee.define('strainer.flow.Transcribe').requires([
 		this.__packages  = {};
 
 
-		this.setSandbox(states.sandbox);
-		this.setSettings(states.settings);
+		this.setDebug(states.debug);
+		this.setLibrary(states.library);
+		this.setProject(states.project);
 
 
 		_Flow.call(this, states);
@@ -59,15 +62,16 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 		this.bind('read-package', function(oncomplete) {
 
-			let library = this.settings.library || null;
-			let sandbox = this.sandbox;
+			let library = this.library;
+			let project = this.project;
 			let stash   = this.stash;
 
-			if (library !== null && sandbox !== '' && stash !== null) {
+			if (library !== null && project !== null && stash !== null) {
 
-				console.log('strainer: READ-PACKAGE ' + library);
+				console.log('strainer: TRANSCRIBE/READ-PACKAGE "' + library + '"');
 
-				if (sandbox !== '/libraries/lychee') {
+
+				if (project !== '/libraries/lychee') {
 
 					console.log('strainer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
 
@@ -100,14 +104,15 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 		this.bind('read-configs', function(oncomplete) {
 
-			let library   = this.settings.library || null;
+			let library   = this.library;
 			let namespace = this.__namespace;
-			let sandbox   = this.sandbox;
+			let project   = this.project;
 			let stash     = this.stash;
 
-			if (library !== null && namespace !== null && sandbox !== '' && stash !== null) {
+			if (library !== null && namespace !== null && project !== null && stash !== null) {
 
-				console.log('strainer: READ-CONFIGS ' + library);
+				console.log('strainer: TRANSCRIBE/READ-CONFIGS "' + library + '"');
+
 
 				let pkg = this.__packages[namespace] || null;
 				if (pkg !== null) {
@@ -145,12 +150,13 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 			let api     = _plugin.API;
 			let configs = this.configs;
-			let library = this.settings.library || null;
-			let project = this.settings.project || null;
+			let library = this.library;
+			let project = this.project;
 
 			if (configs.length > 0 && library !== null && project !== null) {
 
-				console.log('strainer: TRANSCRIBE-CONFIGS ' + library + ' -> ' + project);
+				console.log('strainer: TRANSCRIBE/TRANSCRIBE-CONFIGS "' + library + '" -> "' + project + '"');
+
 
 				this.sources = this.configs.map(asset => {
 
@@ -206,13 +212,13 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 		this.bind('write-sources', function(oncomplete) {
 
-			let debug   = this.settings.debug === true;
-			let sandbox = this.sandbox;
+			let debug   = this.debug;
+			let project = this.project;
 			let stash   = this.stash;
 
-			if (sandbox !== '' && stash !== null && debug === false) {
+			if (debug === false && project !== null && stash !== null) {
 
-				console.log('strainer: WRITE-SOURCES ' + sandbox);
+				console.log('strainer: TRANSCRIBE/WRITE-SOURCES "' + project + '"');
 
 
 				let sources = this.sources.filter(function(code, c) {
@@ -252,6 +258,7 @@ lychee.define('strainer.flow.Transcribe').requires([
 		 */
 
 		this.then('read-package');
+
 		this.then('read-configs');
 
 		this.then('transcribe-configs');
@@ -270,31 +277,11 @@ lychee.define('strainer.flow.Transcribe').requires([
 		deserialize: function(blob) {
 
 			if (blob.sources instanceof Array) {
-
-				let sources = [];
-
-				for (let bs = 0, bsl = blob.sources.length; bs < bsl; bs++) {
-					sources.push(lychee.deserialize(blob.sources[bs]));
-				}
-
-				if (sources.length > 0) {
-					this.sources = sources.filter(asset => asset !== null);
-				}
-
+				this.sources = blob.sources.map(lychee.deserialize).filter(source => source !== null);
 			}
 
 			if (blob.configs instanceof Array) {
-
-				let configs = [];
-
-				for (let bc = 0, bcl = blob.configs.length; bc < bcl; bc++) {
-					configs.push(lychee.deserialize(blob.configs[bc]));
-				}
-
-				if (configs.length > 0) {
-					this.configs = configs.filter(asset => asset !== null);
-				}
-
+				this.configs = blob.configs.map(lychee.deserialize).filter(config => config !== null);
 			}
 
 
@@ -315,8 +302,9 @@ lychee.define('strainer.flow.Transcribe').requires([
 			let blob   = data['blob'] || {};
 
 
-			if (this.sandbox !== '')                   states.sandbox  = this.sandbox;
-			if (Object.keys(this.settings).length > 0) states.settings = this.settings;
+			if (this.debug !== false)  states.debug   = this.debug;
+			if (this.library !== null) states.library = this.library;
+			if (this.project !== null) states.project = this.project;
 
 
 			if (this.stash !== null)     blob.stash   = lychee.serialize(this.stash);
@@ -338,14 +326,14 @@ lychee.define('strainer.flow.Transcribe').requires([
 		 * CUSTOM API
 		 */
 
-		setSandbox: function(sandbox) {
+		setDebug: function(debug) {
 
-			sandbox = typeof sandbox === 'string' ? sandbox : null;
+			debug = typeof debug === 'boolean' ? debug : null;
 
 
-			if (sandbox !== null) {
+			if (debug !== null) {
 
-				this.sandbox = sandbox;
+				this.debug = debug;
 
 				return true;
 
@@ -356,14 +344,32 @@ lychee.define('strainer.flow.Transcribe').requires([
 
 		},
 
-		setSettings: function(settings) {
+		setLibrary: function(library) {
 
-			settings = settings instanceof Object ? settings : null;
+			library = typeof library === 'string' ? library : null;
 
 
-			if (settings !== null) {
+			if (library !== null) {
 
-				this.settings = settings;
+				this.library = library;
+
+				return true;
+
+			}
+
+
+			return false;
+
+		},
+
+		setProject: function(project) {
+
+			project = typeof project === 'string' ? project : null;
+
+
+			if (project !== null) {
+
+				this.project = project;
 
 				return true;
 

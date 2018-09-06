@@ -1,5 +1,6 @@
 
 lychee.define('breeder.Main').requires([
+	'breeder.flow.Init',
 	'breeder.Template'
 ]).includes([
 	'lychee.event.Emitter'
@@ -7,6 +8,7 @@ lychee.define('breeder.Main').requires([
 
 	const _lychee   = lychee.import('lychee');
 	const _Emitter  = lychee.import('lychee.event.Emitter');
+	const _Init     = lychee.import('breeder.flow.Init');
 	const _Template = lychee.import('breeder.Template');
 
 
@@ -18,15 +20,19 @@ lychee.define('breeder.Main').requires([
 	const Composite = function(states) {
 
 		this.settings = _lychee.assignunlink({
-			action:  null,
-			project: null,
-			library: null
+			action:     null,
+			debug:      false,
+			identifier: null,
+			project:    null,
+			library:    null
 		}, states);
 
 		this.defaults = _lychee.assignunlink({
-			action:  null,
-			project: null,
-			library: null
+			action:     null,
+			debug:      false,
+			identifier: null,
+			project:    null,
+			library:    null
 		}, this.settings);
 
 
@@ -42,21 +48,17 @@ lychee.define('breeder.Main').requires([
 
 		this.bind('load', function() {
 
-			let action  = this.settings.action  || null;
 			let project = this.settings.project || null;
-
-			if (action !== null && project !== null) {
+			if (project !== null) {
 
 				lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 				lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
-
-				this.trigger('init', [ project, action ]);
+				this.trigger('init');
 
 			} else {
 
 				console.error('breeder: FAILURE ("' + project + '") at "load" event');
-
 
 				this.destroy(1);
 
@@ -64,40 +66,66 @@ lychee.define('breeder.Main').requires([
 
 		}, this, true);
 
-		this.bind('init', function(project, action) {
+		this.bind('init', function() {
 
-			let template = new _Template({
-				sandbox:  project,
-				settings: this.settings
-			});
+			let debug      = this.settings.debug      || false;
+			let action     = this.settings.action     || null;
+			let library    = this.settings.library    || null;
+			let project    = this.settings.project    || null;
+			let identifier = this.settings.identifier || null;
 
+			if (action !== null && project !== null) {
 
-			template.then(action);
+				let flow = null;
 
-			template.bind('complete', function() {
+				if (action === 'init') {
 
-				if (lychee.debug === true) {
-					console.info('breeder: SUCCESS ("' + project + '")');
+					flow = new _Init({
+						debug:      debug,
+						identifier: identifier,
+						project:    project
+					});
+
+				} else if (action === 'fork') {
+
+					flow = new _Fork({
+						debug:   debug,
+						library: library,
+						project: project
+					});
+
+				} else if (action === 'pull') {
+				} else if (action === 'push') {
 				}
 
-				this.destroy();
 
-			}, this);
+				if (flow !== null) {
 
-			template.bind('error', function(event) {
+					flow.bind('complete', function() {
 
-				if (lychee.debug === true) {
-					console.error('breeder: FAILURE ("' + project + '") at "' + event + '" template event');
+						if (lychee.debug === true) {
+							console.info('breeder: SUCCESS ("' + project + '")');
+						}
+
+						this.destroy(0);
+
+					}, this);
+
+					flow.bind('error', function(event) {
+
+						if (lychee.debug === true) {
+							console.error('breeder: FAILURE ("' + project + '") at "' + event + '" template event');
+						}
+
+						this.destroy(1);
+
+					}, this);
+
+					flow.init();
+
 				}
 
-				this.destroy();
-
-			}, this);
-
-
-			template.init();
-
-			return true;
+			}
 
 		}, this, true);
 
@@ -138,9 +166,19 @@ lychee.define('breeder.Main').requires([
 
 		init: function() {
 
-			this.trigger('load');
+			let action  = this.settings.action  || null;
+			let project = this.settings.project || null;
 
-			return true;
+			if (action !== null && project !== null) {
+
+				this.trigger('load');
+
+				return true;
+
+			}
+
+
+			return false;
 
 		},
 

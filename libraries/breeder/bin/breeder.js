@@ -110,6 +110,9 @@ const _print_help = function() {
 	console.log('    lycheejs-breeder init;                                ');
 	console.log('    lycheejs-breeder fork /projects/boilerplate;          ');
 	console.log('                                                          ');
+	console.log('    # Create lychee.Definition and lychee.Specification   ');
+	console.log('    lycheejs-breeder init app.net.service.Example;        ');
+	console.log('                                                          ');
 	console.log('    lycheejs-breeder pull /libraries/harvester;           ');
 	console.log('    lycheejs-breeder push;                                ');
 	console.log('                                                          ');
@@ -199,14 +202,16 @@ const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
 	let settings = {
-		action:  null,
-		project: null,
-		library: null,
-		debug:   false
+		action:     null,
+		identifier: null,
+		library:    null,
+		project:    null,
+		debug:      false
 	};
 
 
-	let action     = args.find(val => /^(init|fork|pull|push)/g.test(val));
+	let action     = args.find(val => /^(init|fork|pull|push)$/g.test(val));
+	let identifier = args.find(val => val.includes('.') && /^([A-Za-z.]+)$/g.test(val));
 	let library    = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
 	let project    = args.find(val => /--project=\/(libraries|projects)\/([A-Za-z0-9-_/]+)/g.test(val));
 	let debug_flag = args.find(val => /--([debug]{5})/g.test(val));
@@ -243,7 +248,19 @@ const _SETTINGS = (function() {
 	}
 
 
-	if (action === 'pull' || action === 'fork') {
+	if (action === 'init') {
+
+		settings.action = action;
+
+		if (identifier !== undefined) {
+			settings.identifier = identifier;
+		}
+
+	} else if (action === 'fork') {
+
+		settings.action = action;
+
+	} else if (action === 'pull' || action === 'fork') {
 
 		if (library !== undefined) {
 
@@ -281,10 +298,6 @@ const _SETTINGS = (function() {
 
 		}
 
-	} else if (action !== undefined) {
-
-		settings.action = action;
-
 	}
 
 
@@ -305,12 +318,22 @@ const _SETTINGS = (function() {
 	 * IMPLEMENTATION
 	 */
 
-	let action      = settings.action;
-	let has_project = settings.project !== null;
-	let has_library = settings.library !== null;
+	let action         = settings.action;
+	let has_identifier = settings.identifier !== null;
+	let has_project    = settings.project !== null;
+	let has_library    = settings.library !== null;
 
 
-	if (action === 'init' && has_project) {
+	if (action === 'init' && has_project && has_identifier) {
+
+		_bootup({
+			action:     'init',
+			debug:      settings.debug === true,
+			identifier: settings.identifier,
+			project:    settings.project
+		});
+
+	} else if (action === 'init' && has_project) {
 
 		_bootup({
 			action:  'init',
