@@ -1,5 +1,5 @@
 
-lychee.define('strainer.flow.Check').requires([
+lychee.define('strainer.event.flow.Check').requires([
 	'lychee.Package',
 	'lychee.Stash',
 	'strainer.api.PARSER',
@@ -1342,7 +1342,7 @@ lychee.define('strainer.flow.Check').requires([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'strainer.flow.Check';
+			data['constructor'] = 'strainer.event.flow.Check';
 
 
 			let states = data['arguments'][0] || {};

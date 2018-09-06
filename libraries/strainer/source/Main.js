@@ -1,17 +1,17 @@
 
 lychee.define('strainer.Main').requires([
-	'strainer.flow.Check',
-	'strainer.flow.Simulate',
-	'strainer.flow.Transcribe'
+	'strainer.event.flow.Check',
+	'strainer.event.flow.Simulate',
+	'strainer.event.flow.Transcribe'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
 	const _lychee     = lychee.import('lychee');
 	const _Emitter    = lychee.import('lychee.event.Emitter');
-	const _Check      = lychee.import('strainer.flow.Check');
-	const _Simulate   = lychee.import('strainer.flow.Simulate');
-	const _Transcribe = lychee.import('strainer.flow.Transcribe');
+	const _Check      = lychee.import('strainer.event.flow.Check');
+	const _Simulate   = lychee.import('strainer.event.flow.Simulate');
+	const _Transcribe = lychee.import('strainer.event.flow.Transcribe');
 
 
 

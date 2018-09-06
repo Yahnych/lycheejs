@@ -1,5 +1,5 @@
 
-lychee.define('strainer.flow.Simulate').requires([
+lychee.define('strainer.event.flow.Simulate').requires([
 	'lychee.Environment',
 	'lychee.Package',
 	'lychee.Simulation',
@@ -384,7 +384,7 @@ lychee.define('strainer.flow.Simulate').requires([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'strainer.flow.Simulate';
+			data['constructor'] = 'strainer.event.flow.Simulate';
 
 
 			let states = data['arguments'][0] || {};

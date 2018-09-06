@@ -245,16 +245,18 @@
 					"js"
 				]
 			},
-			"flow": {
-				"Check": [
-					"js"
-				],
-				"Simulate": [
-					"js"
-				],
-				"Transcribe": [
-					"js"
-				]
+			"event": {
+				"flow": {
+					"Check": [
+						"js"
+					],
+					"Simulate": [
+						"js"
+					],
+					"Transcribe": [
+						"js"
+					]
+				}
 			},
 			"platform": {
 				"html": {

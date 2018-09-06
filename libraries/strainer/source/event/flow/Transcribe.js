@@ -1,5 +1,5 @@
 
-lychee.define('strainer.flow.Transcribe').requires([
+lychee.define('strainer.event.flow.Transcribe').requires([
 	'lychee.Package',
 	'lychee.Stash',
 	'strainer.api.PARSER',
@@ -295,7 +295,7 @@ lychee.define('strainer.flow.Transcribe').requires([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'strainer.flow.Transcribe';
+			data['constructor'] = 'strainer.event.flow.Transcribe';
 
 
 			let states = data['arguments'][0] || {};
