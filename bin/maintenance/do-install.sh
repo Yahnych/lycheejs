@@ -394,7 +394,6 @@ else
 
 
 			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-drafter        2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
 			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
 			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
@@ -405,7 +404,6 @@ else
 
 			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                            /usr/local/bin/lycheejs-helper;
 			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"         /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/libraries/drafter/bin/drafter.sh"         /usr/local/bin/lycheejs-drafter;
 			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh"   /usr/local/bin/lycheejs-fertilizer;
 			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"     /usr/local/bin/lycheejs-harvester;
 			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"           /usr/local/bin/lycheejs-ranger;
@@ -428,7 +426,6 @@ else
 				echo -e "\n\n# lychee.js Engine\n"                                                                   >> $BASH_RC;
 				echo -e "alias lycheejs-helper=\"$LYCHEEJS_ROOT/bin/helper.sh\";"                                    >> $BASH_RC;
 				echo -e "alias lycheejs-breeder=\"$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh\";"                >> $BASH_RC;
-				echo -e "alias lycheejs-drafter=\"$LYCHEEJS_ROOT/libraries/drafter/bin/drafter.sh\";"                >> $BASH_RC;
 				echo -e "alias lycheejs-fertilizer=\"$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh\";"       >> $BASH_RC;
 				echo -e "alias lycheejs-harvester=\"$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh\";"          >> $BASH_RC;
 				echo -e "alias lycheejs-ranger=\"$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh\";"                   >> $BASH_RC;
@@ -451,13 +448,11 @@ else
 			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /usr/share/bash-completion/completions/lycheejs;
 
 			rm /usr/share/bash-completion/completions/lycheejs-breeder    2> /dev/null;
-			rm /usr/share/bash-completion/completions/lycheejs-drafter    2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-fertilizer 2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-harvester  2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-strainer   2> /dev/null;
 
 			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-breeder;
-			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-drafter;
 			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-fertilizer;
 			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-harvester;
 			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-strainer;
@@ -504,7 +499,6 @@ else
 
 
 			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-drafter        2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
 			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
 			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
@@ -515,7 +509,6 @@ else
 
 			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                            /usr/local/bin/lycheejs-helper;
 			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"         /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/libraries/drafter/bin/drafter.sh"         /usr/local/bin/lycheejs-drafter;
 			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh"   /usr/local/bin/lycheejs-fertilizer;
 			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"     /usr/local/bin/lycheejs-harvester;
 			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"           /usr/local/bin/lycheejs-ranger;

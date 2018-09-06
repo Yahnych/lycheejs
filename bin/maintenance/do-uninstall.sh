@@ -111,7 +111,6 @@ else
 
 
 			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-drafter        2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
 			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
 			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
@@ -133,7 +132,6 @@ else
 
 			rm /usr/share/bash-completion/completions/lycheejs            2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-breeder    2> /dev/null;
-			rm /usr/share/bash-completion/completions/lycheejs-drafter    2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-fertilizer 2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-harvester  2> /dev/null;
 			rm /usr/share/bash-completion/completions/lycheejs-strainer   2> /dev/null;
@@ -165,7 +163,6 @@ else
 
 
 			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-drafter        2> /dev/null;
 			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
 			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
 			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
