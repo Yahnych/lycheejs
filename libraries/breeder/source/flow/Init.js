@@ -43,11 +43,15 @@ lychee.define('breeder.flow.Init').requires([
 					},
 					memory: {},
 					result: {
-						constructor: {
+						constructorASD: {
 							chunk:      null,
-							type:       null,
 							hash:       null,
-							parameters: []
+							type:       'function',
+							parameters: [{
+								chunk: null,
+								name:  'data',
+								type:  'Object'
+							}]
 						},
 						states:      {},
 						properties:  {},
@@ -124,6 +128,7 @@ lychee.define('breeder.flow.Init').requires([
 		let states = Object.assign({}, data);
 
 		this.assets     = [];
+		this.configs    = [];
 		this.reviews    = [];
 		this.sources    = [];
 
@@ -400,19 +405,35 @@ lychee.define('breeder.flow.Init').requires([
 					let includes = _get_includes.call(this, identifier);
 					if (includes.length > 0) {
 
-						let config   = _create_config.call(this, identifier, includes);
+						let mockup   = _create_config.call(this, identifier, includes);
 						let strainer = new _Main({
-							debug:   debug,
+							// debug:   debug,
+							debug:   false,
 							library: project,
 							project: project
 						});
 
-						strainer.transcribe(config, source => {
-
-							console.log('transcription INCOMING', source);
+						strainer.transcribe(mockup, source => {
 
 							if (source !== null) {
-								this.sources.push(source);
+
+								strainer.check(source, config => {
+
+									if (config !== null) {
+
+										this.configs.push(config);
+										this.sources.push(source);
+
+										oncomplete(true);
+
+									} else {
+										oncomplete(false);
+									}
+
+								});
+
+							} else {
+								oncomplete(false);
 							}
 
 						});
@@ -432,6 +453,7 @@ lychee.define('breeder.flow.Init').requires([
 		}, this);
 
 		this.bind('transcribe-reviews', function(oncomplete) {
+			// TODO: Transcribe Review from Source
 			oncomplete(true);
 		}, this);
 
@@ -454,6 +476,38 @@ lychee.define('breeder.flow.Init').requires([
 					}, this, true);
 
 					stash.batch('write', assets.map(asset => asset.url), assets);
+
+				} else {
+					oncomplete(true);
+				}
+
+			} else if (debug === true) {
+				oncomplete(true);
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
+
+		this.bind('write-configs', function(oncomplete) {
+
+			let debug   = this.debug;
+			let project = this.project;
+			let stash   = this.stash;
+
+			if (debug === false && project !== null && stash !== null) {
+
+				console.log('breeder: INIT/WRITE-CONFIGS "' + project + '"');
+
+
+				let configs = this.configs.filter(config => config !== null);
+				if (configs.length > 0) {
+
+					stash.bind('batch', function(type, assets) {
+						oncomplete(true);
+					}, this, true);
+
+					stash.batch('write', configs.map(asset => asset.url), configs);
 
 				} else {
 					oncomplete(true);
@@ -547,6 +601,7 @@ lychee.define('breeder.flow.Init').requires([
 		this.then('transcribe-reviews');
 
 		this.then('write-assets');
+		this.then('write-configs');
 		this.then('write-sources');
 		this.then('write-reviews');
 

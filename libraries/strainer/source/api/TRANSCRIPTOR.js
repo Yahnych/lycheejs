@@ -52,7 +52,23 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 				let type = value.type || '';
 
 				if (type === 'function') {
-					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
+
+					let chunk = value.chunk || null;
+					if (chunk !== null) {
+						code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
+					} else {
+
+						let parameters = value.parameters || [];
+						if (parameters.length > 0) {
+							code.push((assign === false ? 'const ' : '') + name + ' = function(' + parameters.map(p => p.name).join(', ') + ') {');
+							code.push('};');
+						} else {
+							code.push((assign === false ? 'const ' : '') + name + ' = function() {');
+							code.push('};');
+						}
+
+					}
+
 				} else if (type === 'lychee.Definition') {
 					code.push((assign === false ? 'const ' : '') + name + ' = lychee.import(\'' + value.value.reference + '\');');
 				} else if (type === 'lychee.Namespace') {

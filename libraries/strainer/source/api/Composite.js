@@ -959,8 +959,9 @@ lychee.define('strainer.api.Composite').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
-					let memory = api.memory || null;
-					let result = api.result || null;
+					let header = api.header || {};
+					let memory = api.memory || {};
+					let result = api.result || {};
 
 
 					if (memory instanceof Object) {
@@ -977,22 +978,58 @@ lychee.define('strainer.api.Composite').requires([
 					}
 
 
-					let construct = result.constructor || null;
+					let construct = Object.hasOwnProperty.call(result, 'constructor') ? result.constructor : null;
 					if (construct !== null) {
 
 						let chunk = _TRANSCRIPTOR.transcribe('Composite', construct);
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							code.push('\t' + chunk);
+							chunk.split('\n').forEach(function(line) {
+								code.push('\t' + line);
+							});
+						}
+
+					} else {
+
+						construct = {
+							chunk:      null,
+							hash:       null,
+							type:       'function',
+							parameters: [{
+								chunk: null,
+								name: 'data',
+								type: 'Object'
+							}]
+						};
+
+						let chunk = _TRANSCRIPTOR.transcribe('Composite', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							chunk.split('\n').forEach(function(line) {
+								code.push('\t' + line);
+							});
 						}
 
 					}
 
 
-					if (Object.keys(result.methods).length > 0) {
+					let methods = result.methods || null;
+					if (methods !== null && Object.keys(methods).length > 0) {
 
-						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', result.methods, true);
+						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', methods, true);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							chunk.split('\n').forEach(function(line) {
+								code.push('\t' + line);
+							});
+						}
+
+					} else {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', {}, true);
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
