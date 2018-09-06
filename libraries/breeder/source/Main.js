@@ -1,5 +1,6 @@
 
 lychee.define('breeder.Main').requires([
+	'breeder.event.flow.Fork',
 	'breeder.event.flow.Init',
 	'breeder.Template'
 ]).includes([
@@ -8,6 +9,7 @@ lychee.define('breeder.Main').requires([
 
 	const _lychee   = lychee.import('lychee');
 	const _Emitter  = lychee.import('lychee.event.Emitter');
+	const _Fork     = lychee.import('breeder.event.flow.Fork');
 	const _Init     = lychee.import('breeder.event.flow.Init');
 	const _Template = lychee.import('breeder.Template');
 

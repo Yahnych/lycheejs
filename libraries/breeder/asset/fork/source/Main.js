@@ -1,12 +1,8 @@
 
-lychee.define('fork.Main').requires([
-	'app.Main',
-]).includes([
-	'lychee.app.Main'
+lychee.define('fork.Main').includes([
+	'app.Main'
 ]).exports(function(lychee, global, attachments) {
 
-	const _app  = lychee.import('app');
-	const _fork = lychee.import('fork');
 	const _Main = lychee.import('app.Main');
 
 

@@ -11,7 +11,7 @@ lychee.define('breeder.event.flow.Init').requires([
 	const _Main    = lychee.import('strainer.Main');
 	const _Package = lychee.import('lychee.Package');
 	const _Stash   = lychee.import('lychee.Stash');
-	const _ASSET   = '/libraries/breeder/asset';
+	const _ASSET   = '/libraries/breeder/asset/init';
 	const _STASH   = new _Stash({
 		type: _Stash.TYPE.persistent
 	});
@@ -127,10 +127,10 @@ lychee.define('breeder.event.flow.Init').requires([
 
 		let states = Object.assign({}, data);
 
-		this.assets     = [];
-		this.configs    = [];
-		this.reviews    = [];
-		this.sources    = [];
+		this.assets  = [];
+		this.configs = [];
+		this.reviews = [];
+		this.sources = [];
 
 		this.debug      = false;
 		this.project    = null;
@@ -213,9 +213,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				_STASH.bind('batch', function(type, assets) {
 
-					this.assets = assets.filter(function(asset) {
-						return asset !== null;
-					});
+					this.assets = assets.filter(asset => asset !== null);
 
 					this.assets.forEach(asset => {
 						asset.url = project + asset.url.substr(_ASSET.length);
@@ -265,9 +263,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				_STASH.bind('batch', function(type, assets) {
 
-					this.sources = assets.filter(function(asset) {
-						return asset !== null;
-					});
+					this.sources = assets.filter(asset => asset !== null);
 
 					this.sources.forEach(source => {
 						source.url = project + source.url.substr(_ASSET.length);

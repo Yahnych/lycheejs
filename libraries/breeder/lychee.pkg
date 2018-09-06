@@ -6,7 +6,17 @@
 			],
 			"Template": [
 				"json"
-			]
+			],
+			"event": {
+				"flow": {
+					"Fork": [
+						"json"
+					],
+					"Init": [
+						"json"
+					]
+				}
+			}
 		}
 	},
 	"build": {
@@ -79,12 +89,7 @@
 				"js"
 			],
 			"Template": [
-				"dist.tpl",
-				"harvester.tpl",
-				"index.tpl",
-				"js",
-				"json",
-				"main.tpl"
+				"js"
 			],
 			"event": {
 				"flow": {

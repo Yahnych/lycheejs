@@ -247,6 +247,39 @@ const _SETTINGS = (function() {
 
 	}
 
+	if (library !== undefined) {
+
+		try {
+
+			let stat1 = _fs.lstatSync(_ROOT + library);
+			let stat2 = _fs.lstatSync(_ROOT + library + '/lychee.pkg');
+
+			if (stat1.isSymbolicLink()) {
+
+				let tmp   = _fs.realpathSync(_ROOT + library);
+				let stat3 = _fs.lstatSync(tmp);
+				let stat4 = _fs.lstatSync(tmp + '/lychee.pkg');
+
+				if (stat3.isDirectory() && stat4.isFile()) {
+					settings.library = library;
+				}
+
+			} else if (stat1.isDirectory()) {
+
+				if (stat2.isFile()) {
+					settings.library = library;
+				}
+
+			}
+
+		} catch (err) {
+
+			settings.library = null;
+
+		}
+
+	}
+
 
 	if (action === 'init') {
 
@@ -260,43 +293,9 @@ const _SETTINGS = (function() {
 
 		settings.action = action;
 
-	} else if (action === 'pull' || action === 'fork') {
+	} else if (action === 'pull') {
 
-		if (library !== undefined) {
-
-			settings.action = action;
-
-
-			try {
-
-				let stat1 = _fs.lstatSync(_ROOT + library);
-				let stat2 = _fs.lstatSync(_ROOT + library + '/lychee.pkg');
-
-				if (stat1.isSymbolicLink()) {
-
-					let tmp   = _fs.realpathSync(_ROOT + library);
-					let stat3 = _fs.lstatSync(tmp);
-					let stat4 = _fs.lstatSync(tmp + '/lychee.pkg');
-
-					if (stat3.isDirectory() && stat4.isFile()) {
-						settings.library = library;
-					}
-
-				} else if (stat1.isDirectory()) {
-
-					if (stat2.isFile()) {
-						settings.library = library;
-					}
-
-				}
-
-			} catch (err) {
-
-				settings.library = null;
-
-			}
-
-		}
+		settings.action = action;
 
 	}
 

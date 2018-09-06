@@ -7,17 +7,10 @@ lychee.define('breeder.Template').requires([
 
 	const _Flow   = lychee.import('lychee.event.Flow');
 	const _Stash  = lychee.import('lychee.Stash');
-	const _ASSET  = '/libraries/breeder/asset';
 	const _CONFIG = attachments["json"];
 	const _STASH  = new _Stash({
 		type: _Stash.TYPE.persistent
 	});
-	const _TEMPLATE = {
-		dist:      attachments["dist.tpl"],
-		harvester: attachments["harvester.tpl"],
-		index:     attachments["index.tpl"],
-		main:      attachments["main.tpl"]
-	};
 
 
 
@@ -180,131 +173,6 @@ lychee.define('breeder.Template').requires([
 		/*
 		 * INITIALIZATION
 		 */
-
-		this.bind('fork', function(oncomplete) {
-
-			let library = this.settings.library;
-			let project = this.settings.project;
-			let sandbox = this.sandbox;
-			let stash   = this.stash;
-			let urls    = [];
-			let assets  = [];
-			let pkg     = new Config(library + '/lychee.pkg');
-			let folder  = project.split('/')[1];
-
-
-			console.log('breeder: FORK');
-
-
-			pkg.onload = function() {
-
-				if (this.buffer instanceof Object && this.buffer.build instanceof Object) {
-
-					let environments = this.buffer.build.environments || {};
-
-					if (folder === 'projects') {
-
-						Object.keys(environments).forEach(function(identifier) {
-
-							if (/main$/g.test(identifier) === false) {
-								delete environments[identifier];
-							} else {
-
-								let tmp = environments[identifier];
-								if (tmp.profile instanceof Object) {
-
-									if (typeof tmp.profile.client === 'string') {
-										tmp.profile.client = tmp.profile.client.replace(library, project);
-									}
-
-									if (typeof tmp.profile.server === 'string') {
-										tmp.profile.server = tmp.profile.server.replace(library, project);
-									}
-
-								}
-
-								tmp.variant  = 'application';
-								tmp.packages = {
-									'fork': './lychee.pkg',
-									'app':  library + '/lychee.pkg'
-								};
-
-							}
-
-						});
-
-						_CONFIG.buffer.build.environments = environments;
-
-
-						if (typeof environments['node/main'] !== 'undefined') {
-							urls.push(project + '/harvester.js');
-							assets.push(_TEMPLATE.harvester);
-						}
-
-
-						urls.push(sandbox + '/lychee.pkg');
-						urls.push(sandbox + '/index.html');
-						urls.push(sandbox + '/source/Main.js');
-
-						assets.push(_CONFIG);
-						assets.push(_TEMPLATE.index);
-						assets.push(_TEMPLATE.main);
-
-					} else if (folder === 'libraries') {
-
-						Object.keys(environments).forEach(function(identifier) {
-
-							if (/dist$/g.test(identifier) === false) {
-								delete environments[identifier];
-							} else {
-
-								let tmp = environments[identifier];
-
-								tmp.variant  = 'library';
-								tmp.packages = {
-									'fork': './lychee.pkg',
-									'app':  library + '/lychee.pkg'
-								};
-
-							}
-
-						});
-
-						_CONFIG.buffer.build.environments = environments;
-
-
-						urls.push(sandbox + '/lychee.pkg');
-						urls.push(sandbox + '/source/DIST.js');
-						urls.push(sandbox + '/source/Main.js');
-
-						assets.push(_CONFIG);
-						assets.push(_TEMPLATE.dist);
-						assets.push(_TEMPLATE.main);
-
-					}
-
-
-					stash.bind('batch', function(action, map) {
-
-						if (action === 'write') {
-							oncomplete(true);
-						}
-
-					}, this, true);
-
-					stash.batch('write', urls, assets);
-
-				} else {
-
-					oncomplete(false);
-
-				}
-
-			};
-
-			pkg.load();
-
-		}, this);
 
 		this.bind('pull', function(oncomplete) {
 
@@ -495,49 +363,6 @@ lychee.define('breeder.Template').requires([
 
 
 			return data;
-
-		},
-
-
-
-		/*
-		 * CUSTOM API
-		 */
-
-		setSandbox: function(sandbox) {
-
-			sandbox = typeof sandbox === 'string' ? sandbox : null;
-
-
-			if (sandbox !== null) {
-
-				this.sandbox = sandbox;
-
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		setSettings: function(settings) {
-
-			settings = settings instanceof Object ? settings : null;
-
-
-			if (settings !== null) {
-
-				this.settings = settings;
-
-				return true;
-
-			}
-
-
-			return false;
 
 		}
 

@@ -1,8 +1,9 @@
 #!/usr/local/bin/lycheejs-helper env:node
 
-const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
-const _PORT = parseInt(process.argv[2], 10);
-const _HOST = process.argv[3] === 'null' ? null : process.argv[3];
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _PORT  = parseInt(process.argv[2], 10);
+const _HOST  = process.argv[3] === 'null'    ? null : process.argv[3];
+const _DEBUG = process.argv[4] === '--debug' ? true : false;
 
 require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 
@@ -14,12 +15,13 @@ require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 
 (function(lychee, global) {
 
+	lychee.init(null);
 	lychee.pkg('build', 'node/main', function(environment, profile) {
 
 		if (environment !== null) {
 
 			lychee.init(environment, {
-				debug:   false,
+				debug:   _DEBUG,
 				sandbox: false,
 				profile: {
 					renderer: null,

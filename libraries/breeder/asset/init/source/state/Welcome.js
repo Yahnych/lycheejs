@@ -55,7 +55,6 @@ lychee.define('app.state.Welcome').requires([
 					'refresh'
 				]);
 
-
 				this.query('ui > welcome > dialog').bind('change', function(value) {
 					menu.setValue(value);
 					menu.trigger('change', [ value ]);

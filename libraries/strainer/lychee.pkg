@@ -36,22 +36,24 @@
 					"json"
 				]
 			},
+			"event": {
+				"flow": {
+					"Check": [
+						"json"
+					],
+					"Simulate": [
+						"json"
+					],
+					"Transcribe": [
+						"json"
+					]
+				}
+			},
 			"fix": {
 				"API": [
 					"json"
 				],
 				"ESLINT": [
-					"json"
-				]
-			},
-			"flow": {
-				"Check": [
-					"json"
-				],
-				"Simulate": [
-					"json"
-				],
-				"Transcribe": [
 					"json"
 				]
 			},
@@ -237,14 +239,6 @@
 					"js"
 				]
 			},
-			"fix": {
-				"API": [
-					"js"
-				],
-				"ESLINT": [
-					"js"
-				]
-			},
 			"event": {
 				"flow": {
 					"Check": [
@@ -257,6 +251,14 @@
 						"js"
 					]
 				}
+			},
+			"fix": {
+				"API": [
+					"js"
+				],
+				"ESLINT": [
+					"js"
+				]
 			},
 			"platform": {
 				"html": {
