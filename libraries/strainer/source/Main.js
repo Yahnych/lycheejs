@@ -7,9 +7,11 @@ lychee.define('strainer.Main').requires([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
-	const _lychee  = lychee.import('lychee');
-	const _Emitter = lychee.import('lychee.event.Emitter');
-	const _flow    = lychee.import('strainer.flow');
+	const _lychee     = lychee.import('lychee');
+	const _Emitter    = lychee.import('lychee.event.Emitter');
+	const _Check      = lychee.import('strainer.flow.Check');
+	const _Simulate   = lychee.import('strainer.flow.Simulate');
+	const _Transcribe = lychee.import('strainer.flow.Transcribe');
 
 
 
@@ -40,21 +42,20 @@ lychee.define('strainer.Main').requires([
 
 		this.bind('load', function() {
 
-			let action  = this.settings.action  || null;
 			let project = this.settings.project || null;
-
-			if (action !== null && project !== null) {
+			if (project !== null) {
 
 				let cwd = this.settings.cwd || null;
-
-				// XXX: lycheejs-strainer check /projects/my-project
 				if (cwd === _lychee.ROOT.lychee) {
+
+					// XXX: lycheejs-strainer check /projects/my-project
 
 					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
-				// XXX: cd /opt/lycheejs/projects && lycheejs-strainer check my-project
 				} else if (cwd.startsWith(_lychee.ROOT.lychee)) {
+
+					// XXX: cd /opt/lycheejs/projects && lycheejs-strainer check my-project
 
 					if (project.startsWith(_lychee.ROOT.lychee)) {
 						project = project.substr(_lychee.ROOT.lychee.length);
@@ -63,8 +64,9 @@ lychee.define('strainer.Main').requires([
 					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
-				// XXX: lycheejs-strainer check /home/whatever/my-project
 				} else {
+
+					// XXX: lycheejs-strainer check /home/whatever/my-project
 
 					lychee.ROOT.lychee                            = '';
 					lychee.ROOT.project                           = project;
@@ -84,7 +86,7 @@ lychee.define('strainer.Main').requires([
 				}
 
 
-				this.trigger('init', [ project, action ]);
+				this.trigger('init');
 
 			} else {
 
@@ -96,84 +98,101 @@ lychee.define('strainer.Main').requires([
 
 		}, this, true);
 
-		this.bind('init', function(project, action) {
+		this.bind('init', function() {
 
-			let flow = null;
-			let name = action.charAt(0).toUpperCase() + action.substr(1);
+			let action  = this.settings.action  || null;
+			let project = this.settings.project || null;
 
-			if (_flow[name] !== undefined) {
+			if (action !== null && project !== null) {
 
-				flow = new _flow[name]({
-					sandbox:  project,
-					settings: this.settings
-				});
+				let flow = null;
 
-			}
+				if (action === 'check') {
 
+					flow = new _Check({
+						sandbox:  project,
+						settings: this.settings
+					});
 
-			if (flow !== null) {
+				} else if (action === 'simulate') {
 
-				flow.bind('complete', function() {
+					flow = new _Simulate({
+						sandbox:  project,
+						settings: this.settings
+					});
 
-					if (flow.errors.length === 0) {
+				} else if (action === 'transcribe') {
 
-						console.info('strainer: SUCCESS ("' + project + '")');
+					flow = new _Transcribe({
+						sandbox:  project,
+						settings: this.settings
+					});
 
-						this.destroy(0);
-
-					} else {
-
-						flow.errors.forEach(function(err) {
-
-							let path = err.url;
-							let rule = err.rule    || 'parser-error';
-							let line = err.line    || 0;
-							let col  = err.column  || 0;
-							let msg  = err.message || 'Parsing error: unknown';
-							if (msg.endsWith('.') === false) {
-								msg = msg.trim() + '.';
-							}
+				}
 
 
-							let message = '';
+				if (flow !== null) {
 
-							message += path;
-							message += ':' + line;
-							message += ':' + col;
-							message += ': ' + msg;
-							message += ' [' + rule + ']';
+					flow.bind('complete', function() {
 
-							if (err.rule.startsWith('unguessable-')) {
-								console.warn('strainer: ' + message);
-							} else {
-								console.error('strainer: ' + message);
-							}
+						if (flow.errors.length === 0) {
 
-						});
+							console.info('strainer: SUCCESS ("' + project + '")');
 
-						console.error('strainer: FAILURE ("' + project + '")');
+							this.destroy(0);
+
+						} else {
+
+							flow.errors.forEach(function(err) {
+
+								let path = err.url;
+								let rule = err.rule    || 'parser-error';
+								let line = err.line    || 0;
+								let col  = err.column  || 0;
+								let msg  = err.message || 'Parsing error: unknown';
+								if (msg.endsWith('.') === false) {
+									msg = msg.trim() + '.';
+								}
+
+
+								let message = '';
+
+								message += path;
+								message += ':' + line;
+								message += ':' + col;
+								message += ': ' + msg;
+								message += ' [' + rule + ']';
+
+								if (err.rule.startsWith('unguessable-')) {
+									console.warn('strainer: ' + message);
+								} else {
+									console.error('strainer: ' + message);
+								}
+
+							});
+
+							console.error('strainer: FAILURE ("' + project + '")');
+
+							this.destroy(1);
+
+						}
+
+					}, this);
+
+					flow.bind('error', function(event) {
+
+						console.error('strainer: FAILURE ("' + project + '") at "' + event + '" event');
 
 						this.destroy(1);
 
-					}
-
-				}, this);
-
-				flow.bind('error', function(event) {
-
-					console.error('strainer: FAILURE ("' + project + '") at "' + event + '" event');
-
-					this.destroy(1);
-
-				}, this);
+					}, this);
 
 
-				flow.init();
+					flow.init();
+
+				}
 
 			}
-
-
-			return true;
 
 		}, this, true);
 
@@ -214,9 +233,19 @@ lychee.define('strainer.Main').requires([
 
 		init: function() {
 
-			this.trigger('load');
+			let action  = this.settings.action  || null;
+			let project = this.settings.project || null;
 
-			return true;
+			if (action !== null && project !== null) {
+
+				this.trigger('load');
+
+				return true;
+
+			}
+
+
+			return false;
 
 		},
 
@@ -228,6 +257,126 @@ lychee.define('strainer.Main').requires([
 			this.trigger('destroy', [ code ]);
 
 			return true;
+
+		},
+
+		check: function(asset, callback) {
+
+			asset    = asset instanceof Stuff       ? asset    : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (asset !== null && callback !== null) {
+
+				let project = this.settings.project;
+				if (project !== null) {
+
+					let flow = new _Check({
+						sandbox:  project,
+						settings: this.settings
+					});
+
+					flow.unbind('read-sources');
+					flow.unbind('read-reviews');
+					flow.unbind('write-sources');
+					flow.unbind('write-reviews');
+					flow.unbind('write-configs');
+					flow.unbind('write-package');
+
+					flow.bind('read-sources', function(oncomplete) {
+						this.sources = [ asset ];
+						oncomplete(true);
+					});
+					flow.bind('read-reviews', function(oncomplete) {
+						oncomplete(true);
+					});
+					flow.bind('write-sources', function(oncomplete) {
+						oncomplete(true);
+					});
+					flow.bind('write-reviews', function(oncomplete) {
+						oncomplete(true);
+					});
+					flow.bind('write-configs', function(oncomplete) {
+						oncomplete(true);
+					});
+					flow.bind('write-package', function(oncomplete) {
+						oncomplete(true);
+					});
+
+					flow.bind('complete', function() {
+
+						let configs = this.configs;
+						if (configs.length > 0) {
+							callback(configs[0]);
+						} else {
+							callback(null);
+						}
+
+					});
+
+					flow.init();
+
+
+					return true;
+
+				}
+
+			}
+
+
+			return false;
+
+		},
+
+		transcribe: function(asset, callback) {
+
+			asset    = asset instanceof Config      ? asset    : null;
+			callback = callback instanceof Function ? callback : null;
+
+
+			if (asset !== null && callback !== null) {
+
+				let project = this.settings.project;
+				if (project !== null) {
+
+					let flow = new _Transcribe({
+						sandbox:  project,
+						settings: this.settings
+					});
+
+					flow.unbind('read-configs');
+					flow.unbind('write-sources');
+
+					flow.bind('read-configs', function(oncomplete) {
+						this.configs = [ asset ];
+						oncomplete(true);
+					});
+					flow.bind('write-sources', function(oncomplete) {
+						oncomplete(true);
+					});
+
+					flow.bind('complete', function() {
+
+						let sources = this.sources;
+						if (sources.length > 0) {
+							callback(sources[0]);
+						} else {
+							callback(null);
+						}
+
+					});
+
+					flow.init();
+
+
+					return true;
+
+				}
+
+			}
+
+
+			return false;
 
 		}
 

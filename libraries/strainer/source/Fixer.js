@@ -7,7 +7,7 @@ lychee.define('strainer.Fixer').requires([
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');
-	const _flow    = lychee.import('strainer.flow');
+	const _Check   = lychee.import('strainer.flow.Check');
 
 
 
@@ -36,21 +36,20 @@ lychee.define('strainer.Fixer').requires([
 
 		this.bind('load', function() {
 
-			let file    = this.settings.file    || null;
 			let project = this.settings.project || null;
-
-			if (file !== null && project !== null) {
+			if (project !== null) {
 
 				let cwd = this.settings.cwd || null;
-
-				// XXX: lycheejs-strainer-fixer check /projects/my-project/source/Main.js
 				if (cwd === _lychee.ROOT.lychee) {
+
+					// XXX: lycheejs-strainer-fixer check /projects/my-project/source/Main.js
 
 					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
-				// XXX: cd /opt/lycheejs/projects && lycheejs-strainer-fixer check my-project/source/Main.js
 				} else if (cwd.startsWith(_lychee.ROOT.lychee)) {
+
+					// XXX: cd /opt/lycheejs/projects && lycheejs-strainer-fixer check my-project/source/Main.js
 
 					if (project.startsWith(_lychee.ROOT.lychee)) {
 						project = project.substr(_lychee.ROOT.lychee.length);
@@ -59,8 +58,9 @@ lychee.define('strainer.Fixer').requires([
 					lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 					lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
-				// XXX: lycheejs-strainer-fixer check /home/whatever/my-project/source/Main.js
 				} else {
+
+					// XXX: lycheejs-strainer-fixer check /home/whatever/my-project/source/Main.js
 
 					lychee.ROOT.lychee                            = '';
 					lychee.ROOT.project                           = project;
@@ -92,123 +92,123 @@ lychee.define('strainer.Fixer').requires([
 
 		this.bind('init', function() {
 
-			let flow = new _flow.Check({
-				sandbox:  this.settings.project,
-				settings: this.settings
-			});
+			let file    = this.settings.file    || null;
+			let project = this.settings.project || null;
+
+			if (file !== null && project !== null) {
+
+				let flow = new _Check({
+					sandbox:  project,
+					settings: this.settings
+				});
+
+				flow.unbind('read-sources');
+				flow.unbind('read-reviews');
+
+				flow.bind('read-sources', function(oncomplete) {
+
+					let file      = this.settings.file;
+					let namespace = this.__namespace;
+					let sandbox   = this.sandbox;
+					let stash     = this.stash;
+
+					if (file !== null && namespace !== null && sandbox !== '' && stash !== null) {
+
+						console.log('strainer: READ-SOURCES ' + sandbox);
+
+						let pkg = this.__packages[namespace] || null;
+						if (pkg !== null) {
+
+							let source = new Stuff(sandbox + '/' + file, true);
+
+							source.onload = function(result) {
+
+								if (result === true) {
+									this.sources = [ source ];
+									oncomplete(true);
+								} else {
+									oncomplete(false);
+								}
+
+							}.bind(this);
+
+							source.load();
 
 
-			flow.unbind('read-sources');
-			flow.unbind('read-reviews');
-
-			flow.bind('read-sources', function(oncomplete) {
-
-				let file      = this.settings.file;
-				let sandbox   = this.sandbox;
-				let stash     = this.stash;
-				let namespace = this.__namespace;
-
-				if (sandbox !== '' && stash !== null && namespace !== null) {
-
-					console.log('strainer: READ-SOURCES ' + sandbox);
-
-
-					let pkg = this.__packages[namespace] || null;
-					if (pkg !== null) {
-
-						let source = new Stuff(sandbox + '/' + file, true);
-
-						source.onload = function(result) {
-
-							if (result === true) {
-								this.sources = [ source ];
-								oncomplete(true);
-							} else {
-								oncomplete(false);
-							}
-
-						}.bind(this);
-
-						source.load();
-
+						} else {
+							oncomplete(false);
+						}
 
 					} else {
 						oncomplete(false);
 					}
 
-				} else {
-					oncomplete(false);
-				}
+				}, flow);
 
-			}, flow);
+				flow.bind('complete', function() {
 
-			flow.bind('complete', function() {
+					let cwd    = this.settings.cwd;
+					let errors = flow.errors;
 
-				let cwd = this.settings.cwd;
+					if (errors.length > 0) {
 
+						errors.forEach(function(err) {
 
-				let length = flow.errors.length;
-				if (length === 0) {
+							let path = err.url;
+							if (
+								path.startsWith('/opt/lycheejs') === false
+								&& path.startsWith(cwd) === false
+							) {
+								path = cwd + '/' + err.url;
+							}
 
-					console.error('\n0 problems');
-
-					this.destroy(0);
-
-				} else {
-
-					flow.errors.forEach(function(err) {
-
-						let path = err.url;
-						if (
-							path.startsWith('/opt/lycheejs') === false
-							&& path.startsWith(cwd) === false
-						) {
-							path = cwd + '/' + err.url;
-						}
+							let rule = err.rule    || 'parser-error';
+							let line = err.line    || 0;
+							let col  = err.column  || 0;
+							let msg  = err.message || 'Parsing error: unknown';
+							if (msg.endsWith('.') === false) {
+								msg = msg.trim() + '.';
+							}
 
 
-						let rule = err.rule    || 'parser-error';
-						let line = err.line    || 0;
-						let col  = err.column  || 0;
-						let msg  = err.message || 'Parsing error: unknown';
-						if (msg.endsWith('.') === false) {
-							msg = msg.trim() + '.';
-						}
+							let message = '';
 
+							message += path.substr(cwd.length + 1);
+							message += ':' + line;
+							message += ':' + col;
+							message += ': ' + msg;
+							message += ' [' + rule + ']';
 
-						let message = '';
+							console.error(message);
 
-						message += path.substr(cwd.length + 1);
-						message += ':' + line;
-						message += ':' + col;
-						message += ': ' + msg;
-						message += ' [' + rule + ']';
+						});
 
-						console.error(message);
+						console.error('\n' + errors.length + ' ' + (errors.length === 1 ? 'problem' : 'problems'));
 
-					});
+						this.destroy(1);
 
-					console.error('\n' + length + ' ' + (length === 1 ? 'problem' : 'problems'));
+					} else {
 
+						console.error('\n0 problems');
+
+						this.destroy(0);
+
+					}
+
+				}, this);
+
+				flow.bind('read-reviews', function(oncomplete) {
+					oncomplete(true);
+				}, flow);
+
+				flow.bind('error', function(event) {
 					this.destroy(1);
-
-				}
-
-			}, this);
-
-			flow.bind('read-reviews', function(oncomplete) {
-				oncomplete(true);
-			}, flow);
-
-			flow.bind('error', function(event) {
-				this.destroy(1);
-			}, this);
+				}, this);
 
 
-			flow.init();
+				flow.init();
 
-
-			return true;
+			}
 
 		}, this, true);
 
@@ -249,9 +249,19 @@ lychee.define('strainer.Fixer').requires([
 
 		init: function() {
 
-			this.trigger('load');
+			let file    = this.settings.file    || null;
+			let project = this.settings.project || null;
 
-			return true;
+			if (file !== null && project !== null) {
+
+				this.trigger('load');
+
+				return true;
+
+			}
+
+
+			return false;
 
 		},
 
