@@ -90,7 +90,7 @@ lychee.define('strainer.Main').requires([
 
 			} else {
 
-				console.error('strainer: FAILURE ("' + project + '") at "load" event');
+				console.error('strainer: FAILURE ("' + project + '") at "load" event.');
 
 				this.destroy(1);
 
@@ -184,7 +184,7 @@ lychee.define('strainer.Main').requires([
 
 					flow.bind('error', function(event) {
 
-						console.error('strainer: FAILURE ("' + project + '") at "' + event + '" event');
+						console.error('strainer: FAILURE ("' + project + '") at "' + event + '" event.');
 
 						this.destroy(1);
 

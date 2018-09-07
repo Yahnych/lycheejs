@@ -68,16 +68,52 @@
 
 			if (environment !== null) {
 
+				let settings = {
+					debug:   false,
+					sandbox: false,
+					profile: profile
+				};
+
 				let host = global.location.hostname || 'localhost';
 				if (host !== 'localhost') {
 					profile.client = "http://" + host + ":4848/api/server/connect?identifier=/libraries/studio";
 				}
 
-				lychee.init(environment, {
-					debug:   false,
-					sandbox: false,
-					profile: profile
-				});
+				let search = global.location.search || '';
+				if (search.startsWith('?')) {
+
+					let tmp = search.substr(1).split('&').map(val => val.split('='));
+					if (tmp.length > 0) {
+
+						tmp.forEach(t => {
+
+							let key = t[0];
+							let val = t[1];
+
+							if (val === 'null') {
+								val = null;
+							} else if (val === 'true') {
+								val = true;
+							} else if (val === 'false') {
+								val = false;
+							}
+
+							if (key in settings) {
+								settings[key] = val;
+							} else if (key in settings.profile) {
+								settings.profile[key] = val;
+							} else {
+								settings.profile[key] = val;
+							}
+
+						});
+
+					}
+
+				}
+
+
+				lychee.init(environment, settings);
 
 			}
 

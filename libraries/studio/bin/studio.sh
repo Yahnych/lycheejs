@@ -23,14 +23,7 @@ if [ "$LYCHEEJS_HELPER" != "" ] && [ "$LYCHEEJS_FERTILIZER" != "" ]; then
 	cd $LYCHEEJS_ROOT;
 
 	bash $LYCHEEJS_FERTILIZER html-nwjs/main /libraries/studio;
-
-	project="$1";
-
-	if [ "$project" != "" ]; then
-		bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio "$project";
-	else
-		bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio;
-	fi;
+	bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio "$1" "$2" "$3" "$4";
 
 	exit $?;
 

@@ -126,7 +126,7 @@ lychee.define('breeder.Main').requires([
 					flow.bind('error', function(event) {
 
 						if (lychee.debug === true) {
-							console.error('breeder: FAILURE ("' + project + '") at "' + event + '" template event');
+							console.error('breeder: FAILURE ("' + project + '") at "' + event + '" event.');
 						}
 
 						this.destroy(1);

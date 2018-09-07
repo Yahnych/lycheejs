@@ -20,6 +20,19 @@
 					"json"
 				]
 			},
+			"event": {
+				"flow": {
+					"Font": [
+						"json"
+					],
+					"Music": [
+						"json"
+					],
+					"Sprite": [
+						"json"
+					]
+				}
+			},
 			"net": {
 				"Client": [
 					"json"
@@ -242,6 +255,16 @@
 				"Project": [
 					"js"
 				]
+			},
+			"event": {
+				"flow": {
+					"Font": [
+						"js"
+					],
+					"Sprite": [
+						"js"
+					]
+				}
 			},
 			"net": {
 				"Client": [

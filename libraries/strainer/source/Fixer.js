@@ -1,13 +1,13 @@
 
 lychee.define('strainer.Fixer').requires([
-	'strainer.flow.Check'
+	'strainer.event.flow.Check'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');
-	const _Check   = lychee.import('strainer.flow.Check');
+	const _Check   = lychee.import('strainer.event.flow.Check');
 
 
 
