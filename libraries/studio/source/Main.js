@@ -141,7 +141,7 @@ lychee.define('studio.Main').requires([
 
 			let appclient = this.settings.appclient || null;
 			if (appclient !== null) {
-				this.client = new _studio.net.Client(appclient, this);
+				this.client = new _studio.net.Client(appclient);
 				this.api    = new _Client({
 					host: this.client.host
 				}, this);
@@ -149,7 +149,8 @@ lychee.define('studio.Main').requires([
 
 			let appserver = this.settings.appserver || null;
 			if (appserver !== null) {
-				this.server = new _studio.net.Server(appserver, this);
+				appserver.main = this;
+				this.server = new _studio.net.Server(appserver);
 			}
 
 

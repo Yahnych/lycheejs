@@ -13,23 +13,28 @@ lychee.define('studio.net.Server').includes([
 
 	const _on_stash_sync = function(data) {
 
-		let root  = lychee.ROOT.project;
-		let stash = this.stash;
+		let main = this.main || null;
+		if (main !== null) {
 
-		if (stash !== null) {
+			let stash = main.stash || null;
+			if (stash !== null) {
 
-			lychee.ROOT.project = lychee.ROOT.lychee;
+				let root = lychee.ROOT.project;
 
-			for (let id in data.assets) {
+				lychee.ROOT.project = lychee.ROOT.lychee;
 
-				let asset = lychee.deserialize(data.assets[id]);
-				if (asset !== null) {
-					stash.write(id, asset);
+				for (let id in data.assets) {
+
+					let asset = lychee.deserialize(data.assets[id]);
+					if (asset !== null) {
+						stash.write(id, asset);
+					}
+
 				}
 
-			}
+				lychee.ROOT.project = root;
 
-			lychee.ROOT.project = root;
+			}
 
 		}
 
@@ -41,9 +46,12 @@ lychee.define('studio.net.Server').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({}, data);
+
+
+		this.main = states.main || null;
 
 
 		_Server.call(this, states);
@@ -63,7 +71,7 @@ lychee.define('studio.net.Server').includes([
 
 			let service = remote.getService('stash');
 			if (service !== null) {
-				service.bind('sync', _on_stash_sync, main);
+				service.bind('sync', _on_stash_sync, this);
 			}
 
 		}, this);

@@ -11,7 +11,7 @@ lychee.define('studio.net.Client').includes([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({
 			reconnect: 10000
