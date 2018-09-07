@@ -122,9 +122,13 @@ lychee.define('harvester.net.server.File').requires([
 			let path       = null;
 			let project    = null;
 			let tunnel     = this.tunnel;
-			let url        = headers['url'];
-			let mime       = _MIME[url.split('.').pop()] || _MIME['default'];
 
+			let url = headers['url'];
+			if (url.includes('?')) {
+				url = url.split('?')[0];
+			}
+
+			let mime = _MIME[url.split('.').pop()] || _MIME['default'];
 
 			// Multi-library mode /libraries/*
 			if (url.startsWith('/libraries')) {
