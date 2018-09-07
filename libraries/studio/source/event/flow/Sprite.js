@@ -78,29 +78,23 @@ lychee.define('studio.event.flow.Sprite').includes([
 
 		this.bind('modify-asset-sprite', function(oncomplete) {
 
-			// let color = this.main.state.query('ui > asset > modify > color');
-			// if (color !== null) {
-			// 	color.setValue('#ff00ff');
-			// 	color.trigger('change', [ color.value ]);
-			// }
+			let shape = this.main.state.query('ui > asset > modify > shape');
+			if (shape !== null) {
+				shape.setValue('rectangle');
+				shape.trigger('change', [ shape.value ]);
+			}
 
-			// let size = this.main.state.query('ui > asset > modify > size');
-			// if (size !== null) {
-			// 	size.setValue(64);
-			// 	size.trigger('change', [ size.value ]);
-			// }
+			let width = this.main.state.query('ui > asset > modify > width');
+			if (width !== null) {
+				width.setValue(32);
+				width.trigger('change', [ width.value ]);
+			}
 
-			// let style = this.main.state.query('ui > asset > modify > style');
-			// if (style !== null) {
-			// 	style.setValue('italic');
-			// 	style.trigger('change', [ style.value ]);
-			// }
-
-			// let spacing = this.main.state.query('ui > asset > modify > spacing');
-			// if (spacing !== null) {
-			// 	spacing.setValue(16);
-			// 	spacing.trigger('change', [ spacing.value ]);
-			// }
+			let height = this.main.state.query('ui > asset > modify > height');
+			if (height !== null) {
+				height.setValue(32);
+				height.trigger('change', [ height.value ]);
+			}
 
 			setTimeout(_ => oncomplete(true), 250);
 
