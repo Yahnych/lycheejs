@@ -16,10 +16,7 @@
 						"json"
 					]
 				}
-			},
-			"harvester": [
-				"json"
-			]
+			}
 		}
 	},
 	"build": {
