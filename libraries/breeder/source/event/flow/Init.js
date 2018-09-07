@@ -19,7 +19,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 
 	/*
-	 * HELPER
+	 * HELPERS
 	 */
 
 	const _create_config = function(identifier, includes) {
@@ -126,6 +126,7 @@ lychee.define('breeder.event.flow.Init').requires([
 	const Composite = function(data) {
 
 		let states = Object.assign({}, data);
+
 
 		this.assets  = [];
 		this.configs = [];

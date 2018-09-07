@@ -23,6 +23,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 		let states = Object.assign({}, data);
 
+
 		this.assets  = [];
 		this.sources = [];
 
@@ -44,8 +45,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 		this.setProject(states.project);
 
 
-		_Flow.call(this, states);
-
+		_Flow.call(this);
 
 		states = null;
 

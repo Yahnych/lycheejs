@@ -4,9 +4,6 @@
 			"Main": [
 				"json"
 			],
-			"Template": [
-				"json"
-			],
 			"event": {
 				"flow": {
 					"Fork": [
@@ -14,9 +11,15 @@
 					],
 					"Init": [
 						"json"
+					],
+					"Pull": [
+						"json"
 					]
 				}
-			}
+			},
+			"harvester": [
+				"json"
+			]
 		}
 	},
 	"build": {
@@ -88,15 +91,15 @@
 			"Main": [
 				"js"
 			],
-			"Template": [
-				"js"
-			],
 			"event": {
 				"flow": {
 					"Fork": [
 						"js"
 					],
 					"Init": [
+						"js"
+					],
+					"Pull": [
 						"js"
 					]
 				}

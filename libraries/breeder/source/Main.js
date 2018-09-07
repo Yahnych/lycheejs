@@ -2,16 +2,16 @@
 lychee.define('breeder.Main').requires([
 	'breeder.event.flow.Fork',
 	'breeder.event.flow.Init',
-	'breeder.Template'
+	'breeder.event.flow.Pull'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
 
-	const _lychee   = lychee.import('lychee');
-	const _Emitter  = lychee.import('lychee.event.Emitter');
-	const _Fork     = lychee.import('breeder.event.flow.Fork');
-	const _Init     = lychee.import('breeder.event.flow.Init');
-	const _Template = lychee.import('breeder.Template');
+	const _lychee  = lychee.import('lychee');
+	const _Emitter = lychee.import('lychee.event.Emitter');
+	const _Fork    = lychee.import('breeder.event.flow.Fork');
+	const _Init    = lychee.import('breeder.event.flow.Init');
+	const _Pull    = lychee.import('breeder.event.flow.Pull');
 
 
 
@@ -97,7 +97,17 @@ lychee.define('breeder.Main').requires([
 					});
 
 				} else if (action === 'pull') {
+
+					flow = new _Pull({
+						debug:   debug,
+						library: library,
+						project: project
+					});
+
 				} else if (action === 'push') {
+
+					// TODO: breeder.event.flow.Push
+
 				}
 
 
