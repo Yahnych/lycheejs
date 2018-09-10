@@ -6,7 +6,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Build').includes([
 	const _Flow  = lychee.import('fertilizer.event.Flow');
 	const _INDEX = {
 		application: attachments['index.html'],
-		library:     attachments['index.mjs']
+		library:     attachments['index.js']
 	};
 	const _META  = attachments['package.json'];
 
@@ -188,7 +188,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Build').includes([
 					if (variant === 'application') {
 						base_index = 'index.html';
 					} else if (variant === 'library') {
-						base_index = 'index.mjs';
+						base_index = 'index.js';
 					}
 
 

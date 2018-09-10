@@ -71,8 +71,36 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}

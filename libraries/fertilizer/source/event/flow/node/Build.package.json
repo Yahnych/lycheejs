@@ -1,5 +1,5 @@
 {
-	"browser":     "./index.js",
+	"main":        "./index.js",
 	"name":        "${id}",
 	"title":       "${id} (powered by lychee.js)",
 	"homepage":    "https://lychee.js.org",

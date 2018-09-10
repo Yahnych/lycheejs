@@ -25,9 +25,6 @@
 					"Font": [
 						"json"
 					],
-					"Music": [
-						"json"
-					],
 					"Sprite": [
 						"json"
 					]
@@ -217,15 +214,39 @@
 		"files": {
 			"html": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}

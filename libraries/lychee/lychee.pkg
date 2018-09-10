@@ -671,29 +671,112 @@
 		"files": {
 			"html": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"html-nwjs": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"html-webview": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"nidium": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"index": [
+						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}

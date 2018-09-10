@@ -183,15 +183,20 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
-					]
-				}
-			},
-			"node-sdl": {
-				"dist": {
-					"index": [
-						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}

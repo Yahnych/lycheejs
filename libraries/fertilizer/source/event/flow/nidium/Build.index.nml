@@ -5,11 +5,13 @@
 		<identifier>${id}</identifier>
 	</meta>
 	<assets>
-		<script src="./core.js"></script>
+		<script src="./crux.js"></script>
 		<script>
 		(function(lychee, global) {
 
-			let environment = lychee.deserialize(${blob});
+			let blob = ${blob};
+
+			let environment = lychee.deserialize(blob);
 			if (environment !== null) {
 
 				lychee.init(environment, {

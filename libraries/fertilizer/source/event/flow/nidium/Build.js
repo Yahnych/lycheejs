@@ -1,5 +1,5 @@
 
-lychee.define('fertilizer.event.flow.html.Build').includes([
+lychee.define('fertilizer.event.flow.nidium.Build').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
@@ -7,10 +7,6 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 	const _INDEX = {
 		application: attachments['index.html'],
 		library:     attachments['index.js']
-	};
-	const _META  = {
-		application: attachments['index.appcache'],
-		library:     attachments['package.json']
 	};
 
 
@@ -74,32 +70,6 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	};
 
-	const _build_meta = function(variant, asset) {
-
-		if (variant === 'application') {
-
-			// XXX: Nothing to do
-
-		} else if (variant === 'library') {
-
-			let buffer = asset.buffer;
-			if (buffer instanceof Object) {
-
-				let env = this.__environment;
-				if (env !== null) {
-
-					asset.buffer = JSON.parse(JSON.stringify(buffer).replaceObject({
-						id: env.id
-					}));
-
-				}
-
-			}
-
-		}
-
-	};
-
 	const _create_index = function(variant) {
 
 		let template = null;
@@ -107,36 +77,6 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 			template = lychee.serialize(_INDEX.application);
 		} else if (variant === 'library') {
 			template = lychee.serialize(_INDEX.library);
-		}
-
-		if (template !== null) {
-
-			let asset = lychee.deserialize(template);
-			if (asset !== null) {
-
-				let base = asset.url.split('/').pop();
-				let name = base.split('.').slice(1).join('.');
-
-				asset.url = './' + name;
-
-			}
-
-			return asset;
-
-		}
-
-
-		return null;
-
-	};
-
-	const _create_meta = function(variant) {
-
-		let template = null;
-		if (variant === 'application') {
-			template = lychee.serialize(_META.application);
-		} else if (variant === 'library') {
-			template = lychee.serialize(_META.library);
 		}
 
 		if (template !== null) {
@@ -194,33 +134,10 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 				let env = this.__environment;
 				if (env !== null) {
 
-					let base_index = '*';
-					let base_meta  = '*';
-
 					let variant = env.variant;
-					if (variant === 'application') {
+					let base    = env.variant === 'application' ? 'index.nml' : 'index.js';
+					let index   = this.assets.find(asset => asset.url.endsWith('/' + base)) || null;
 
-						base_index = 'index.html';
-						base_meta  = 'index.appcache';
-
-					} else if (variant === 'library') {
-
-						base_index = 'index.js';
-						base_meta  = 'package.json';
-
-					}
-
-
-					let meta = this.assets.find(asset => asset.url.endsWith('/' + base_meta)) || null;
-					if (meta === null || meta.buffer === null) {
-						meta = _create_meta.call(this, variant);
-						_build_meta.call(this, variant, meta);
-						this.assets.push(meta);
-					} else {
-						_build_meta.call(this, variant, meta);
-					}
-
-					let index = this.assets.find(asset => asset.url.endsWith('/' + base_index)) || null;
 					if (index === null || index.buffer === null) {
 						index = _create_index.call(this, variant);
 						_build_index.call(this, variant, index);
@@ -273,7 +190,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'fertilizer.event.flow.html.Build';
+			data['constructor'] = 'fertilizer.event.flow.nidium.Build';
 
 
 			return data;

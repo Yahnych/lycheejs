@@ -4,9 +4,55 @@
 			"Main": [
 				"json"
 			],
-			"Template": [
-				"json"
-			],
+			"event": {
+				"Flow": [
+					"json"
+				],
+				"flow": {
+					"Build": [
+						"json"
+					],
+					"Configure": [
+						"json"
+					],
+					"Fertilize": [
+						"json"
+					],
+					"Package": [
+						"json"
+					],
+					"html": {
+						"Build": [
+							"index.json",
+							"json"
+						]
+					},
+					"html-nwjs": {
+						"Build": [
+							"index.json",
+							"json"
+						]
+					},
+					"html-webview": {
+						"Build": [
+							"index.json",
+							"json"
+						]
+					},
+					"nidium": {
+						"Build": [
+							"index.json",
+							"json"
+						]
+					},
+					"node": {
+						"Build": [
+							"index.json",
+							"json"
+						]
+					}
+				}
+			},
 			"platform": {
 				"node": {
 					"data": {
@@ -14,48 +60,6 @@
 							"json"
 						]
 					}
-				}
-			},
-			"template": {
-				"html": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"html-nwjs": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"html-webview": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"nidium": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"node": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
 				}
 			}
 		}
@@ -109,8 +113,36 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -128,9 +160,6 @@
 		},
 		"files": {
 			"Main": [
-				"js"
-			],
-			"Template": [
 				"js"
 			],
 			"event": {
@@ -152,9 +181,8 @@
 					],
 					"html": {
 						"Build": [
-							"index.appcache",
 							"index.html",
-							"index.mjs",
+							"index.js",
 							"js",
 							"package.json"
 						]
@@ -162,7 +190,28 @@
 					"html-nwjs": {
 						"Build": [
 							"index.html",
-							"index.mjs",
+							"index.js",
+							"js",
+							"package.json"
+						]
+					},
+					"html-webview": {
+						"Build": [
+							"index.html",
+							"index.js",
+							"js",
+							"package.json"
+						]
+					},
+					"nidium": {
+						"Build": [
+							"index.js",
+							"js"
+						]
+					},
+					"node": {
+						"Build": [
+							"index.js",
 							"js",
 							"package.json"
 						]
@@ -176,64 +225,6 @@
 							"js"
 						]
 					}
-				}
-			},
-			"template": {
-				"html": {
-					"Application": [
-						"appcache.tpl",
-						"config.tpl",
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"html-nwjs": {
-					"Application": [
-						"config.tpl",
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"html-webview": {
-					"Application": [
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"nidium": {
-					"Application": [
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"node": {
-					"Application": [
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
 				}
 			}
 		}

@@ -7,7 +7,10 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.Fertilize',
 	'fertilizer.event.flow.Package',
 	'fertilizer.event.flow.html.Build',
-	'fertilizer.event.flow.html-nwjs.Build'
+	'fertilizer.event.flow.html-nwjs.Build',
+	'fertilizer.event.flow.html-webview.Build',
+	'fertilizer.event.flow.nidium.Build',
+	'fertilizer.event.flow.node.Build'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {

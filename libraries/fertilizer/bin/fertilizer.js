@@ -317,7 +317,6 @@ const _spawn = function(args) {
 			stdout = (stdout.toString() || '').trim();
 			stderr = (stderr.toString() || '').trim();
 
-
 			if (stderr !== '') {
 
 				let lines = stderr.split('\n').map(function(message) {
@@ -366,10 +365,12 @@ const _spawn = function(args) {
 
 			if (code === 0) {
 				console.info('SUCCESS (' + pid + ') (' + info + ')');
+			} else if (code === 1) {
+				console.error('FAILURE (' + pid + ') (' + info + ')');
 			} else if (code === 2) {
 				console.warn('FAILURE (' + pid + ') (' + info + ')');
-			} else {
-				console.error('FAILURE (' + pid + ') (' + info + ')');
+			} else if (code === 3) {
+				console.warn('SUCCESS (' + pid + ') (' + info + ') (SKIP)');
 			}
 
 			let index = _PROCESSES.indexOf(this.pid);
@@ -470,12 +471,11 @@ const _SETTINGS = (function() {
 			if (target.startsWith('*/')) {
 
 				// XXX: Multi Mode (e.g. */main)
+				_MULTI_MODE = true;
 
 				let suffix = target.split('*').pop();
 				let queue  = targets.filter(t => t.endsWith(suffix));
 				if (queue.length > 0) {
-
-					_MULTI_MODE = true;
 
 					queue.forEach(t => {
 						settings.target = t;
@@ -490,12 +490,11 @@ const _SETTINGS = (function() {
 			} else if (target.endsWith('/*')) {
 
 				// XXX: Multi Mode (e.g. node/*)
+				_MULTI_MODE = true;
 
 				let prefix = target.split('*').shift();
 				let queue  = targets.filter(t => t.startsWith(prefix));
 				if (queue.length > 0) {
-
-					_MULTI_MODE = true;
 
 					queue.forEach(t => {
 						settings.target = t;
@@ -526,7 +525,6 @@ const _SETTINGS = (function() {
 			// XXX: Multi Mode (all environments in lychee.pkg)
 			_MULTI_MODE = true;
 
-
 			targets.forEach(t => {
 				settings.target = t;
 				_spawn(_settings_to_args(settings));
@@ -545,7 +543,19 @@ const _SETTINGS = (function() {
 
 	// XXX: Multi Mode delegates to sub-processes
 	if (_MULTI_MODE === true) {
+
+		if (settings.action === null && settings.project === null) {
+
+			let args = process.argv.slice(1);
+			let info = '"' + args[1] + '" | "' + args[2] + '" | "' + args[3] + '"';
+
+			console.warn('SUCCESS (' + process.pid + ') (' + info + ') (SKIP)');
+			process.exit(3);
+
+		}
+
 		return;
+
 	}
 
 

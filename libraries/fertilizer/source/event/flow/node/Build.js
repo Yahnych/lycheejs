@@ -1,17 +1,11 @@
 
-lychee.define('fertilizer.event.flow.html.Build').includes([
+lychee.define('fertilizer.event.flow.node.Build').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Flow  = lychee.import('fertilizer.event.Flow');
-	const _INDEX = {
-		application: attachments['index.html'],
-		library:     attachments['index.js']
-	};
-	const _META  = {
-		application: attachments['index.appcache'],
-		library:     attachments['package.json']
-	};
+	const _INDEX = attachments['index.js'];
+	const _META  = attachments['package.json'];
 
 
 
@@ -19,7 +13,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 	 * HELPERS
 	 */
 
-	const _build_index = function(variant, stuff) {
+	const _build_index = function(stuff) {
 
 		stuff = stuff instanceof Stuff ? stuff : null;
 
@@ -27,7 +21,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		if (stuff !== null) {
 
 			if (stuff.buffer.includes('${blob}') === false) {
-				stuff.buffer = '' + _INDEX[variant].buffer;
+				stuff.buffer = '' + _INDEX.buffer;
 			}
 
 
@@ -74,25 +68,17 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	};
 
-	const _build_meta = function(variant, asset) {
+	const _build_meta = function(asset) {
 
-		if (variant === 'application') {
+		let buffer = asset.buffer;
+		if (buffer instanceof Object) {
 
-			// XXX: Nothing to do
+			let env = this.__environment;
+			if (env !== null) {
 
-		} else if (variant === 'library') {
-
-			let buffer = asset.buffer;
-			if (buffer instanceof Object) {
-
-				let env = this.__environment;
-				if (env !== null) {
-
-					asset.buffer = JSON.parse(JSON.stringify(buffer).replaceObject({
-						id: env.id
-					}));
-
-				}
+				asset.buffer = JSON.parse(JSON.stringify(buffer).replaceObject({
+					id: env.id
+				}));
 
 			}
 
@@ -100,15 +86,9 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	};
 
-	const _create_index = function(variant) {
+	const _create_index = function() {
 
-		let template = null;
-		if (variant === 'application') {
-			template = lychee.serialize(_INDEX.application);
-		} else if (variant === 'library') {
-			template = lychee.serialize(_INDEX.library);
-		}
-
+		let template = lychee.serialize(_INDEX);
 		if (template !== null) {
 
 			let asset = lychee.deserialize(template);
@@ -130,15 +110,9 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	};
 
-	const _create_meta = function(variant) {
+	const _create_meta = function() {
 
-		let template = null;
-		if (variant === 'application') {
-			template = lychee.serialize(_META.application);
-		} else if (variant === 'library') {
-			template = lychee.serialize(_META.library);
-		}
-
+		let template = lychee.serialize(_META);
 		if (template !== null) {
 
 			let asset = lychee.deserialize(template);
@@ -194,39 +168,22 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 				let env = this.__environment;
 				if (env !== null) {
 
-					let base_index = '*';
-					let base_meta  = '*';
-
-					let variant = env.variant;
-					if (variant === 'application') {
-
-						base_index = 'index.html';
-						base_meta  = 'index.appcache';
-
-					} else if (variant === 'library') {
-
-						base_index = 'index.js';
-						base_meta  = 'package.json';
-
-					}
-
-
-					let meta = this.assets.find(asset => asset.url.endsWith('/' + base_meta)) || null;
+					let meta = this.assets.find(asset => asset.url.endsWith('/package.json')) || null;
 					if (meta === null || meta.buffer === null) {
-						meta = _create_meta.call(this, variant);
-						_build_meta.call(this, variant, meta);
+						meta = _create_meta.call(this);
+						_build_meta.call(this, meta);
 						this.assets.push(meta);
 					} else {
-						_build_meta.call(this, variant, meta);
+						_build_meta.call(this, meta);
 					}
 
-					let index = this.assets.find(asset => asset.url.endsWith('/' + base_index)) || null;
+					let index = this.assets.find(asset => asset.url.endsWith('/index.js')) || null;
 					if (index === null || index.buffer === null) {
-						index = _create_index.call(this, variant);
-						_build_index.call(this, variant, index);
+						index = _create_index.call(this);
+						_build_index.call(this, index);
 						this.assets.push(index);
 					} else {
-						_build_index.call(this, variant, index);
+						_build_index.call(this, index);
 					}
 
 
@@ -273,7 +230,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'fertilizer.event.flow.html.Build';
+			data['constructor'] = 'fertilizer.event.flow.node.Build';
 
 
 			return data;

@@ -521,7 +521,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					pkg.setType('source');
 
-					let sources = pkg.getFiles().filter(url => url.endsWith('.js'));
+					let sources = pkg.getFiles().filter(url => url.endsWith('.js') && url.split('/').pop().split('.').length === 2);
 					if (sources.length > 0) {
 
 						stash.bind('batch', function(type, assets) {

@@ -1,5 +1,5 @@
 
-lychee.define('fertilizer.event.flow.html.Build').includes([
+lychee.define('fertilizer.event.flow.html-webview.Build').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
@@ -273,7 +273,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'fertilizer.event.flow.html.Build';
+			data['constructor'] = 'fertilizer.event.flow.html-webview.Build';
 
 
 			return data;

@@ -481,7 +481,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 								attachment_ids.forEach(function(assetId) {
 
 									let url   = attachments[assetId];
-									let asset = new lychee.Asset(url);
+									let asset = new lychee.Asset(url, null, true);
 									if (asset !== null) {
 
 										asset.onload = function(result) {

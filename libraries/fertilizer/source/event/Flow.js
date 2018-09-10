@@ -583,6 +583,8 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				if (info !== null && info.type === 'file' && variant === 'application') {
 
+					// TODO: Change syntax to '.../package.sh ' + project + ' ' + target;
+
 					console.log('fertilizer: -> Executing "/bin/runtime/' + platform + '/package.sh ' + sandbox + ' ' + name + '"');
 
 					shell.exec('/bin/runtime/' + platform + '/package.sh ' + sandbox + ' ' + name, result => {
@@ -632,14 +634,12 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				console.log('fertilizer: ' + action + '/PACKAGE-PROJECT "' + project + '"');
 
-				let name = target.split('/').pop();
 				let info = shell.info(project + '/bin/package.sh');
-
 				if (info !== null && info.type === 'file') {
 
-					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh ' + target + ' ' + name + '"');
+					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh ' + target + '"');
 
-					shell.exec(project + '/bin/package.sh ' + target + ' ' + name, result => {
+					shell.exec(project + '/bin/package.sh ' + target, result => {
 
 						if (result === false) {
 							console.warn('fertilizer: -> FAILURE');
