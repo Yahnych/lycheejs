@@ -144,7 +144,7 @@ lychee.define('fertilizer.event.Flow').requires([
 		environment.init(sandbox => {
 
 			_lychee.setEnvironment(_ENVIRONMENT);
-			callback(environment);
+			callback(environment, sandbox);
 
 		});
 
@@ -421,145 +421,41 @@ lychee.define('fertilizer.event.Flow').requires([
 						}
 
 
-						let variant = settings.variant || null;
-						if (variant === 'application') {
+						_initialize_environment(settings, (environment, sandbox) => {
 
-							_initialize_environment(settings, environment => {
+							environment.debug    = defaults.debug;
+							environment.sandbox  = defaults.sandbox;
+							environment.packages = {};
 
-								environment.debug    = defaults.debug;
-								environment.sandbox  = defaults.sandbox;
-								environment.packages = {};
-
-								this.__environment = environment;
-								oncomplete(true);
-
-							});
-
-						} else if (variant === 'library') {
-
-							_initialize_environment(settings, environment => {
-
-								environment.debug    = defaults.debug;
-								environment.sandbox  = defaults.sandbox;
-								environment.packages = {};
-
-								this.__environment = environment;
+							this.__environment = environment;
 
 
-								let dependencies = {};
+							// XXX: Build failed and was autofixed
+							// and will result in MAIN.destroy(2)
+							if (sandbox === null) {
+								this._autofixed = true;
+							}
 
-								if (typeof environment.global.console.serialize === 'function') {
 
-									let blob = environment.global.console.serialize().blob || null;
-									if (blob !== null) {
+							if (typeof environment.global.console.serialize === 'function') {
 
-										(blob.stderr || '').trim().split('\n').filter(function(line) {
-											return line.includes('-') && line.includes('required by ');
-										}).forEach(function(line) {
+								let blob = environment.global.console.serialize().blob || null;
+								if (blob !== null) {
 
-											let tmp = line.trim().split('-')[1];
-											if (tmp.endsWith('.')) tmp = tmp.substr(0, tmp.length - 1);
-
-											let dep = tmp.split('required by ')[0].trim();
-											let req = tmp.split('required by ')[1].trim();
-
-											if (dep.endsWith('(')) dep = dep.substr(0, dep.length - 1).trim();
-											if (req.endsWith(')')) req = req.substr(0, req.length - 1).trim();
-
-											dependencies[req] = dep;
-
-										});
-
-									}
+									(blob.stderr || '').trim().split('\n').map(function(line) {
+										return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
+									}).forEach(function(line) {
+										console.warn('fertilizer: ' + line);
+									});
 
 								}
 
-
-								let remaining = Object.keys(dependencies).length;
-								if (remaining > 0) {
-
-									console.warn('fertilizer: Fixing Dependencies');
-
-									this._autofixed = true;
+							}
 
 
-									let target = environment.definitions[environment.target] || null;
+							oncomplete(true);
 
-									for (let req in dependencies) {
-
-										let dependency = dependencies[req];
-										let definition = environment.definitions[req] || null;
-										if (definition !== null) {
-
-											let i0 = definition._includes.indexOf(dependency);
-											let i1 = definition._requires.indexOf(dependency);
-
-											if (i0 !== -1 || i1 !== -1) {
-												console.warn('fertilizer: -> Removing "' + dependency + '" from "' + definition.id + '".');
-												remaining--;
-											}
-
-											if (i0 !== -1) {
-												definition._includes.splice(i0, 1);
-											}
-
-											if (i1 !== -1) {
-												definition._requires.splice(i1, 1);
-											}
-
-										}
-
-										if (target !== null) {
-
-											let i0 = target._includes.indexOf(req);
-											let i1 = target._requires.indexOf(req);
-
-											if (i0 !== -1 || i1 !== -1) {
-												console.warn('fertilizer: -> Removing "' + req + '" from "' + target.id + '".');
-											}
-
-											if (i0 !== -1) {
-												target._includes.splice(i0, 1);
-											}
-
-											if (i1 !== -1) {
-												target._requires.splice(i1, 1);
-											}
-
-										}
-
-									}
-
-								}
-
-
-								if (typeof environment.global.console.serialize === 'function') {
-
-									let blob = environment.global.console.serialize().blob || null;
-									if (blob !== null) {
-
-										(blob.stderr || '').trim().split('\n').map(function(line) {
-											return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
-										}).forEach(function(line) {
-											console.warn('fertilizer: ' + line);
-										});
-
-									}
-
-								}
-
-
-								if (remaining === 0) {
-									oncomplete(true);
-								} else {
-									oncomplete(false);
-								}
-
-							});
-
-						} else {
-							oncomplete(false);
-						}
+						});
 
 					} else {
 						oncomplete(false);

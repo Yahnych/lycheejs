@@ -117,16 +117,84 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		// XXX: Always show Dependency Errors
 		if (cache.load.length > 0) {
 
-			this.global.console.error('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(function(value, index) {
+			let variant = this.variant;
+			if (variant === 'library') {
 
-				let other = cache.required_by[index] || null;
-				if (other === null) {
-					other = this.target;
-				}
+				this.global.console.warn('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(function(dependency, index) {
 
-				return '\t - ' + value + ' (required by ' + other + ')';
+					let requiree = cache.required_by[index] || null;
+					if (requiree === null) {
+						requiree = this.target;
+					}
 
-			}.bind(this)).join('\n'));
+					return '\t - ' + dependency + ' (required by ' + requiree + ')';
+
+				}.bind(this)).join('\n'));
+
+				cache.load.forEach(function(dependency, index) {
+
+					let requiree = cache.required_by[index] || null;
+					if (requiree === null) {
+						requiree = this.target;
+					}
+
+					let definition = this.definitions[requiree] || null;
+					if (definition !== null) {
+
+						let i0 = definition._includes.indexOf(dependency);
+						let i1 = definition._requires.indexOf(dependency);
+
+						if (i0 !== -1 || i1 !== -1) {
+							this.global.console.warn('lychee.Environment ("' + this.id + '"): -> Removing "' + dependency + '" from "' + definition.id + '".');
+						}
+
+						if (i0 !== -1) {
+							definition._includes.splice(i0, 1);
+						}
+
+						if (i1 !== -1) {
+							definition._requires.splice(i1, 1);
+						}
+
+					}
+
+
+					let target = this.definitions[this.target] || null;
+					if (target !== null) {
+
+						let i0 = target._includes.indexOf(dependency);
+						let i1 = target._requires.indexOf(dependency);
+
+						if (i0 !== -1 || i1 !== -1) {
+							this.global.console.warn('lychee.Environment ("' + this.id + '"): -> Removing "' + dependency + '" from "' + target.id + '".');
+						}
+
+						if (i0 !== -1) {
+							target._includes.splice(i0, 1);
+						}
+
+						if (i1 !== -1) {
+							target._requires.splice(i1, 1);
+						}
+
+					}
+
+				}.bind(this));
+
+			} else {
+
+				this.global.console.error('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(function(dependency, index) {
+
+					let requiree = cache.required_by[index] || null;
+					if (requiree === null) {
+						requiree = this.target;
+					}
+
+					return '\t - ' + dependency + ' (required by ' + requiree + ')';
+
+				}.bind(this)).join('\n'));
+
+			}
 
 		}
 
@@ -701,6 +769,7 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		this.target      = 'app.Main';
 		this.timeout     = 10000;
 		this.type        = 'source';
+		this.variant     = 'application';
 
 		this.__cache    = {
 			active:        false,
@@ -752,6 +821,7 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		this.setPackages(states.packages);
 		this.setTags(states.tags);
 		this.setTimeout(states.timeout);
+		this.setVariant(states.variant);
 
 		// Needs this.packages to be ready
 		this.setType(states.type);
@@ -804,12 +874,13 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 			let blob   = {};
 
 
-			if (this.id !== '')             states.id      = this.id;
-			if (this.debug !== true)        states.debug   = this.debug;
-			if (this.sandbox !== false)     states.sandbox = this.sandbox;
-			if (this.timeout !== 10000)     states.timeout = this.timeout;
-			if (this.target !== 'app.Main') states.target  = this.target;
-			if (this.type !== 'source')     states.type    = this.type;
+			if (this.id !== '')                 states.id      = this.id;
+			if (this.debug !== true)            states.debug   = this.debug;
+			if (this.sandbox !== false)         states.sandbox = this.sandbox;
+			if (this.timeout !== 10000)         states.timeout = this.timeout;
+			if (this.target !== 'app.Main')     states.target  = this.target;
+			if (this.type !== 'source')         states.type    = this.type;
+			if (this.variant !== 'application') states.variant = this.variant;
 
 
 			if (Object.keys(this.packages).length > 0) {
@@ -1451,6 +1522,29 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 					return true;
 
 				}
+
+			}
+
+
+			return false;
+
+		},
+
+		setVariant: function(variant) {
+
+			variant = typeof variant === 'string' ? variant : null;
+
+
+			if (variant !== null) {
+
+				if (/^(application|library)$/g.test(variant)) {
+
+					this.variant = variant;
+
+					return true;
+
+				}
+
 
 			}
 
