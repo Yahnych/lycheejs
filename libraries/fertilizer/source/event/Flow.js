@@ -468,7 +468,10 @@ lychee.define('fertilizer.event.Flow').requires([
 						});
 
 					} else {
+
+						console.warn('fertilizer: -> Invalid Environment Tags at "' + pkg.url + '/build/' + target + '".');
 						oncomplete(false);
+
 					}
 
 					pkg.setType('source');

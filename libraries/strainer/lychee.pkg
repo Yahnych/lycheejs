@@ -118,6 +118,7 @@
 				"sandbox": false,
 				"tags": {
 					"platform": [
+						"node-sdl",
 						"node"
 					]
 				},
@@ -197,6 +198,22 @@
 					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
 					],
 					"manifest": [
 						"json"

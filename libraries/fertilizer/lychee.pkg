@@ -23,31 +23,26 @@
 					],
 					"html": {
 						"Build": [
-							"index.json",
 							"json"
 						]
 					},
 					"html-nwjs": {
 						"Build": [
-							"index.json",
 							"json"
 						]
 					},
 					"html-webview": {
 						"Build": [
-							"index.json",
 							"json"
 						]
 					},
 					"nidium": {
 						"Build": [
-							"index.json",
 							"json"
 						]
 					},
 					"node": {
 						"Build": [
-							"index.json",
 							"json"
 						]
 					}
