@@ -56,20 +56,43 @@ lychee.define('fertilizer.Main').requires([
 				let flow_build     = new Build(data);
 				let flow_package   = new Package(data);
 
+				if (Configure !== _Configure) {
 
-				flow_fertilize.unbind('build-assets');
-				flow_configure.transfer('configure-project', flow_fertilize);
+					flow_fertilize.unbind('configure-project');
 
-				flow_build.transfer('read-package',      flow_fertilize);
-				flow_build.transfer('read-assets',       flow_fertilize);
-				flow_build.transfer('read-assets-crux',  flow_fertilize);
-				flow_build.transfer('build-environment', flow_fertilize);
-				flow_build.transfer('build-assets',      flow_fertilize);
-				flow_build.transfer('write-assets',      flow_fertilize);
-				flow_build.transfer('build-project',     flow_fertilize);
+					flow_configure.transfer('configure-project', flow_fertilize);
 
-				flow_package.transfer('package-runtime', flow_fertilize);
-				flow_package.transfer('package-project', flow_fertilize);
+				}
+
+				if (Build !== _Build) {
+
+					flow_fertilize.unbind('read-package');
+					flow_fertilize.unbind('read-assets');
+					flow_fertilize.unbind('read-assets-crux');
+					flow_fertilize.unbind('build-environment');
+					flow_fertilize.unbind('build-assets');
+					flow_fertilize.unbind('write-assets');
+					flow_fertilize.unbind('build-project');
+
+					flow_build.transfer('read-package',      flow_fertilize);
+					flow_build.transfer('read-assets',       flow_fertilize);
+					flow_build.transfer('read-assets-crux',  flow_fertilize);
+					flow_build.transfer('build-environment', flow_fertilize);
+					flow_build.transfer('build-assets',      flow_fertilize);
+					flow_build.transfer('write-assets',      flow_fertilize);
+					flow_build.transfer('build-project',     flow_fertilize);
+
+				}
+
+				if (Package !== _Package) {
+
+					flow_fertilize.unbind('package-runtime');
+					flow_fertilize.unbind('package-project');
+
+					flow_package.transfer('package-runtime', flow_fertilize);
+					flow_package.transfer('package-project', flow_fertilize);
+
+				}
 
 				queue.then(flow_fertilize);
 
@@ -98,14 +121,30 @@ lychee.define('fertilizer.Main').requires([
 
 		let autofixed = false;
 
-		queue.bind('update', function(flow) {
+		queue.bind('update', function(flow, oncomplete) {
 
-			if (flow._autofixed === true) {
-				autofixed = true;
-			}
+			flow.bind('complete', function() {
 
-			console.log('fertilizer: QUEUE PROCESSES FLOW NAO');
-			console.log(flow.displayName, flow.project, flow.target);
+				if (flow._autofixed === true) {
+					autofixed = true;
+				}
+
+				oncomplete(true);
+
+			}, this);
+
+			flow.bind('error', function(event) {
+
+				console.error('WTF FLOW HAZ ERRORS! ' + event);
+				console.log(flow.displayName, flow.project, flow.target);
+				console.log(Object.keys(flow.___events));
+				console.log(flow.___stack.map(s => s.event));
+
+				oncomplete(false);
+
+			}, this);
+
+			flow.init();
 
 		}, this);
 

@@ -26,16 +26,40 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 		if (stuff !== null) {
 
-			let env     = this.__environment;
-			let profile = this.__profile;
+			let env = this.__environment;
+			if (env !== null) {
 
-			if (env !== null && profile !== null) {
+				let code = stuff.buffer.split('\n');
 
-				stuff.buffer = stuff.buffer.replaceObject({
-					blob:    env.serialize(),
-					id:      env.id,
-					profile: profile
-				});
+				let blob      = JSON.stringify(env.serialize(), null, '\t');
+				let blob_line = code.find(line => line.includes('${blob}')) || null;
+				if (blob_line !== null) {
+
+					let indent = blob_line.substr(0, blob_line.indexOf(blob_line.trim()));
+					if (indent !== '') {
+						blob = blob.split('\n').map((line, l) => {
+							return l === 0 ? line : indent + line;
+						}).join('\n');
+					}
+
+				}
+
+				let profile      = JSON.stringify(this.__profile, null, '\t');
+				let profile_line = code.find(line => line.includes('{$profile}')) || null;
+				if (profile_line !== null) {
+
+					let indent = profile_line.substr(0, profile_line.indexOf(profile_line.trim()));
+					if (indent !== '') {
+						profile = profile.split('\n').map((line, l) => {
+							return l === 0 ? line : indent + line;
+						}).join('\n');
+					}
+
+				}
+
+				stuff.buffer = stuff.buffer.replace('${id}',      env.id);
+				stuff.buffer = stuff.buffer.replace('${blob}',    blob);
+				stuff.buffer = stuff.buffer.replace('${profile}', profile);
 
 			}
 
@@ -161,6 +185,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 				console.log('fertilizer: ' + action + '/BUILD-ASSETS "' + project + '"');
 
+
 				let env = this.__environment;
 				if (env !== null) {
 
@@ -181,8 +206,8 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 					}
 
 
-					let meta = this.assets.filter(asset => asset.url.endsWith('/' + base_meta)) || null;
-					if (meta !== null) {
+					let meta = this.assets.find(asset => asset.url.endsWith('/' + base_meta)) || null;
+					if (meta === null || meta.buffer === null) {
 						meta = _create_meta.call(this, variant);
 						_build_meta.call(this, variant, meta);
 						this.assets.push(meta);
@@ -190,8 +215,8 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 						_build_meta.call(this, variant, meta);
 					}
 
-					let index = this.assets.filter(asset => asset.url.endsWith('/' + base_index)) || null;
-					if (index !== null) {
+					let index = this.assets.find(asset => asset.url.endsWith('/' + base_index)) || null;
+					if (index === null || index.buffer === null) {
 						index = _create_index.call(this, variant);
 						_build_index.call(this, variant, index);
 						this.assets.push(index);

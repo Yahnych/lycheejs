@@ -256,20 +256,20 @@ lychee.define('fertilizer.event.Flow').requires([
 					this.assets = assets;
 
 
-					let meta_icon = this.assets.filter(asset => asset.url.endsWith('/icon.png')) || null;
-					if (meta_icon === null) {
+					let meta_icon = this.assets.find(asset => asset.url.endsWith('/icon.png')) || null;
+					if (meta_icon === null || meta_icon.buffer === null) {
 						meta_icon = _create_meta_icon.call(this);
 						this.assets.push(meta_icon);
 					}
 
-					let meta_manifest = this.assets.filter(asset => asset.url.endsWith('/manifest.json')) || null;
-					if (meta_manifest === null) {
+					let meta_manifest = this.assets.find(asset => asset.url.endsWith('/manifest.json')) || null;
+					if (meta_manifest === null || meta_manifest.buffer === null) {
 						meta_manifest = _create_meta_manifest.call(this);
 						this.assets.push(meta_manifest);
 					}
 
-					let meta_package = this.assets.filter(asset => asset.url.endsWith('/package.json')) || null;
-					if (meta_package === null) {
+					let meta_package = this.assets.find(asset => asset.url.endsWith('/package.json')) || null;
+					if (meta_package === null || meta_package.buffer === null) {
 						meta_package = _create_meta_package.call(this);
 						this.assets.push(meta_package);
 					}
@@ -309,10 +309,11 @@ lychee.define('fertilizer.event.Flow').requires([
 
 					stash.bind('batch', function(type, assets) {
 
-						let asset = assets.filter(asset => asset.url.endsWith('/dist.js'));
+						let asset = assets.find(asset => asset.url.endsWith('/dist.js')) || null;
 						if (asset !== null) {
 
 							asset.url = './crux.js';
+
 							this.assets.push(asset);
 
 							oncomplete(true);
@@ -418,6 +419,8 @@ lychee.define('fertilizer.event.Flow').requires([
 						if (settings.profile instanceof Object) {
 							this.__profile = settings.profile;
 							delete settings.profile;
+						} else {
+							this.__profile = {};
 						}
 
 

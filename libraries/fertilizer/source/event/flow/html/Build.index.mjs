@@ -11,5 +11,6 @@
 
 	lychee.ENVIRONMENTS['${id}'] = environment;
 
-})(lychee, typeof global !== 'undefined' ? global : this);
+	export default = environment;
 
+})(lychee, typeof global !== 'undefined' ? global : this);
