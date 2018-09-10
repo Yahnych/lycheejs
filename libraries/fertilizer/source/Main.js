@@ -167,8 +167,6 @@ lychee.define('fertilizer.Main').requires([
 		}, this);
 
 		queue.bind('error', function() {
-			console.log('WTF');
-
 			process.exit(1);
 		}, this);
 

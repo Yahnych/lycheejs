@@ -381,8 +381,6 @@ const _spawn = function(args) {
 
 		_PROCESSES.push(handle.pid);
 
-		handle.unref();
-
 	} catch (err) {
 	}
 
