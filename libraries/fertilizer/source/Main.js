@@ -1,5 +1,6 @@
 
 lychee.define('fertilizer.Main').requires([
+	'lychee.event.Queue',
 	'fertilizer.event.flow.Build',
 	'fertilizer.event.flow.Configure',
 	'fertilizer.event.flow.Fertilize',
@@ -76,23 +77,31 @@ lychee.define('fertilizer.Main').requires([
 
 	const _init_queue = function(queue) {
 
+		let autofixed = false;
+
 		queue.bind('update', function(flow) {
 
-			console.log('fertilizer: FLOW');
-			console.log(flow.project, flow.target);
+			if (flow._autofixed === true) {
+				autofixed = true;
+			}
+
+			console.log('fertilizer: QUEUE PROCESSES FLOW NAO');
+			console.log(flow.displayName, flow.project, flow.target);
 
 		}, this);
 
 		queue.bind('complete', function(flow) {
 
-			console.log('fertilizer: ALL COMPLETE');
+			if (autofixed === true) {
+				process.exit(2);
+			} else {
+				process.exit(0);
+			}
 
 		}, this);
 
 		queue.bind('error', function(event) {
-
-			console.log('fertilizer: NAO ERROR ' + event);
-
+			process.exit(1);
 		}, this);
 
 		queue.init();

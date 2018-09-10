@@ -20,10 +20,32 @@ lychee.define('fertilizer.event.Flow').requires([
 	});
 
 
+	const _TEXTURE = (function(stash) {
+
+		let texture = stash.read('/libraries/breeder/asset/init/icon.png');
+
+		texture.load();
+
+		return texture;
+
+	})(_STASH);
+
+
 
 	/*
 	 * HELPERS
 	 */
+
+	const _create_meta_icon = function() {
+
+		let texture = lychee.deserialize(lychee.serialize(_TEXTURE));
+		if (texture !== null) {
+			texture.url = './icon.png';
+		}
+
+		return texture;
+
+	};
 
 	const _create_meta_manifest = function() {
 
@@ -36,7 +58,7 @@ lychee.define('fertilizer.event.Flow').requires([
 			let today   = (date.getUTCMonth() + 1) + '/' + date.getUTCDate();
 			let version = lychee.VERSION + '/' + today;
 
-			config.url    = project + '/manifest.json';
+			config.url    = './manifest.json';
 			config.buffer = {
 				background_color: '#405050',
 				display:          'standalone',
@@ -74,7 +96,7 @@ lychee.define('fertilizer.event.Flow').requires([
 			let today   = (date.getUTCMonth() + 1) + '/' + date.getUTCDate();
 			let version = lychee.VERSION + '/' + today;
 
-			config.url    = project + '/package.json';
+			config.url    = './package.json';
 			config.buffer = {
 				main:        './index.html',
 				name:        name,
@@ -149,6 +171,8 @@ lychee.define('fertilizer.event.Flow').requires([
 		this.stash   = new _Stash({
 			type: _Stash.TYPE.persistent
 		});
+
+		this._autofixed = false;
 
 		this.__environment = null;
 		this.__namespace   = null;
@@ -232,6 +256,12 @@ lychee.define('fertilizer.event.Flow').requires([
 					this.assets = assets;
 
 
+					let meta_icon = this.assets.filter(asset => asset.url.endsWith('/icon.png')) || null;
+					if (meta_icon === null) {
+						meta_icon = _create_meta_icon.call(this);
+						this.assets.push(meta_icon);
+					}
+
 					let meta_manifest = this.assets.filter(asset => asset.url.endsWith('/manifest.json')) || null;
 					if (meta_manifest === null) {
 						meta_manifest = _create_meta_manifest.call(this);
@@ -282,6 +312,7 @@ lychee.define('fertilizer.event.Flow').requires([
 						let asset = assets.filter(asset => asset.url.endsWith('/dist.js'));
 						if (asset !== null) {
 
+							asset.url = './crux.js';
 							this.assets.push(asset);
 
 							oncomplete(true);
@@ -308,7 +339,39 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		}, this);
 
-		this.bind('serialize-environment', function(oncomplete) {
+		this.bind('configure-project', function(oncomplete) {
+
+			let action  = this.action;
+			let project = this.project;
+			let shell   = this.shell;
+			let target  = this.target;
+
+			if (action !== null && project !== null && shell !== null && target !== null) {
+
+				console.log('fertilizer: ' + action + '/CONFIGURE-PROJECT "' + project + '"');
+
+
+				let info = shell.info(project + '/bin/configure.sh');
+				if (info !== null && info.type === 'file') {
+
+					console.log('fertilizer: -> Executing "' + project + '/bin/configure.sh"');
+
+					shell.exec(project + '/bin/configure.sh "' + target + '"', result => {
+						oncomplete(result);
+					});
+
+				} else {
+					console.log('fertilizer: -> Skipping "' + project + '/bin/configure.sh"');
+					oncomplete(true);
+				}
+
+			} else {
+				oncomplete(true);
+			}
+
+		}, this);
+
+		this.bind('build-environment', function(oncomplete) {
 
 			let action  = this.action;
 			let project = this.project;
@@ -316,7 +379,7 @@ lychee.define('fertilizer.event.Flow').requires([
 
 			if (action !== null && project !== null && target !== null) {
 
-				console.log('fertilizer: ' + action + '/SERIALIZE-ENVIRONMENT "' + project + '"');
+				console.log('fertilizer: ' + action + '/BUILD-ENVIRONMENT "' + project + '"');
 
 
 				let pkg = this.__packages[this.__namespace] || null;
@@ -417,6 +480,8 @@ lychee.define('fertilizer.event.Flow').requires([
 
 									console.warn('fertilizer: Fixing Dependencies');
 
+									this._autofixed = true;
+
 
 									let target = environment.definitions[environment.target] || null;
 
@@ -510,6 +575,10 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		}, this);
 
+		// this.bind('build-assets', function(oncomplete) {
+		//	oncomplete(true);
+		// }, this);
+
 		this.bind('write-assets', function(oncomplete) {
 
 			let action  = this.action;
@@ -550,19 +619,123 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		}, this);
 
+		this.bind('build-project', function(oncomplete) {
+
+			let action  = this.action;
+			let project = this.project;
+			let shell   = this.shell;
+			let target  = this.target;
+
+			if (action !== null && project !== null && shell !== null && target !== null) {
+
+				console.log('fertilizer: ' + action + '/BUILD-PROJECT "' + project + '"');
+
+
+				let info = shell.info(project + '/bin/build.sh');
+				if (info !== null && info.type === 'file') {
+
+					console.log('fertilizer: -> Executing "' + project + '/bin/build.sh"');
+
+					shell.exec(project + '/bin/build.sh "' + target + '"', result => {
+						oncomplete(result);
+					});
+
+				} else {
+					console.log('fertilizer: -> Skipping "' + project + '/bin/build.sh"');
+					oncomplete(true);
+				}
+
+			} else {
+				oncomplete(true);
+			}
+
+		}, this);
+
+		this.bind('package-runtime', function(oncomplete) {
+
+			let action  = this.action;
+			let project = this.project;
+			let shell   = this.shell;
+			let target  = this.target;
+
+			if (action !== null && project !== null && shell !== null && target !== null) {
+
+				console.log('fertilizer: ' + action + '/PACKAGE-RUNTIME "' + project + '"');
+
+				let platform = target.split('/').shift();
+				let name     = project.split('/').pop();
+				let info     = shell.info('/bin/runtime/' + platform + '/package.sh');
+
+				if (info !== null && info.type === 'file') {
+
+					console.log('fertilizer: -> Executing "/bin/runtime/' + platform + '/package.sh ' + project + ' ' + name + '"');
+
+					shell.exec('/bin/runtime/' + platform + '/package.sh "' + project + '" "' + name + '"', result => {
+						oncomplete(result);
+					});
+
+				} else {
+					console.log('fertilizer: -> Skipping "/bin/runtime/' + platform + '/bin/package.sh"');
+					oncomplete(true);
+				}
+
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
+
+		this.bind('package-project', function(oncomplete) {
+
+			let action  = this.action;
+			let project = this.project;
+			let shell   = this.shell;
+			let target  = this.target;
+
+			if (action !== null && project !== null && shell !== null && target !== null) {
+
+				console.log('fertilizer: ' + action + '/PACKAGE-PROJECT "' + project + '"');
+
+
+				let info = shell.info(project + '/bin/package.sh');
+				if (info !== null && info.type === 'file') {
+
+					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh"');
+
+					shell.exec(project + '/bin/package.sh "' + target + '"', result => {
+						oncomplete(result);
+					});
+
+				} else {
+					console.log('fertilizer: -> Skipping "' + project + '/bin/package.sh"');
+					oncomplete(true);
+				}
+
+			} else {
+				oncomplete(true);
+			}
+
+		}, this);
+
 
 
 		/*
 		 * FLOW
 		 */
 
+		// this.then('configure-project');
+
 		// this.then('read-package');
 		// this.then('read-assets');
 		// this.then('read-assets-crux');
 
-		// this.then('serialize-environment');
-
+		// this.then('build-environment');
+		// this.then('build-assets'); // XXX: Done by platform-specific flows
 		// this.then('write-assets');
+		// this.then('build-project');
+
+		// this.then('package-runtime');
+		// this.then('package-project');
 
 	};
 

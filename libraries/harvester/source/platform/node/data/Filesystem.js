@@ -172,9 +172,9 @@ lychee.define('harvester.data.Filesystem').tags({
 
 				if (callback !== null) {
 					callback(null);
-				} else {
-					return null;
 				}
+
+				return null;
 
 			} else if (path.charAt(0) !== '/') {
 				path = '/' + path;
@@ -232,9 +232,9 @@ lychee.define('harvester.data.Filesystem').tags({
 
 				if (callback !== null) {
 					callback([]);
-				} else {
-					return [];
 				}
+
+				return [];
 
 			} else if (path.charAt(0) !== '/') {
 				path = '/' + path;
@@ -277,9 +277,9 @@ lychee.define('harvester.data.Filesystem').tags({
 
 				if (callback !== null) {
 					callback(null);
-				} else {
-					return null;
 				}
+
+				return null;
 
 			} else if (path.charAt(0) !== '/') {
 				path = '/' + path;
@@ -322,9 +322,9 @@ lychee.define('harvester.data.Filesystem').tags({
 
 				if (callback !== null) {
 					callback(false);
-				} else {
-					return false;
 				}
+
+				return false;
 
 			} else if (path.charAt(0) !== '/') {
 				path = '/' + path;
@@ -400,23 +400,31 @@ lychee.define('harvester.data.Filesystem').tags({
 			let resolved = _path.normalize(this.__root + path);
 			if (resolved !== null) {
 
-				let stat = null;
-
 				try {
-					stat = _fs.lstatSync(resolved);
+
+					let stat1 = _fs.lstatSync(resolved);
+					if (stat1.isSymbolicLink()) {
+
+						let tmp   = _fs.realpathSync(resolved);
+						let stat2 = _fs.lstatSync(tmp);
+
+						return {
+							type:   stat2.isFile() ? 'file' : 'directory',
+							length: stat2.size,
+							mtime:  new Date(stat2.mtime.toUTCString())
+						};
+
+					} else {
+
+						return {
+							type:   stat1.isFile() ? 'file' : 'directory',
+							length: stat1.size,
+							mtime:  new Date(stat1.mtime.toUTCString())
+						};
+
+					}
+
 				} catch (err) {
-					stat = null;
-				}
-
-
-				if (stat !== null) {
-
-					return {
-						type:   stat.isFile() ? 'file' : 'directory',
-						length: stat.size,
-						mtime:  new Date(stat.mtime.toUTCString())
-					};
-
 				}
 
 			}

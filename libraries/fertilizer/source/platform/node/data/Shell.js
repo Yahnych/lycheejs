@@ -8,6 +8,7 @@ lychee.define('fertilizer.data.Shell').tags({
 		try {
 
 			global.require('child_process');
+			global.require('fs');
 			global.require('path');
 
 			return true;
@@ -23,6 +24,8 @@ lychee.define('fertilizer.data.Shell').tags({
 }).exports(function(lychee, global, attachments) {
 
 	const _child_process = require('child_process');
+	const _fs            = require('fs');
+	const _path          = require('path');
 	const _ROOT          = lychee.ROOT.lychee;
 
 
@@ -31,9 +34,41 @@ lychee.define('fertilizer.data.Shell').tags({
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function() {
+	const Composite = function(data) {
 
+		let states = Object.assign({}, data);
+
+
+		this.root = typeof states.root === 'string' ? states.root : null;
+
+		this.__root  = _ROOT;
 		this.__stack = [];
+
+
+
+		/*
+		 * INITIALIZATION
+		 */
+
+		if (this.root !== null) {
+
+			let tmp1 = _path.normalize(this.root);
+			let tmp2 = _ROOT;
+			if (tmp1.startsWith('/')) {
+				tmp2 = _ROOT + tmp1;
+			} else if (tmp1.startsWith('./')) {
+				tmp2 = _ROOT + tmp1.substr(1);
+			}
+
+			if (tmp2.endsWith('/')) {
+				tmp2 = tmp2.substr(0, tmp2.length - 1);
+			}
+
+			this.__root = tmp2;
+
+		}
+
+		states = null;
 
 	};
 
@@ -58,7 +93,11 @@ lychee.define('fertilizer.data.Shell').tags({
 
 		serialize: function() {
 
-			let blob = {};
+			let states = {};
+			let blob   = {};
+
+
+			if (this.root !== null) states.root = this.root.substr(_ROOT.length);
 
 
 			if (this.__stack.length > 0) {
@@ -68,7 +107,7 @@ lychee.define('fertilizer.data.Shell').tags({
 
 			return {
 				'constructor': 'fertilizer.data.Shell',
-				'arguments':   [],
+				'arguments':   [ states ],
 				'blob':        Object.keys(blob).length > 0 ? blob : null
 			};
 
@@ -80,6 +119,53 @@ lychee.define('fertilizer.data.Shell').tags({
 		 * CUSTOM API
 		 */
 
+		info: function(path) {
+
+			path = typeof path === 'string' ? path : null;
+
+
+			if (path === null) {
+				return null;
+			} else if (path.charAt(0) !== '/') {
+				path = '/' + path;
+			}
+
+
+			let resolved = _path.normalize(this.__root + path);
+			if (resolved !== null) {
+
+				try {
+
+					let stat1 = _fs.lstatSync(resolved);
+					if (stat1.isSymbolicLink()) {
+
+						let tmp   = _fs.realpathSync(resolved);
+						let stat2 = _fs.lstatSync(tmp);
+
+						return {
+							type:  stat2.isFile() ? 'file' : 'directory',
+							mtime: new Date(stat2.mtime.toUTCString())
+						};
+
+					} else {
+
+						return {
+							type:  stat1.isFile() ? 'file' : 'directory',
+							mtime: new Date(stat1.mtime.toUTCString())
+						};
+
+					}
+
+				} catch (err) {
+				}
+
+			}
+
+
+			return null;
+
+		},
+
 		exec: function(command, callback, scope) {
 
 			command  = typeof command === 'string'  ? command  : null;
@@ -89,10 +175,11 @@ lychee.define('fertilizer.data.Shell').tags({
 
 			if (command !== null) {
 
-				let that = this;
-				let args = command.split(' ').slice(1);
-				let cmd  = command.split(' ')[0];
-				let file = _ROOT + (cmd.charAt(0) !== '/' ? '/' : '') + cmd;
+				let args  = command.split(' ').slice(1);
+				let cmd   = command.split(' ')[0];
+				let file  = _ROOT + (cmd.charAt(0) !== '/' ? '/' : '') + cmd;
+				let stack = this.__stack;
+
 				let path = file.split('/').slice(0, -1).join('/');
 				if (path.endsWith('/bin')) {
 					path = path.split('/').slice(0, -1).join('/');
@@ -119,7 +206,7 @@ lychee.define('fertilizer.data.Shell').tags({
 							cwd: path
 						}, function(error, stdout, stderr) {
 
-							that.__stack.push({
+							stack.push({
 								args:   args,
 								file:   file,
 								path:   path,

@@ -324,14 +324,15 @@ const _spawn = function(args) {
 
 		handle.on('exit', function(code) {
 
-			let pid = this.pid;
+			let info = '"' + args[1] + '" | "' + args[2] + '" | "' + args[3] + '"';
+			let pid  = this.pid;
 
 			if (code === 0) {
-				console.info('SUCCESS (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+				console.info('SUCCESS (' + pid + ') (' + info + ')');
 			} else if (code === 2) {
-				console.warn('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+				console.warn('FAILURE (' + pid + ') (' + info + ')');
 			} else {
-				console.error('FAILURE (' + pid + ') ("' + args[2] + '" | "' + args[1] + '")');
+				console.error('FAILURE (' + pid + ') (' + info + ')');
 			}
 
 			let index = _PROCESSES.indexOf(this.pid);
