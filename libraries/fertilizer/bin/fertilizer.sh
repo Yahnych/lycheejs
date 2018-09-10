@@ -16,7 +16,7 @@ if [ "$LYCHEEJS_HELPER" != "" ]; then
 	cd $LYCHEEJS_ROOT;
 
 	export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
-	bash $LYCHEEJS_HELPER env:node ./libraries/fertilizer/bin/fertilizer.js "$1" "$2" "$3" "$4";
+	bash $LYCHEEJS_HELPER env:node ./libraries/fertilizer/bin/fertilizer.js "$1" "$2" "$3" "$4" "$5" "$6";
 	exit $?;
 
 else

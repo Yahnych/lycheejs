@@ -38,6 +38,13 @@ lychee.define('breeder.Main').requires([
 		}, this.settings);
 
 
+		let debug = this.settings.debug;
+		if (debug === true) {
+			console.log('breeder.Main: Parsed settings are ...');
+			console.log(this.settings);
+		}
+
+
 		_Emitter.call(this);
 
 		states = null;
@@ -60,7 +67,7 @@ lychee.define('breeder.Main').requires([
 
 			} else {
 
-				console.error('breeder: FAILURE ("' + project + '") at "load" event');
+				console.error('breeder: FAILURE ("' + project + '") at "load" event.');
 
 				this.destroy(1);
 

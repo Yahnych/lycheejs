@@ -30,6 +30,13 @@ lychee.define('strainer.Main').requires([
 		}, states);
 
 
+		let debug = this.settings.debug;
+		if (debug === true) {
+			console.log('strainer.Main: Parsed settings are ...');
+			console.log(this.settings);
+		}
+
+
 		_Emitter.call(this);
 
 		states = null;

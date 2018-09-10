@@ -253,7 +253,7 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 		echo -e " (L) Distributing lychee.js Engine";
 
 		export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
-		bash ./libraries/fertilizer/bin/fertilizer.sh auto /libraries/lychee;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/lychee;
 
 		_echo_result $? 1;
 
@@ -265,13 +265,13 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 		echo -e " (L) Distributing lychee.js Libraries";
 
 		export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/breeder;
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/fertilizer;
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/harvester;
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/strainer;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/breeder */dist;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/fertilizer */dist;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/harvester */dist;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/strainer */dist;
 
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/ranger;
-		bash ./libraries/fertilizer/bin/fertilizer.sh */dist /libraries/studio;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/ranger */dist;
+		bash ./libraries/fertilizer/bin/fertilizer.sh fertilize /libraries/studio */dist;
 
 		_echo_result 0 0;
 

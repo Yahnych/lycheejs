@@ -146,9 +146,8 @@ const _bootup = function(settings) {
 
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new breeder.Main(settings);
-
-				sandbox.MAIN.bind('destroy', function() {
-					process.exit(0);
+				sandbox.MAIN.bind('destroy', function(code) {
+					process.exit(code);
 				});
 
 				sandbox.MAIN.init();

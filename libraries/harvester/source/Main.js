@@ -127,12 +127,8 @@ lychee.define('harvester.Main').requires([
 
 		let debug = this.settings.debug;
 		if (debug === true) {
-
 			console.log('harvester.Main: Parsed settings are ...');
-			for (let s in this.settings) {
-				console.log('                ' + s + ': ' + this.settings[s]);
-			}
-
+			console.log(this.settings);
 		}
 
 

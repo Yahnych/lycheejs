@@ -4,9 +4,11 @@ const _child_process = require('child_process');
 const _fs            = require('fs');
 const _path          = require('path');
 const _BINARY        = process.execPath;
+const _SELF          = process.argv[1];
 const _PROCESSES     = [];
 const _ROOT          = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 const lychee         = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
+let   _MULTI_MODE    = false;
 
 if (process.argv.includes('--autocomplete')) {
 	console.log   = function() {};
@@ -21,22 +23,10 @@ if (process.argv.includes('--autocomplete')) {
  * USAGE
  */
 
-const _print_autocomplete = function(target, project, flag) {
+const _print_autocomplete = function(action, project, target, flag1, flag2) {
 
-	let targets = [];
-	let flags   = [ '--debug', '--sandbox' ];
-
-	try {
-
-		_fs.readdirSync(_ROOT + '/libraries/lychee/build').sort().forEach(function(platform) {
-			targets.push(platform + '/dist');
-			targets.push(platform + '/main');
-		});
-
-	} catch (err) {
-	}
-
-
+	let actions   = [ 'build', 'configure', 'package', 'fertilize' ];
+	let flags     = [ '--debug', '--sandbox' ];
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
 		.map(val => '/libraries/' + val)
@@ -45,30 +35,73 @@ const _print_autocomplete = function(target, project, flag) {
 		.sort()
 		.map(val => '/projects/' + val)
 		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
+	let targets   = [];
 
 
 	let suggestions = [];
-	let has_target  = targets.find(t => t === target);
+	let has_action  = actions.find(a => a === action);
 	let has_project = libraries.find(l => l === project) || projects.find(p => p === project);
-	let has_flag    = flags.find(f => f === flag);
+	let has_flag1   = flags.find(f => f === flag1);
+	let has_flag2   = flags.find(f => f === flag2);
 
-	if (has_target && has_project && has_flag) {
+	if (has_project !== undefined) {
+
+		try {
+
+			let buffer = _fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8');
+			if (buffer !== '') {
+
+				let data = null;
+				try {
+					data = JSON.parse(buffer);
+				} catch (err) {
+					data = null;
+				}
+
+				if (
+					data instanceof Object
+					&& data.build instanceof Object
+					&& data.build.environments instanceof Object
+				) {
+					targets = Object.keys(data.build.environments);
+				}
+
+			}
+
+		} catch (err) {
+		}
+
+	}
+
+	let has_target = targets.find(t => t === target);
+
+
+	if (has_action && has_project && has_target && has_flag1 && has_flag2) {
 		// Nothing to suggest
-	} else if (has_target && has_project && flag) {
-		suggestions = flags.filter(f => f.startsWith(flag));
-	} else if (has_target && has_project) {
+	} else if (has_action && has_project && has_target && has_flag1 && flag2) {
+		suggestions = flags.filter(f => f.startsWith(flag2));
+	} else if (has_action && has_project && has_target && has_flag1) {
+		suggestions = flags.filter(f => f !== flag1);
+	} else if (has_action && has_project && has_target && flag1) {
+		suggestions = flags.filter(f => f.startsWith(flag1));
+	} else if (has_action && has_project && has_target) {
 		suggestions = flags;
-	} else if (has_target && project) {
+	} else if (has_action && has_project && target) {
+		suggestions = targets.filter(t => t.startsWith(target));
+	} else if (has_action && has_project) {
+		suggestions = targets;
+	} else if (has_action && project) {
 		suggestions.push.apply(suggestions, libraries.filter(l => l.startsWith(project)));
 		suggestions.push.apply(suggestions, projects.filter(p => p.startsWith(project)));
-	} else if (has_target) {
+	} else if (has_action && action) {
 		suggestions.push.apply(suggestions, libraries);
 		suggestions.push.apply(suggestions, projects);
-	} else if (target) {
-		suggestions = targets.filter(t => t.startsWith(target));
+	} else if (action) {
+		suggestions = actions.filter(a => a.startsWith(action));
 	} else {
-		suggestions = targets;
+		suggestions = actions;
 	}
+
 
 	return suggestions.sort();
 
@@ -76,7 +109,6 @@ const _print_autocomplete = function(target, project, flag) {
 
 const _print_help = function() {
 
-	let targets   = _fs.readdirSync(_ROOT + '/libraries/lychee/build').sort();
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
 		.map(val => '/libraries/' + val)
@@ -87,44 +119,55 @@ const _print_help = function() {
 		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
 
 
-	console.log('                                                              ');
+	console.log('                                                                      ');
 	console.info('lychee.js ' + lychee.VERSION + ' Fertilizer');
-	console.log('                                                              ');
-	console.log('Usage: lycheejs-fertilizer [Target] [Library/Project] [Flag]  ');
-	console.log('                                                              ');
-	console.log('                                                              ');
-	console.log('Available Fertilizers:                                        ');
-	console.log('                                                              ');
-	targets.forEach(function(target) {
-		let diff = ('                                                          ').substr(target.length);
-		console.log('    ' + target + diff);
-	});
-	console.log('                                                              ');
-	console.log('Available Libraries:                                          ');
-	console.log('                                                              ');
+	console.log('                                                                      ');
+	console.log('Usage: lycheejs-fertilizer [Action] [Library/Project] [Target] [Flag] ');
+	console.log('                                                                      ');
+	console.log('                                                                      ');
+	console.log('Available Actions:                                                    ');
+	console.log('                                                                      ');
+	console.log('    configure, build, package                                         ');
+	console.log('    fertilize (autonomous mode)                                       ');
+	console.log('                                                                      ');
+	console.log('Available Libraries:                                                  ');
+	console.log('                                                                      ');
 	libraries.forEach(function(library) {
-		let diff = ('                                                          ').substr(library.length);
+		let diff = ('                                                                  ').substr(library.length);
 		console.log('    ' + library + diff);
 	});
-	console.log('                                                              ');
-	console.log('Available Projects:                                           ');
-	console.log('                                                              ');
+	console.log('                                                                      ');
+	console.log('Available Projects:                                                   ');
+	console.log('                                                                      ');
 	projects.forEach(function(project) {
-		let diff = ('                                                          ').substr(project.length);
+		let diff = ('                                                                  ').substr(project.length);
 		console.log('    ' + project + diff);
 	});
-	console.log('                                                              ');
-	console.log('Available Flags:                                              ');
-	console.log('                                                              ');
-	console.log('    --debug      Enable debug messages.                       ');
-	console.log('    --sandbox    Enable sandbox with isolated environment.    ');
-	console.log('                                                              ');
-	console.log('Examples:                                                     ');
-	console.log('                                                              ');
-	console.log('    lycheejs-fertilizer html-nwjs/main /projects/boilerplate; ');
-	console.log('    lycheejs-fertilizer node/main /projects/boilerplate;      ');
-	console.log('    lycheejs-fertilizer auto /libraries/lychee;               ');
-	console.log('                                                              ');
+	console.log('                                                                      ');
+	console.log('Available Flags:                                                      ');
+	console.log('                                                                      ');
+	console.log('    --debug      Enable debug messages.                               ');
+	console.log('    --sandbox    Enable sandbox with isolated environment.            ');
+	console.log('                                                                      ');
+	console.log('Examples:                                                             ');
+	console.log('                                                                      ');
+	console.log('    # Autonomous mode                                                 ');
+	console.log('    lycheejs-fertilizer fertilize /projects/boilerplate;              ');
+	console.log('                                                                      ');
+	console.log('    # Autonomous by-target mode                                       ');
+	console.log('    lycheejs-fertilizer fertilize /projects/boilerplate html/main;    ');
+	console.log('    lycheejs-fertilizer fertilize /projects/boilerplate node/main;    ');
+	console.log('                                                                      ');
+	console.log('    # Manual step-by-step mode                                        ');
+	console.log('    lycheejs-fertilizer configure /projects/boilerplate;              ');
+	console.log('    lycheejs-fertilizer build /projects/boilerplate;                  ');
+	console.log('    lycheejs-fertilizer package /projects/boilerplate;                ');
+	console.log('                                                                      ');
+	console.log('    # Manual step-by-step-by-target mode                              ');
+	console.log('    lycheejs-fertilizer configure /projects/boilerplate html/main;    ');
+	console.log('    lycheejs-fertilizer build /projects/boilerplate html/main;        ');
+	console.log('    lycheejs-fertilizer package /projects/boilerplate html/main;      ');
+	console.log('                                                                      ');
 
 };
 
@@ -189,7 +232,44 @@ const _bootup = function(settings) {
 
 };
 
+const _settings_to_args = function(settings) {
+
+	let args = [ _SELF ];
+
+	if (settings.action !== null) {
+
+		args.push(settings.action);
+
+		if (settings.project !== null) {
+
+			args.push(settings.project);
+
+			if (settings.target !== null) {
+				args.push(settings.target);
+			}
+
+		}
+
+	}
+
+	if (settings.debug === true) {
+		args.push('--debug');
+	}
+
+	if (settings.sandbox === true) {
+		args.push('--sandbox');
+	}
+
+	return args;
+
+};
+
 const _spawn = function(args) {
+
+	if (args.includes('--debug')) {
+		console.log('fertilizer: -> Create Worker "lycheejs-fertilizer ' + args.slice(1).join(' ') + '"');
+	}
+
 
 	try {
 
@@ -291,189 +371,19 @@ const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
 	let settings = {
-		project:     null,
-		identifier:  null,
-		environment: null,
-		debug:       false,
-		sandbox:     false,
-		auto:        false
+		action:  null,
+		project: null,
+		target:  null,
+		debug:   false,
+		sandbox: false
 	};
 
 
-	let identifier   = args.find(val => /^(([a-z-]+|\*))\/(([a-z]+)|\*)$/g.test(val)) || args.find(val => val === 'auto');
+	let action       = args.find(val => /^(fertilize|build|configure|package)$/g.test(val));
 	let project      = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
+	let target       = args.find(val => /^(([a-z-]+|\*))\/(([a-z]+)|\*)$/g.test(val));
 	let debug_flag   = args.find(val => /--([debug]{5})/g.test(val));
 	let sandbox_flag = args.find(val => /--([sandbox]{7})/g.test(val));
-
-
-	if (identifier === 'auto' && project !== undefined && _fs.existsSync(_ROOT + project) === true) {
-
-		settings.auto = true;
-
-
-		let json = null;
-
-		try {
-			json = JSON.parse(_fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8'));
-		} catch (err) {
-			json = null;
-		}
-
-
-		if (json !== null) {
-
-			if (json.build instanceof Object && json.build.environments instanceof Object) {
-
-				let found = false;
-
-				Object.keys(json.build.environments).forEach(function(identifier) {
-
-					if (identifier !== 'auto') {
-
-						found = true;
-
-						let args = [ process.argv[1], identifier, project ];
-						if (debug_flag === true) {
-							args.push('--debug');
-						}
-
-						_spawn(args);
-
-					}
-
-				});
-
-
-				if (found === true) {
-
-					setInterval(function() {
-
-						if (_PROCESSES.length === 0) {
-							process.exit(0);
-						}
-
-					}, 100);
-
-				} else {
-					console.warn('No Target in "' + project + '"');
-				}
-
-			}
-
-		} else {
-
-			settings.auto       = false;
-			settings.project    = project;
-			settings.identifier = 'auto';
-
-		}
-
-	} else if (identifier !== undefined && (identifier.startsWith('*') || identifier.endsWith('*')) && project !== undefined && _fs.existsSync(_ROOT + project) === true) {
-
-		settings.auto = true;
-
-
-		let json = null;
-
-		try {
-			json = JSON.parse(_fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8'));
-		} catch (err) {
-			json = null;
-		}
-
-
-		if (json !== null) {
-
-			if (json.build instanceof Object && json.build.environments instanceof Object) {
-
-				let template = identifier.split('/');
-				let found    = false;
-
-				Object.keys(json.build.environments).forEach(function(identifier) {
-
-					if (identifier !== 'auto') {
-
-						let valid = true;
-
-						identifier.split('/').forEach(function(chunk, c) {
-
-							let str = template[c];
-							if (str !== '*' && str !== chunk) {
-								valid = false;
-							}
-
-						});
-
-						if (valid === true) {
-
-							found = true;
-
-							let args = [ process.argv[1], identifier, project ];
-							if (debug_flag === true) {
-								args.push('--debug');
-							}
-
-							_spawn(args);
-
-						}
-
-					}
-
-				});
-
-
-				if (found === true) {
-
-					setInterval(function() {
-
-						if (_PROCESSES.length === 0) {
-							process.exit(0);
-						}
-
-					}, 100);
-
-				} else {
-					console.warn('No Target for "' + identifier + '" in "' + project + '"');
-				}
-
-			}
-
-		} else {
-
-			settings.auto       = false;
-			settings.project    = project;
-			settings.identifier = identifier;
-
-		}
-
-	} else if (identifier !== undefined && project !== undefined && _fs.existsSync(_ROOT + project) === true) {
-
-		settings.project = project;
-
-
-		let json = null;
-
-		try {
-			json = JSON.parse(_fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8'));
-		} catch (err) {
-			json = null;
-		}
-
-
-		if (json !== null) {
-
-			if (json.build instanceof Object && json.build.environments instanceof Object) {
-
-				if (json.build.environments[identifier] instanceof Object) {
-					settings.identifier  = identifier;
-					settings.environment = json.build.environments[identifier];
-				}
-
-			}
-
-		}
-
-	}
 
 
 	if (debug_flag !== undefined) {
@@ -485,13 +395,105 @@ const _SETTINGS = (function() {
 	}
 
 
+	if (action !== undefined && project !== undefined) {
+
+		settings.action  = action;
+		settings.project = project;
+
+
+		let targets = [];
+
+		try {
+
+			let buffer = _fs.readFileSync(_ROOT + project + '/lychee.pkg', 'utf8');
+			if (buffer !== '') {
+
+				let data = null;
+				try {
+					data = JSON.parse(buffer);
+				} catch (err) {
+					data = null;
+				}
+
+				if (
+					data instanceof Object
+					&& data.build instanceof Object
+					&& data.build.environments instanceof Object
+				) {
+					targets = Object.keys(data.build.environments);
+				}
+
+			}
+
+		} catch (err) {
+		}
+
+
+		if (target !== undefined) {
+
+			if (target.startsWith('*/')) {
+
+				// XXX: Multi Mode (e.g. */main)
+				_MULTI_MODE = true;
+
+
+				let suffix = target.split('*').pop();
+
+				targets.filter(t => t.endsWith(suffix)).forEach(t => {
+					settings.target = t;
+					_spawn(_settings_to_args(settings));
+				});
+
+			} else if (target.endsWith('/*')) {
+
+				// XXX: Multi Mode (e.g. node/*)
+				_MULTI_MODE = true;
+
+
+				let prefix = target.split('*').shift();
+
+				targets.filter(t => t.startsWith(prefix)).forEach(t => {
+					settings.target = t;
+					_spawn(_settings_to_args(settings));
+				});
+
+			} else {
+
+				// XXX: Single Mode (e.g. node/main)
+
+				let check = targets.includes(target);
+				if (check === true) {
+					settings.target  = target;
+				}
+
+			}
+
+		} else {
+
+			// XXX: Multi Mode (all environments in lychee.pkg)
+			_MULTI_MODE = true;
+
+
+			targets.forEach(t => {
+				settings.target = t;
+				_spawn(_settings_to_args(settings));
+			});
+
+		}
+
+	}
+
+
 	return settings;
 
 })();
 
 (function(settings) {
 
-	if (settings.auto === true) return;
+	// XXX: Multi Mode delegates to sub-processes
+	if (_MULTI_MODE === true) {
+		return;
+	}
 
 
 
@@ -499,29 +501,28 @@ const _SETTINGS = (function() {
 	 * IMPLEMENTATION
 	 */
 
-	let has_project     = settings.project !== null;
-	let has_identifier  = settings.identifier !== null;
-	let has_environment = settings.environment !== null;
+	let has_action  = settings.action !== null;
+	let has_project = settings.project !== null;
+	let has_target  = settings.target !== null;
 
 
-	if (has_project && has_identifier && has_environment) {
+	if (has_action && has_project && has_target) {
 
 		_bootup({
-			debug:      settings.debug   === true,
-			sandbox:    settings.sandbox === true,
-			project:    settings.project,
-			identifier: settings.identifier,
-			settings:   settings.environment
+			action:  settings.action,
+			debug:   settings.debug === true,
+			project: settings.project,
+			sandbox: settings.sandbox === true,
+			target:  settings.target
 		});
 
-	} else if (has_project) {
+	} else if (has_action && has_project) {
 
 		_bootup({
-			debug:      settings.debug   === true,
-			sandbox:    settings.sandbox === true,
-			project:    settings.project,
-			identifier: null,
-			settings:   null
+			action:  settings.action,
+			debug:   settings.debug === true,
+			project: settings.project,
+			sandbox: settings.sandbox === true
 		});
 
 	} else {
