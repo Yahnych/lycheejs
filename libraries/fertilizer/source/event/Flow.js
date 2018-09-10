@@ -208,7 +208,7 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				if (project !== '/libraries/lychee') {
 
-					console.log('breeder: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
+					console.log('fertilizer: -> Mapping /libraries/lychee/lychee.pkg as "lychee"');
 
 					this.__packages['lychee'] = new _Package({
 						url:  '/libraries/lychee/lychee.pkg',
@@ -223,7 +223,7 @@ lychee.define('fertilizer.event.Flow').requires([
 					type: 'source'
 				});
 
-				console.log('breeder: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
+				console.log('fertilizer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
 				setTimeout(function() {
 					this.__namespace        = pkg.id;
@@ -358,7 +358,13 @@ lychee.define('fertilizer.event.Flow').requires([
 					console.log('fertilizer: -> Executing "' + project + '/bin/configure.sh"');
 
 					shell.exec(project + '/bin/configure.sh "' + target + '"', result => {
-						oncomplete(result);
+
+						if (result === false) {
+							console.warn('fertilizer: -> FAILURE');
+						}
+
+						oncomplete(true);
+
 					});
 
 				} else {
@@ -537,7 +543,13 @@ lychee.define('fertilizer.event.Flow').requires([
 					console.log('fertilizer: -> Executing "' + project + '/bin/build.sh"');
 
 					shell.exec(project + '/bin/build.sh "' + target + '"', result => {
-						oncomplete(result);
+
+						if (result === false) {
+							console.warn('fertilizer: -> FAILURE');
+						}
+
+						oncomplete(true);
+
 					});
 
 				} else {
@@ -562,16 +574,39 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				console.log('fertilizer: ' + action + '/PACKAGE-RUNTIME "' + project + '"');
 
+				let env      = this.__environment;
 				let platform = target.split('/').shift();
 				let name     = project.split('/').pop();
 				let info     = shell.info('/bin/runtime/' + platform + '/package.sh');
+				let variant  = env.variant;
 
-				if (info !== null && info.type === 'file') {
+				if (info !== null && info.type === 'file' && variant === 'application') {
 
 					console.log('fertilizer: -> Executing "/bin/runtime/' + platform + '/package.sh ' + project + ' ' + name + '"');
 
 					shell.exec('/bin/runtime/' + platform + '/package.sh "' + project + '" "' + name + '"', result => {
-						oncomplete(result);
+
+						if (result === false) {
+
+							console.warn('fertilizer: -> Tracing Shell Output ...');
+
+							let context = shell.trace(1).pop();
+							if (context.stdout.includes('FAILURE')) {
+
+								context.stdout.trim().split('\n').forEach(line => {
+									console.warn('fertilizer: -> ' + line);
+								});
+
+								oncomplete(false);
+
+							} else {
+								oncomplete(true);
+							}
+
+						} else {
+							oncomplete(true);
+						}
+
 					});
 
 				} else {
@@ -603,7 +638,13 @@ lychee.define('fertilizer.event.Flow').requires([
 					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh"');
 
 					shell.exec(project + '/bin/package.sh "' + target + '"', result => {
-						oncomplete(result);
+
+						if (result === false) {
+							console.warn('fertilizer: -> FAILURE');
+						}
+
+						oncomplete(true);
+
 					});
 
 				} else {

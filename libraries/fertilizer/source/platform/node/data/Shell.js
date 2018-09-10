@@ -241,52 +241,25 @@ lychee.define('fertilizer.data.Shell').tags({
 
 		},
 
-		trace: function(limit) {
+		trace: function(limit, callback) {
 
-			limit = typeof limit === 'number' ? (limit | 0) : null;
+			limit    = typeof limit === 'number'    ? (limit | 0) : null;
+			callback = callback instanceof Function ? callback    : null;
 
 
 			let stack = this.__stack;
 			if (limit !== null) {
-				stack = stack.slice(stack.length - limit, limit);
+				stack = stack.reverse().slice(0, limit).reverse();
+			} else {
+				stack = stack.slice(0);
 			}
 
 
-			stack.forEach(function(context) {
-
-				let dir = context.path;
-				let cmd = context.file;
-				let out = context.stdout.trim();
-				let err = context.stderr.trim();
-
-				if (cmd.startsWith(dir)) {
-					cmd = '.' + cmd.substr(dir.length);
-				}
-
-				if (context.args.length > 0) {
-					cmd += ' ';
-					cmd += context.args.join(' ');
-				}
-
-				console.log('');
-				console.log('cd ' + dir + ';');
-				console.log(cmd + ';');
-				console.log('');
-
-				if (out.length > 0) {
-					console.log(out);
-				}
-
-				if (err.length > 0) {
-					console.error(err);
-				}
-
-				console.log('');
-
-			});
-
-
-			return true;
+			if (callback !== null) {
+				callback(stack);
+			} else {
+				return stack;
+			}
 
 		}
 

@@ -15,6 +15,43 @@ if (process.argv.includes('--autocomplete')) {
 	console.info  = function() {};
 	console.warn  = function() {};
 	console.error = function() {};
+} else {
+
+	let _old_info = console.info;
+	let _old_warn = console.warn;
+
+	console.info = function(str) {
+
+		if (typeof str === 'string') {
+
+			if (str.startsWith('lychee.Package')) {
+				// XXX: Ignore console.warn() call
+			} else {
+				_old_info.apply(console, arguments);
+			}
+
+		} else {
+			_old_info.apply(console, arguments);
+		}
+
+	};
+
+	console.warn = function(str) {
+
+		if (typeof str === 'string') {
+
+			if (str.startsWith('Invalid') || str.startsWith('/') || str.startsWith('lychee.Package')) {
+				// XXX: Ignore console.warn() call
+			} else {
+				_old_warn.apply(console, arguments);
+			}
+
+		} else {
+			_old_warn.apply(console, arguments);
+		}
+
+	};
+
 }
 
 
@@ -267,7 +304,7 @@ const _settings_to_args = function(settings) {
 const _spawn = function(args) {
 
 	if (args.includes('--debug')) {
-		console.log('fertilizer: -> Create Worker "lycheejs-fertilizer ' + args.slice(1).join(' ') + '"');
+		console.log('fertilizer: -> Spawning Worker "lycheejs-fertilizer ' + args.slice(1).join(' ') + '"');
 	}
 
 
@@ -435,28 +472,42 @@ const _SETTINGS = (function() {
 			if (target.startsWith('*/')) {
 
 				// XXX: Multi Mode (e.g. */main)
-				_MULTI_MODE = true;
-
 
 				let suffix = target.split('*').pop();
+				let queue  = targets.filter(t => t.endsWith(suffix));
+				if (queue.length > 0) {
 
-				targets.filter(t => t.endsWith(suffix)).forEach(t => {
-					settings.target = t;
-					_spawn(_settings_to_args(settings));
-				});
+					_MULTI_MODE = true;
+
+					queue.forEach(t => {
+						settings.target = t;
+						_spawn(_settings_to_args(settings));
+					});
+
+				} else {
+					settings.action  = null;
+					settings.project = null;
+				}
 
 			} else if (target.endsWith('/*')) {
 
 				// XXX: Multi Mode (e.g. node/*)
-				_MULTI_MODE = true;
-
 
 				let prefix = target.split('*').shift();
+				let queue  = targets.filter(t => t.startsWith(prefix));
+				if (queue.length > 0) {
 
-				targets.filter(t => t.startsWith(prefix)).forEach(t => {
-					settings.target = t;
-					_spawn(_settings_to_args(settings));
-				});
+					_MULTI_MODE = true;
+
+					queue.forEach(t => {
+						settings.target = t;
+						_spawn(_settings_to_args(settings));
+					});
+
+				} else {
+					settings.action  = null;
+					settings.project = null;
+				}
 
 			} else {
 
@@ -464,7 +515,10 @@ const _SETTINGS = (function() {
 
 				let check = targets.includes(target);
 				if (check === true) {
-					settings.target  = target;
+					settings.target = target;
+				} else {
+					settings.action  = null;
+					settings.project = null;
 				}
 
 			}

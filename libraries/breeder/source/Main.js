@@ -67,7 +67,7 @@ lychee.define('breeder.Main').requires([
 
 			} else {
 
-				console.error('breeder: FAILURE ("' + project + '") at "load" event.');
+				console.error('breeder: FAILURE at "load" event.');
 
 				this.destroy(1);
 
@@ -133,7 +133,7 @@ lychee.define('breeder.Main').requires([
 					flow.bind('error', function(event) {
 
 						if (lychee.debug === true) {
-							console.error('breeder: FAILURE ("' + project + '") at "' + event + '" event.');
+							console.error('breeder: FAILURE at "' + event + '" event.');
 						}
 
 						this.destroy(1);

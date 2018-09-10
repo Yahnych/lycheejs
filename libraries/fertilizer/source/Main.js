@@ -1,5 +1,6 @@
 
 lychee.define('fertilizer.Main').requires([
+	'lychee.Package',
 	'lychee.event.Queue',
 	'fertilizer.event.flow.Build',
 	'fertilizer.event.flow.Configure',
@@ -120,10 +121,17 @@ lychee.define('fertilizer.Main').requires([
 	const _init_queue = function(queue) {
 
 		let autofixed = false;
+		let haderrors = false;
 
 		queue.bind('update', function(flow, oncomplete) {
 
+			console.log('');
+			console.log('');
+			console.info('fertilizer: ' + flow.action + ' "' + flow.project + '" "' + flow.target + '"');
+
 			flow.bind('complete', function() {
+
+				console.info('fertilizer: SUCCESS');
 
 				if (flow._autofixed === true) {
 					autofixed = true;
@@ -135,12 +143,10 @@ lychee.define('fertilizer.Main').requires([
 
 			flow.bind('error', function(event) {
 
-				console.error('WTF FLOW HAZ ERRORS! ' + event);
-				console.log(flow.displayName, flow.project, flow.target);
-				console.log(Object.keys(flow.___events));
-				console.log(flow.___stack.map(s => s.event));
+				console.error('fertilizer: FAILURE at "' + event + '" event.');
 
-				oncomplete(false);
+				haderrors = true;
+				oncomplete(true);
 
 			}, this);
 
@@ -152,13 +158,17 @@ lychee.define('fertilizer.Main').requires([
 
 			if (autofixed === true) {
 				process.exit(2);
+			} else if (haderrors === true) {
+				process.exit(1);
 			} else {
 				process.exit(0);
 			}
 
 		}, this);
 
-		queue.bind('error', function(event) {
+		queue.bind('error', function() {
+			console.log('WTF');
+
 			process.exit(1);
 		}, this);
 
@@ -246,7 +256,7 @@ lychee.define('fertilizer.Main').requires([
 
 			} else if (action !== null && project !== null) {
 
-				let pkg = new _Package({
+				let pkg = new _lychee.Package({
 					url:  project + '/lychee.pkg',
 					type: 'build'
 				});
@@ -260,6 +270,10 @@ lychee.define('fertilizer.Main').requires([
 						let queue = new _Queue();
 
 						targets.forEach(target => {
+
+							if (debug === true) {
+								console.log('fertilizer: -> Queueing Flow "lycheejs-fertilizer ' + action + ' ' + project + ' ' + target + '"');
+							}
 
 							_create_flows({
 								action:  action,
@@ -323,9 +337,8 @@ lychee.define('fertilizer.Main').requires([
 
 			let action  = this.settings.action  || null;
 			let project = this.settings.project || null;
-			let target  = this.settings.target  || null;
 
-			if (action !== null && project !== null && target !== null) {
+			if (action !== null && project !== null) {
 
 				this.trigger('load');
 
