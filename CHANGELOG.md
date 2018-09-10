@@ -35,6 +35,7 @@ and `fixed`.
 - Added: lychee.Environment supports detection of cyclic dependencies.
 - Added: lychee.codec Stack supports `Date` data type.
 - Added: lychee.codec.INI supports INI format with JSON-compatible data types.
+- Added: lychee.event.Emitter supports `publish()`, `subscribe()` and `transfer()`.
 - Fixed: lychee.Environment supports `requires()` and `includes()` of lychee.js Crux identifiers.
 - Fixed: lychee.app.Entity `isAtPosition(position)` supports incremental coordinates.
 - Fixed: lychee.ui.Entity `isAtPosition(position)` supports incremental coordinates.

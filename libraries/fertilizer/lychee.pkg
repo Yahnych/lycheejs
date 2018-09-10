@@ -133,6 +133,34 @@
 			"Template": [
 				"js"
 			],
+			"event": {
+				"Flow": [
+					"js"
+				],
+				"flow": {
+					"Build": [
+						"js"
+					],
+					"Configure": [
+						"js"
+					],
+					"Fertilize": [
+						"js"
+					],
+					"Package": [
+						"js"
+					],
+					"html": {
+						"Build": [
+							"index.appcache",
+							"index.html",
+							"index.mjs",
+							"js",
+							"package.json"
+						]
+					}
+				}
+			},
 			"platform": {
 				"node": {
 					"data": {

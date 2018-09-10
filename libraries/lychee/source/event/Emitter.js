@@ -99,7 +99,7 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 
 	};
 
-	const _relay = function(event, instance, once) {
+	const _publish = function(event, instance, once) {
 
 		if (event === null || instance === null) {
 			return false;
@@ -132,6 +132,76 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 			scope:      instance,
 			once:       once
 		});
+
+
+		return true;
+
+	};
+
+	const _subscribe = function(event, instance, once) {
+
+		if (event === null || instance === null) {
+			return false;
+		}
+
+
+		let callback = function() {
+
+			let event = arguments[0];
+			let data  = [];
+
+			for (let a = 1, al = arguments.length; a < al; a++) {
+				data.push(arguments[a]);
+			}
+
+			this.trigger(event, data);
+
+		};
+
+
+		if (instance.___events[event] === undefined) {
+			instance.___events[event] = [];
+		}
+
+
+		instance.___events[event].push({
+			pass_event: true,
+			pass_self:  false,
+			callback:   callback,
+			scope:      this,
+			once:       once
+		});
+
+
+		return true;
+
+	};
+
+	const _transfer = function(event, instance, once) {
+
+		if (event === null || instance === null) {
+			return false;
+		}
+
+
+		let events = this.___events[event] || [];
+		if (events.length > 0) {
+
+			for (let e = 0, el = events.length; e < el; e++) {
+
+				let entry = this.___events[event][e];
+
+				instance.___events[event].push({
+					pass_event: entry.pass_event,
+					pass_self:  entry.pass_self,
+					callback:   entry.callback,
+					scope:      instance,
+					once:       once
+				});
+
+			}
+
+		}
 
 
 		return true;
@@ -261,10 +331,12 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 
 		this.___events   = {};
 		this.___timeline = {
-			bind:    [],
-			trigger: [],
-			relay:   [],
-			unbind:  []
+			bind:      [],
+			publish:   [],
+			subscribe: [],
+			transfer:  [],
+			trigger:   [],
+			unbind:    []
 		};
 
 	};
@@ -321,41 +393,70 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 			}
 
 
-			if (this.___timeline.bind.length > 0 || this.___timeline.trigger.length > 0 || this.___timeline.unbind.length > 0) {
+			let timeline = {};
 
-				blob.timeline = {};
+			if (this.___timeline.bind.length > 0) {
 
+				timeline.bind = [];
 
-				if (this.___timeline.bind.length > 0) {
-
-					blob.timeline.bind = [];
-
-					for (let b = 0, bl = this.___timeline.bind.length; b < bl; b++) {
-						blob.timeline.bind.push(this.___timeline.bind[b]);
-					}
-
+				for (let b = 0, bl = this.___timeline.bind.length; b < bl; b++) {
+					timeline.bind.push(this.___timeline.bind[b]);
 				}
 
-				if (this.___timeline.trigger.length > 0) {
+			}
 
-					blob.timeline.trigger = [];
+			if (this.___timeline.publish.length > 0) {
 
-					for (let t = 0, tl = this.___timeline.trigger.length; t < tl; t++) {
-						blob.timeline.trigger.push(this.___timeline.trigger[t]);
-					}
+				timeline.publish = [];
 
+				for (let p = 0, pl = this.___timeline.publish.length; p < pl; p++) {
+					timeline.publish.push(this.___timeline.publish[p]);
 				}
 
-				if (this.___timeline.unbind.length > 0) {
+			}
 
-					blob.timeline.unbind = [];
+			if (this.___timeline.subscribe.length > 0) {
 
-					for (let u = 0, ul = this.___timeline.unbind.length; u < ul; u++) {
-						blob.timeline.unbind.push(this.___timeline.unbind[u]);
-					}
+				timeline.subscribe = [];
 
+				for (let s = 0, sl = this.___timeline.subscribe.length; s < sl; s++) {
+					timeline.subscribe.push(this.___timeline.subscribe[s]);
 				}
 
+			}
+
+			if (this.___timeline.transfer.length > 0) {
+
+				timeline.transfer = [];
+
+				for (let t = 0, tl = this.___timeline.transfer.length; t < tl; t++) {
+					timeline.transfer.push(this.___timeline.transfer[t]);
+				}
+
+			}
+
+			if (this.___timeline.trigger.length > 0) {
+
+				timeline.trigger = [];
+
+				for (let t = 0, tl = this.___timeline.trigger.length; t < tl; t++) {
+					timeline.trigger.push(this.___timeline.trigger[t]);
+				}
+
+			}
+
+			if (this.___timeline.unbind.length > 0) {
+
+				timeline.unbind = [];
+
+				for (let u = 0, ul = this.___timeline.unbind.length; u < ul; u++) {
+					timeline.unbind.push(this.___timeline.unbind[u]);
+				}
+
+			}
+
+			if (Object.keys(timeline).length > 0) {
+				blob.timeline = timeline;
 			}
 
 
@@ -425,17 +526,65 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 
 		},
 
-		relay: function(event, instance, once) {
+		publish: function(event, instance, once) {
 
 			event    = typeof event === 'string'               ? event    : null;
 			instance = lychee.interfaceof(Composite, instance) ? instance : null;
 			once     = once === true;
 
 
-			let result = _relay.call(this, event, instance, once);
+			let result = _publish.call(this, event, instance, once);
 			if (result === true && lychee.debug === true) {
 
-				this.___timeline.relay.push({
+				this.___timeline.publish.push({
+					time:     Date.now(),
+					event:    event,
+					instance: lychee.serialize(instance),
+					once:     once
+				});
+
+			}
+
+
+			return result;
+
+		},
+
+		subscribe: function(event, instance, once) {
+
+			event    = typeof event === 'string'               ? event    : null;
+			instance = lychee.interfaceof(Composite, instance) ? instance : null;
+			once     = once === true;
+
+
+			let result = _subscribe.call(this, event, instance, once);
+			if (result === true && lychee.debug === true) {
+
+				this.___timeline.subscribe.push({
+					time:     Date.now(),
+					event:    event,
+					instance: lychee.serialize(instance),
+					once:     once
+				});
+
+			}
+
+
+			return result;
+
+		},
+
+		transfer: function(event, instance, once) {
+
+			event    = typeof event === 'string'               ? event    : null;
+			instance = lychee.interfaceof(Composite, instance) ? instance : null;
+			once     = once === true;
+
+
+			let result = _transfer.call(this, event, instance, once);
+			if (result === true && lychee.debug === true) {
+
+				this.___timeline.transfer.push({
 					time:     Date.now(),
 					event:    event,
 					instance: lychee.serialize(instance),

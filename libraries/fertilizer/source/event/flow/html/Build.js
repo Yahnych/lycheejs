@@ -3,9 +3,15 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
-	const _Flow     = lychee.import('fertilizer.event.Flow');
-	const _APPCACHE = attachments['appcache'];
-	const _HTML     = attachments['html'];
+	const _Flow  = lychee.import('fertilizer.event.Flow');
+	const _INDEX = {
+		application: attachments['index.html'],
+		library:     attachments['index.mjs']
+	};
+	const _META  = {
+		application: attachments['index.appcache'],
+		library:     attachments['package.json']
+	};
 
 
 
@@ -13,55 +19,115 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 	 * HELPERS
 	 */
 
-	const _build_index = function(stuff) {
+	const _build_index = function(variant, stuff) {
 
-		let buffer = stuff.buffer;
-		if (buffer === '') {
-			buffer = '' + _HTML.buffer;
-		}
+		stuff = stuff instanceof Stuff ? stuff : null;
 
 
-		let url = stuff.url;
-		if (url === './index.html') {
+		if (stuff !== null) {
 
 			let env     = this.__environment;
 			let profile = this.__profile;
 
 			if (env !== null && profile !== null) {
-				stuff.buffer = buffer.replaceObject({
+
+				stuff.buffer = stuff.buffer.replaceObject({
 					blob:    env.serialize(),
 					id:      env.id,
 					profile: profile
 				});
+
 			}
 
-		} else {
+		}
 
-			// TODO: Search intelligently somehow!?!?
+	};
+
+	const _build_meta = function(variant, asset) {
+
+		if (variant === 'application') {
+
+			// XXX: Nothing to do
+
+		} else if (variant === 'library') {
+
+			let buffer = asset.buffer;
+			if (buffer instanceof Object) {
+
+				let env = this.__environment;
+				if (env !== null) {
+
+					let tmp = JSON.stringify(buffer).replaceObject({
+						id: env.id
+					});
+
+					asset.buffer = JSON.parse(tmp);
+
+				}
+
+			}
 
 		}
 
 	};
 
-	const _create_meta_appcache = function() {
+	const _create_index = function(variant) {
 
-		let stuff = lychee.deserialize(lychee.serialize(_APPCACHE));
-		if (stuff !== null) {
-			stuff.url = './index.appcache';
+		let template = null;
+		if (variant === 'application') {
+			template = lychee.serialize(_INDEX.application);
+		} else if (variant === 'library') {
+			template = lychee.serialize(_INDEX.library);
 		}
 
-		return stuff;
+		if (template !== null) {
+
+			let asset = lychee.deserialize(template);
+			if (asset !== null) {
+
+				let base = asset.url.split('/').pop();
+				let name = base.split('.').slice(1).join('.');
+
+				asset.url = './' + name;
+
+			}
+
+			return asset;
+
+		}
+
+
+		return null;
 
 	};
 
-	const _create_meta_index = function() {
+	const _create_meta = function(variant) {
 
-		let stuff = lychee.deserialize(lychee.serialize(_HTML));
-		if (stuff !== null) {
-			stuff.url = './index.html';
+		let template = null;
+		if (variant === 'application') {
+			template = lychee.serialize(_META.application);
+		} else if (variant === 'library') {
+			template = lychee.serialize(_META.library);
 		}
 
-		return stuff;
+		if (template !== null) {
+
+			let asset = lychee.deserialize(template);
+			if (asset !== null) {
+
+				let base = asset.url.split('/').pop();
+				let name = base.split('.').slice(1).join('.');
+
+				asset.url = './' + name;
+
+			}
+
+			return asset;
+
+		}
+
+
+		return null;
 
 	};
 
@@ -95,23 +161,51 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 				console.log('fertilizer: ' + action + '/BUILD-ASSETS "' + project + '"');
 
+				let env = this.__environment;
+				if (env !== null) {
 
-				let meta_appcache = this.assets.filter(asset => asset.url.endsWith('/index.appcache')) || null;
-				if (meta_appcache !== null) {
-					meta_appcache = _create_meta_appcache.call(this);
-					this.assets.push(meta_appcache);
-				}
+					let base_index = '*';
+					let base_meta  = '*';
 
-				let meta_index = this.assets.filter(asset => asset.url.endsWith('/index.html')) || null;
-				if (meta_index !== null) {
-					meta_index = _create_meta_index.call(this);
-					_build_index.call(this, meta_index);
-					this.assets.push(meta_index);
+					let variant = env.variant;
+					if (variant === 'application') {
+
+						base_index = 'index.html';
+						base_meta  = 'index.appcache';
+
+					} else if (variant === 'library') {
+
+						base_index = 'index.mjs';
+						base_meta  = 'package.json';
+
+					}
+
+
+					let meta = this.assets.filter(asset => asset.url.endsWith('/' + base_meta)) || null;
+					if (meta !== null) {
+						meta = _create_meta.call(this, variant);
+						_build_meta.call(this, variant, meta);
+						this.assets.push(meta);
+					} else {
+						_build_meta.call(this, variant, meta);
+					}
+
+					let index = this.assets.filter(asset => asset.url.endsWith('/' + base_index)) || null;
+					if (index !== null) {
+						index = _create_index.call(this, variant);
+						_build_index.call(this, variant, index);
+						this.assets.push(index);
+					} else {
+						_build_index.call(this, variant, index);
+					}
+
+
+					oncomplete(true);
+
 				} else {
-					_build_index.call(this, meta_index);
+					oncomplete(false);
 				}
 
-				oncomplete(true);
 
 			} else {
 				oncomplete(true);

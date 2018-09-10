@@ -4,7 +4,8 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.Build',
 	'fertilizer.event.flow.Configure',
 	'fertilizer.event.flow.Fertilize',
-	'fertilizer.event.flow.Package'
+	'fertilizer.event.flow.Package',
+	'fertilizer.event.flow.html.Build'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {
@@ -33,38 +34,56 @@ lychee.define('fertilizer.Main').requires([
 		let platform = data.target.split('/').shift() || null;
 		if (platform !== null) {
 
+			let Configure = _Configure;
+			let Build     = _Build;
+			let Package   = _Package;
+			let Fertilize = _Fertilize;
+
+			if (_flow[platform] !== undefined) {
+
+				if (_flow[platform].Configure !== undefined) Configure = _flow[platform].Configure;
+				if (_flow[platform].Build !== undefined)     Build     = _flow[platform].Build;
+				if (_flow[platform].Package !== undefined)   Package   = _flow[platform].Package;
+
+			}
+
+
 			let action = data.action;
 			if (action === 'fertilize') {
 
-				if (_flow[platform] !== undefined && _flow[platform].Fertilize !== undefined) {
-					queue.then(new _flow[platform].Fertilize(data));
-				} else {
-					queue.then(new _Fertilize(data));
-				}
+				let flow_fertilize = new Fertilize(data);
+				let flow_configure = new Configure(data);
+				let flow_build     = new Build(data);
+				let flow_package   = new Package(data);
+
+
+				flow_fertilize.unbind('build-assets');
+				flow_configure.transfer('configure-project', flow_fertilize);
+
+				flow_build.transfer('read-package',      flow_fertilize);
+				flow_build.transfer('read-assets',       flow_fertilize);
+				flow_build.transfer('read-assets-crux',  flow_fertilize);
+				flow_build.transfer('build-environment', flow_fertilize);
+				flow_build.transfer('build-assets',      flow_fertilize);
+				flow_build.transfer('write-assets',      flow_fertilize);
+				flow_build.transfer('build-project',     flow_fertilize);
+
+				flow_package.transfer('package-runtime', flow_fertilize);
+				flow_package.transfer('package-project', flow_fertilize);
+
+				queue.then(flow_fertilize);
 
 			} else if (action === 'configure') {
 
-				if (_flow[platform] !== undefined && _flow[platform].Configure !== undefined) {
-					queue.then(new _flow[platform].Configure(data));
-				} else {
-					queue.then(new _Configure(data));
-				}
+				queue.then(new Configure(data));
 
 			} else if (action === 'build') {
 
-				if (_flow[platform] !== undefined && _flow[platform].Build !== undefined) {
-					queue.then(new _flow[platform].Build(data));
-				} else {
-					queue.then(new _Build(data));
-				}
+				queue.then(new Build(data));
 
 			} else if (action === 'package') {
 
-				if (_flow[platform] !== undefined && _flow[platform].Package !== undefined) {
-					queue.then(new _flow[platform].Package(data));
-				} else {
-					queue.then(new _Package(data));
-				}
+				queue.then(new Package(data));
 
 			}
 

@@ -424,8 +424,9 @@ lychee.define('fertilizer.event.Flow').requires([
 						_initialize_environment(settings, (environment, sandbox) => {
 
 							environment.debug    = defaults.debug;
-							environment.sandbox  = defaults.sandbox;
 							environment.packages = {};
+							environment.sandbox  = defaults.sandbox;
+							environment.type     = 'build';
 
 							this.__environment = environment;
 
