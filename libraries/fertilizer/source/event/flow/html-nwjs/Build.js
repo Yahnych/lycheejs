@@ -1,5 +1,5 @@
 
-lychee.define('fertilizer.event.flow.html.Build').includes([
+lychee.define('fertilizer.event.flow.html-nwjs.Build').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
@@ -8,10 +8,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		application: attachments['index.html'],
 		library:     attachments['index.mjs']
 	};
-	const _META  = {
-		application: attachments['index.appcache'],
-		library:     attachments['package.json']
-	};
+	const _META  = attachments['package.json'];
 
 
 
@@ -76,25 +73,20 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	const _build_meta = function(variant, asset) {
 
-		if (variant === 'application') {
+		let buffer = asset.buffer;
+		if (buffer instanceof Object) {
 
-			// XXX: Nothing to do
+			let env = this.__environment;
+			if (env !== null) {
 
-		} else if (variant === 'library') {
+				let date    = new Date();
+				let today   = (date.getUTCMonth() + 1) + '/' + date.getUTCDate();
+				let version = lychee.VERSION + '/' + today;
 
-			let buffer = asset.buffer;
-			if (buffer instanceof Object) {
-
-				let env = this.__environment;
-				if (env !== null) {
-
-					let tmp = JSON.stringify(buffer).replaceObject({
-						id: env.id
-					});
-
-					asset.buffer = JSON.parse(tmp);
-
-				}
+				asset.buffer = JSON.parse(JSON.stringify(buffer).replaceObject({
+					id:      env.id,
+					version: version
+				}));
 
 			}
 
@@ -134,13 +126,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 	const _create_meta = function(variant) {
 
-		let template = null;
-		if (variant === 'application') {
-			template = lychee.serialize(_META.application);
-		} else if (variant === 'library') {
-			template = lychee.serialize(_META.library);
-		}
-
+		let template = lychee.serialize(_META);
 		if (template !== null) {
 
 			let asset = lychee.deserialize(template);
@@ -197,23 +183,16 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 				if (env !== null) {
 
 					let base_index = '*';
-					let base_meta  = '*';
 
 					let variant = env.variant;
 					if (variant === 'application') {
-
 						base_index = 'index.html';
-						base_meta  = 'index.appcache';
-
 					} else if (variant === 'library') {
-
 						base_index = 'index.mjs';
-						base_meta  = 'package.json';
-
 					}
 
 
-					let meta = this.assets.find(asset => asset.url.endsWith('/' + base_meta)) || null;
+					let meta = this.assets.find(asset => asset.url.endsWith('/package.json')) || null;
 					if (meta === null || meta.buffer === null) {
 						meta = _create_meta.call(this, variant);
 						_build_meta.call(this, variant, meta);
@@ -275,7 +254,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'fertilizer.event.flow.html.Build';
+			data['constructor'] = 'fertilizer.event.flow.html-nwjs.Build';
 
 
 			return data;

@@ -6,7 +6,8 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.Configure',
 	'fertilizer.event.flow.Fertilize',
 	'fertilizer.event.flow.Package',
-	'fertilizer.event.flow.html.Build'
+	'fertilizer.event.flow.html.Build',
+	'fertilizer.event.flow.html-nwjs.Build'
 ]).includes([
 	'lychee.event.Emitter'
 ]).exports(function(lychee, global, attachments) {

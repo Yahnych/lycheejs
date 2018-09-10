@@ -158,6 +158,14 @@
 							"js",
 							"package.json"
 						]
+					},
+					"html-nwjs": {
+						"Build": [
+							"index.html",
+							"index.mjs",
+							"js",
+							"package.json"
+						]
 					}
 				}
 			},

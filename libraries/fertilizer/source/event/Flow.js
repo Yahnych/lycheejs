@@ -575,16 +575,17 @@ lychee.define('fertilizer.event.Flow').requires([
 				console.log('fertilizer: ' + action + '/PACKAGE-RUNTIME "' + project + '"');
 
 				let env      = this.__environment;
-				let platform = target.split('/').shift();
 				let name     = project.split('/').pop();
+				let platform = target.split('/').shift();
+				let sandbox  = project + '/build/' + target;
 				let info     = shell.info('/bin/runtime/' + platform + '/package.sh');
 				let variant  = env.variant;
 
 				if (info !== null && info.type === 'file' && variant === 'application') {
 
-					console.log('fertilizer: -> Executing "/bin/runtime/' + platform + '/package.sh ' + project + ' ' + name + '"');
+					console.log('fertilizer: -> Executing "/bin/runtime/' + platform + '/package.sh ' + sandbox + ' ' + name + '"');
 
-					shell.exec('/bin/runtime/' + platform + '/package.sh "' + project + '" "' + name + '"', result => {
+					shell.exec('/bin/runtime/' + platform + '/package.sh ' + sandbox + ' ' + name, result => {
 
 						if (result === false) {
 
@@ -631,13 +632,14 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				console.log('fertilizer: ' + action + '/PACKAGE-PROJECT "' + project + '"');
 
-
+				let name = target.split('/').pop();
 				let info = shell.info(project + '/bin/package.sh');
+
 				if (info !== null && info.type === 'file') {
 
-					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh"');
+					console.log('fertilizer: -> Executing "' + project + '/bin/package.sh ' + target + ' ' + name + '"');
 
-					shell.exec(project + '/bin/package.sh "' + target + '"', result => {
+					shell.exec(project + '/bin/package.sh ' + target + ' ' + name, result => {
 
 						if (result === false) {
 							console.warn('fertilizer: -> FAILURE');
