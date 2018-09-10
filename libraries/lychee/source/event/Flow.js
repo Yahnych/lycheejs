@@ -127,28 +127,6 @@ lychee.define('lychee.event.Flow').includes([
 		 * CUSTOM API
 		 */
 
-		then: function(event, data) {
-
-			event = typeof event === 'string' ? event : null;
-			data  = data instanceof Array     ? data  : null;
-
-
-			if (event !== null) {
-
-				this.___stack.push({
-					event: event,
-					data:  data
-				});
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
 		init: function() {
 
 			if (this.___init === false) {
@@ -163,6 +141,36 @@ lychee.define('lychee.event.Flow').includes([
 					return true;
 
 				}
+
+			}
+
+
+			return false;
+
+		},
+
+		reset: function() {
+
+			this.__stack = [];
+
+			return true;
+
+		},
+
+		then: function(event, data) {
+
+			event = typeof event === 'string' ? event : null;
+			data  = data instanceof Array     ? data  : null;
+
+
+			if (event !== null) {
+
+				this.___stack.push({
+					event: event,
+					data:  data
+				});
+
+				return true;
 
 			}
 
