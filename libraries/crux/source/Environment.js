@@ -266,14 +266,12 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 			let entries = Object.values(cyclic_dependencies);
 			if (entries.length > 0) {
 
-				let others = Object.keys(cyclic_dependencies);
+				let requirees = Object.keys(cyclic_dependencies);
 
-				this.global.console.error('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + entries.map(function(values, index) {
+				this.global.console.error('lychee.Environment ("' + this.id + '"): Invalid Dependencies\n' + entries.map(function(dependencies, index) {
 
-					let other = others[index];
-
-					return values.map(function(value) {
-						return '\t - ' + value + ' (required by ' + other + ')';
+					return dependencies.map(function(dependency) {
+						return '\t - ' + dependency + ' (required by ' + requirees[index] + ')';
 					}).join('\n');
 
 				}).join('\n'));
