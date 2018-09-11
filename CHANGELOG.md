@@ -31,6 +31,7 @@ and `fixed`.
 - **Added**: lychee.net.Service supports Composite syntax.
 - **Fixed**: `node` platform fixes serialization of binary assets.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Added: `lychee.decycle(target, object, path)` supports de-cycling nested objects.
 - Added: lychee.Environment supports `application` and `library` variant.
 - Added: lychee.Environment supports detection of cyclic dependencies.
 - Added: lychee.codec Stack supports `Date` data type.

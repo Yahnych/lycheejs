@@ -680,6 +680,59 @@ lychee = (function(global) {
 
 	};
 
+	const _decycle = function(target, object, path) {
+
+		let check = this.has(object);
+		if (check === false) {
+
+			this.set(object, path);
+
+			for (let prop in object) {
+
+				if (object.hasOwnProperty(prop) === true) {
+
+					let ovalue = object[prop];
+					if (ovalue instanceof Array) {
+
+						target[prop] = [];
+
+						let ref = _decycle.call(this, target[prop], object[prop], path + '.' + prop);
+						if (ref !== null) {
+							target[prop] = ref;
+						}
+
+					} else if (ovalue instanceof Object) {
+
+						target[prop] = {};
+
+						let ref = _decycle.call(this, target[prop], object[prop], path + '.' + prop);
+						if (ref !== null) {
+							target[prop] = ref;
+						}
+
+					} else {
+
+						target[prop] = object[prop];
+
+					}
+
+				}
+
+			}
+
+			return null;
+
+		} else {
+
+			return {
+				'reference': this.get(object),
+				'arguments': []
+			};
+
+		}
+
+	};
+
 
 
 	/*
@@ -857,6 +910,21 @@ lychee = (function(global) {
 
 
 			return false;
+
+		},
+
+		decycle: function(target, object, path) {
+
+			target = target instanceof Object ? target : {};
+			object = object instanceof Object ? object : null;
+			path   = typeof path === 'string' ? path   : '';
+
+
+			if (object !== null) {
+				_decycle.call(new WeakMap(), target, object, path);
+			}
+
+			return target;
 
 		},
 
