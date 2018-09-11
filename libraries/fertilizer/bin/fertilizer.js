@@ -15,43 +15,6 @@ if (process.argv.includes('--autocomplete')) {
 	console.info  = function() {};
 	console.warn  = function() {};
 	console.error = function() {};
-} else {
-
-	let _old_info = console.info;
-	let _old_warn = console.warn;
-
-	console.info = function(str) {
-
-		if (typeof str === 'string') {
-
-			if (str.startsWith('lychee.Package')) {
-				// XXX: Ignore console.warn() call
-			} else {
-				_old_info.apply(console, arguments);
-			}
-
-		} else {
-			_old_info.apply(console, arguments);
-		}
-
-	};
-
-	console.warn = function(str) {
-
-		if (typeof str === 'string') {
-
-			if (str.startsWith('Invalid') || str.startsWith('/') || str.startsWith('lychee.Package')) {
-				// XXX: Ignore console.warn() call
-			} else {
-				_old_warn.apply(console, arguments);
-			}
-
-		} else {
-			_old_warn.apply(console, arguments);
-		}
-
-	};
-
 }
 
 
@@ -514,8 +477,11 @@ const _SETTINGS = (function() {
 				if (check === true) {
 					settings.target = target;
 				} else {
-					settings.action  = null;
-					settings.project = null;
+
+					// XXX: Third-Party Single Mode without lychee.pkg
+					// settings.action  = null;
+					// settings.project = null;
+
 				}
 
 			}
@@ -538,6 +504,46 @@ const _SETTINGS = (function() {
 	return settings;
 
 })();
+
+
+if (_SETTINGS.debug === false) {
+
+	let _old_error = console.error;
+	let _old_info  = console.info;
+	let _old_warn  = console.warn;
+
+	console.error = function(str) {
+
+		if (typeof str === 'string' && str.startsWith('lychee.Package')) {
+			// XXX: Ignore console.error() call
+		} else {
+			_old_error.apply(console, arguments);
+		}
+
+	};
+
+	console.info = function(str) {
+
+		if (typeof str === 'string' && str.startsWith('lychee.Package')) {
+			// XXX: Ignore console.info() call
+		} else {
+			_old_info.apply(console, arguments);
+		}
+
+	};
+
+	console.warn = function(str) {
+
+		if (typeof str === 'string' && (str.startsWith('Invalid') || str.startsWith('/') || str.startsWith('lychee.Package'))) {
+			// XXX: Ignore console.warn() call
+		} else {
+			_old_warn.apply(console, arguments);
+		}
+
+	};
+
+}
+
 
 (function(settings) {
 

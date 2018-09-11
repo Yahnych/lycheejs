@@ -57,7 +57,9 @@ lychee.define('breeder.Main').requires([
 
 		this.bind('load', function() {
 
+			let debug   = this.settings.debug   || false;
 			let project = this.settings.project || null;
+
 			if (project !== null) {
 
 				lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
@@ -67,7 +69,9 @@ lychee.define('breeder.Main').requires([
 
 			} else {
 
-				console.error('breeder: FAILURE at "load" event.');
+				if (debug === true) {
+					console.error('breeder: FAILURE at "load" event.');
+				}
 
 				this.destroy(1);
 
@@ -122,7 +126,7 @@ lychee.define('breeder.Main').requires([
 
 					flow.bind('complete', function() {
 
-						if (lychee.debug === true) {
+						if (debug === true) {
 							console.info('breeder: SUCCESS ("' + project + '")');
 						}
 
@@ -132,7 +136,7 @@ lychee.define('breeder.Main').requires([
 
 					flow.bind('error', function(event) {
 
-						if (lychee.debug === true) {
+						if (debug === true) {
 							console.error('breeder: FAILURE at "' + event + '" event.');
 						}
 
