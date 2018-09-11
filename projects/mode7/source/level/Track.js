@@ -2,9 +2,9 @@
 lychee.define('game.level.Track').exports(function(lychee, global, attachments) {
 
 	const _TRACKS = {
-		circuit:  attachments["circuit.json"],
-		straight: attachments["straight.json"],
-		valley:   attachments["valley.json"]
+		circuit:  attachments['circuit.json'],
+		straight: attachments['straight.json'],
+		valley:   attachments['valley.json']
 	};
 
 
@@ -122,27 +122,27 @@ lychee.define('game.level.Track').exports(function(lychee, global, attachments) 
 
 			switch (type) {
 
-				case "straight":
+				case 'straight':
 					_add_route.call(this, length,   0, element, lastaltitude, altitude);
 					lastaltitude = altitude;
 					break;
 
-				case "left-45":
+				case 'left-45':
 					_add_route.call(this, length, -45, element, lastaltitude, altitude);
 					lastaltitude = altitude;
 					break;
 
-				case "left-90":
+				case 'left-90':
 					_add_route.call(this, length, -90, element, lastaltitude, altitude);
 					lastaltitude = altitude;
 					break;
 
-				case "right-45":
+				case 'right-45':
 					_add_route.call(this, length,  45, element, lastaltitude, altitude);
 					lastaltitude = altitude;
 					break;
 
-				case "right-90":
+				case 'right-90':
 					_add_route.call(this, length,  90, element, lastaltitude, altitude);
 					lastaltitude = altitude;
 					break;

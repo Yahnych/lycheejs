@@ -7,8 +7,8 @@ lychee.define('app.sprite.Room').requires([
 
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 

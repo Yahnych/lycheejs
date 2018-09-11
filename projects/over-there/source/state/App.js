@@ -18,8 +18,8 @@ lychee.define('app.state.App').requires([
 	const _Position  = lychee.import('lychee.effect.Position');
 	const _Room      = lychee.import('app.sprite.Room');
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
-	const _MUSIC     = attachments["msc"];
+	const _BLOB      = attachments['json'].buffer;
+	const _MUSIC     = attachments['msc'];
 
 
 

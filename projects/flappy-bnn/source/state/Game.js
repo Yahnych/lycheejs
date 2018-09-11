@@ -18,7 +18,7 @@ lychee.define('game.state.Game').requires([
 	const _Mersenne   = lychee.import('lychee.math.Mersenne');
 	const _Plane      = lychee.import('game.app.sprite.Plane');
 	const _State      = lychee.import('lychee.app.State');
-	const _BLOB       = attachments["json"].buffer;
+	const _BLOB       = attachments['json'].buffer;
 	const _POPULATION = 1;
 
 

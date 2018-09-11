@@ -14,7 +14,7 @@ lychee.define('game.state.Simulation').requires([
 	const _Agent     = lychee.import('game.ai.Agent');
 	const _Evolution = lychee.import('game.ai.Evolution');
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 
 
 

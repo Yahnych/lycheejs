@@ -5,7 +5,7 @@ lychee.define('fertilizer.event.Flow').requires([
 	'lychee.Package',
 	'lychee.Stash'
 ]).includes([
-	"lychee.event.Flow"
+	'lychee.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
 	const _lychee      = lychee.import('lychee');

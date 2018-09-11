@@ -4,7 +4,7 @@ lychee.define('lychee.app.entity.Text').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Entity = lychee.import('lychee.app.Entity');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 

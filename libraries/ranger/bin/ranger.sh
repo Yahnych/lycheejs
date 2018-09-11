@@ -17,7 +17,7 @@ if [ "$LYCHEEJS_HELPER" != "" ] && [ "$LYCHEEJS_FERTILIZER" != "" ]; then
 
 	cd $LYCHEEJS_ROOT;
 
-	bash $LYCHEEJS_FERTILIZER html-nwjs/main /libraries/ranger;
+	bash $LYCHEEJS_FERTILIZER fertilize /libraries/ranger html-nwjs/main;
 	bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/ranger "$1" "$2" "$3" "$4";
 
 	exit $?;

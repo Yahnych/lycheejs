@@ -4,7 +4,7 @@ lychee.define('app.ui.sprite.Avatar').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Sprite  = lychee.import('lychee.ui.Sprite');
-	const _TEXTURE = attachments["png"];
+	const _TEXTURE = attachments['png'];
 	const _CONFIG  = {
 		width:  128,
 		height: 128

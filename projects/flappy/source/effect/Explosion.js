@@ -1,9 +1,9 @@
 
 lychee.define('game.effect.Explosion').exports(function(lychee, global, attachments) {
 
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
-	const _SOUND   = attachments["snd"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
+	const _SOUND   = attachments['snd'];
 
 
 

@@ -24,7 +24,7 @@ lychee.define('lychee.ui.State').requires([
 	const _Position  = lychee.import('lychee.effect.Position');
 	const _State     = lychee.import('lychee.app.State');
 	const _Visible   = lychee.import('lychee.effect.Visible');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 	let   _BG        = null;
 	const _INSTANCES = [];
 	let   _MENU      = null;

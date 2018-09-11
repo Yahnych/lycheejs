@@ -4,7 +4,7 @@ lychee.define('game.app.sprite.Emblem').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _TEXTURE = attachments["png"];
+	const _TEXTURE = attachments['png'];
 	const _CONFIG  = {
 		width:  256,
 		height: 64

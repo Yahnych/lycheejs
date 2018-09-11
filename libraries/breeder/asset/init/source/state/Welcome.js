@@ -9,7 +9,7 @@ lychee.define('app.state.Welcome').requires([
 ]).exports(function(lychee, global, attachments) {
 
 	const _State = lychee.import('lychee.ui.State');
-	const _BLOB  = attachments["json"].buffer;
+	const _BLOB  = attachments['json'].buffer;
 
 
 

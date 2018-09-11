@@ -22,7 +22,7 @@ lychee.define('studio.state.Asset').requires([
 	const _modify  = lychee.import('studio.ui.element.modify');
 	const _preview = lychee.import('studio.ui.element.preview');
 	const _FONT    = lychee.import('studio.codec.FONT');
-	const _BLOB    = attachments["json"].buffer;
+	const _BLOB    = attachments['json'].buffer;
 
 
 

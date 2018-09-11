@@ -26,8 +26,8 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	const _child_process = global.require('child_process');
 	const _Button        = lychee.import('lychee.ui.entity.Button');
-	const _CONFIG        = attachments["json"].buffer;
-	const _TEXTURE       = attachments["png"];
+	const _CONFIG        = attachments['json'].buffer;
+	const _TEXTURE       = attachments['png'];
 	const _ROOT          = lychee.ROOT.lychee;
 
 

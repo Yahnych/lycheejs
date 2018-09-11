@@ -10,9 +10,9 @@ lychee.define('game.state.Game').requires([
 
 	const _Shake = lychee.import('lychee.effect.Shake');
 	const _State = lychee.import('lychee.app.State');
-	const _BLOB  = attachments["json"].buffer;
-	const _MUSIC = attachments["msc"];
-	const _SOUND = attachments["snd"];
+	const _BLOB  = attachments['json'].buffer;
+	const _MUSIC = attachments['msc'];
+	const _SOUND = attachments['snd'];
 
 
 

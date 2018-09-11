@@ -11,9 +11,9 @@ lychee.define('game.app.sprite.Portal').requires([
 	const _Lightning = lychee.import('game.effect.Lightning');
 	const _Sound     = lychee.import('lychee.effect.Sound');
 	const _Sprite    = lychee.import('lychee.app.Sprite');
-	const _TEXTURE   = attachments["png"];
-	const _CONFIG    = attachments["json"].buffer;
-	const _SOUND     = attachments["snd"];
+	const _TEXTURE   = attachments['png'];
+	const _CONFIG    = attachments['json'].buffer;
+	const _SOUND     = attachments['snd'];
 
 
 

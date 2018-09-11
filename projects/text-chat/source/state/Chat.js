@@ -17,11 +17,11 @@ lychee.define('app.state.Chat').requires([
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Offset = lychee.import('lychee.effect.Offset');
 	const _State  = lychee.import('lychee.app.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _SOUNDS = {
-		join_empty: attachments["join_empty.snd"],
-		join_full:  attachments["join_full.snd"],
-		message:    attachments["message.snd"]
+		join_empty: attachments['join_empty.snd'],
+		join_full:  attachments['join_full.snd'],
+		message:    attachments['message.snd']
 	};
 
 

@@ -7,8 +7,8 @@ lychee.define('game.ui.sprite.Tile').requires([
 
 	const _Entity  = lychee.import('lychee.ui.Entity');
 	const _Sprite  = lychee.import('lychee.ui.Sprite');
-	const _TEXTURE = attachments["png"];
-	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments['png'];
+	const _CONFIG  = attachments['json'].buffer;
 
 
 

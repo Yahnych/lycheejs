@@ -4,7 +4,7 @@ lychee.define('game.ui.entity.Label').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Label = lychee.import('lychee.ui.entity.Label');
-	const _FONT  = attachments["fnt"];
+	const _FONT  = attachments['fnt'];
 
 
 

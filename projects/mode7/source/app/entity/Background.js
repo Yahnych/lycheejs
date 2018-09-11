@@ -4,7 +4,7 @@ lychee.define('game.app.entity.Background').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Entity  = lychee.import('lychee.app.Entity');
-	const _TEXTURE = attachments["png"];
+	const _TEXTURE = attachments['png'];
 	const _CONFIG  = {
 		states: { 'default': 0 },
 		map:    {

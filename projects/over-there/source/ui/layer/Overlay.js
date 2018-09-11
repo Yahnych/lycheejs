@@ -11,7 +11,7 @@ lychee.define('app.ui.layer.Overlay').requires([
 	const _Entity = lychee.import('lychee.app.Entity');
 	const _Bubble = lychee.import('app.ui.entity.Bubble');
 	const _Layer  = lychee.import('lychee.ui.Layer');
-	const _SOUND  = attachments["snd"];
+	const _SOUND  = attachments['snd'];
 
 
 

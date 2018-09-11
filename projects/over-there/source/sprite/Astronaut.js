@@ -8,16 +8,16 @@ lychee.define('app.sprite.Astronaut').requires([
 	let   _id       = 0;
 	const _Entity   = lychee.import('lychee.app.Entity');
 	const _Sprite   = lychee.import('lychee.app.Sprite');
-	const _CONFIG   = attachments["json"].buffer;
+	const _CONFIG   = attachments['json'].buffer;
 	const _TEXTURES = [
-		attachments["blue.png"],
-		attachments["light.png"],
-		attachments["green.png"],
-		attachments["red.png"],
-		attachments["orange.png"],
-		attachments["pink.png"],
-		attachments["purple.png"],
-		attachments["yellow.png"]
+		attachments['blue.png'],
+		attachments['light.png'],
+		attachments['green.png'],
+		attachments['red.png'],
+		attachments['orange.png'],
+		attachments['pink.png'],
+		attachments['purple.png'],
+		attachments['yellow.png']
 	];
 
 

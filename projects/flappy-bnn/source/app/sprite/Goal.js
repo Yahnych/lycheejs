@@ -7,8 +7,8 @@ lychee.define('game.app.sprite.Goal').requires([
 
 	const _Plane   = lychee.import('game.app.sprite.Plane');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 

@@ -16,8 +16,8 @@ lychee.define('game.app.entity.Unit').requires([
 		neutral: '#efefef'
 	};
 	const _SOUNDS   = {
-		attack: attachments["attack.snd"],
-		move:   attachments["move.snd"]
+		attack: attachments['attack.snd'],
+		move:   attachments['move.snd']
 	};
 
 

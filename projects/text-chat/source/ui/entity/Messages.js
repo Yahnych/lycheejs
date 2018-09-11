@@ -7,7 +7,7 @@ lychee.define('app.ui.entity.Messages').requires([
 
 	const _Avatar = lychee.import('app.ui.sprite.Avatar');
 	const _Entity = lychee.import('lychee.ui.Entity');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 

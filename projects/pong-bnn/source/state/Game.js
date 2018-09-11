@@ -16,10 +16,10 @@ lychee.define('game.state.Game').requires([
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Shake  = lychee.import('lychee.effect.Shake');
 	const _State  = lychee.import('lychee.app.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _SOUNDS = {
-		ping: attachments["ping.snd"],
-		pong: attachments["pong.snd"]
+		ping: attachments['ping.snd'],
+		pong: attachments['pong.snd']
 	};
 
 

@@ -13,7 +13,7 @@ lychee.define('studio.state.Scene').requires([
 
 	const _State = lychee.import('lychee.ui.State');
 	const _SCENE = lychee.import('studio.codec.SCENE');
-	const _BLOB  = attachments["json"].buffer;
+	const _BLOB  = attachments['json'].buffer;
 
 
 

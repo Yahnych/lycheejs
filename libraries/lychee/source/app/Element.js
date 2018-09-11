@@ -10,8 +10,8 @@ lychee.define('lychee.app.Element').requires([
 	const _Layer = lychee.import('lychee.app.Layer');
 	const _Text  = lychee.import('lychee.app.entity.Text');
 	const _FONTS = {
-		label: attachments["label.fnt"],
-		order: attachments["order.fnt"]
+		label: attachments['label.fnt'],
+		order: attachments['order.fnt']
 	};
 
 

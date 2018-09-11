@@ -12,7 +12,7 @@ lychee.define('ranger.state.Servers').requires([
 
 	const _Helper = lychee.import('lychee.ui.entity.Helper');
 	const _State  = lychee.import('lychee.ui.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _helper = new _Helper();
 
 

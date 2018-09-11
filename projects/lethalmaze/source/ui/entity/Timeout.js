@@ -9,8 +9,8 @@ lychee.define('game.ui.entity.Timeout').requires([
 	const _Alpha   = lychee.import('lychee.effect.Alpha');
 	const _Visible = lychee.import('lychee.effect.Visible');
 	const _Entity  = lychee.import('lychee.ui.Entity');
-	const _FONT    = attachments["fnt"];
-	const _SOUND   = attachments["snd"];
+	const _FONT    = attachments['fnt'];
+	const _SOUND   = attachments['snd'];
 
 
 

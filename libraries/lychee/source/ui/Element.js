@@ -12,8 +12,8 @@ lychee.define('lychee.ui.Element').requires([
 	const _Layer  = lychee.import('lychee.ui.Layer');
 	const _Text   = lychee.import('lychee.ui.entity.Text');
 	const _FONTS  = {
-		label: attachments["label.fnt"],
-		order: attachments["order.fnt"]
+		label: attachments['label.fnt'],
+		order: attachments['order.fnt']
 	};
 
 

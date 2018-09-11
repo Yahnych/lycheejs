@@ -11,7 +11,7 @@ lychee.define('lychee.app.layer.Table').requires([
 	const _Entity = lychee.import('lychee.app.Entity');
 	const _Label  = lychee.import('lychee.app.entity.Label');
 	const _Layer  = lychee.import('lychee.app.Layer');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 

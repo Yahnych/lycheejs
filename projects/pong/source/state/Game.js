@@ -14,13 +14,13 @@ lychee.define('game.state.Game').requires([
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Shake  = lychee.import('lychee.effect.Shake');
 	const _State  = lychee.import('lychee.app.State');
-	const _BLOB   = attachments["json"].buffer;
-	const _MUSIC  = attachments["music.msc"];
+	const _BLOB   = attachments['json'].buffer;
+	const _MUSIC  = attachments['music.msc'];
 	const _SOUNDS = {
-		boo:   attachments["boo.snd"],
-		cheer: attachments["cheer.snd"],
-		ping:  attachments["ping.snd"],
-		pong:  attachments["pong.snd"]
+		boo:   attachments['boo.snd'],
+		cheer: attachments['cheer.snd'],
+		ping:  attachments['ping.snd'],
+		pong:  attachments['pong.snd']
 	};
 
 

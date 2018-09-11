@@ -10,11 +10,11 @@ lychee.define('game.app.sprite.Tank').requires([
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
 	const _IDS     = [ 'rainbow', 'red', 'green', 'blue', 'black', 'white' ];
-	const _TEXTURE = attachments["png"];
-	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments['png'];
+	const _CONFIG  = attachments['json'].buffer;
 	const _SOUNDS  = {
-		powerup: attachments["powerup.snd"],
-		shoot:   attachments["shoot.snd"]
+		powerup: attachments['powerup.snd'],
+		shoot:   attachments['shoot.snd']
 	};
 
 

@@ -274,7 +274,7 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 	cd $TARGET_FOLDER;
 	export LYCHEEJS_ROOT="$TARGET_FOLDER";
-	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-library;
+	$LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-library;
 
 
 
@@ -296,7 +296,7 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 	cd $TARGET_FOLDER;
 	export LYCHEEJS_ROOT="$TARGET_FOLDER";
-	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
+	$LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-bundle;
 
 
 

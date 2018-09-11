@@ -14,9 +14,9 @@ lychee.define('game.app.entity.Cell').requires([
 		virus:   '#d0494b'
 	};
 	const _FONTS   = {
-		immune:  attachments["immune.fnt"],
-		neutral: attachments["neutral.fnt"],
-		virus:   attachments["virus.fnt"]
+		immune:  attachments['immune.fnt'],
+		neutral: attachments['neutral.fnt'],
+		virus:   attachments['virus.fnt']
 	};
 
 

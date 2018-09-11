@@ -26,12 +26,12 @@ lychee.define('game.state.Game').requires([
 	const _Tank      = lychee.import('game.app.sprite.Tank');
 	const _Wall      = lychee.import('game.app.sprite.Wall');
 	const _LEVEL     = lychee.import('game.data.LEVEL');
-	const _BLOB      = attachments["json"].buffer;
-	const _LEVELS    = attachments["levels.json"].buffer;
-	const _MUSIC     = attachments["msc"];
+	const _BLOB      = attachments['json'].buffer;
+	const _LEVELS    = attachments['levels.json'].buffer;
+	const _MUSIC     = attachments['msc'];
 	const _SOUNDS    = {
-		kill:  attachments["kill.snd"],
-		spawn: attachments["spawn.snd"]
+		kill:  attachments['kill.snd'],
+		spawn: attachments['spawn.snd']
 	};
 
 

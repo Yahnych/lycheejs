@@ -2,17 +2,17 @@
 lychee.define('studio.data.Project').exports(function(lychee, global, attachments) {
 
 	const _DEFAULT_SETTINGS = {
-		"debug": false,
-		"packages": {
-			"app": "./lychee.pkg"
+		'debug': false,
+		'packages': {
+			'app': './lychee.pkg'
 		},
-		"sandbox": false,
-		"tags": {
-			"platform": []
+		'sandbox': false,
+		'tags': {
+			'platform': []
 		},
-		"target": "app.Main",
-		"variant": "application",
-		"profile": {}
+		'target': 'app.Main',
+		'variant': 'application',
+		'profile': {}
 	};
 
 

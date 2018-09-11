@@ -3,7 +3,7 @@ lychee.define('ranger.ui.entity.Console').includes([
 	'lychee.ui.Entity'
 ]).exports(function(lychee, global, attachments) {
 
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 	const _Entity = lychee.import('lychee.ui.Entity');
 
 

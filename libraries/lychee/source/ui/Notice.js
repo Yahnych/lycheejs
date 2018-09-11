@@ -15,7 +15,7 @@ lychee.define('lychee.ui.Notice').requires([
 	const _Layer    = lychee.import('lychee.ui.Layer');
 	const _Position = lychee.import('lychee.effect.Position');
 	const _State    = lychee.import('lychee.effect.State');
-	const _FONT     = attachments["fnt"];
+	const _FONT     = attachments['fnt'];
 
 
 

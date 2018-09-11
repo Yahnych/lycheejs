@@ -21,7 +21,7 @@ lychee.define('lychee.ui.Menu').requires([
 	const _Select   = lychee.import('lychee.ui.entity.Select');
 	const _Visible  = lychee.import('lychee.effect.Visible');
 	const _Width    = lychee.import('lychee.effect.Width');
-	const _FONT     = attachments["fnt"];
+	const _FONT     = attachments['fnt'];
 
 
 

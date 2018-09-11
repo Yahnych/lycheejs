@@ -8,7 +8,7 @@ lychee.define('game.app.entity.Vesicle').requires([
 	const _Color   = lychee.import('lychee.effect.Color');
 	const _Entity  = lychee.import('lychee.app.Entity');
 	let   _id      = 0;
-	const _FONT    = attachments["fnt"];
+	const _FONT    = attachments['fnt'];
 	const _PALETTE = {
 		immune:  '#32afe5',
 		virus:   '#d0494b',

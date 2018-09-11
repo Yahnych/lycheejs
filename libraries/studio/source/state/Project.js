@@ -12,7 +12,7 @@ lychee.define('studio.state.Project').requires([
 
 	const _Project = lychee.import('studio.data.Project');
 	const _State   = lychee.import('lychee.ui.State');
-	const _BLOB    = attachments["json"].buffer;
+	const _BLOB    = attachments['json'].buffer;
 	const _CACHE   = {};
 
 

@@ -12,8 +12,8 @@ lychee.define('game.state.Game').requires([
 
 	const _Pathfinder = lychee.import('game.logic.Pathfinder');
 	const _State      = lychee.import('lychee.app.State');
-	const _BLOB       = attachments["json"].buffer;
-	const _LEVELS     = attachments["levels.json"].buffer;
+	const _BLOB       = attachments['json'].buffer;
+	const _LEVELS     = attachments['levels.json'].buffer;
 
 
 

@@ -4,7 +4,7 @@ lychee.define('app.sprite.Background').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Background = lychee.import('lychee.app.sprite.Background');
-	const _TEXTURE    = attachments["png"];
+	const _TEXTURE    = attachments['png'];
 	const _CONFIG     = {
 		repeat: true,
 		states: { 'default': 0 },

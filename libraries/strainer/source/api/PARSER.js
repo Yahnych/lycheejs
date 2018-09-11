@@ -3,7 +3,7 @@ lychee.define('strainer.api.PARSER').requires([
 	'lychee.crypto.MURMUR'
 ]).exports(function(lychee, global, attachments) {
 
-	const _DICTIONARY = attachments["json"].buffer;
+	const _DICTIONARY = attachments['json'].buffer;
 	const _FEATURES   = lychee.FEATURES;
 	const _MURMUR     = lychee.import('lychee.crypto.MURMUR');
 	const _PLATFORMS  = lychee.PLATFORMS;
@@ -488,9 +488,9 @@ lychee.define('strainer.api.PARSER').requires([
 		} else if (str.startsWith('"') && str.endsWith('"')) {
 			value = str.substr(1, str.length - 2);
 		} else if (str.startsWith('\'') || str.startsWith('"')) {
-			value = "<string>";
+			value = '<string>';
 		} else if (str.includes('toString(') || str.includes('join(')) {
-			value = "<string>";
+			value = '<string>';
 		} else if (str.startsWith('/') || str.endsWith('/g')) {
 
 			let tmp1 = str;
@@ -514,7 +514,7 @@ lychee.define('strainer.api.PARSER').requires([
 		} else if (str === 'Infinity') {
 			value = Infinity;
 		} else if (str.includes(' + ') && (str.includes('\'') || str.includes('"') || str.includes('.substr(') || str.includes('.trim()'))) {
-			value = "<string>";
+			value = '<string>';
 		} else if (str.includes(' * ') || str.includes(' / ') || str.includes(' + ') || str.includes(' - ')) {
 			value = 1337;
 		} else {

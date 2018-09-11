@@ -4,7 +4,7 @@ lychee.define('app.net.Client').includes([
 ]).exports(function(lychee, global, attachments) {
 
 	const _Client = lychee.import('lychee.net.Client');
-	const _CONFIG = attachments["json"].buffer;
+	const _CONFIG = attachments['json'].buffer;
 	const _ROOMS  = [
 		'node1',
 		'fgb',

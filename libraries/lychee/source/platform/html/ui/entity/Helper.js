@@ -20,8 +20,8 @@ lychee.define('lychee.ui.entity.Helper').tags({
 }).exports(function(lychee, global, attachments) {
 
 	const _Button  = lychee.import('lychee.ui.entity.Button');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 

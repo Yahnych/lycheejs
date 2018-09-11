@@ -12,7 +12,7 @@ lychee.define('game.state.Menu').requires([
 ]).exports(function(lychee, global, attachments) {
 
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 	const _CAMPAIGNS = _BLOB.campaigns;
 	const _PALETTE   = {
 	};

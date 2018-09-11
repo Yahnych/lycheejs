@@ -2,7 +2,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 	'lychee.Package',
 	'lychee.Stash'
 ]).includes([
-	"lychee.event.Flow"
+	'lychee.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
 	const _Flow    = lychee.import('lychee.event.Flow');

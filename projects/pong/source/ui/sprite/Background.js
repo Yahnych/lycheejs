@@ -3,8 +3,8 @@ lychee.define('game.ui.sprite.Background').includes([
 	'lychee.ui.sprite.Background'
 ]).exports(function(lychee, global, attachments) {
 
-	const _TEXTURE    = attachments["png"];
-	const _CONFIG     = attachments["json"].buffer;
+	const _TEXTURE    = attachments['png'];
+	const _CONFIG     = attachments['json'].buffer;
 	const _Background = lychee.import('lychee.ui.sprite.Background');
 
 
