@@ -206,9 +206,14 @@ lychee.define('fertilizer.data.Shell').tags({
 							cwd: path
 						}, function(error, stdout, stderr) {
 
+							let code = 0;
+							if (error !== null) {
+								code = error.code;
+							}
+
 							stack.push({
 								args:   args,
-								exit:   error.code,
+								exit:   code,
 								file:   file,
 								path:   path,
 								stdout: stdout.toString(),
