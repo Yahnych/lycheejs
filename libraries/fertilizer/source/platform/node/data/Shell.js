@@ -208,6 +208,7 @@ lychee.define('fertilizer.data.Shell').tags({
 
 							stack.push({
 								args:   args,
+								exit:   error.code,
 								file:   file,
 								path:   path,
 								stdout: stdout.toString(),

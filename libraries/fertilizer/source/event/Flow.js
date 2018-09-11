@@ -150,6 +150,46 @@ lychee.define('fertilizer.event.Flow').requires([
 
 	};
 
+	const _trace_shell = function(stack) {
+
+		for (let s = 0, sl = stack.length; s < sl; s++) {
+
+			let context = stack[s];
+			let code    = context.exit;
+			let name    = '...' + context.file.substr(context.path.length);
+
+			if (code === 0) {
+				console.info('fertilizer: -> ' + name + ' exited with code "' + code + '":');
+			} else if (code === 1) {
+				console.error('fertilizer: -> ' + name + ' exited with code "' + code + '":');
+			} else {
+				console.warn('fertilizer: -> ' + name + ' exited with code "' + code + '":');
+			}
+
+			context.stdout.trim().split('\n').forEach(line => {
+
+				let chunk = line.trim();
+				if (chunk !== '') {
+					console.log('fertilizer: -> (stdout) ' + chunk);
+				}
+
+			});
+
+			context.stderr.trim().split('\n').forEach(line => {
+
+				let chunk = line.trim();
+				if (chunk !== '') {
+					console.error('fertilizer: -> (stderr) ' + chunk);
+				}
+
+			});
+
+		}
+
+		console.warn('');
+
+	};
+
 
 
 	/*
@@ -343,6 +383,7 @@ lychee.define('fertilizer.event.Flow').requires([
 		this.bind('configure-project', function(oncomplete) {
 
 			let action  = this.action;
+			let debug   = this.debug;
 			let project = this.project;
 			let shell   = this.shell;
 			let target  = this.target;
@@ -360,10 +401,18 @@ lychee.define('fertilizer.event.Flow').requires([
 					shell.exec(project + '/bin/configure.sh "' + target + '"', result => {
 
 						if (result === false) {
-							console.warn('fertilizer: -> FAILURE');
-						}
 
-						oncomplete(true);
+							console.warn('fertilizer: -> FAILURE');
+
+							if (debug === true) {
+								_trace_shell(shell.trace(1));
+							}
+
+							oncomplete(true);
+
+						} else {
+							oncomplete(true);
+						}
 
 					});
 
@@ -531,6 +580,7 @@ lychee.define('fertilizer.event.Flow').requires([
 		this.bind('build-project', function(oncomplete) {
 
 			let action  = this.action;
+			let debug   = this.debug;
 			let project = this.project;
 			let shell   = this.shell;
 			let target  = this.target;
@@ -548,10 +598,18 @@ lychee.define('fertilizer.event.Flow').requires([
 					shell.exec(project + '/bin/build.sh "' + target + '"', result => {
 
 						if (result === false) {
-							console.warn('fertilizer: -> FAILURE');
-						}
 
-						oncomplete(true);
+							console.warn('fertilizer: -> FAILURE');
+
+							if (debug === true) {
+								_trace_shell(shell.trace(1));
+							}
+
+							oncomplete(true);
+
+						} else {
+							oncomplete(true);
+						}
 
 					});
 
@@ -569,6 +627,7 @@ lychee.define('fertilizer.event.Flow').requires([
 		this.bind('package-runtime', function(oncomplete) {
 
 			let action  = this.action;
+			let debug   = this.debug;
 			let project = this.project;
 			let shell   = this.shell;
 			let target  = this.target;
@@ -591,25 +650,13 @@ lychee.define('fertilizer.event.Flow').requires([
 
 						if (result === false) {
 
-							console.warn('fertilizer: -> Tracing Shell Output ...');
+							console.error('fertilizer: -> FAILURE');
 
-							console.log(shell.trace());
-							let context = shell.trace(1).pop();
-							if (context.stdout.includes('FAILURE')) {
-
-								context.stdout.trim().split('\n').forEach(line => {
-									console.warn('fertilizer: -> ' + line);
-								});
-
-								context.stderr.trim().split('\n').forEach(line => {
-									console.warn('fertilizer: -> ' + line);
-								});
-
-								oncomplete(false);
-
-							} else {
-								oncomplete(true);
+							if (debug === true) {
+								_trace_shell(shell.trace(1));
 							}
+
+							oncomplete(false);
 
 						} else {
 							oncomplete(true);
@@ -631,6 +678,7 @@ lychee.define('fertilizer.event.Flow').requires([
 		this.bind('package-project', function(oncomplete) {
 
 			let action  = this.action;
+			let debug   = this.debug;
 			let project = this.project;
 			let shell   = this.shell;
 			let target  = this.target;
@@ -648,10 +696,18 @@ lychee.define('fertilizer.event.Flow').requires([
 					shell.exec(project + '/bin/package.sh ' + target, result => {
 
 						if (result === false) {
-							console.warn('fertilizer: -> FAILURE');
-						}
 
-						oncomplete(true);
+							console.warn('fertilizer: -> FAILURE');
+
+							if (debug === true) {
+								_trace_shell(shell.trace(1));
+							}
+
+							oncomplete(true);
+
+						} else {
+							oncomplete(true);
+						}
 
 					});
 
