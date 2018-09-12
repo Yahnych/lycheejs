@@ -131,8 +131,9 @@ echo " (L) ";
 echo " (L) This installer downloads and installs lychee.js. ";
 echo " (L) The installation target folder is $LYCHEEJS_ROOT ";
 echo " (L) ";
-echo " (L) Download size is ~50MB + ~700MB + dependencies. ";
-echo " (L) Installation size is ~2.0GB.                    ";
+echo " (L) Download size is ~50MB + ~800MB + dependencies. ";
+echo " (L) Installation size is ~2.5GB.                    ";
+echo " (L) Third-Party native packages might add to size.  ";
 echo " (L) ";
 
 read -p " (L) Continue (y/n)? " -r
@@ -300,9 +301,9 @@ fi;
 
 
 echo " (L) ";
-echo " (L) lychee.js Installation is ready.      ";
+echo -e "\e[42m\e[97m (I) lychee.js Installation is complete. \e[0m";
+echo -e "\e[42m\e[97m (I) lychee.js Harvester is ready.       \e[0m";
 echo " (L) ";
-echo " (L) Start the lychee.js Harvester now:    ";
 echo " (L) cd $LYCHEEJS_ROOT;                    ";
 echo " (L) lycheejs-harvester start development; ";
 echo " (L)";

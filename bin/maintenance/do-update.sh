@@ -21,10 +21,11 @@ if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "
 fi;
 
 
-RUNTIME_FILE="lycheejs-runtime.zip";
+LYCHEEJS_RUNTIME_URL="https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest";
+LYCHEEJS_RUNTIME_FILE="lycheejs-runtime.zip";
 
 if [ "$1" == "--only-node" ] || [ "$2" == "--only-node" ] || [ "$3" == "--only-node" ]; then
-	RUNTIME_FILE="lycheejs-runtime-only-node.zip";
+	LYCHEEJS_RUNTIME_FILE="lycheejs-runtime-only-node.zip";
 fi;
 
 
@@ -149,90 +150,65 @@ else
 
 
 
-	# XXX: Allow manual download of lycheejs-runtime.zip
-	if [ -f $LYCHEEJS_ROOT/bin/runtime.zip ] && [ ! -d $LYCHEEJS_ROOT/bin/runtime ]; then
+	LYCHEEJS_RUNTIME_EXTRACT_SUCCESS=0;
+	LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=0;
 
-		DOWNLOAD_SUCCESS=1;
+	if [ -f $LYCHEEJS_ROOT/bin/runtime.zip ]; then
+		LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=1;
+	fi;
 
-		mkdir $LYCHEEJS_ROOT/bin/runtime;
-		echo " (L)   cd $LYCHEEJS_ROOT/bin/runtime";
-		echo " (L)   unzip -qq ../runtime.zip";
-		cd $LYCHEEJS_ROOT/bin/runtime;
-		unzip -qq ../runtime.zip;
+	if [ ! -d $LYCHEEJS_ROOT/bin/runtime ]; then
 
-		if [ $? != 0 ]; then
-			DOWNLOAD_SUCCESS=0;
+		echo " (L) > Installing lychee.js Runtimes ...";
+
+		if [ "$LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS" == "0" ]; then
+
+			echo " (L)   (This might take a while)";
+
+			download_url=$(curl -s "$LYCHEEJS_RUNTIME_URL" | grep "browser_download_url" | grep "$LYCHEEJS_RUNTIME_FILE" | head -n 1 | cut -d'"' -f4);
+
+			if [ "$download_url" != "" ]; then
+
+				cd $LYCHEEJS_ROOT/bin;
+				echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
+				curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+
+				if [ $? == 0 ]; then
+					LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=1;
+				fi;
+
+			fi;
+
 		fi;
 
-		if [ "$DOWNLOAD_SUCCESS" == "1" ]; then
-			chmod +x $LYCHEEJS_ROOT/bin/runtime/bin/*.sh     2> /dev/null;
-			chmod +x $LYCHEEJS_ROOT/bin/runtime/*/update.sh  2> /dev/null;
-			chmod +x $LYCHEEJS_ROOT/bin/runtime/*/package.sh 2> /dev/null;
+		if [ "$LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS" == "1" ]; then
+
+			mkdir $LYCHEEJS_ROOT/bin/runtime;
+			echo " (L)   cd $LYCHEEJS_ROOT/bin/runtime";
+			echo " (L)   unzip -nqq ../runtime.zip";
+			cd $LYCHEEJS_ROOT/bin/runtime;
+			unzip -nqq ../runtime.zip;
+
+			if [ $? == 0 ]; then
+				LYCHEEJS_RUNTIME_EXTRACT_SUCCESS=1;
+			fi;
+
+			if [ "$LYCHEEJS_RUNTIME_EXTRACT_SUCCESS" == "1" ]; then
+				chmod +x $LYCHEEJS_ROOT/bin/runtime/bin/*.sh     2> /dev/null;
+				chmod +x $LYCHEEJS_ROOT/bin/runtime/*/update.sh  2> /dev/null;
+				chmod +x $LYCHEEJS_ROOT/bin/runtime/*/package.sh 2> /dev/null;
+			fi;
+
 		fi;
 
 
-		if [ "$DOWNLOAD_SUCCESS" == "1" ]; then
+		if [ "$LYCHEEJS_RUNTIME_EXTRACT_SUCCESS" == "1" ]; then
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 		else
 			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
 			exit 1;
 		fi;
 
-	# XXX: Automated download of lycheejs-runtime.zip
-	elif [ ! -d $LYCHEEJS_ROOT/bin/runtime ]; then
-
-		echo " (L) > Installing lychee.js Runtimes ...";
-		echo " (L)   (This might take a while)";
-
-		DOWNLOAD_URL=$(curl -s https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest | grep "browser_download_url" | grep "$RUNTIME_FILE" | head -n 1 | cut -d'"' -f4);
-		DOWNLOAD_SUCCESS=0;
-
-		if [ "$DOWNLOAD_URL" != "" ]; then
-
-			DOWNLOAD_SUCCESS=1;
-
-			cd $LYCHEEJS_ROOT/bin;
-			echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $DOWNLOAD_URL > $LYCHEEJS_ROOT/bin/runtime.zip";
-			curl --location --retry 8 --retry-connrefused --progress-bar $DOWNLOAD_URL > $LYCHEEJS_ROOT/bin/runtime.zip;
-
-			if [ $? != 0 ]; then
-				DOWNLOAD_SUCCESS=0;
-			fi;
-
-			if [ "$DOWNLOAD_SUCCESS" == "1" ]; then
-
-				mkdir $LYCHEEJS_ROOT/bin/runtime;
-				echo " (L)   cd $LYCHEEJS_ROOT/bin/runtime";
-				echo " (L)   unzip -qq ../runtime.zip";
-				cd $LYCHEEJS_ROOT/bin/runtime;
-				unzip -qq ../runtime.zip;
-
-				if [ $? != 0 ]; then
-					DOWNLOAD_SUCCESS=0;
-				fi;
-
-			fi;
-
-			if [ "$DOWNLOAD_SUCCESS" == "1" ]; then
-				chmod +x $LYCHEEJS_ROOT/bin/runtime/bin/*.sh     2> /dev/null;
-				chmod +x $LYCHEEJS_ROOT/bin/runtime/*/update.sh  2> /dev/null;
-				chmod +x $LYCHEEJS_ROOT/bin/runtime/*/package.sh 2> /dev/null;
-				rm $LYCHEEJS_ROOT/bin/runtime.zip                2> /dev/null;
-			else
-				rm $LYCHEEJS_ROOT/bin/runtime.zip                2> /dev/null;
-			fi;
-
-
-			if [ "$DOWNLOAD_SUCCESS" == "1" ]; then
-				echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-			else
-				echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
-				exit 1;
-			fi;
-
-		fi;
-
-	# XXX: Incremental download(s)
 	else
 
 		echo " (L) > Updating lychee.js Runtimes ...";
