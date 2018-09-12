@@ -351,26 +351,32 @@ lychee.define('strainer.api.Definition').requires([
 
 						let tags = report.header.tags || {};
 						if (Object.keys(tags).length > 0) {
-							code += '.tags(';
-							code += JSON.stringify(tags, null, '\t');
-							code += ')';
+							code += '.tags({';
+							code += Object.entries(tags).forEach(function(pair) {
+								return '\t' + pair[0] + ': \'' + pair[1] + '\'';
+							}).join('\n') + '\n';
+							code += '})';
 						}
 
 						let requires = report.header.requires || [];
 						if (requires.length > 0) {
-							code += '.requires(';
-							code += JSON.stringify(requires, null, '\t');
-							code += ')';
+							code += '.requires([';
+							code += requires.map(function(value) {
+								return '\t\'' + value.toString() + '\'';
+							}).join('\n') + '\n';
+							code += '])';
 						}
 
 						let includes = report.header.includes || [];
 						if (includes.length > 0) {
-							code += '.includes(';
-							code += JSON.stringify(includes, null, '\t');
-							code += ')';
+							code += '.includes([';
+							code += includes.map(function(value) {
+								return '\t\'' + value.toString() + '\'';
+							}).join('\n') + '\n';
+							code += '])';
 						}
 
-						let supports = report.header.support || null;
+						let supports = report.header.supports || null;
 						if (supports !== null) {
 							code += '.supports(';
 							code += supports.body;

@@ -257,6 +257,31 @@ lychee = (function(global) {
 
 	}
 
+	if (typeof Object.entries !== 'function') {
+
+		Object.entries = function(object) {
+
+			if (object !== Object(object)) {
+				throw new TypeError('Object.entries called on a non-object');
+			}
+
+
+			let values = [];
+
+			for (let prop in object) {
+
+				if (Object.prototype.hasOwnProperty.call(object, prop)) {
+					values.push([ prop, object[prop] ]);
+				}
+
+			}
+
+			return values;
+
+		};
+
+	}
+
 	if (typeof Object.filter !== 'function') {
 
 		Object.filter = function(object, predicate/*, thisArg */) {

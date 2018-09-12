@@ -959,7 +959,6 @@ lychee.define('strainer.api.Composite').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
-					let header = api.header || {};
 					let memory = api.memory || {};
 					let result = api.result || {};
 
@@ -976,7 +975,6 @@ lychee.define('strainer.api.Composite').requires([
 						}
 
 					}
-
 
 					let construct = Object.hasOwnProperty.call(result, 'constructor') ? result.constructor : null;
 					if (construct !== null) {
@@ -1013,7 +1011,6 @@ lychee.define('strainer.api.Composite').requires([
 						}
 
 					}
-
 
 					let methods = result.methods || null;
 					if (methods !== null && Object.keys(methods).length > 0) {

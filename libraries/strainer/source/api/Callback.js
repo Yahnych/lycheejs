@@ -252,7 +252,31 @@ lychee.define('strainer.api.Callback').requires([
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							code.push('\t' + chunk);
+							chunk.split('\n').forEach(function(line) {
+								code.push('\t' + line);
+							});
+						}
+
+					} else {
+
+						construct = {
+							chunk:      null,
+							hash:       null,
+							type:       'function',
+							parameters: [{
+								chunk: null,
+								name: 'data',
+								type: 'Object'
+							}]
+						};
+
+						let chunk = _TRANSCRIPTOR.transcribe('Callback', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							chunk.split('\n').forEach(function(line) {
+								code.push('\t' + line);
+							});
 						}
 
 					}

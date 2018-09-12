@@ -594,6 +594,20 @@ lychee.define('strainer.api.Module').requires([
 							code.push('\t' + chunk);
 						}
 
+					} else {
+
+						result.methods = {
+							deserialize: _DESERIALIZE,
+							serialize:   _SERIALIZE
+						};
+
+						let chunk = _TRANSCRIPTOR.transcribe('Module', result.methods);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\t' + chunk);
+						}
+
 					}
 
 

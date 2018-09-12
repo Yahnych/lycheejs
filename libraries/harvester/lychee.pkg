@@ -200,6 +200,22 @@
 						"json"
 					]
 				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
 			}
 		}
 	},
