@@ -560,22 +560,25 @@ lychee.define('lychee.app.State').requires([
 			if (query !== null) {
 
 				let tmp   = query.split(' > ');
-				let layer = this.getLayer(tmp[0].trim());
+				let lid   = tmp.shift().trim();
+				let layer = this.getLayer(lid);
 				if (layer !== null) {
 
-					let entity = layer;
+					if (tmp.length > 0) {
 
-					for (let t = 1, tl = tmp.length; t < tl; t++) {
+						if (typeof layer.query === 'function') {
+							return layer.query(tmp.join(' > ').trim());
+						} else {
 
-						entity = entity.getEntity(tmp[t].trim());
+							if (lychee.debug === true) {
+								console.warn('lychee.app.State: Invalid query "' + tmp.join(' > ') + '" on layer "' + lid + '".');
+							}
 
-						if (entity === null) {
-							break;
 						}
 
+					} else {
+						return layer;
 					}
-
-					return entity;
 
 				}
 

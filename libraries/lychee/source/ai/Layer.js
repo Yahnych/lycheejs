@@ -54,6 +54,7 @@ lychee.define('lychee.ai.Layer').requires([
 		this.alpha    = 1;
 		this.entities = [];
 		this.position = { x: 0, y: 0, z: 0 };
+		this.shape    = 1;
 		this.visible  = true;
 
 
@@ -149,6 +150,47 @@ lychee.define('lychee.ai.Layer').requires([
 		/*
 		 * CUSTOM API
 		 */
+
+		query: function(query) {
+
+			query = typeof query === 'string' ? query : null;
+
+
+			if (query !== null) {
+
+				let tmp    = query.split(' > ');
+				let aid    = tmp.shift().trim();
+				let entity = this.getAgent(aid);
+				if (entity !== null) {
+
+					if (tmp.length > 0) {
+
+						if (typeof entity.query === 'function') {
+							return entity.query(tmp.join(' > ').trim());
+						} else {
+
+							if (lychee.debug === true) {
+								console.warn('lychee.app.Layer: Invalid query "' + tmp.join(' > ') + '" on entity "' + aid + '".');
+							}
+
+						}
+
+					} else {
+						return entity;
+					}
+
+				}
+
+			}
+
+
+			return null;
+
+		},
+
+		isAtPosition: function(position) {
+			return false;
+		},
 
 		addAgent: function(agent) {
 
