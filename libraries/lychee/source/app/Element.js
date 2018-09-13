@@ -28,7 +28,6 @@ lychee.define('lychee.app.Element').requires([
 				typeof entity.update === 'function'
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -321,7 +320,7 @@ lychee.define('lychee.app.Element').requires([
 						let entity = this.entities[e];
 						if (entity.visible === false) continue;
 
-						if (entity.isAtPosition(position) === true) {
+						if (entity.confines(position) === true) {
 							found = entity;
 							break;
 						}

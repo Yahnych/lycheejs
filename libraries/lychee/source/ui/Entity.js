@@ -167,7 +167,21 @@ lychee.define('lychee.ui.Entity').includes([
 		 * CUSTOM API
 		 */
 
-		isAtPosition: function(position) {
+		collides: function(entity) {
+
+			entity = lychee.interfaceof(lychee.ui.Entity, entity) ? entity : null;
+
+
+			if (entity !== null) {
+				// XXX: UI Entities cannot collide
+			}
+
+
+			return false;
+
+		},
+
+		confines: function(position) {
 
 			position = position instanceof Object ? position : null;
 
@@ -205,18 +219,6 @@ lychee.define('lychee.ui.Entity').includes([
 				}
 
 			}
-
-
-			return false;
-
-		},
-
-		collides: function(entity) {
-
-			entity = lychee.interfaceof(lychee.ui.Entity, entity) ? entity : null;
-
-
-			// XXX: UI Entities can not collide
 
 
 			return false;

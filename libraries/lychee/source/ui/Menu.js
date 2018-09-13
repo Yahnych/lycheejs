@@ -93,7 +93,7 @@ lychee.define('lychee.ui.Menu').requires([
 					let helper = this.__helpers[h];
 					if (helper.visible === false) continue;
 
-					if (helper.isAtPosition(position) === true) {
+					if (helper.confines(position) === true) {
 
 						args[1].x = position.x - helper.position.x;
 						args[1].y = position.y - helper.position.y;

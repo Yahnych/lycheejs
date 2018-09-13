@@ -264,7 +264,50 @@ lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments)
 		 * CUSTOM API
 		 */
 
-		isAtPosition: function(position) {
+		collides: function(entity) {
+
+			entity = lychee.interfaceof(Composite, entity) ? entity : null;
+
+
+			if (entity !== null) {
+
+				let none = Composite.COLLISION.none;
+				if (this.collision !== entity.collision || this.collision === none || entity.collision === none) {
+					return false;
+				}
+
+
+				let circle    = Composite.SHAPE.circle;
+				let sphere    = Composite.SHAPE.sphere;
+				let rectangle = Composite.SHAPE.rectangle;
+				let cuboid    = Composite.SHAPE.cuboid;
+
+				let shapeA    = this.shape;
+				let shapeB    = entity.shape;
+
+				let issphereA = shapeA === circle    || shapeA === sphere;
+				let issphereB = shapeB === circle    || shapeB === sphere;
+				let iscuboidA = shapeA === rectangle || shapeA === cuboid;
+				let iscuboidB = shapeB === rectangle || shapeB === cuboid;
+
+				if (issphereA && issphereB) {
+					return _sphere_sphere(this, entity);
+				} else if (iscuboidA && iscuboidB) {
+					return _cuboid_cuboid(this, entity);
+				} else if (issphereA && iscuboidB) {
+					return _sphere_cuboid(this, entity);
+				} else if (iscuboidA && issphereB) {
+					return _sphere_cuboid(entity, this);
+				}
+
+			}
+
+
+			return false;
+
+		},
+
+		confines: function(position) {
 
 			position = position instanceof Object ? position : null;
 
@@ -319,49 +362,6 @@ lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments)
 
 					return colX && colY && colZ;
 
-				}
-
-			}
-
-
-			return false;
-
-		},
-
-		collides: function(entity) {
-
-			entity = lychee.interfaceof(Composite, entity) ? entity : null;
-
-
-			if (entity !== null) {
-
-				let none = Composite.COLLISION.none;
-				if (this.collision !== entity.collision || this.collision === none || entity.collision === none) {
-					return false;
-				}
-
-
-				let circle    = Composite.SHAPE.circle;
-				let sphere    = Composite.SHAPE.sphere;
-				let rectangle = Composite.SHAPE.rectangle;
-				let cuboid    = Composite.SHAPE.cuboid;
-
-				let shapeA    = this.shape;
-				let shapeB    = entity.shape;
-
-				let issphereA = shapeA === circle    || shapeA === sphere;
-				let issphereB = shapeB === circle    || shapeB === sphere;
-				let iscuboidA = shapeA === rectangle || shapeA === cuboid;
-				let iscuboidB = shapeB === rectangle || shapeB === cuboid;
-
-				if (issphereA && issphereB) {
-					return _sphere_sphere(this, entity);
-				} else if (iscuboidA && iscuboidB) {
-					return _cuboid_cuboid(this, entity);
-				} else if (issphereA && iscuboidB) {
-					return _sphere_cuboid(this, entity);
-				} else if (iscuboidA && issphereB) {
-					return _sphere_cuboid(entity, this);
 				}
 
 			}

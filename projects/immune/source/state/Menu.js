@@ -29,7 +29,7 @@ lychee.define('game.state.Menu').requires([
 	const _move_unit = function(id, position, delta) {
 
 		let confirm = this.query('ui > confirm');
-		if (confirm !== null && confirm.isAtPosition(position)) {
+		if (confirm !== null && confirm.confines(position)) {
 			return;
 		}
 

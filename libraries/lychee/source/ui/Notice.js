@@ -85,7 +85,7 @@ lychee.define('lychee.ui.Notice').requires([
 		this.bind('touch', function(id, position, delta) {
 
 			let button = this.getEntity('@options-next');
-			if (button.visible === true && button.isAtPosition(position) === true) {
+			if (button.visible === true && button.confines(position) === true) {
 
 				button.trigger('touch', [ id, {
 					x: position.x - button.position.x,

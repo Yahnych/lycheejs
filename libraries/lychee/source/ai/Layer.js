@@ -151,6 +151,34 @@ lychee.define('lychee.ai.Layer').requires([
 		 * CUSTOM API
 		 */
 
+		collides: function(agent) {
+
+			agent = lychee.interfaceof(_Agent, agent) ? agent : null;
+
+
+			if (agent !== null) {
+				// XXX: AI Agents cannot collide
+			}
+
+
+			return false;
+
+		},
+
+		confines: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+				// XXX: AI Layers cannot confine space
+			}
+
+
+			return false;
+
+		},
+
 		query: function(query) {
 
 			query = typeof query === 'string' ? query : null;
@@ -188,8 +216,18 @@ lychee.define('lychee.ai.Layer').requires([
 
 		},
 
-		isAtPosition: function(position) {
-			return false;
+		trace: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+				// XXX: AI Layers cannot trace
+			}
+
+
+			return null;
+
 		},
 
 		addAgent: function(agent) {

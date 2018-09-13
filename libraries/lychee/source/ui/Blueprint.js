@@ -27,7 +27,6 @@ lychee.define('lychee.ui.Blueprint').requires([
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
 				&& typeof entity.setOrder === 'function'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}

@@ -496,6 +496,64 @@ lychee.define('lychee.app.Layer').requires([
 		 * CUSTOM API
 		 */
 
+		collides: function(entity) {
+
+			entity = lychee.interfaceof(_Entity, entity) ? entity : null;
+
+
+			if (entity !== null) {
+				// XXX: App Layers cannot collide
+			}
+
+
+			return false;
+
+		},
+
+		confines: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+
+				if (typeof position.x === 'number' && typeof position.y === 'number') {
+
+					let ax = position.x;
+					let ay = position.y;
+					let bx = this.position.x;
+					let by = this.position.y;
+
+
+					let shape = this.shape;
+					if (shape === _Entity.SHAPE.circle) {
+
+						let dist = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
+						if (dist < this.radius) {
+							return true;
+						}
+
+					} else if (shape === _Entity.SHAPE.rectangle) {
+
+						let hwidth  = this.width  / 2;
+						let hheight = this.height / 2;
+						let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
+						let colY    = (ay >= by - hheight) && (ay <= by + hheight);
+
+
+						return colX && colY;
+
+					}
+
+				}
+
+			}
+
+
+			return false;
+
+		},
+
 		query: function(query) {
 
 			query = typeof query === 'string' ? query : null;
@@ -559,6 +617,13 @@ lychee.define('lychee.app.Layer').requires([
 							break;
 						}
 
+					} else if (typeof entity.confines === 'function') {
+
+						if (entity.confines(pos) === true) {
+							found = entity;
+							break;
+						}
+
 					}
 
 				}
@@ -569,50 +634,6 @@ lychee.define('lychee.app.Layer').requires([
 
 
 			return null;
-
-		},
-
-		isAtPosition: function(position) {
-
-			position = position instanceof Object ? position : null;
-
-
-			if (position !== null) {
-
-				if (typeof position.x === 'number' && typeof position.y === 'number') {
-
-					let ax = position.x;
-					let ay = position.y;
-					let bx = this.position.x;
-					let by = this.position.y;
-
-
-					let shape = this.shape;
-					if (shape === _Entity.SHAPE.circle) {
-
-						let dist = Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
-						if (dist < this.radius) {
-							return true;
-						}
-
-					} else if (shape === _Entity.SHAPE.rectangle) {
-
-						let hwidth  = this.width  / 2;
-						let hheight = this.height / 2;
-						let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
-						let colY    = (ay >= by - hheight) && (ay <= by + hheight);
-
-
-						return colX && colY;
-
-					}
-
-				}
-
-			}
-
-
-			return false;
 
 		},
 
@@ -779,7 +800,7 @@ lychee.define('lychee.app.Layer').requires([
 						let entity = this.entities[e];
 						if (entity.visible === false) continue;
 
-						if (entity.isAtPosition(position) === true) {
+						if (entity.confines(position) === true) {
 							found = entity;
 							break;
 						}
