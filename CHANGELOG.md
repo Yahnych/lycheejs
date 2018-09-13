@@ -31,6 +31,18 @@ and `fixed`.
 - **Added**: lychee.net.Service supports Composite syntax.
 - **Fixed**: `node` platform fixes serialization of binary assets.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Changed: lychee.ai.Entity `collides(entity)` returns collision state.
+- Changed: lychee.ai.Layer `collides(entity)` returns collision state.
+- Changed: lychee.app.Entity `collides(entity)` returns collision state.
+- Changed: lychee.app.Layer `collides(entity)` returns collision state.
+- Changed: lychee.app.Layer `trace(position)` traces entities.
+- Changed: lychee.ui.Entity `collides(entity)` returns collision state.
+- Changed: lychee.ui.Layer `collides(entity)` returns collision state.
+- Changed: lychee.ui.Layer `trace(position)` traces entities.
+- Removed: lychee.app.Entity `collidesWith(entity)`.
+- Removed: lychee.ui.Entity `collidesWith(entity)`.
+- Removed: lychee.app.Entity `isAtPosition(position)`.
+- Removed: lychee.ui.Entity `isAtPosition(position)`.
 - Added: `lychee.decycle(target, object, path)` supports de-cycling nested objects.
 - Added: lychee.Environment supports `application` and `library` variant.
 - Added: lychee.Environment supports detection of cyclic dependencies.
