@@ -56,11 +56,11 @@ lychee.define('game.logic.Pathfinder').requires([
 								return cell !== cell_a && cell !== cell_b;
 							}).forEach(function(cell) {
 
-								if (cell.collidesWith(vesicle_a) === true) {
+								if (cell.collides(vesicle_a) === true) {
 									vesicle_a = null;
 								}
 
-								if (cell.collidesWith(vesicle_b) === true) {
+								if (cell.collides(vesicle_b) === true) {
 									vesicle_b = null;
 								}
 

@@ -19,61 +19,79 @@
 				}
 			}
 		},
-		"game": {
+		"simulation": {
 			"constructor": "lychee.app.Layer",
-			"arguments": [
-				{}
-			],
+			"arguments": [],
 			"blob": {
 				"entities": [
 					{
-						"constructor": "game.app.sprite.Ball",
+						"constructor": "lychee.app.Layer",
 						"arguments": [
 							{
-								"position": {
-									"x": 0,
-									"y": 0
-								}
+								"width": 1024,
+								"height": 768
 							}
-						]
+						],
+						"blob": {
+							"entities": [
+								{
+									"constructor": "game.app.sprite.Ball",
+									"arguments": [
+										{
+											"position": {
+												"x": 0,
+												"y": 0
+											}
+										}
+									]
+								},
+								{
+									"constructor": "game.app.sprite.Paddle",
+									"arguments": [
+										{
+											"state": "good",
+											"position": {
+												"x": -470,
+												"y": 0
+											}
+										}
+									]
+								},
+								{
+									"constructor": "game.app.sprite.Paddle",
+									"arguments": [
+										{
+											"state": "evil",
+											"position": {
+												"x": 470,
+												"y": 0
+											}
+										}
+									]
+								}
+							],
+							"map": {
+								"ball": 0,
+								"good": 1,
+								"evil": 2
+							}
+						}
 					},
 					{
-						"constructor": "game.app.sprite.Paddle",
+						"constructor": "lychee.ai.bnn.Layer",
 						"arguments": [
 							{
-								"state": "good",
-								"position": {
-									"x": -128,
-									"y": 0
-								}
-							}
-						]
-					},
-					{
-						"constructor": "game.app.sprite.Paddle",
-						"arguments": [
-							{
-								"state": "evil",
-								"position": {
-									"x": 128,
-									"y": 0
-								}
+								"width": 1024,
+								"height": 768
 							}
 						]
 					}
 				],
 				"map": {
-					"ball": 0,
-					"good": 1,
-					"evil": 2
+					"game": 0,
+					"ai": 1
 				}
 			}
-		},
-		"ai": {
-			"constructor": "lychee.ai.bnn.Layer",
-			"arguments": [
-				{}
-			]
 		},
 		"ui": {
 			"constructor": "lychee.ui.Layer",

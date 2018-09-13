@@ -588,7 +588,7 @@ lychee.define('game.state.Game').requires([
 						let entity = entities[e];
 						if (entity === player) continue;
 
-						if (entity.collidesWith(player)) {
+						if (entity.collides(player)) {
 
 							if (entity instanceof _Item) {
 
@@ -620,7 +620,7 @@ lychee.define('game.state.Game').requires([
 
 						let bullet = this.__bullets[p][b];
 
-						if (bullet.collidesWith(portal)) {
+						if (bullet.collides(portal)) {
 
 							bullet.velocity.x *= Math.abs(bullet.velocity.x) > 0 ? -1 : 1;
 							bullet.velocity.y *= Math.abs(bullet.velocity.y) > 0 ? -1 : 1;

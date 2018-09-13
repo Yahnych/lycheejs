@@ -30,8 +30,8 @@ lychee.define('game.Main').requires([
 			},
 
 			renderer: {
-				width:  1024,
-				height: 768
+				width:  null,
+				height: null
 			},
 
 			viewport: {
@@ -59,8 +59,8 @@ lychee.define('game.Main').requires([
 
 			let viewport = this.viewport || null;
 			if (viewport !== null) {
-				viewport.unbind('hide');
-				viewport.unbind('show');
+				// viewport.unbind('hide');
+				// viewport.unbind('show');
 			}
 
 			this.setState('game', new _game.state.Game(this));

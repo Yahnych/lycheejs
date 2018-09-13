@@ -62,7 +62,7 @@ lychee.define('game.app.sprite.Goal').requires([
 		 * CUSTOM API
 		 */
 
-		collidesWith: function(plane) {
+		collides: function(plane) {
 
 			plane = plane instanceof _Plane ? plane : null;
 

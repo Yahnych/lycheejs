@@ -306,7 +306,6 @@ lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments)
 					let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
 					let colY    = (ay >= by - hheight) && (ay <= by + hheight);
 
-
 					return colX && colY;
 
 				} else if (shape === Composite.SHAPE.cuboid) {
@@ -317,7 +316,6 @@ lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments)
 					let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
 					let colY    = (ay >= by - hheight) && (ay <= by + hheight);
 					let colZ    = (az >= bz - hdepth)  && (az <= bz + hdepth);
-
 
 					return colX && colY && colZ;
 
@@ -330,7 +328,7 @@ lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments)
 
 		},
 
-		collidesWith: function(entity) {
+		collides: function(entity) {
 
 			entity = lychee.interfaceof(Composite, entity) ? entity : null;
 

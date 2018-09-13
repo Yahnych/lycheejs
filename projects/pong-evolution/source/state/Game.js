@@ -402,7 +402,7 @@ lychee.define('game.state.Game').requires([
 			 * 3: COLLISIONS
 			 */
 
-			if (ball.collidesWith(good) === true) {
+			if (ball.collides(good) === true) {
 
 				position.x = good.position.x + 24;
 				velocity.x = Math.abs(velocity.x);
@@ -410,7 +410,7 @@ lychee.define('game.state.Game').requires([
 
 				_bounce_effect.call(this, 'good');
 
-			} else if (ball.collidesWith(evil) === true) {
+			} else if (ball.collides(evil) === true) {
 
 				position.x = evil.position.x - 24;
 				velocity.x = -1 * Math.abs(velocity.x);

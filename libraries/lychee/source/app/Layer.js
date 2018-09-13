@@ -40,7 +40,6 @@ lychee.define('lychee.app.Layer').requires([
 				typeof entity.update === 'function'
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -526,6 +525,45 @@ lychee.define('lychee.app.Layer').requires([
 					}
 
 				}
+
+			}
+
+
+			return null;
+
+		},
+
+		trace: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+
+				let found = null;
+				let pos   = {
+					x: (position.x || 0) + this.offset.x,
+					y: (position.y || 0) + this.offset.y,
+					z: (position.z || 0) + this.offset.z
+				};
+
+				for (let e = this.entities.length - 1; e >= 0; e--) {
+
+					let entity = this.entities[e];
+					if (entity.visible === false) continue;
+
+					if (typeof entity.trace === 'function') {
+
+						if (entity.trace(pos) !== null) {
+							found = entity;
+							break;
+						}
+
+					}
+
+				}
+
+				return found;
 
 			}
 

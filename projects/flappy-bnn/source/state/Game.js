@@ -390,7 +390,7 @@ lychee.define('game.state.Game').requires([
 
 					if (plane.alive === true) {
 
-						if (plane.position.y > 1 / 2 * height || next_goal.collidesWith(plane) === true) {
+						if (plane.position.y > 1 / 2 * height || next_goal.collides(plane) === true) {
 
 							if (agent !== null) {
 								agent.punish(1);

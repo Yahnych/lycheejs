@@ -350,7 +350,7 @@ lychee.define('game.state.Game').requires([
 					let plane = planes[p];
 					if (plane.alive === true) {
 
-						if (plane.position.y > 1 / 2 * height || next_goal.collidesWith(plane) === true) {
+						if (plane.position.y > 1 / 2 * height || next_goal.collides(plane) === true) {
 
 							if (plane.effects.length === 0) {
 								plane.addEffect(new _Explosion({

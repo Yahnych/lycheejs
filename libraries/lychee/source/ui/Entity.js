@@ -211,9 +211,12 @@ lychee.define('lychee.ui.Entity').includes([
 
 		},
 
-		collidesWith: function(entity) {
+		collides: function(entity) {
 
 			entity = lychee.interfaceof(lychee.ui.Entity, entity) ? entity : null;
+
+
+			// XXX: UI Entities can not collide
 
 
 			return false;

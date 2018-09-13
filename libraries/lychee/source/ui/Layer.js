@@ -610,6 +610,44 @@ lychee.define('lychee.ui.Layer').requires([
 
 		},
 
+		trace: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+
+				let found = null;
+				let pos   = {
+					x: (position.x || 0) + this.offset.x,
+					y: (position.y || 0) + this.offset.y
+				};
+
+				for (let e = this.entities.length - 1; e >= 0; e--) {
+
+					let entity = this.entities[e];
+					if (entity.visible === false) continue;
+
+					if (typeof entity.trace === 'function') {
+
+						if (entity.trace(pos) !== null) {
+							found = entity;
+							break;
+						}
+
+					}
+
+				}
+
+				return found;
+
+			}
+
+
+			return null;
+
+		},
+
 		isAtPosition: function(position) {
 
 			position = position instanceof Object ? position : null;
@@ -639,7 +677,6 @@ lychee.define('lychee.ui.Layer').requires([
 						let hheight = this.height / 2;
 						let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
 						let colY    = (ay >= by - hheight) && (ay <= by + hheight);
-
 
 						return colX && colY;
 
