@@ -1403,8 +1403,9 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.assimilate: Invalid target');
-				console.info('lychee.assimilate: Use lychee.assimilate(target) where target is a path to an Asset');
+				console.warn('lychee.assimilate: Invalid target.');
+				console.info('lychee.assimilate: Use lychee.assimilate(target).');
+				console.info('lychee.assimilate: target is a URL to an Asset.');
 
 			}
 
@@ -1458,8 +1459,10 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.define: Invalid identifier');
-				console.info('lychee.define: Use lychee.define(id).exports(function(lychee, global, attachments) {})');
+				console.warn('lychee.define: Invalid identifier.');
+				console.info('lychee.define: Use lychee.define(id).exports(function(lychee, global, attachments) {}).');
+				console.info('lychee.define: identifier is a dot-separated notation, e.g. "app.entity.Example".');
+				console.info('lychee.define: The "lycheejs-breeder init <identifier>" command may help you.');
 
 			}
 
@@ -1493,6 +1496,12 @@ lychee = (function(global) {
 					}
 
 				}
+
+			} else {
+
+				console.warn('lychee.export: Invalid reference.');
+				console.info('lychee.export: Use lychee.export(reference, sandbox).');
+				console.info('lychee.export: reference is a Definition identifier.');
 
 			}
 
@@ -1537,7 +1546,7 @@ lychee = (function(global) {
 
 
 				if (instance === null) {
-					console.info('lychee.import: Require ' + (reference) + ' to import it.');
+					console.info('lychee.import: Require "' + reference + '" to import it.');
 				}
 
 
@@ -1545,8 +1554,9 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.import: Invalid reference');
-				console.info('lychee.import: Use lychee.import(reference)');
+				console.warn('lychee.import: Invalid reference.');
+				console.info('lychee.import: Use lychee.import(reference).');
+				console.info('lychee.import: reference is a Definition identifier.');
 
 			}
 
@@ -1694,8 +1704,9 @@ lychee = (function(global) {
 
 			} else if (message === true) {
 
-				console.warn('lychee.init: Invalid environment');
-				console.info('lychee.init: Use lychee.init(env, settings, callback) where env can be a lychee.Environment or lychee.Simulation instance.');
+				console.warn('lychee.init: Invalid environment.');
+				console.info('lychee.init: Use lychee.init(environment, settings, callback).');
+				console.info('lychee.init: environment is either a lychee.Environment or lychee.Simulation instance.');
 
 			}
 
@@ -1738,14 +1749,15 @@ lychee = (function(global) {
 				} else {
 
 					console.warn('lychee.inject: Invalid default environment for injection.');
-					console.info('lychee.inject: Use lychee.setEnvironment(env) before using lychee.inject(other).');
+					console.info('lychee.inject: Use lychee.setEnvironment(environment) before using lychee.inject(other).');
 
 				}
 
 			} else if (message === true) {
 
-				console.warn('lychee.inject: Invalid environment');
-				console.info('lychee.inject: Use lychee.inject(env) where env is a lychee.Environment instance');
+				console.warn('lychee.inject: Invalid environment.');
+				console.info('lychee.inject: Use lychee.inject(environment).');
+				console.info('lychee.inject: environment is a lychee.Environment instance.');
 
 			}
 
@@ -1792,8 +1804,8 @@ lychee = (function(global) {
 
 							} else {
 
-								console.warn('lychee.pkg: Invalid settings for "' + id + '" in lychee.pkg.');
-								console.info('lychee.pkg: Insert settings at "/' + type + '/environments/' + id + '" in lychee.pkg.');
+								console.warn('lychee.pkg: Invalid Settings for "' + id + '" in "' + this.url + '".');
+								console.info('lychee.pkg: Verify Settings at "/' + type + '/environments/' + id + '" in lychee.pkg.');
 
 								callback(null, null);
 
@@ -1801,8 +1813,9 @@ lychee = (function(global) {
 
 						} else {
 
-							console.warn('lychee.pkg: Invalid package at "' + this.url + '".');
+							console.warn('lychee.pkg: Invalid Package at "' + this.url + '".');
 							console.info('lychee.pkg: Replace lychee.pkg with the one from "/projects/boilerplate".');
+							console.info('lychee.pkg: The "lycheejs-harvester start" command may help you.');
 
 							callback(null, null);
 
@@ -1852,8 +1865,10 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.specify: Invalid identifier');
-				console.info('lychee.specify: Use lychee.specify(id).exports(function(lychee, global, simulation) {})');
+				console.warn('lychee.specify: Invalid identifier.');
+				console.info('lychee.specify: Use lychee.specify(id).exports(function(lychee, sandbox) {}).');
+				console.info('lychee.specify: identifier is a dot-separated notation, e.g. "app.entity.Example".');
+				console.info('lychee.specify: The "lycheejs-breeder init <identifier>" command may help you.');
 
 			}
 

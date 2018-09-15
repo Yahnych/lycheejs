@@ -500,13 +500,13 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 						this.id = fuzzed;
 
-						console.warn('lychee.Definition: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+						console.warn('lychee.Definition: Injecting Identifier "' + fuzzed + '" ("' + this.url + '").');
 
 						return true;
 
 					} else {
 
-						console.error('lychee.Definition: Invalid Identifier "' + id + '" (' + this.url + ')');
+						console.error('lychee.Definition: Invalid Identifier "' + id + '" ("' + this.url + '").');
 
 					}
 
@@ -807,7 +807,7 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 							Object.freeze(namespace[name].prototype);
 
-							console.error('lychee.Definition ("' + id + '"): Invalid Definition, replaced with Dummy Composite.');
+							console.warn('lychee.Definition ("' + id + '"): Invalid Definition, replaced with Dummy Composite.');
 
 
 							return true;
@@ -863,7 +863,15 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 
 			if (callback !== null) {
-				this._exports = callback;
+
+				let check = (callback).toString().split('\n')[0];
+				if (check.includes('(lychee, global, attachments)')) {
+					this._exports = callback;
+				} else {
+					console.error('lychee.Definition ("' + this.id + '"): Invalid exports callback.');
+					console.info('lychee.Definition ("' + this.id + '"): Use lychee.define(id).exports(function(lychee, global, attachments) {}).');
+				}
+
 			}
 
 
@@ -945,7 +953,15 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 
 			if (callback !== null) {
-				this._supports = callback;
+
+				let check = (callback).toString().split('\n')[0];
+				if (check.includes('(lychee, global)')) {
+					this._supports = callback;
+				} else {
+					console.error('lychee.Definition ("' + this.id + '"): Invalid supports callback.');
+					console.info('lychee.Definition ("' + this.id + '"): Use lychee.specify(id).supports(function(lychee, global) {}).');
+				}
+
 			}
 
 

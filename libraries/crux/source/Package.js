@@ -1197,10 +1197,10 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 						if (check === null) {
 
 							if (tags !== null) {
-								let info = Object.keys(tags).length > 0 ? (' (' + JSON.stringify(tags) + ')') : '.';
+								let info = Object.keys(tags).length > 0 ? (' (' + JSON.stringify(tags) + ').') : '.';
 								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"' + info);
 							} else {
-								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"');
+								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '".');
 							}
 
 							this.__warnings[id] = 1;
@@ -1268,13 +1268,13 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					this.id = fuzzed;
 
-					console.warn('lychee.Package: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+					console.warn('lychee.Package: Injecting Identifier "' + fuzzed + '" ("' + this.url + '").');
 
 					return true;
 
 				} else if (id !== null) {
 
-					console.error('lychee.Package: Invalid Identifier "' + id + '" (' + this.url + ')');
+					console.error('lychee.Package: Invalid Identifier "' + id + '" ("' + this.url + '").');
 
 				}
 

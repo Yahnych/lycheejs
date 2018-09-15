@@ -659,13 +659,13 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 						this.id = fuzzed;
 
-						console.warn('lychee.Specification: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+						console.warn('lychee.Specification: Injecting Identifier "' + fuzzed + '" ("' + this.url + '").');
 
 						return true;
 
 					} else {
 
-						console.error('lychee.Specification: Invalid Identifier "' + id + '" (' + this.url + ')');
+						console.error('lychee.Specification: Invalid Identifier "' + id + '" ("' + this.url + '").');
 
 					}
 
@@ -767,7 +767,15 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 
 			if (callback !== null) {
-				this._exports = callback;
+
+				let check = (callback).toString().split('\n')[0];
+				if (check.includes('(lychee, sandbox)')) {
+					this._exports = callback;
+				} else {
+					console.error('lychee.Specification ("' + this.id + '"): Invalid exports callback.');
+					console.info('lychee.Specification ("' + this.id + '"): Use lychee.specify(id).exports(function(lychee, sandbox) {}).');
+				}
+
 			}
 
 
@@ -800,6 +808,8 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 							this._requires.push(definition);
 						}
 
+					} else {
+						console.warn('lychee.Specification ("' + this.id + '"): Invalid Requirement #' + d + '.');
 					}
 
 				}
