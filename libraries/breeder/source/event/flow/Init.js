@@ -43,7 +43,7 @@ lychee.define('breeder.event.flow.Init').requires([
 					},
 					memory: {},
 					result: {
-						constructorASD: {
+						constructor: {
 							chunk:      null,
 							hash:       null,
 							type:       'function',
@@ -82,6 +82,15 @@ lychee.define('breeder.event.flow.Init').requires([
 
 	};
 
+	const _STATIC_INCLUDES = {
+		'app.Main':     [ 'lychee.app.Main' ],
+		'app.Input':    [ 'lychee.Input'    ],
+		'app.Renderer': [ 'lychee.Renderer' ],
+		'app.Stash':    [ 'lychee.Stash'    ],
+		'app.Storage':  [ 'lychee.Storage'  ],
+		'app.Viewport': [ 'lychee.Viewport' ]
+	};
+
 	const _get_includes = function(identifier) {
 
 		let includes = [];
@@ -108,6 +117,16 @@ lychee.define('breeder.event.flow.Init').requires([
 			let definitions = pkg.getDefinitions().map(id => 'lychee.' + id);
 			if (definitions.length > 0) {
 				includes = includes.filter(id => definitions.includes(id));
+			}
+
+		}
+
+
+		if (includes.length === 0) {
+
+			let static_includes = _STATIC_INCLUDES[identifier] || [];
+			if (static_includes.length > 0) {
+				includes.push.apply(includes, static_includes);
 			}
 
 		}
@@ -429,12 +448,25 @@ lychee.define('breeder.event.flow.Init').requires([
 								});
 
 							} else {
+
+								if (debug === true) {
+									console.error('breeder: -> Invalid generated source code.');
+									console.error(mockup);
+								}
+
 								oncomplete(false);
+
 							}
 
 						});
 
 					} else {
+
+						if (debug === true) {
+							console.error('breeder: -> Invalid identifier "' + identifier + '".');
+							console.error('breeder: -> Invalid generated includes.');
+						}
+
 						oncomplete(false);
 					}
 

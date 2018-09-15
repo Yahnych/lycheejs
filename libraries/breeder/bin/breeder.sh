@@ -2,14 +2,22 @@
 
 LYCHEEJS_ROOT="/opt/lycheejs";
 LYCHEEJS_HELPER=`which lycheejs-helper`;
-PROJECT_ROOT=$(realpath --relative-to=$LYCHEEJS_ROOT $PWD);
+PROJECT_ROOT="$PWD";
 
 
 # XXX: Allow /tmp/lycheejs usage
-if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
-	LYCHEEJS_ROOT="$PWD";
-	LYCHEEJS_HELPER="$PWD/bin/helper.sh";
-	PROJECT_ROOT=$(realpath --relative-to=$LYCHEEJS_ROOT $PWD);
+if [[ "$PROJECT_ROOT" != "/opt/lycheejs"* ]] && [ "$PROJECT_ROOT" != "$LYCHEEJS_ROOT" ]; then
+
+	if [[ "$PROJECT_ROOT" == *"/lycheejs/"* ]]; then
+		LYCHEEJS_ROOT="${PROJECT_ROOT%/lycheejs*}/lycheejs";
+		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper.sh";
+		PROJECT_ROOT="${PROJECT_ROOT##$LYCHEEJS_ROOT}";
+	fi;
+
+elif [[ "$PROJECT_ROOT" == */lycheejs/* ]]; then
+
+	PROJECT_ROOT="${PROJECT_ROOT##$LYCHEEJS_ROOT}";
+
 fi;
 
 
@@ -17,7 +25,7 @@ if [ "$LYCHEEJS_HELPER" != "" ]; then
 
 	cd $LYCHEEJS_ROOT;
 
-	bash $LYCHEEJS_HELPER env:node ./libraries/breeder/bin/breeder.js --project=/$PROJECT_ROOT "$1" "$2" "$3" "$4";
+	bash $LYCHEEJS_HELPER env:node ./libraries/breeder/bin/breeder.js --project=$PROJECT_ROOT "$1" "$2" "$3" "$4";
 
 	exit $?;
 
