@@ -205,6 +205,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		if (blocks.length > 0) {
 
 			blocks.forEach(function(block) {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				properties[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -218,6 +219,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		if (blocks.length > 0) {
 
 			blocks.forEach(function(block) {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				enums[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -231,6 +233,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		if (blocks.length > 0) {
 
 			blocks.forEach(function(block) {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				events[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -244,6 +247,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		if (blocks.length > 0) {
 
 			blocks.forEach(function(block) {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				methods[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -316,43 +320,110 @@ lychee.define('strainer.api.Sandbox').requires([
 
 			if (asset !== null) {
 
-				let code   = null;
-				let report = asset.buffer || {
-					header: {},
-					memory: {},
-					errors: [],
-					result: {}
-				};
+				let code = [];
 
 
-				if (report.header instanceof Object) {
+				let api = asset.buffer;
+				if (api instanceof Object) {
 
-					let identifier = report.header.identifier || null;
-					if (identifier !== null) {
-
-						code = 'lychee.specify(\'' + report.header.identifier + '\')';
+					let memory = api.memory || {};
+					let result = api.result || {};
 
 
-						let requires = report.header.requires || [];
-						if (requires.length > 0) {
-							code += '.requires([';
-							code += requires.map(function(value) {
-								return '\t\'' + value.toString() + '\'';
-							}).join('\n') + '\n';
-							code += '])';
+					if (memory instanceof Object) {
+
+						for (let m in memory) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(m, memory[m]);
+							if (chunk !== null) {
+								code.push('\t' + chunk);
+							}
+
 						}
-
-
-						code += '.exports(function(lychee, sandbox) {';
-						code += '\n\n%BODY%\n\n';
-						code += '});';
-						code += '\n';
-
-
-						return code;
 
 					}
 
+
+					let states = result.states || null;
+					if (states !== null) {
+
+						let chunk = _TRANSCRIPTOR.transcribe(null, states);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\tsandbox.setStates(' + chunk + ')');
+						}
+
+					}
+
+					let properties = result.properties || null;
+					if (properties !== null && Object.keys(properties).length > 0) {
+
+						for (let pid in properties) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, properties[pid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setProperty(\'' + pid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let enums = result.enums || null;
+					if (enums !== null && Object.keys(enums).length > 0) {
+
+						for (let eid in enums) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, enums[eid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setEnum(\'' + eid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let events = result.events || null;
+					if (events !== null && Object.keys(events).length > 0) {
+
+						for (let eid in events) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, events[eid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setEvent(\'' + eid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let methods = result.methods || null;
+					if (methods !== null && Object.keys(methods).length > 0) {
+
+						for (let mid in methods) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setMethod(\'' + mid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+
+					code.push('');
+
+				}
+
+
+				if (code.length > 0) {
+					return code.join('\n');
 				}
 
 			}

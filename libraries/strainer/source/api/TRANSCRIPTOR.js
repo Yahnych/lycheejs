@@ -88,8 +88,77 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 				} else if (value instanceof Object) {
 
 					code.push((assign === false ? 'const ' : '') + name + ' = ' + '{');
-					code.push('');
 
+					for (let v in value) {
+
+						let entry = value[v];
+						if (entry.type === 'function') {
+							code.push('\t\t' + v + ': ' + entry.chunk + ',');
+						} else if (entry.type === 'lychee.Definition') {
+							code.push('\t\t' + v + ': ' + entry.value.reference + ',');
+						} else if (entry.type === 'lychee.Namespace') {
+							code.push('\t\t' + v + ': ' + entry.value.reference + ',');
+						}
+
+						code.push('');
+
+					}
+
+
+					let last = code[code.length - 2] || '';
+					if (last.endsWith(',')) {
+						code[code.length - 2] = last.substr(0, last.length - 1);
+					}
+
+					code.push('};');
+
+				}
+
+
+				return code.join('\n');
+
+			} else if (value !== null) {
+
+				let code = [];
+				let type = value.type || '';
+
+				if (type === 'function') {
+
+					let chunk = value.chunk || null;
+					if (chunk !== null) {
+						code.push(value.chunk);
+					} else {
+
+						let parameters = value.parameters || [];
+						if (parameters.length > 0) {
+							code.push('function(' + parameters.map(p => p.name).join(', ') + ') {');
+							code.push('}');
+						} else {
+							code.push('function() {');
+							code.push('}');
+						}
+
+					}
+
+				} else if (type === 'lychee.Definition') {
+					code.push('lychee.import(\'' + value.value.reference + '\')');
+				} else if (type === 'lychee.Namespace') {
+					code.push('lychee.import(\'' + value.value.reference + '\')');
+				} else if (/^(null|undefined)$/g.test(type)) {
+					code.push(value.chunk);
+				} else if (/^(Array|Number|String)$/g.test(type)) {
+					code.push(value.chunk);
+				} else if (/^(Buffer|Config|Font|Music|Sound|Texture)$/g.test(type)) {
+					code.push(value.chunk);
+				} else if (type === 'RegExp') {
+					code.push(value.chunk);
+				} else if (type === 'Object') {
+					code.push(value.chunk);
+				} else if (type.startsWith('_')) {
+					code.push(value.chunk);
+				} else if (value instanceof Object) {
+
+					code.push('{');
 
 					for (let v in value) {
 
@@ -112,15 +181,13 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 						code[code.length - 2] = last.substr(0, last.length - 1);
 					}
 
-					code.push('\t};');
+					code.push('}');
 
 				}
 
 
 				return code.join('\n');
 
-			} else {
-				// TODO: No name support (generating function bodies?)
 			}
 
 

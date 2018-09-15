@@ -139,7 +139,12 @@ lychee.define('strainer.api.Composite').requires([
 		let i2 = stream.indexOf(str2, i1);
 
 		if (i1 !== -1 && i2 !== -1) {
-			return 'function' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+
+			let body = '\t\tfunction' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+			if (body !== '\t\tfunction') {
+				return _PARSER.outdent(body, '\t\t');
+			}
+
 		}
 
 		return 'undefined';
@@ -213,7 +218,7 @@ lychee.define('strainer.api.Composite').requires([
 			let chunk = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (chunk.length > 0) {
 
-				constructor.chunk      = chunk;
+				constructor.chunk      = _PARSER.outdent('\t' + chunk.trim(), '\t');
 				constructor.type       = 'function';
 				constructor.hash       = _PARSER.hash(chunk);
 				constructor.memory     = _PARSER.memory(chunk);
@@ -540,7 +545,6 @@ lychee.define('strainer.api.Composite').requires([
 
 				let name = chunk.split(':')[0].trim();
 				let body = _find_method(name, stream);
-
 				if (body !== 'undefined') {
 					methods[name] = _PARSER.detect(body);
 				}
@@ -983,9 +987,7 @@ lychee.define('strainer.api.Composite').requires([
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							chunk.split('\n').forEach(function(line) {
-								code.push('\t' + line);
-							});
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					} else {
@@ -1005,33 +1007,38 @@ lychee.define('strainer.api.Composite').requires([
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							chunk.split('\n').forEach(function(line) {
-								code.push('\t' + line);
-							});
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					}
 
-					let methods = result.methods || null;
-					if (methods !== null && Object.keys(methods).length > 0) {
 
-						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', methods, true);
-						if (chunk !== null) {
-							code.push('');
-							code.push('');
-							chunk.split('\n').forEach(function(line) {
-								code.push('\t' + line);
-							});
+					let methods = result.methods || {
+						deserialize: _DESERIALIZE,
+						serialize:   _SERIALIZE
+					};
+
+					let mids = Object.keys(methods);
+					if (mids.length > 0) {
+
+						code.push('');
+						code.push('');
+						code.push('\tComposite.prototype = {');
+
+						let last = mids[mids.length - 1];
+
+						for (let mid in methods) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\t\t' + mid + ': ' + _PARSER.indent(chunk, '\t\t').trim() + ((mid === last) ? '' : ','));
+							}
+
 						}
 
-					} else {
-
-						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', {}, true);
-						if (chunk !== null) {
-							code.push('');
-							code.push('');
-							code.push('\t' + chunk);
-						}
+						code.push('');
+						code.push('\t};');
 
 					}
 

@@ -30,7 +30,6 @@ lychee.specify('lychee.Environment').exports(function(lychee, sandbox) {
 		type:    'source'
 	});
 
-
 	sandbox.setProperty('id', function(assert, expect) {
 
 		let id = 'sandboxed-environment';

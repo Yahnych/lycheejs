@@ -128,7 +128,7 @@ lychee.define('strainer.api.Callback').requires([
 			let chunk = stream.substr(i1 + 19, i2 - i1 - 16).trim();
 			if (chunk.length > 0) {
 
-				constructor.chunk      = chunk;
+				constructor.chunk      = _PARSER.outdent('\t' + chunk.trim(), '\t');
 				constructor.type       = 'function';
 				constructor.hash       = _PARSER.hash(chunk);
 				constructor.parameters = _PARSER.parameters(chunk);
@@ -245,16 +245,14 @@ lychee.define('strainer.api.Callback').requires([
 					}
 
 
-					let construct = result.constructor || null;
+					let construct = Object.hasOwnProperty.call(result, 'constructor') ? result.constructor : null;
 					if (construct !== null) {
 
 						let chunk = _TRANSCRIPTOR.transcribe('Callback', construct);
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							chunk.split('\n').forEach(function(line) {
-								code.push('\t' + line);
-							});
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					} else {
@@ -274,9 +272,7 @@ lychee.define('strainer.api.Callback').requires([
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							chunk.split('\n').forEach(function(line) {
-								code.push('\t' + line);
-							});
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					}

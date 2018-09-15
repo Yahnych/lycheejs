@@ -351,8 +351,8 @@ lychee.define('strainer.api.Definition').requires([
 
 						let tags = report.header.tags || {};
 						if (Object.keys(tags).length > 0) {
-							code += '.tags({';
-							code += Object.entries(tags).forEach(function(pair) {
+							code += '.tags({\n';
+							code += Object.entries(tags).map(function(pair) {
 								return '\t' + pair[0] + ': \'' + pair[1] + '\'';
 							}).join('\n') + '\n';
 							code += '})';
@@ -360,19 +360,19 @@ lychee.define('strainer.api.Definition').requires([
 
 						let requires = report.header.requires || [];
 						if (requires.length > 0) {
-							code += '.requires([';
+							code += '.requires([\n';
 							code += requires.map(function(value) {
 								return '\t\'' + value.toString() + '\'';
-							}).join('\n') + '\n';
+							}).join(',\n') + '\n';
 							code += '])';
 						}
 
 						let includes = report.header.includes || [];
 						if (includes.length > 0) {
-							code += '.includes([';
+							code += '.includes([\n';
 							code += includes.map(function(value) {
 								return '\t\'' + value.toString() + '\'';
-							}).join('\n') + '\n';
+							}).join(',\n') + '\n';
 							code += '])';
 						}
 

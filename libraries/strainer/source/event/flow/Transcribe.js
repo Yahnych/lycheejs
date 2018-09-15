@@ -149,58 +149,70 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 		this.bind('transcribe-configs', function(oncomplete) {
 
 			let api     = _plugin.API;
-			let configs = this.configs;
+			let debug   = this.debug;
 			let library = this.library;
 			let project = this.project;
 
-			if (configs.length > 0 && library !== null && project !== null) {
+			if (library !== null && project !== null) {
 
 				console.log('strainer: TRANSCRIBE/TRANSCRIBE-CONFIGS "' + library + '" -> "' + project + '"');
 
 
-				this.sources = this.configs.map(asset => {
+				let configs = this.configs;
+				if (configs.length > 0) {
 
-					let api_report = asset.buffer;
+					this.sources = configs.map(asset => {
 
-					if (api_report !== null) {
+						let api_report = asset.buffer;
 
-						if (asset.url.includes('/api/')) {
+						if (api_report !== null) {
 
-							let config = new lychee.Asset(asset.url, 'json', true);
-							if (config !== null) {
+							if (asset.url.includes('/api/')) {
 
-								config.buffer = {
-									header: api_report.source.header,
-									memory: api_report.source.memory,
-									result: api_report.source.result
-								};
+								let config = new lychee.Asset(asset.url, 'json', true);
+								if (config !== null) {
 
-							}
+									config.buffer = {
+										header: api_report.source.header,
+										memory: api_report.source.memory,
+										result: api_report.source.result
+									};
 
-							let url = asset.url.replace('/api/', '/source/').replace(/\.json$/, '.js');
-							if (url.startsWith(library) === true) {
-								url = project + url.substr(library.length);
-							}
+								}
 
-							let buffer = api.transcribe(config);
-							if (buffer !== null) {
+								let url = asset.url.replace('/api/', '/source/').replace(/\.json$/, '.js');
+								if (url.startsWith(library) === true) {
+									url = project + url.substr(library.length);
+								}
 
-								let source = new Stuff(url, true);
+								let buffer = api.transcribe(config);
+								if (buffer !== null) {
 
-								source.buffer = buffer;
+									let source = new Stuff(url, true);
 
-								return source;
+									source.buffer = buffer;
+
+									return source;
+
+								}
 
 							}
 
 						}
 
+
+						return null;
+
+					});
+
+				} else {
+
+					if (debug === true) {
+						console.warn('strainer: -> Invalid configs, nothing to do.');
 					}
 
+				}
 
-					return null;
-
-				});
 
 				oncomplete(true);
 

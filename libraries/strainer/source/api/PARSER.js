@@ -1215,6 +1215,44 @@ lychee.define('strainer.api.PARSER').requires([
 
 		},
 
+		indent: function(code, indent) {
+
+			code   = typeof code === 'string'   ? code   : '';
+			indent = typeof indent === 'string' ? indent : '';
+
+
+			if (indent !== '') {
+
+				let lines = code.split('\n');
+
+				for (let l = 0, ll = lines.length; l < ll; l++) {
+
+					let line = lines[l].trim();
+					if (line !== '') {
+						line = indent + lines[l];
+					}
+
+					lines[l] = line;
+
+				}
+
+				// TODO: Figure out smarter way to do this for all cases
+				// this removes too-many indents from first and last line
+				// \tfunction(what, ever) { -> function(what, ever) {
+				// \t\tstatement;           -> \t\tstatement;
+				// \t}                      -> }
+				lines[0]                = indent + lines[0].trim();
+				lines[lines.length - 1] = indent + lines[lines.length - 1].trim();
+
+				return lines.join('\n');
+
+			}
+
+
+			return code;
+
+		},
+
 		memory: function(code) {
 
 			code = typeof code === 'string' ? code : '';
@@ -1443,6 +1481,35 @@ lychee.define('strainer.api.PARSER').requires([
 
 
 			return mutations;
+
+		},
+
+		outdent: function(code, outdent) {
+
+			code    = typeof code === 'string'    ? code    : '';
+			outdent = typeof outdent === 'string' ? outdent : '';
+
+			if (outdent !== '') {
+
+				let lines = code.split('\n');
+
+				for (let l = 0, ll = lines.length; l < ll; l++) {
+
+					let line = lines[l].trim();
+					if (line !== '' && lines[l].startsWith(outdent)) {
+						line = lines[l].substr(outdent.length);
+					}
+
+					lines[l] = line;
+
+				}
+
+				return lines.join('\n');
+
+			}
+
+
+			return code;
 
 		},
 

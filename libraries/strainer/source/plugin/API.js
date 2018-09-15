@@ -80,6 +80,7 @@ lychee.define('strainer.plugin.API').requires([
 				let is_callback      = i_check !== -1 && i_check === i_callback;
 				let is_composite     = i_check !== -1 && i_check === i_composite;
 				let is_module        = i_check !== -1 && i_check === i_module;
+				let is_sandbox       = is_specification;
 
 
 				if (is_definition === true) {
@@ -123,6 +124,8 @@ lychee.define('strainer.plugin.API').requires([
 					} else if (is_module === true) {
 						header.result.type = 'Module';
 						api = _api['Module'] || null;
+					} else if (is_sandbox === true) {
+						header.result.type = 'Sandbox';
 					}
 
 				}
@@ -277,12 +280,15 @@ lychee.define('strainer.plugin.API').requires([
 				let code   = null;
 
 
-				let is_core       = asset.url.startsWith('/libraries/crux/source');
-				let is_definition = is_core === false && asset.url.includes('/api/');
+				let is_core          = asset.url.startsWith('/libraries/crux/source');
+				let is_definition    = is_core === false && asset.url.includes('/api/');
+				let is_specification = asset.url.includes('/review/');
 
 
 				if (is_definition === true) {
 					header = _api['Definition'].transcribe(asset);
+				} else if (is_specification === true) {
+					header = _api['Specification'].transcribe(asset);
 				} else if (is_core === true) {
 					header = _api['Core'].transcribe(asset);
 				}
@@ -295,6 +301,8 @@ lychee.define('strainer.plugin.API').requires([
 					api = _api['Composite'] || null;
 				} else if (type === 'Module') {
 					api = _api['Module'] || null;
+				} else if (type === 'Sandbox') {
+					api = _api['Sandbox'] || null;
 				}
 
 

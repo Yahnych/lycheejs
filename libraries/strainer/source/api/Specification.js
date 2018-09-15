@@ -192,6 +192,59 @@ lychee.define('strainer.api.Specification').requires([
 				result: result
 			};
 
+		},
+
+		transcribe: function(asset) {
+
+			asset = _validate_asset(asset) === true ? asset : null;
+
+
+			if (asset !== null) {
+
+				let code   = null;
+				let report = asset.buffer || {
+					header: {},
+					memory: {},
+					errors: [],
+					result: {}
+				};
+
+
+				if (report.header instanceof Object) {
+
+					let identifier = report.header.identifier || null;
+					if (identifier !== null) {
+
+						code = 'lychee.specify(\'' + report.header.identifier + '\')';
+
+
+						let requires = report.header.requires || [];
+						if (requires.length > 0) {
+							code += '.requires([\n';
+							code += requires.map(function(value) {
+								return '\t\'' + value.toString() + '\'';
+							}).join(',\n') + '\n';
+							code += '])';
+						}
+
+
+						code += '.exports(function(lychee, sandbox) {';
+						code += '\n\n%BODY%\n\n';
+						code += '});';
+						code += '\n';
+
+
+						return code;
+
+					}
+
+				}
+
+			}
+
+
+			return null;
+
 		}
 
 	};

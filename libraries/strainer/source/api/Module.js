@@ -107,7 +107,12 @@ lychee.define('strainer.api.Module').requires([
 		let i2 = stream.indexOf(str2, i1);
 
 		if (i1 !== -1 && i2 !== -1) {
-			return 'function' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+
+			let body = '\t\tfunction' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+			if (body !== '\t\tfunction') {
+				return _PARSER.outdent(body, '\t\t');
+			}
+
 		}
 
 		return 'undefined';
@@ -585,27 +590,35 @@ lychee.define('strainer.api.Module').requires([
 					}
 
 
-					if (Object.keys(result.methods).length > 0) {
+					let methods = result.methods || {
+						deserialize: _DESERIALIZE,
+						serialize:   _SERIALIZE
+					};
 
-						let chunk = _TRANSCRIPTOR.transcribe('Module', result.methods);
+					let mids = Object.keys(methods);
+					if (mids.length > 0) {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Module', {});
 						if (chunk !== null) {
-							code.push('');
-							code.push('');
-							code.push('\t' + chunk);
-						}
 
-					} else {
+							let tmp = chunk.split('\n');
+							code.push('\t' + tmp[0]);
 
-						result.methods = {
-							deserialize: _DESERIALIZE,
-							serialize:   _SERIALIZE
-						};
+							let last = mids[mids.length - 1];
 
-						let chunk = _TRANSCRIPTOR.transcribe('Module', result.methods);
-						if (chunk !== null) {
+							for (let mid in methods) {
+
+								let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+								if (chunk !== null) {
+									code.push('');
+									code.push('\t\t' + mid + ': ' + _PARSER.indent(chunk, '\t\t').trim() + ((mid === last) ? '' : ','));
+								}
+
+							}
+
 							code.push('');
-							code.push('');
-							code.push('\t' + chunk);
+							code.push.apply(code, tmp.slice(1).map(t => '\t' + t));
+
 						}
 
 					}
