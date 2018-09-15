@@ -73,19 +73,12 @@ lychee.define('strainer.plugin.API').requires([
 				let is_core          = asset.url.startsWith('/libraries/crux/source') && first.endsWith('(function(global) {');
 				let is_definition    = first.startsWith('lychee.define(');
 				let is_specification = first.startsWith('lychee.specify(');
-				let i_callback       = stream.lastIndexOf('return Callback;');
-				let i_composite      = stream.lastIndexOf('return Composite;');
-				let i_module         = stream.lastIndexOf('return Module;');
-				let i_check          = Math.max(i_callback, i_composite, i_module);
-				let is_callback      = i_check !== -1 && i_check === i_callback;
-				let is_composite     = i_check !== -1 && i_check === i_composite;
-				let is_module        = i_check !== -1 && i_check === i_module;
-				let is_sandbox       = is_specification;
 
 
 				if (is_definition === true) {
 
 					header = _api['Definition'].check(asset);
+					api    = _api[header.result.type] || null;
 
 				} else if (is_specification === true) {
 
@@ -95,37 +88,26 @@ lychee.define('strainer.plugin.API').requires([
 				} else if (is_core === true) {
 
 					header = _api['Core'].check(asset);
+					api    = _api[header.result.type] || null;
 
 				} else {
 
-					if (asset.url.includes('/review/')) {
+					if (asset.url.includes('/source/')) {
+
+						header = _api['Definition'].check(asset);
+						api    = _api[header.result.type] || null;
+
+					} else if (asset.url.includes('/review/')) {
+
 						header = _api['Specification'].check(asset);
 						api    = _api['Sandbox'] || null;
-					} else if (asset.url.includes('/source/')) {
-						header = _api['Definition'].check(asset);
+
 					} else {
 
 						// XXX: autofix assumes lychee.Definition syntax
 						header = _api['Definition'].check(asset);
+						api    = _api[header.result.type] || null;
 
-					}
-
-				}
-
-
-				if (api === null) {
-
-					if (is_callback === true) {
-						header.result.type = 'Callback';
-						api = _api['Callback'] || null;
-					} else if (is_composite === true) {
-						header.result.type = 'Composite';
-						api = _api['Composite'] || null;
-					} else if (is_module === true) {
-						header.result.type = 'Module';
-						api = _api['Module'] || null;
-					} else if (is_sandbox === true) {
-						header.result.type = 'Sandbox';
 					}
 
 				}
@@ -151,7 +133,8 @@ lychee.define('strainer.plugin.API').requires([
 							properties:  {},
 							enums:       {},
 							events:      {},
-							methods:     {}
+							methods:     {},
+							type:        null
 						}
 					};
 
@@ -282,7 +265,16 @@ lychee.define('strainer.plugin.API').requires([
 
 				let is_core          = asset.url.startsWith('/libraries/crux/source');
 				let is_definition    = is_core === false && asset.url.includes('/api/');
-				let is_specification = asset.url.includes('/review/');
+				let is_specification = false;
+
+				let type = report.header.type || null;
+				if (type === 'Sandbox') {
+					is_definition    = false;
+					is_specification = true;
+				} else if (type === 'Callback' || type === 'Composite' || type === 'Module') {
+					is_definition    = true;
+					is_specification = false;
+				}
 
 
 				if (is_definition === true) {
@@ -294,7 +286,6 @@ lychee.define('strainer.plugin.API').requires([
 				}
 
 
-				let type = report.header.type || null;
 				if (type === 'Callback') {
 					api = _api['Callback'] || null;
 				} else if (type === 'Composite') {

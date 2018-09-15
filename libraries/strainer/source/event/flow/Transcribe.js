@@ -33,6 +33,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 		this.configs = [];
 		this.errors  = [];
 		this.sources = [];
+		this.reviews = [];
 
 		this.debug   = false;
 		this.library = null;
@@ -146,7 +147,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 		}, this);
 
-		this.bind('transcribe-configs', function(oncomplete) {
+		this.bind('transcribe-sources', function(oncomplete) {
 
 			let api     = _plugin.API;
 			let debug   = this.debug;
@@ -155,46 +156,40 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 			if (library !== null && project !== null) {
 
-				console.log('strainer: TRANSCRIBE/TRANSCRIBE-CONFIGS "' + library + '" -> "' + project + '"');
+				console.log('strainer: TRANSCRIBE/TRANSCRIBE-SOURCES "' + library + '" -> "' + project + '"');
 
 
-				let configs = this.configs;
+				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.source !== null);
 				if (configs.length > 0) {
 
 					this.sources = configs.map(asset => {
 
-						let api_report = asset.buffer;
+						if (asset.url.includes('/api/')) {
 
-						if (api_report !== null) {
+							let config = new lychee.Asset(asset.url, 'json', true);
+							if (config !== null) {
 
-							if (asset.url.includes('/api/')) {
+								config.buffer = {
+									header: asset.buffer.source.header,
+									memory: asset.buffer.source.memory,
+									result: asset.buffer.source.result
+								};
 
-								let config = new lychee.Asset(asset.url, 'json', true);
-								if (config !== null) {
+							}
 
-									config.buffer = {
-										header: api_report.source.header,
-										memory: api_report.source.memory,
-										result: api_report.source.result
-									};
+							let url = asset.url.replace('/api/', '/source/').replace(/\.json$/, '.js');
+							if (url.startsWith(library) === true) {
+								url = project + url.substr(library.length);
+							}
 
-								}
+							let buffer = api.transcribe(config);
+							if (buffer !== null) {
 
-								let url = asset.url.replace('/api/', '/source/').replace(/\.json$/, '.js');
-								if (url.startsWith(library) === true) {
-									url = project + url.substr(library.length);
-								}
+								let source = new Stuff(url, true);
 
-								let buffer = api.transcribe(config);
-								if (buffer !== null) {
+								source.buffer = buffer;
 
-									let source = new Stuff(url, true);
-
-									source.buffer = buffer;
-
-									return source;
-
-								}
+								return source;
 
 							}
 
@@ -208,7 +203,77 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				} else {
 
 					if (debug === true) {
-						console.warn('strainer: -> Invalid configs, nothing to do.');
+						console.warn('strainer: -> No configs for sources available. (SKIP)');
+					}
+
+				}
+
+
+				oncomplete(true);
+
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
+
+		this.bind('transcribe-reviews', function(oncomplete) {
+
+			let api     = _plugin.API;
+			let debug   = this.debug;
+			let library = this.library;
+			let project = this.project;
+
+			if (library !== null && project !== null) {
+
+				console.log('strainer: TRANSCRIBE/TRANSCRIBE-REVIEWS "' + library + '" -> "' + project + '"');
+
+
+				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.review !== null);
+				if (configs.length > 0) {
+
+					this.reviews = configs.map(asset => {
+
+						if (asset.url.includes('/api/')) {
+
+							let config = new lychee.Asset(asset.url, 'json', true);
+							if (config !== null) {
+
+								config.buffer = {
+									header: asset.buffer.review.header,
+									memory: asset.buffer.review.memory,
+									result: asset.buffer.review.result
+								};
+
+							}
+
+							let url = asset.url.replace('/api/', '/review/').replace(/\.json$/, '.js');
+							if (url.startsWith(library) === true) {
+								url = project + url.substr(library.length);
+							}
+
+							let buffer = api.transcribe(config);
+							if (buffer !== null) {
+
+								let review = new Stuff(url, true);
+
+								review.buffer = buffer;
+
+								return review;
+
+							}
+
+						}
+
+
+						return null;
+
+					});
+
+				} else {
+
+					if (debug === true) {
+						console.warn('strainer: -> No configs for reviews available. (SKIP)');
 					}
 
 				}
@@ -233,10 +298,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				console.log('strainer: TRANSCRIBE/WRITE-SOURCES "' + project + '"');
 
 
-				let sources = this.sources.filter(function(code, c) {
-					return code !== null;
-				});
-
+				let sources = this.sources.filter(asset => asset !== null);
 				if (sources.length > 0) {
 
 					stash.bind('batch', function(type, assets) {
@@ -263,6 +325,44 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 		}, this);
 
+		this.bind('write-reviews', function(oncomplete) {
+
+			let debug   = this.debug;
+			let project = this.project;
+			let stash   = this.stash;
+
+			if (debug === false && project !== null && stash !== null) {
+
+				console.log('strainer: TRANSCRIBE/WRITE-REVIEWS "' + project + '"');
+
+
+				let reviews = this.reviews.filter(asset => asset !== null);
+				if (reviews.length > 0) {
+
+					stash.bind('batch', function(type, assets) {
+
+						if (assets.length === reviews.length) {
+							oncomplete(true);
+						} else {
+							oncomplete(false);
+						}
+
+					}, this, true);
+
+					stash.batch('write', reviews.map(asset => asset.url), reviews);
+
+				} else {
+					oncomplete(true);
+				}
+
+			} else if (debug === true) {
+				oncomplete(true);
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
+
 
 
 		/*
@@ -273,9 +373,11 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 		this.then('read-configs');
 
-		this.then('transcribe-configs');
+		this.then('transcribe-sources');
+		this.then('transcribe-reviews');
 
 		this.then('write-sources');
+		this.then('write-reviews');
 
 	};
 

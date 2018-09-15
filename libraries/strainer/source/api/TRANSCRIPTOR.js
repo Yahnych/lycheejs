@@ -75,11 +75,15 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 					code.push((assign === false ? 'const ' : '') + name + ' = lychee.import(\'' + value.value.reference + '\');');
 				} else if (/^(null|undefined)$/g.test(type)) {
 					code.push((assign === false ? 'let ' : '') + name + ' = ' + value.chunk + ';');
-				} else if (/^(Array|Number|String)$/g.test(type)) {
+				} else if (/^(Array|String)$/g.test(type)) {
 					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
-				} else if (/^(Buffer|Config|Font|Music|Sound|Texture)$/g.test(type)) {
+				} else if (type === 'Number' && value.value === 0) {
+					code.push((assign === false ? 'let ' : '') + name + ' = ' + value.chunk + ';');
+				} else if (type === 'Number') {
 					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
 				} else if (type === 'RegExp') {
+					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
+				} else if (/^(Buffer|Config|Font|Music|Sound|Texture)$/g.test(type)) {
 					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
 				} else if (type === 'Object') {
 					code.push((assign === false ? 'const ' : '') + name + ' = ' + value.chunk + ';');
@@ -148,11 +152,11 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 					code.push(value.chunk);
 				} else if (/^(Array|Number|String)$/g.test(type)) {
 					code.push(value.chunk);
-				} else if (/^(Buffer|Config|Font|Music|Sound|Texture)$/g.test(type)) {
-					code.push(value.chunk);
 				} else if (type === 'RegExp') {
 					code.push(value.chunk);
 				} else if (type === 'Object') {
+					code.push(value.chunk);
+				} else if (/^(Buffer|Config|Font|Music|Sound|Texture)$/g.test(type)) {
 					code.push(value.chunk);
 				} else if (type.startsWith('_')) {
 					code.push(value.chunk);
@@ -176,7 +180,7 @@ lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, atta
 					}
 
 
-					let last = code[code.length - 2];
+					let last = code[code.length - 2] || '';
 					if (last.endsWith(',')) {
 						code[code.length - 2] = last.substr(0, last.length - 1);
 					}

@@ -154,11 +154,17 @@ lychee.define('strainer.api.Composite').requires([
 	const _parse_memory = function(memory, stream, errors) {
 
 		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
+		let d1 = 48;
 		let i2 = stream.indexOf('\n\tconst Composite =');
+
+		if (i1 === -1) {
+			i1 = stream.indexOf('(function(global) {');
+			d1 = 19;
+		}
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48);
+			let body = stream.substr(i1 + d1, i2 - i1 - d1);
 			if (body.length > 0) {
 
 				body.split('\n')

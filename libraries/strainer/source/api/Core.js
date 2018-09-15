@@ -21,6 +21,26 @@ lychee.define('strainer.api.Core').requires([
 
 	};
 
+	const _parse_type = function(result, stream, errors) {
+
+		let i_callback   = stream.lastIndexOf('return Callback;');
+		let i_composite  = stream.lastIndexOf('return Composite;');
+		let i_module     = stream.lastIndexOf('return Module;');
+		let i_check      = Math.max(i_callback, i_composite, i_module);
+		let is_callback  = i_check !== -1 && i_check === i_callback;
+		let is_composite = i_check !== -1 && i_check === i_composite;
+		let is_module    = i_check !== -1 && i_check === i_module;
+
+		if (is_callback) {
+			result.type = 'Callback';
+		} else if (is_composite) {
+			result.type = 'Composite';
+		} else if (is_module) {
+			result.type = 'Module';
+		}
+
+	};
+
 	const _parse_identifier = function(result, stream, errors) {
 
 		let i1  = stream.indexOf('lychee');
@@ -89,7 +109,9 @@ lychee.define('strainer.api.Core').requires([
 				tags:       {},
 				requires:   [],
 				includes:   [],
-				supports:   {}
+				exports:    null,
+				supports:   null,
+				type:       null
 			};
 
 			if (asset !== null) {
@@ -97,6 +119,7 @@ lychee.define('strainer.api.Core').requires([
 				let stream = asset.buffer.toString('utf8');
 
 
+				_parse_type(result, stream, errors);
 				_parse_identifier(result, stream, errors);
 
 

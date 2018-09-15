@@ -136,7 +136,8 @@ lychee.define('strainer.api.Specification').requires([
 				tags:       {},
 				requires:   [],
 				includes:   [],
-				supports:   {}
+				supports:   {},
+				type:       'Sandbox'
 			};
 
 			if (asset !== null) {

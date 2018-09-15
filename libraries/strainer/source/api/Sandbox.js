@@ -351,7 +351,7 @@ lychee.define('strainer.api.Sandbox').requires([
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							code.push('\tsandbox.setStates(' + chunk + ')');
+							code.push('\tsandbox.setStates(' + chunk + ');');
 						}
 
 					}
