@@ -228,7 +228,7 @@ lychee.define('strainer.plugin.API').requires([
 
 
 				if (modified === true) {
-					asset.buffer    = code;
+					asset.buffer    = Buffer.alloc(code.length, code, 'utf8');
 					asset._MODIFIED = true;
 				}
 
