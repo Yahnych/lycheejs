@@ -29,6 +29,24 @@ if [ "$1" == "--only-node" ] || [ "$2" == "--only-node" ] || [ "$3" == "--only-n
 fi;
 
 
+
+_check_curl_version() {
+
+	local current_version=`curl --version | cut -f2 -d" " | head -n 1`;
+	local required_version="7.52.0";
+
+	local older=`printf "$required_version\n$current_version" | sort -V | head -n 1`;
+
+	if [ "$older" == "$required_version" ]; then
+		return 0;
+	else
+		return 1;
+	fi;
+
+}
+
+
+
 if [ "$USER_WHO" == "root" ]; then
 
 	echo -e "\e[41m\e[97m";
@@ -170,8 +188,21 @@ else
 			if [ "$download_url" != "" ]; then
 
 				cd $LYCHEEJS_ROOT/bin;
-				echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
-				curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+
+				if [ _check_curl_version == 0 ]; then
+
+					echo -e "\e[43m\e[97m (W) Detected an outdated curl version. \e[0m";
+					echo -e "\e[43m\e[97m (W) If you experience problems due to unstable internet connection, update curl. \e[0m";
+					echo " (L)   curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
+					curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+
+				else
+
+					echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
+					curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+
+				fi;
+
 
 				if [ $? == 0 ]; then
 					LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=1;
