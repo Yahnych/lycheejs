@@ -4,6 +4,7 @@
 const _fs    = require('fs');
 const _path  = require('path');
 const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _PID   = '/tmp/lycheejs-harvester.pid';
 const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 
 if (process.argv.includes('--autocomplete')) {
@@ -100,16 +101,15 @@ const _print_help = function() {
 
 const _clear_pid = function() {
 
+	let result = true;
+
 	try {
-
-		_fs.unlinkSync(_ROOT + '/bin/harvester.pid');
-		return true;
-
+		_fs.unlinkSync(_PID);
 	} catch (err) {
-
-		return false;
-
+		result = false;
 	}
+
+	return result;
 
 };
 
@@ -119,10 +119,10 @@ const _read_pid = function() {
 
 	try {
 
-		pid = _fs.readFileSync(_ROOT + '/bin/harvester.pid', 'utf8');
+		let tmp = _fs.readFileSync(PID, 'utf8');
 
-		if (!isNaN(parseInt(pid, 10))) {
-			pid = parseInt(pid, 10);
+		if (!isNaN(parseInt(tmp, 10))) {
+			pid = parseInt(tmp, 10);
 		}
 
 	} catch (err) {
@@ -135,16 +135,15 @@ const _read_pid = function() {
 
 const _write_pid = function() {
 
+	let result = false;
+
 	try {
-
-		_fs.writeFileSync(_ROOT + '/bin/harvester.pid', process.pid);
-		return true;
-
+		_fs.writeFileSync(_PID, 'utf8', '' + process.pid);
 	} catch (err) {
-
-		return false;
-
+		result = false;
 	}
+
+	return result;
 
 };
 

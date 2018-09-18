@@ -143,6 +143,7 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 
 	# Make command line tools explicitely executable
 
+	chmod +x ./bin/helper/*.sh          2> /dev/null;
 	chmod +x ./libraries/*/harvester.js 2> /dev/null;
 	chmod +x ./libraries/*/bin/*.sh     2> /dev/null;
 	chmod +x ./projects/*/harvester.js  2> /dev/null;
@@ -150,8 +151,6 @@ if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
 
 	chmod 0777 ./bin                             2> /dev/null;
 	chmod -R 0777 ./libraries/harvester/profiles 2> /dev/null;
-
-	chmod +x ./bin/helper.sh 2> /dev/null;
 
 
 	# Make fertilizers explicitely executable

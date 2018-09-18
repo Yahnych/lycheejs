@@ -10,7 +10,7 @@ if [[ "$PROJECT_ROOT" != "/opt/lycheejs"* ]] && [ "$PROJECT_ROOT" != "$LYCHEEJS_
 
 	if [[ "$PROJECT_ROOT" == *"/lycheejs/"* ]]; then
 		LYCHEEJS_ROOT="${PROJECT_ROOT%/lycheejs*}/lycheejs";
-		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper.sh";
+		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
 		PROJECT_ROOT="${PROJECT_ROOT##$LYCHEEJS_ROOT}";
 	fi;
 

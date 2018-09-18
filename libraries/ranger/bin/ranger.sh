@@ -9,7 +9,7 @@ LYCHEEJS_HELPER=`which lycheejs-helper`;
 if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="$PWD";
 	LYCHEEJS_FERTILIZER="$PWD/libraries/fertilizer/bin/fertilizer.sh";
-	LYCHEEJS_HELPER="$PWD/bin/helper.sh";
+	LYCHEEJS_HELPER="$PWD/bin/helper/helper.sh";
 fi;
 
 

@@ -7,7 +7,7 @@ LYCHEEJS_HELPER=`which lycheejs-helper`;
 # XXX: Allow /tmp/lycheejs usage
 if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="$PWD";
-	LYCHEEJS_HELPER="$PWD/bin/helper.sh";
+	LYCHEEJS_HELPER="$PWD/bin/helper/helper.sh";
 fi;
 
 
