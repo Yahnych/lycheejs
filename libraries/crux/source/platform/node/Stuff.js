@@ -101,10 +101,9 @@
 
 			if (typeof blob.buffer === 'string') {
 
-				let tmp1 = blob.buffer.substr(blob.buffer.indexOf(',') + 1);
-				let tmp2 = Buffer.from(tmp1, 'base64');
+				let tmp = blob.buffer.substr(blob.buffer.indexOf(',') + 1);
 
-				this.buffer = tmp2.toString('utf8');
+				this.buffer = Buffer.from(tmp, 'base64');
 				this.__load = false;
 
 			}
@@ -123,11 +122,7 @@
 
 
 			if (this.buffer !== null) {
-
-				let tmp = Buffer.from(this.buffer, 'utf8');
-
-				blob.buffer = 'data:' + mime + ';base64,' + tmp.toString('base64');
-
+				blob.buffer = 'data:' + mime + ';base64,' + this.buffer.toString('base64');
 			}
 
 
@@ -160,11 +155,12 @@
 
 			let path = lychee.environment.resolve(this.url);
 
-			_fs.readFile(path, 'utf8', function(error, buffer) {
+			_fs.readFile(path, function(error, buffer) {
 
-				if (typeof buffer === 'string') {
+				let raw = buffer || null;
+				if (raw !== null) {
 
-					this.buffer = buffer;
+					this.buffer = Buffer.from(raw);
 					this.__load = false;
 
 					_execute_stuff.call(this, function(result) {
@@ -178,7 +174,7 @@
 
 				} else {
 
-					this.buffer = '';
+					this.buffer = null;
 					this.__load = false;
 
 					if (this.onload instanceof Function) {

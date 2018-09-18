@@ -23,7 +23,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 
 		if (injections.length > 0) {
 
-			let code    = asset.buffer.split('\n');
+			let code    = asset.buffer.toString('utf8').split('\n');
 			let scripts = [];
 
 
@@ -61,7 +61,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 						code.splice(script.index + i + 1, 0, chunk);
 					});
 
-					asset.buffer = code.join('\n');
+					asset.buffer = Buffer.from(code.join('\n'), 'utf8');
 
 				}
 
@@ -75,7 +75,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 
 		if (injections.length > 0) {
 
-			let code    = asset.buffer.split('\n');
+			let code    = asset.buffer.toString('utf8').split('\n');
 			let scripts = [];
 
 
@@ -113,7 +113,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 						code.splice(script.index + i + 1, 0, chunk);
 					});
 
-					asset.buffer = code.join('\n');
+					asset.buffer = Buffer.from(code.join('\n'), 'utf8');
 
 				}
 
@@ -224,7 +224,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 
 				stash.bind('batch', function(type, assets) {
 
-					this.assets = assets.filter(asset => asset !== null && asset.buffer !== '');
+					this.assets = assets.filter(asset => asset !== null && asset.buffer !== null);
 
 					oncomplete(true);
 
@@ -285,7 +285,7 @@ lychee.define('breeder.event.flow.Pull').requires([
 
 						_STASH.bind('batch', function(type, assets) {
 
-							this.injects = assets.filter(asset => asset !== null && asset.buffer !== '');
+							this.injects = assets.filter(asset => asset !== null && asset.buffer !== null);
 
 							oncomplete(true);
 

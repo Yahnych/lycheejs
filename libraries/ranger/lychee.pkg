@@ -15,6 +15,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"entity": {
 					"Console": [

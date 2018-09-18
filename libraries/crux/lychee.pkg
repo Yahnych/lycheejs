@@ -137,7 +137,10 @@
 						"json"
 					]
 				}
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {

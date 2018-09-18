@@ -57,6 +57,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"entity": {
 					"Timeout": [

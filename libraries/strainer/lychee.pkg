@@ -77,7 +77,10 @@
 				"API": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {

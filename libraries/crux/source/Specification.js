@@ -589,22 +589,32 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 				this.requires(blob.requires);
 			}
 
-
-			let index1   = 0;
-			let index2   = 0;
-			let tmp      = null;
-			let bindargs = null;
-
 			if (typeof blob.exports === 'string') {
 
 				// Function head
-				tmp      = blob.exports.split('{')[0].trim().substr('function '.length);
-				bindargs = tmp.substr(1, tmp.length - 2).split(',');
+				let tmp = blob.exports.split('{')[0].trim();
+				if (tmp.startsWith('function')) {
+					tmp = tmp.substr('function'.length).trim();
+				}
+
+				if (tmp.startsWith('anonymous')) tmp = tmp.substr('anonymous'.length).trim();
+				if (tmp.startsWith('('))         tmp = tmp.substr(1).trim();
+				if (tmp.endsWith(')'))           tmp = tmp.substr(0, tmp.length - 1).trim();
+
+				let bindargs = tmp.split(',').map(function(name) {
+					return name.trim();
+				});
+
+				let check = bindargs[bindargs.length - 1];
+				if (check.includes('\n')) {
+					bindargs[bindargs.length - 1] = check.split('\n')[0];
+				}
+
 
 				// Function body
-				index1 = blob.exports.indexOf('{') + 1;
-				index2 = blob.exports.lastIndexOf('}') - 1;
-				bindargs.push(blob.exports.substr(index1, index2 - index1));
+				let i1 = blob.exports.indexOf('{') + 1;
+				let i2 = blob.exports.lastIndexOf('}') - 1;
+				bindargs.push(blob.exports.substr(i1, i2 - i1));
 
 				this.exports(Function.apply(Function, bindargs));
 
@@ -768,8 +778,12 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 			if (callback !== null) {
 
-				let check = (callback).toString().split('\n')[0];
-				if (check.includes('(lychee, sandbox)')) {
+				let check = (callback).toString().split('{')[0];
+				if (check.includes('\n')) {
+					check = check.split('\n').join('');
+				}
+
+				if (check.includes('(lychee, sandbox)') || check.includes('(lychee,sandbox)')) {
 					this._exports = callback;
 				} else {
 					console.error('lychee.Specification ("' + this.id + '"): Invalid exports callback.');

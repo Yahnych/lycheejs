@@ -475,10 +475,18 @@ const _SETTINGS = (function() {
 
 				let check = targets.includes(target);
 				if (check === true) {
+
 					settings.target = target;
+
+				} else if (targets.length > 0) {
+
+					// XXX: Single Mode (e.g. node/main) failed
+					settings.action  = null;
+					settings.project = null;
+
 				} else {
 
-					// XXX: Third-Party Single Mode without lychee.pkg
+					// XXX: Third-Party Single Mode (no lychee.pkg)
 					// settings.action  = null;
 					// settings.project = null;
 

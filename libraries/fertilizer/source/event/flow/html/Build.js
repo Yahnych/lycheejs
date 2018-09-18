@@ -26,18 +26,19 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 		if (stuff !== null) {
 
-			if (stuff.buffer.includes('${blob}') === false) {
-				stuff.buffer = '' + _INDEX[variant].buffer;
+			let code = stuff.buffer.toString('utf8');
+			if (code.includes('${blob}') === false) {
+				code = _INDEX[variant].buffer.toString('utf8');
 			}
 
 
 			let env = this.__environment;
 			if (env !== null) {
 
-				let code = stuff.buffer.split('\n');
+				let lines = code.split('\n');
 
 				let blob      = JSON.stringify(env.serialize(), null, '\t');
-				let blob_line = code.find(line => line.includes('${blob}')) || null;
+				let blob_line = lines.find(line => line.includes('${blob}')) || null;
 				if (blob_line !== null) {
 
 					let indent = blob_line.substr(0, blob_line.indexOf(blob_line.trim()));
@@ -50,7 +51,7 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 				}
 
 				let profile      = JSON.stringify(this.__profile, null, '\t');
-				let profile_line = code.find(line => line.includes('{$profile}')) || null;
+				let profile_line = lines.find(line => line.includes('{$profile}')) || null;
 				if (profile_line !== null) {
 
 					let indent = profile_line.substr(0, profile_line.indexOf(profile_line.trim()));
@@ -62,11 +63,11 @@ lychee.define('fertilizer.event.flow.html.Build').includes([
 
 				}
 
-				stuff.buffer = stuff.buffer.replaceObject({
+				stuff.buffer = Buffer.from(code.replaceObject({
 					id:      env.id,
 					blob:    blob,
 					profile: profile
-				});
+				}), 'utf8');
 
 			}
 

@@ -864,8 +864,12 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 			if (callback !== null) {
 
-				let check = (callback).toString().split('\n')[0];
-				if (check.includes('(lychee, global, attachments)')) {
+				let check = (callback).toString().split('{')[0];
+				if (check.includes('\n')) {
+					check = check.split('\n').join('');
+				}
+
+				if (check.includes('(lychee, global, attachments)') || check.includes('(lychee,global,attachments)')) {
 					this._exports = callback;
 				} else {
 					console.error('lychee.Definition ("' + this.id + '"): Invalid exports callback.');
@@ -954,8 +958,12 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 			if (callback !== null) {
 
-				let check = (callback).toString().split('\n')[0];
-				if (check.includes('(lychee, global)')) {
+				let check = (callback).toString().split('{')[0];
+				if (check.includes('\n')) {
+					check = check.split('\n').join('');
+				}
+
+				if (check.includes('(lychee, global)') || check.includes('(lychee,global')) {
 					this._supports = callback;
 				} else {
 					console.error('lychee.Definition ("' + this.id + '"): Invalid supports callback.');

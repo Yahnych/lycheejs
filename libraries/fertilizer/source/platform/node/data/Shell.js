@@ -119,50 +119,152 @@ lychee.define('fertilizer.data.Shell').tags({
 		 * CUSTOM API
 		 */
 
-		info: function(path) {
+		copy: function(path, dest, callback, scope) {
 
-			path = typeof path === 'string' ? path : null;
-
-
-			if (path === null) {
-				return null;
-			} else if (path.charAt(0) !== '/') {
-				path = '/' + path;
-			}
+			path     = typeof path === 'string'     ? path     : null;
+			dest     = typeof dest === 'string'     ? dest     : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
 
 
-			let resolved = _path.normalize(this.__root + path);
-			if (resolved !== null) {
+			if (path !== null && dest !== null) {
 
-				try {
+				if (path.charAt(0) !== '/') {
+					path = '/' + path;
+				}
 
-					let stat1 = _fs.lstatSync(resolved);
-					if (stat1.isSymbolicLink()) {
+				if (dest.charAt(0) !== '/') {
+					dest = '/' + dest;
+				}
 
-						let tmp   = _fs.realpathSync(resolved);
-						let stat2 = _fs.lstatSync(tmp);
 
-						return {
-							type:  stat2.isFile() ? 'file' : 'directory',
-							mtime: new Date(stat2.mtime.toUTCString())
-						};
+				let path_info = this.info(path);
+				let dest_info = this.info(dest);
 
-					} else {
+				if (path_info.type === 'file' && dest_info === null) {
 
-						return {
-							type:  stat1.isFile() ? 'file' : 'directory',
-							mtime: new Date(stat1.mtime.toUTCString())
-						};
+					let result = true;
+					try {
 
+						let fd_read  = _fs.openSync(path, 'r');
+						let fd_write = _fs.openSync(dest, 'w');
+						let buffer   = Buffer.alloc(64 * 1025);
+						let bytes    = 0;
+						let offset   = 0;
+
+						do {
+
+							bytes = _fs.readSync(fd_read, buffer, 0, buffer.length, offset);
+							_fs.writeSync(fd_write, buffer, 0, bytes);
+							offset += bytes;
+
+						} while (bytes !== 0);
+
+						_fs.closeSync(fd_read);
+						_fs.closeSync(fd_write);
+
+					} catch (err) {
+						result = false;
 					}
 
-				} catch (err) {
+
+					if (callback !== null) {
+						callback.call(scope, result);
+					} else {
+						return result;
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback.call(scope, false);
+					} else {
+						return false;
+					}
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback.call(scope, false);
+				} else {
+					return false;
 				}
 
 			}
 
+		},
 
-			return null;
+		info: function(path, callback, scope) {
+
+			path     = typeof path === 'string'     ? path     : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (path !== null) {
+
+				if (path.charAt(0) !== '/') {
+					path = '/' + path;
+				}
+
+				let resolved = _path.normalize(this.__root + path);
+				if (resolved !== null) {
+
+					let result = null;
+
+					try {
+
+						let stat1 = _fs.lstatSync(resolved);
+						if (stat1.isSymbolicLink()) {
+
+							let tmp   = _fs.realpathSync(resolved);
+							let stat2 = _fs.lstatSync(tmp);
+
+							result = {
+								type:  stat2.isFile() ? 'file' : 'directory',
+								mtime: new Date(stat2.mtime.toUTCString())
+							};
+
+						} else {
+
+							result = {
+								type:  stat1.isFile() ? 'file' : 'directory',
+								mtime: new Date(stat1.mtime.toUTCString())
+							};
+
+						}
+
+					} catch (err) {
+					}
+
+
+					if (callback !== null) {
+						callback.call(scope, result);
+					} else {
+						return result;
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback.call(scope, null);
+					} else {
+						return null;
+					}
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback.call(scope, null);
+				} else {
+					return null;
+				}
+
+			}
 
 		},
 
@@ -235,22 +337,63 @@ lychee.define('fertilizer.data.Shell').tags({
 
 					}
 
+				} else {
 
-					return true;
+					let result = true;
+					let stdout = '';
 
+					try {
+
+						stdout = _child_process.execFileSync(file, args, {
+							cwd:   path,
+							stdio: [ 'ignore', 'pipe', 'ignore' ]
+						});
+
+						stack.push({
+							args:   args,
+							exit:   0,
+							file:   file,
+							path:   path,
+							stdout: stdout.toString(),
+							stderr: ''
+						});
+
+					} catch (err) {
+
+						stack.push({
+							args:   args,
+							exit:   1,
+							file:   file,
+							path:   path,
+							stdout: stdout.toString(),
+							stderr: ''
+						});
+
+						result = false;
+
+					}
+
+					return result;
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback.call(scope, false);
+				} else {
+					return false;
 				}
 
 			}
 
-
-			return false;
-
 		},
 
-		trace: function(limit, callback) {
+		trace: function(limit, callback, scope) {
 
 			limit    = typeof limit === 'number'    ? (limit | 0) : null;
 			callback = callback instanceof Function ? callback    : null;
+			scope    = scope !== undefined          ? scope       : this;
 
 
 			let stack = this.__stack;
@@ -262,7 +405,7 @@ lychee.define('fertilizer.data.Shell').tags({
 
 
 			if (callback !== null) {
-				callback(stack);
+				callback.call(scope, stack);
 			} else {
 				return stack;
 			}

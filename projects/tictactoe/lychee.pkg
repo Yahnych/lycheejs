@@ -16,6 +16,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"entity": {
 					"Label": [

@@ -468,6 +468,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"Blueprint": [
 					"json"

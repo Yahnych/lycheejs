@@ -291,7 +291,7 @@ lychee.define('fertilizer.event.Flow').requires([
 				stash.bind('batch', function(type, assets) {
 
 					assets = assets.filter(asset => asset !== null);
-					assets = assets.filter(asset => asset.buffer !== '' && asset.buffer !== null);
+					assets = assets.filter(asset => asset.buffer !== null);
 
 					this.assets = assets;
 

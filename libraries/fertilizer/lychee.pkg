@@ -44,6 +44,9 @@
 					"node": {
 						"Build": [
 							"json"
+						],
+						"Package": [
+							"json"
 						]
 					}
 				}
@@ -56,7 +59,10 @@
 						]
 					}
 				}
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
@@ -176,6 +182,7 @@
 					],
 					"html": {
 						"Build": [
+							"index.appcache",
 							"index.html",
 							"index.js",
 							"js",
@@ -192,6 +199,7 @@
 					},
 					"html-webview": {
 						"Build": [
+							"index.appcache",
 							"index.html",
 							"index.js",
 							"js",
@@ -201,6 +209,7 @@
 					"nidium": {
 						"Build": [
 							"index.js",
+							"index.nml",
 							"js"
 						]
 					},
@@ -209,6 +218,11 @@
 							"index.js",
 							"js",
 							"package.json"
+						],
+						"Package": [
+							"index.cmd",
+							"index.sh",
+							"js"
 						]
 					}
 				}

@@ -16,7 +16,10 @@
 						"json"
 					]
 				}
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {

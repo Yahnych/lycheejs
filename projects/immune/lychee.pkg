@@ -40,7 +40,10 @@
 				"Menu": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {

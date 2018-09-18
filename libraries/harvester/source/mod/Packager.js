@@ -6,6 +6,19 @@ lychee.define('harvester.mod.Packager').requires([
 
 	const _Package = lychee.import('harvester.data.Package');
 	const _Project = lychee.import('harvester.data.Project');
+	const _ALLOWED = [
+		'appcache',
+		'cmd',
+		'fnt',
+		'html',
+		'js',  'json',
+		'md',  'msc',
+		'nml',
+		'pkg', 'png',
+		'sh',
+		'snd',
+		'tpl', 'txt'
+	];
 
 
 
@@ -273,7 +286,8 @@ lychee.define('harvester.mod.Packager').requires([
 					ext        = attachment.split('.').pop();
 				}
 
-				if (/(fnt|html|js|json|md|msc|png|snd|tpl)$/g.test(ext)) {
+				let check = _ALLOWED.includes(ext);
+				if (check === true) {
 
 					if (pointer[identifier] instanceof Array) {
 

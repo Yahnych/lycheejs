@@ -71,6 +71,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"element": {
 					"modify": {

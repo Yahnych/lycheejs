@@ -21,7 +21,10 @@
 				"Welcome": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
