@@ -23,6 +23,7 @@ and `fixed`.
 ## [2018-Q3] - UNRELEASED
 
 - **Changed**: lychee.net.Tunnel `setType(type)` is renamed into `setProtocol(protocol)`.
+- **Changed**: `Stuff` data type uses `Buffer` as `.buffer` property.
 - **Added**: lychee.js Breeder supports `init <identifier>` for mockup purposes.
 - **Added**: lychee.js Strainer supports `no-composite`.
 - **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
