@@ -159,7 +159,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				console.log('strainer: TRANSCRIBE/TRANSCRIBE-SOURCES "' + library + '" -> "' + project + '"');
 
 
-				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.source !== null);
+				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.source instanceof Object);
 				if (configs.length > 0) {
 
 					this.sources = configs.map(asset => {
@@ -229,7 +229,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				console.log('strainer: TRANSCRIBE/TRANSCRIBE-REVIEWS "' + library + '" -> "' + project + '"');
 
 
-				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.review !== null);
+				let configs = this.configs.filter(config => config.buffer !== null && config.buffer.review instanceof Object);
 				if (configs.length > 0) {
 
 					this.reviews = configs.map(asset => {

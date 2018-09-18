@@ -42,23 +42,7 @@ lychee.define('breeder.event.flow.Init').requires([
 						type:       'Composite'
 					},
 					memory: {},
-					result: {
-						constructor: {
-							chunk:      null,
-							hash:       null,
-							type:       'function',
-							parameters: [{
-								chunk: null,
-								name:  'data',
-								type:  'Object'
-							}]
-						},
-						states:      {},
-						properties:  {},
-						enums:       {},
-						events:      {},
-						methods:     {}
-					}
+					result: {}
 				}
 			};
 
@@ -91,23 +75,31 @@ lychee.define('breeder.event.flow.Init').requires([
 		'app.Viewport': [ 'lychee.Viewport' ]
 	};
 
+	const _format_id = function(id) {
+
+		let tmp = id.split('.');
+
+		let check = tmp[tmp.length - 1];
+		if (check.charAt(0) !== check.charAt(0).toUpperCase()) {
+			tmp[tmp.length - 1] = check.charAt(0).toUpperCase() + check.substr(1).toLowerCase();
+		}
+
+		return tmp.join('.');
+
+	};
+
 	const _get_includes = function(identifier) {
 
 		let includes = [];
 		let tmp      = identifier.split('.').slice(0, -1);
 
-		let check = tmp[tmp.length - 1];
-		if (check.charAt(0) !== check.charAt(0).toUpperCase()) {
-			check = tmp[tmp.length - 1] = check.charAt(0).toUpperCase() + check.substr(1).toLowerCase();
-		}
-
 		let pkg_id = identifier.split('.')[0];
 		if (pkg_id === 'app') {
-			includes.push('lychee.' + tmp.slice(0, tmp.length).join('.'));
+			includes.push(_format_id('lychee.' + tmp.join('.')));
 		}
 
 		if (tmp.length > 2) {
-			includes.push('lychee.' + tmp.slice(1, tmp.length).join('.'));
+			includes.push(_format_id('lychee.' + tmp.slice(1).join('.')));
 		}
 
 
@@ -123,6 +115,25 @@ lychee.define('breeder.event.flow.Init').requires([
 
 
 		if (includes.length === 0) {
+
+			let pkg = this.__packages[pkg_id] || null;
+			if (pkg !== null) {
+
+				let tmp = identifier.split('.');
+				if (tmp.length > 2) {
+					includes.push(_format_id(tmp.slice(0, -1).join('.')));
+				}
+
+				if (tmp.length > 3) {
+					includes.push(_format_id(tmp.slice(0, -2).join('.')));
+				}
+
+				let definitions = pkg.getDefinitions().map(id => pkg_id + '.' + id);
+				if (definitions.length > 0) {
+					includes = includes.filter(id => definitions.includes(id));
+				}
+
+			}
 
 			let static_includes = _STATIC_INCLUDES[identifier] || [];
 			if (static_includes.length > 0) {
@@ -421,6 +432,8 @@ lychee.define('breeder.event.flow.Init').requires([
 					let includes = _get_includes.call(this, identifier);
 					if (includes.length > 0) {
 
+						console.log('breeder: -> "' + identifier + '" includes ["' + includes.join('","') + '"].');
+
 						let mockup   = _create_config.call(this, identifier, includes);
 						let strainer = new _Main({
 							debug:   debug,
@@ -468,6 +481,7 @@ lychee.define('breeder.event.flow.Init').requires([
 						}
 
 						oncomplete(false);
+
 					}
 
 				} else {

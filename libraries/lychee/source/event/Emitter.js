@@ -332,6 +332,7 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 		this.___events   = {};
 		this.___timeline = {
 			bind:      [],
+			has:       [],
 			publish:   [],
 			subscribe: [],
 			transfer:  [],
@@ -405,6 +406,16 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 
 			}
 
+			if (this.___timeline.has.length > 0) {
+
+				timeline.has = [];
+
+				for (let h = 0, hl = this.___timeline.has.length; h < hl; h++) {
+					timeline.has.push(this.___timeline.has[h]);
+				}
+
+			}
+
 			if (this.___timeline.publish.length > 0) {
 
 				timeline.publish = [];
@@ -474,31 +485,6 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 		 * CUSTOM API
 		 */
 
-		has: function(event, callback, scope) {
-
-			event    = typeof event === 'string'    ? event    : null;
-			callback = callback instanceof Function ? callback : null;
-			scope    = scope !== undefined          ? scope    : this;
-
-
-			let result = _has.call(this, event, callback, scope);
-			if (result === true && lychee.debug === true) {
-
-				this.___timeline.has.push({
-					time:     Date.now(),
-					event:    event,
-					callback: lychee.serialize(callback),
-					// scope:    lychee.serialize(scope)
-					scope:    null
-				});
-
-			}
-
-
-			return result;
-
-		},
-
 		bind: function(event, callback, scope, once) {
 
 			event    = typeof event === 'string'    ? event    : null;
@@ -517,6 +503,31 @@ lychee.define('lychee.event.Emitter').exports(function(lychee, global, attachmen
 					// scope:    lychee.serialize(scope),
 					scope:    null,
 					once:     once
+				});
+
+			}
+
+
+			return result;
+
+		},
+
+		has: function(event, callback, scope) {
+
+			event    = typeof event === 'string'    ? event    : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			let result = _has.call(this, event, callback, scope);
+			if (result === true && lychee.debug === true) {
+
+				this.___timeline.has.push({
+					time:     Date.now(),
+					event:    event,
+					callback: lychee.serialize(callback),
+					// scope:    lychee.serialize(scope)
+					scope:    null
 				});
 
 			}

@@ -98,6 +98,26 @@ lychee.define('fertilizer.Main').requires([
 
 				}
 
+
+				let events = Object.keys(flow_fertilize.___events);
+				let stacks = Object.values(flow_fertilize.___events);
+
+				let check = stacks.map(stack => stack.length).find(val => val > 1) || null;
+				if (check !== null) {
+					console.warn('fertilizer: -> Flow "fertilizer.event.flow.' + platform + '.*" might be invalid.');
+
+					events.forEach((event, e) => {
+
+						let length = stacks[e].length;
+						if (length > 1) {
+							console.warn('fertilizer: -> Event "' + event + '" has ' + length + ' bindings.');
+						}
+
+					});
+
+				}
+
+
 				return flow_fertilize;
 
 			} else if (action === 'configure') {

@@ -51,6 +51,36 @@ lychee.define('strainer.api.Composite').requires([
 	 * HELPERS
 	 */
 
+	const _get_serialize = function(identifier, include) {
+
+		let code = [];
+		let data = lychee.assignunlink({}, _SERIALIZE);
+
+		code.push('function() {');
+		code.push('');
+		code.push('\tlet data = ' + include + '.prototype.serialize.call(this);');
+		code.push('\tdata[\'constructor\'] = \'' + identifier + '\';');
+		code.push('');
+		code.push('');
+		code.push('\tlet states = data[\'arguments\'][0];');
+		code.push('\tlet blob   = (data[\'blob\'] || {});');
+		code.push('');
+		code.push('');
+		code.push('\tdata[\'arguments\'][0] = states;');
+		code.push('\tdata[\'blob\']         = Object.keys(blob).length > 0 ? blob : null;');
+		code.push('');
+		code.push('');
+		code.push('\treturn data;');
+		code.push('');
+		code.push('}');
+
+		data.chunk = code.join('\n');
+		data.hash  = _PARSER.hash(data.chunk);
+
+		return data;
+
+	};
+
 	const _validate_asset = function(asset) {
 
 		if (asset instanceof Object && typeof asset.serialize === 'function') {
@@ -969,6 +999,7 @@ lychee.define('strainer.api.Composite').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
+					let header = api.header || {};
 					let memory = api.memory || {};
 					let result = api.result || {};
 
@@ -1019,10 +1050,30 @@ lychee.define('strainer.api.Composite').requires([
 					}
 
 
-					let methods = result.methods || {
-						deserialize: _DESERIALIZE,
-						serialize:   _SERIALIZE
-					};
+					let methods = result.methods || {};
+
+					let check_serialize = methods.serialize || null;
+					if (check_serialize === null) {
+
+						let includes  = header.includes || [];
+						let variables = Object.keys(memory).filter(variable => {
+
+							let data = memory[variable] || null;
+							if (data !== null) {
+
+								if (data.type === 'lychee.Definition') {
+									return includes.includes(data.value.reference);
+								}
+
+							}
+
+							return false;
+
+						});
+
+						methods.serialize = _get_serialize(header.identifier, variables[0]);
+
+					}
 
 					let mids = Object.keys(methods);
 					if (mids.length > 0) {

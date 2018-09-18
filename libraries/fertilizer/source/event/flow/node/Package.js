@@ -1,10 +1,12 @@
 
-lychee.define('fertilizer.event.flow.node.Package').includes([
+lychee.define('fertilizer.event.flow.node.Package').requires([
+	'lychee.event.Queue'
+]).includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
-
 	const _Flow  = lychee.import('fertilizer.event.Flow');
+	const _Queue = lychee.import('lychee.event.Queue');
 	const _INDEX = {
 		linux:   attachments['index.sh'],
 		macos:   attachments['index.sh'],
@@ -17,27 +19,43 @@ lychee.define('fertilizer.event.flow.node.Package').includes([
 	 * HELPERS
 	 */
 
-	const _package_linux = function(arch) {
+	const _package = function(os, arch, binary, assets, oncomplete) {
 
 		let project = this.project;
 		let shell   = this.shell;
+		let stash   = this.stash;
 		let target  = this.target;
 
-		if (project !== null && shell !== null && target !== null) {
+		if (project !== null && shell !== null && stash !== null && target !== null) {
 
-			shell.mkdir(project + '/build/' + target + '-linux');
+			let prefix  = project + '/build/' + target + '-' + os + '-' + arch;
+			let runtime = stash.read('/bin/runtime/node/' + os + '/' + arch + '/' + binary);
 
-			// TODO: Does it make sense to build this here via shell.copy()
-			// ... wouldn't it be better to just write the asset to disk via stash.write()?
+			runtime.onload = function(result) {
 
+				if (result === true) {
+
+					let files = assets.slice(0).concat(runtime).concat(_INDEX[os]);
+					let urls  = files.map(asset => prefix + '/' + asset.url.split('/').pop());
+
+					stash.bind('batch', function(type, assets) {
+						oncomplete(true);
+					}, this, true);
+
+					stash.batch('write', urls, files);
+
+				} else {
+					oncomplete(false);
+				}
+
+			}.bind(this);
+
+			runtime.load();
+
+		} else {
+			oncomplete(false);
 		}
 
-	};
-
-	const _package_macos = function(arch) {
-	};
-
-	const _package_windows = function(arch) {
 	};
 
 
@@ -61,6 +79,8 @@ lychee.define('fertilizer.event.flow.node.Package').includes([
 		 * INITIALIZATION
 		 */
 
+		this.unbind('package-runtime');
+
 		this.bind('package-runtime', function(oncomplete) {
 
 			let action  = this.action;
@@ -75,22 +95,40 @@ lychee.define('fertilizer.event.flow.node.Package').includes([
 				let env = this.__environment;
 				if (env !== null && env.variant === 'application') {
 
-					// TODO: Figure out smarter way to write binaries to folder
-					// using the lychee.Stash API + Stuff data type
-					// also, binary concat via Shell possible!?
+					let assets = this.assets.filter(asset => asset !== null && asset.buffer !== null);
+					if (assets.length > 0) {
 
-					let assets = this.assets.filter(asset => {
-						console.log(asset.url);
-						return false;
-					});
+						let queue = new _Queue();
 
+						queue.then({ name: 'Linux ARM',      method: _package.bind(this, 'linux',   'arm',    'node',     assets) });
+						queue.then({ name: 'Linux x86_64',   method: _package.bind(this, 'linux',   'x86_64', 'node',     assets) });
+						queue.then({ name: 'MacOS x86_64',   method: _package.bind(this, 'macos',   'x86_64', 'node',     assets) });
+						queue.then({ name: 'Windows x86',    method: _package.bind(this, 'windows', 'x86',    'node.exe', assets) });
+						queue.then({ name: 'Windows x86_64', method: _package.bind(this, 'windows', 'x86_64', 'node.exe', assets) });
 
-					// _package_linux.call(this, 'arm');
-					// _package_linux.call(this, 'x86_64');
-					// _package_macos.call(this, 'x86_64');
-					// _package_windows.call(this, 'x86_64');
+						queue.bind('update', function(entry, oncomplete) {
 
-					oncomplete(true);
+							entry.method(function(result) {
+
+								if (result === true) {
+									console.info('fertilizer: -> "' + entry.name + '" SUCCESS');
+								} else {
+									console.warn('fertilizer: -> "' + entry.name + '" FAILURE');
+								}
+
+								oncomplete(true);
+
+							});
+
+						}, this);
+
+						queue.bind('complete', function() {
+							oncomplete(true);
+						}, this);
+
+						queue.init();
+
+					}
 
 				} else {
 					console.log('fertilizer: -> Skipping "' + target + '".');

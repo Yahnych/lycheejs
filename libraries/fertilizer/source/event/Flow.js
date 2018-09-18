@@ -517,10 +517,8 @@ lychee.define('fertilizer.event.Flow').requires([
 						});
 
 					} else {
-
 						console.warn('fertilizer: -> Invalid Environment Tags at "' + pkg.url + '/build/' + target + '".');
 						oncomplete(false);
-
 					}
 
 					pkg.setType('source');
@@ -533,9 +531,21 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		}, this);
 
-		// this.bind('build-assets', function(oncomplete) {
-		//	oncomplete(true);
-		// }, this);
+		this.bind('build-assets', function(oncomplete) {
+
+			let action = this.action;
+			if (action !== null) {
+
+				console.log('fertilizer: ' + this.action + '/BUILD-ASSETS');
+				console.log('fertilizer: -> Skipping');
+
+				oncomplete(true);
+
+			} else {
+				oncomplete(false);
+			}
+
+		}, this);
 
 		this.bind('write-assets', function(oncomplete) {
 

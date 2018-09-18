@@ -17,6 +17,7 @@ lychee.define('strainer.api.Module').requires([
 		chunk:      'function() { return {}; }',
 		type:       'function',
 		hash:       _PARSER.hash('function() { return {}; }'),
+		memory:     [],
 		parameters: [],
 		values:     [{
 			type: 'SerializationBlob',
@@ -32,6 +33,7 @@ lychee.define('strainer.api.Module').requires([
 		chunk:      'function(blob) {}',
 		type:       'function',
 		hash:       _PARSER.hash('function(blob) {}'),
+		memory:     [],
 		parameters: [{
 			name:  'blob',
 			type:  'SerializationBlob',
@@ -48,6 +50,27 @@ lychee.define('strainer.api.Module').requires([
 	/*
 	 * HELPERS
 	 */
+
+	const _get_serialize = function(identifier) {
+
+		let code = [];
+		let data = lychee.assignunlink({}, _SERIALIZE);
+
+		code.push('function() {');
+		code.push('');
+		code.push('\treturn {');
+		code.push('\t\t\'reference\': \'' + identifier + '\',');
+		code.push('\t\t\'blob\':      null');
+		code.push('\t};');
+		code.push('');
+		code.push('}');
+
+		data.chunk = code.join('\n');
+		data.hash  = _PARSER.hash(data.chunk);
+
+		return data;
+
+	};
 
 	const _validate_asset = function(asset) {
 
@@ -578,8 +601,9 @@ lychee.define('strainer.api.Module').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
-					let memory = api.memory || null;
-					let result = api.result || null;
+					let header = api.header || {};
+					let memory = api.memory || {};
+					let result = api.result || {};
 
 
 					if (memory instanceof Object) {
@@ -596,10 +620,12 @@ lychee.define('strainer.api.Module').requires([
 					}
 
 
-					let methods = result.methods || {
-						deserialize: _DESERIALIZE,
-						serialize:   _SERIALIZE
-					};
+					let methods = result.methods || {};
+
+					let check_serialize = methods.serialize || null;
+					if (check_serialize === null) {
+						methods.serialize = _get_serialize(header.identifier);
+					}
 
 					let mids = Object.keys(methods);
 					if (mids.length > 0) {
