@@ -39,6 +39,9 @@
 					"nidium": {
 						"Build": [
 							"json"
+						],
+						"Package": [
+							"json"
 						]
 					},
 					"node": {
@@ -210,6 +213,10 @@
 						"Build": [
 							"index.js",
 							"index.nml",
+							"js"
+						],
+						"Package": [
+							"index.sh",
 							"js"
 						]
 					},
