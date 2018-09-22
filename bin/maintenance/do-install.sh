@@ -11,9 +11,14 @@ LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
 SYSTEMCTL_BIN=`which systemctl`;
 
 ALWAYS_YES="false";
+SKIP_UPDATES="false";
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
+if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
 	ALWAYS_YES="true";
+fi;
+
+if [ "$1" == "--skip" ] || [ "$1" == "-s" ] || [ "$2" == "--skip" ] || [ "$2" == "-s" ]; then
+	SKIP_UPDATES="yes";
 fi;
 
 
@@ -265,51 +270,52 @@ else
 	fi;
 
 
+	if [ "$SKIP_UPDATES" == "false" ]; then
 
-	if [ "$UPDATE_CMD" != "" ]; then
+		if [ "$UPDATE_CMD" != "" ]; then
 
-		echo " (L) ";
-		echo " (L) > Updating package information ...";
+			echo " (L) ";
+			echo " (L) > Updating package information ...";
 
-		_install "$UPDATE_CMD";
-		_check_or_exit $?;
+			_install "$UPDATE_CMD";
+			_check_or_exit $?;
 
-	fi;
+		fi;
 
+		if [ "$REQUIRED_CMD" != "" ]; then
 
+			echo " (L) ";
+			echo " (L) > Installing required dependencies ...";
 
-	if [ "$REQUIRED_CMD" != "" ]; then
+			_install "$REQUIRED_CMD";
+			_check_or_exit $?;
 
-		echo " (L) ";
-		echo " (L) > Installing required dependencies ...";
+		elif [ "$REQUIRED_CMD" == "" ]; then
 
-		_install "$REQUIRED_CMD";
-		_check_or_exit $?;
+			echo " (L) ";
+			echo -e "\e[41m\e[97m";
+			echo " (E)                                                           ";
+			echo " (E) Your package manager is not supported.                    ";
+			echo " (E) Feel free to modify this script!                          ";
+			echo " (E)                                                           ";
+			echo " (E) Please let us know about this at                          ";
+			echo " (E) https://github.com/Artificial-Engineering/lycheejs/issues ";
+			echo " (E)                                                           ";
+			echo -e "\e[0m";
 
-	elif [ "$REQUIRED_CMD" == "" ]; then
+			exit 1;
 
-		echo " (L) ";
-		echo -e "\e[41m\e[97m";
-		echo " (E)                                                           ";
-		echo " (E) Your package manager is not supported.                    ";
-		echo " (E) Feel free to modify this script!                          ";
-		echo " (E)                                                           ";
-		echo " (E) Please let us know about this at                          ";
-		echo " (E) https://github.com/Artificial-Engineering/lycheejs/issues ";
-		echo " (E)                                                           ";
-		echo -e "\e[0m";
+		fi;
 
-		exit 1;
+		if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION_PACKAGES" == "optional" ]; then
 
-	fi;
+			echo " (L) ";
+			echo " (L) > Installing optional dependencies ...";
 
-	if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION_PACKAGES" == "optional" ]; then
+			_install "$OPTIONAL_CMD";
+			_check_or_exit $?;
 
-		echo " (L) ";
-		echo " (L) > Installing optional dependencies ...";
-
-		_install "$OPTIONAL_CMD";
-		_check_or_exit $?;
+		fi;
 
 	fi;
 
