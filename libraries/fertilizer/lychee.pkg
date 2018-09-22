@@ -29,6 +29,9 @@
 					"html-nwjs": {
 						"Build": [
 							"json"
+						],
+						"Package": [
+							"json"
 						]
 					},
 					"html-webview": {
@@ -198,6 +201,9 @@
 							"index.js",
 							"js",
 							"package.json"
+						],
+						"Package": [
+							"js"
 						]
 					},
 					"html-webview": {

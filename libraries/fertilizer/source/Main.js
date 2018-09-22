@@ -12,6 +12,8 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.html-webview.Build',
 	'fertilizer.event.flow.nidium.Build',
 	'fertilizer.event.flow.node.Build',
+	'fertilizer.event.flow.html-nwjs.Package',
+	'fertilizer.event.flow.nidium.Package',
 	'fertilizer.event.flow.node.Package'
 ]).includes([
 	'lychee.event.Emitter'
