@@ -152,10 +152,22 @@ lychee.define('lychee.Stash').tags({
 				}
 
 
-				global.localStorage.setItem('lychee-Stash-PERSISTENT', _JSON.encode(this.data));
+				let result = false;
+
+				try {
+					global.localStorage.setItem('lychee-Stash-PERSISTENT', _JSON.encode(this.data));
+					result = true;
+				} catch (err) {
+					result = false;
+				}
 
 
-				return true;
+				if (result === false) {
+					console.error('lychee.Stash: Could not write "' + id + '".');
+					console.info('lychee.Stash: Check filesystem quota and permissions.');
+				}
+
+				return result;
 
 			};
 

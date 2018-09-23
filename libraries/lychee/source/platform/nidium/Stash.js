@@ -182,6 +182,12 @@ lychee.define('lychee.Stash').tags({
 				}
 
 
+				if (result === false) {
+					console.error('lychee.Stash: Could not write "' + id + '".');
+					console.info('lychee.Stash: Check filesystem quota and permissions.');
+				}
+
+
 				return result;
 
 			};
