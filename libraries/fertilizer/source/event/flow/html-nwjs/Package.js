@@ -1,5 +1,6 @@
 
 lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
+	'fertilizer.data.Shell',
 	'lychee.event.Queue'
 ]).includes([
 	'fertilizer.event.Flow'
@@ -7,6 +8,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 	const _Flow   = lychee.import('fertilizer.event.Flow');
 	const _Queue  = lychee.import('lychee.event.Queue');
+	const _Shell  = lychee.import('fertilizer.data.Shell');
 	const _ASSETS = {
 		linux: [
 			'icudtl.dat',
@@ -22,8 +24,48 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 			'locales/en-US.pak',
 			'swiftshader/libEGL.so',
 			'swiftshader/libGLESv2.so'
+		],
+		macos: [
+		],
+		windows: [
+			'd3dcompiler_47.dll',
+			'ffmpeg.dll',
+			'icudtl.dat',
+			'libEGL.dll',
+			'libGLESv2.dll',
+			'natives_blob.bin',
+			'node.dll',
+			'nw_100_percent.pak',
+			'nw_200_percent.pak',
+			'nw.dll',
+			'nw_elf.dll',
+			'nw.exe',
+			'resources.pak',
+			'v8_context_snapshot.bin',
+			'locales/en-US.pak',
+			'swiftshader/libEGL.dll',
+			'swiftshader/libGLESv2.dll'
 		]
 	};
+
+
+	// XXX: html-nwjs runtime for MacOS contains hundreds of files...
+	(function(shell) {
+
+		shell.tree('/bin/runtime/html-nwjs/macos/x86_64', function(urls) {
+
+			let filtered = urls.filter(url => url.startsWith('./nwjs.app'));
+			if (filtered.length > 0) {
+
+				filtered.sort().forEach(function(url) {
+					_ASSETS.macos.push(url.substr(2));
+				});
+
+			}
+
+		});
+
+	})(new _Shell());
 
 
 
@@ -31,9 +73,21 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 	 * HELPERS
 	 */
 
-	const _zip_assets = function(assets, oncomplete) {
+	const _write_binaries = function(urls, binaries, oncomplete) {
 
-		assets.forEach(asset => console.log(asset.url));
+		let stash = this.stash;
+		if (stash !== null) {
+
+			stash.bind('batch', function() {
+				console.log('ASD');
+				oncomplete(true);
+			}, this, true);
+
+			stash.batch('write', urls, binaries);
+
+		} else {
+			oncomplete(false);
+		}
 
 	};
 
@@ -52,8 +106,13 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 			stash.bind('batch', function(type, binaries) {
 
-				let files = binaries.concat(zip);
-				let urls  = files.map(asset => {
+				let runtime = binaries.find(asset => asset.url.endsWith('/nw')) || null;
+				if (runtime !== null) {
+					runtime.url    = project + '/' + project.split('/').pop();
+					runtime.buffer = Buffer.concat([ runtime.buffer, zip.buffer ], runtime.buffer.length + zip.buffer.length);
+				}
+
+				let urls = binaries.map(asset => {
 
 					let url = asset.url;
 					if (url.startsWith(prefix2)) {
@@ -68,8 +127,9 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 				});
 
-
-				urls.forEach(url => console.log(url));
+				setTimeout(function() {
+					_write_binaries.call(this, urls, binaries, oncomplete);
+				}.bind(this), 100);
 
 			}, this, true);
 
@@ -77,26 +137,135 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 				return prefix2 + '/' + file;
 			}));
 
+		} else {
+			oncomplete(false);
+		}
+
+	};
+
+	const _package_macos = function(arch, zip, oncomplete) {
+
+		let project = this.project;
+		let shell   = this.shell;
+		let stash   = this.stash;
+		let target  = this.target;
+
+		if (project !== null && shell !== null && stash !== null && target !== null) {
+
+			let prefix1 = project + '/build/' + target + '-macos-' + arch;
+			let prefix2 = '/bin/runtime/html-nwjs/macos/' + arch;
+
+			let app_nw = lychee.deserialize(lychee.serialize(zip));
+			if (app_nw !== null) {
+
+				app_nw.url = prefix2 + '/nwjs.app/Contents/Resources/app.nw';
 
 
+				stash.bind('batch', function(type, binaries) {
 
-			// runtime.onload = function(result) {
+					binaries = binaries.concat(app_nw);
 
-			// 	if (result === true) {
 
-			// 		stash.bind('batch', function(type, assets) {
-			// 			oncomplete(true);
-			// 		}, this, true);
+					let info_plist = binaries.find(asset => asset.url.endsWith('nwjs.app/Contents/Info.plist')) || null;
+					if (info_plist !== null) {
 
-			// 		stash.batch('write', urls, files);
+						let template = info_plist.buffer.toString('utf8');
+						template = template.replace('__NAME__', project.split('/').pop());
+						info_plist.buffer = Buffer.from(template, 'utf8');
 
-			// 	} else {
-			// 		oncomplete(false);
-			// 	}
+					}
 
-			// }.bind(this);
 
-			// runtime.load();
+					let urls = binaries.map(asset => {
+
+						let url = asset.url;
+						if (url.startsWith(prefix2)) {
+							return prefix1 + url.substr(prefix2.length);
+						} else if (url.startsWith('./')) {
+							return prefix1 + url.substr(1);
+						} else if (url.startsWith(project)) {
+							return prefix1 + url.substr(project.length);
+						}
+
+						return url;
+
+					}).map(function(url) {
+
+						if (url.startsWith(prefix1 + '/nwjs.app/')) {
+							return prefix1 + '/' + project.split('/').pop() + '.app/' + url.substr(prefix1.length + 10);
+						}
+
+						return url;
+
+					});
+
+					setTimeout(function() {
+						_write_binaries.call(this, urls, binaries, oncomplete);
+					}.bind(this), 100);
+
+				}, this, true);
+
+				stash.batch('read', _ASSETS.macos.map(file => {
+					return prefix2 + '/' + file;
+				}));
+
+			} else {
+				oncomplete(false);
+			}
+
+		} else {
+			oncomplete(false);
+		}
+
+	};
+
+	const _package_windows = function(arch, zip, oncomplete) {
+
+		let project = this.project;
+		let shell   = this.shell;
+		let stash   = this.stash;
+		let target  = this.target;
+
+		if (project !== null && shell !== null && stash !== null && target !== null) {
+
+			let prefix1 = project + '/build/' + target + '-windows-' + arch;
+			let prefix2 = '/bin/runtime/html-nwjs/windows/' + arch;
+
+
+			stash.bind('batch', function(type, binaries) {
+
+				let runtime = binaries.find(asset => asset.url.endsWith('/nw.exe')) || null;
+				if (runtime !== null) {
+					runtime.url    = project + '/' + project.split('/').pop() + '.exe';
+					runtime.buffer = Buffer.concat([ runtime.buffer, zip.buffer ], runtime.buffer.length + zip.buffer.length);
+				}
+
+				let urls = binaries.map(asset => {
+
+					let url = asset.url;
+					if (url.startsWith(prefix2)) {
+						return prefix1 + url.substr(prefix2.length);
+					} else if (url.startsWith('./')) {
+						return prefix1 + url.substr(1);
+					} else if (url.startsWith(project)) {
+						return prefix1 + url.substr(project.length);
+					}
+
+					return url;
+
+				});
+
+				urls.forEach(url => console.log(url));
+
+				setTimeout(function() {
+					_write_binaries.call(this, urls, binaries, oncomplete);
+				}.bind(this), 100);
+
+			}, this, true);
+
+			stash.batch('read', _ASSETS.windows.map(file => {
+				return prefix2 + '/' + file;
+			}));
 
 		} else {
 			oncomplete(false);
@@ -131,9 +300,10 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 			let action  = this.action;
 			let project = this.project;
+			let shell   = this.shell;
 			let target  = this.target;
 
-			if (action !== null && project !== null && target !== null) {
+			if (action !== null && project !== null && shell !== null && target !== null) {
 
 				console.log('fertilizer: ' + action + '/PACKAGE-RUNTIME "' + project + '"');
 
@@ -144,36 +314,55 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 					let assets = this.assets.filter(asset => asset !== null && asset.buffer !== null);
 					if (assets.length > 0) {
 
-						_zip_assets.call(this, assets, function(zip) {
+						assets.forEach(asset => {
 
-							let queue = new _Queue();
-
-							queue.then({ name: 'Linux x86_64', method: _package_linux.bind(this, 'x86_64', zip) });
-							// queue.then({ name: 'MacOS x86_64', method: _package.bind(this, 'macos', 'x86_64', zip) });
-
-							queue.bind('update', function(entry, oncomplete) {
-
-								entry.method(function(result) {
-
-									if (result === true) {
-										console.info('fertilizer: -> "' + entry.name + '" SUCCESS');
-									} else {
-										console.warn('fertilizer: -> "' + entry.name + '" FAILURE');
-									}
-
-									oncomplete(true);
-
-								});
-
-							}, this);
-
-							queue.bind('complete', function() {
-								oncomplete(true);
-							}, this);
-
-							queue.init();
+							if (asset.url.startsWith(project + '/')) {
+								asset.url = './' + asset.url.substr(project.length + 1);
+							}
 
 						});
+
+						shell.zip(assets, function(zip) {
+
+							if (zip !== null) {
+
+								let queue = new _Queue();
+
+								queue.then({ name: 'Linux x86',      method: _package_linux.bind(this,   'x86',    zip) });
+								queue.then({ name: 'Linux x86_64',   method: _package_linux.bind(this,   'x86_64', zip) });
+								queue.then({ name: 'MacOS x86_64',   method: _package_macos.bind(this,   'x86_64', zip) });
+								queue.then({ name: 'Windows x86',    method: _package_windows.bind(this, 'x86',    zip) });
+								queue.then({ name: 'Windows x86_64', method: _package_windows.bind(this, 'x86_64', zip) });
+
+								queue.bind('update', function(entry, oncomplete) {
+
+									console.log('fertilizer: -> "' + entry.name + '"');
+
+									entry.method(function(result) {
+
+										if (result === true) {
+											console.info('fertilizer: -> SUCCESS');
+										} else {
+											console.warn('fertilizer: -> FAILURE');
+										}
+
+										oncomplete(true);
+
+									});
+
+								}, this);
+
+								queue.bind('complete', function() {
+									oncomplete(true);
+								}, this);
+
+								queue.init();
+
+							} else {
+								oncomplete(false);
+							}
+
+						}, this);
 
 					}
 
@@ -205,8 +394,9 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 		// this.then('write-assets');
 		// this.then('build-project');
 
+		this.unbind('package-project');
 		this.then('package-runtime');
-		this.then('package-project');
+		// this.then('package-project');
 
 	};
 

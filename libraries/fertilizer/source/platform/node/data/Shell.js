@@ -1,5 +1,7 @@
 
-lychee.define('fertilizer.data.Shell').tags({
+lychee.define('fertilizer.data.Shell').requires([
+	'lychee.Asset'
+]).tags({
 	platform: 'node'
 }).supports(function(lychee, global) {
 
@@ -26,7 +28,115 @@ lychee.define('fertilizer.data.Shell').tags({
 	const _child_process = require('child_process');
 	const _fs            = require('fs');
 	const _path          = require('path');
+	const _Asset         = lychee.import('lychee.Asset');
 	const _ROOT          = lychee.ROOT.lychee;
+
+
+
+	/*
+	 * HELPERS
+	 */
+
+	const _create_directory = function(path, mode) {
+
+		if (mode === undefined) {
+			mode = 0o777 & (~process.umask());
+		}
+
+
+		let is_directory = false;
+
+		try {
+
+			let stat1 = _fs.lstatSync(path);
+			if (stat1.isSymbolicLink()) {
+
+				let tmp   = _fs.realpathSync(path);
+				let stat2 = _fs.lstatSync(tmp);
+				if (stat2.isDirectory()) {
+					is_directory = true;
+				}
+
+			} else if (stat1.isDirectory()) {
+				is_directory = true;
+			}
+
+		} catch (err) {
+
+			if (err.code === 'ENOENT') {
+
+				if (_create_directory(_path.dirname(path), mode) === true) {
+					_fs.mkdirSync(path, mode);
+				}
+
+				try {
+
+					let stat2 = _fs.lstatSync(path);
+					if (stat2.isSymbolicLink()) {
+
+						let tmp   = _fs.realpathSync(path);
+						let stat3 = _fs.lstatSync(tmp);
+						if (stat3.isDirectory()) {
+							is_directory = true;
+						}
+
+					} else if (stat2.isDirectory()) {
+						is_directory = true;
+					}
+
+				} catch (err) {
+				}
+
+			}
+
+		}
+
+
+		return is_directory;
+
+	};
+
+	const _walk_recursive = function(path, filtered) {
+
+		let info = this.info(path);
+		if (info !== null && info.type === 'directory') {
+
+			let resolved = _path.normalize(this.__root + path);
+
+			let files = [];
+
+			try {
+				files = _fs.readdirSync(resolved);
+			} catch (err) {
+			}
+
+			files.filter(function(file) {
+				return file.startsWith('.') === false;
+			}).forEach(function(file) {
+
+				let info = this.info(path + '/' + file);
+				if (info !== null) {
+
+					if (info.type === 'directory') {
+
+						_walk_recursive.call(this, path + '/' + file, filtered);
+
+					} else if (info.type === 'file') {
+
+						let url = path + '/' + file;
+						if (filtered.includes(url) === false) {
+							filtered.push(url);
+						}
+
+					}
+
+				}
+
+			}.bind(this));
+
+		}
+
+	};
 
 
 
@@ -408,6 +518,205 @@ lychee.define('fertilizer.data.Shell').tags({
 				callback.call(scope, stack);
 			} else {
 				return stack;
+			}
+
+		},
+
+		tree: function(path, callback, scope) {
+
+
+			path     = typeof path === 'string'     ? path     : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (path !== null) {
+
+				let urls = [];
+
+				_walk_recursive.call(this, path, urls);
+
+				let filtered = urls.map(function(url) {
+					return '.' + url.substr(path.length);
+				});
+
+
+				if (callback !== null) {
+					callback.call(scope, filtered);
+				} else {
+					return filtered;
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback.call(scope, []);
+				} else {
+					return [];
+				}
+
+			}
+
+		},
+
+		zip: function(assets, callback, scope) {
+
+			assets   = assets instanceof Array      ? assets   : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (assets !== null) {
+
+				let sandbox = '/tmp/fertilizer-data-Shell-' + Date.now();
+				let urls = assets.map(function(asset) {
+
+					if (asset instanceof Object) {
+
+						let url = asset.url || null;
+						if (url !== null) {
+
+							if (url.startsWith('./')) {
+								return sandbox + '/' + url.substr(2);
+							} else if (url.startsWith('/')) {
+								return sandbox + url;
+							} else {
+								return url;
+							}
+
+						}
+
+					}
+
+					return null;
+
+				});
+
+				let buffers = assets.map(function(asset) {
+
+					if (asset instanceof Object) {
+
+						let buffer = asset.buffer || null;
+						if (buffer instanceof Buffer) {
+							return buffer;
+						} else {
+
+							let data = lychee.serialize(asset);
+							if (data !== null && data.blob instanceof Object) {
+
+								let blob = data.blob;
+								if (typeof blob.buffer === 'string') {
+
+									let tmp = blob.buffer.substr(blob.buffer.indexOf(',') + 1);
+
+									return Buffer.from(tmp, 'base64');
+
+								}
+
+							}
+
+						}
+
+					}
+
+					return null;
+
+				});
+
+
+				_create_directory(sandbox);
+
+				urls.forEach(function(url, u) {
+
+					let buffer = buffers[u] || null;
+					let result = false;
+
+					if (url !== null && buffer !== null) {
+
+						let folder = _path.dirname(url);
+						let path   = url;
+
+						_create_directory(folder);
+
+						try {
+							_fs.writeFileSync(path, buffer, 'binary');
+							result = true;
+						} catch (err) {
+							result = false;
+						}
+
+					}
+
+
+					if (result === false) {
+						console.warn('fertilizer.data.Shell: Could not write "' + url + '".');
+					}
+
+				});
+
+
+				let result = false;
+
+				try {
+					let cmd = 'cd "' + sandbox + '" && zip -r -q "' + sandbox + '.zip" ./*';
+					_child_process.execSync(cmd);
+					result = true;
+				} catch (err) {
+					result = false;
+				}
+
+
+				if (result === true) {
+
+					let asset = new _Asset(sandbox + '.zip', null, true);
+					if (asset !== null) {
+
+						if (callback !== null) {
+
+							asset.onload = function(result) {
+
+								if (result === true) {
+									callback.call(scope, asset);
+								} else {
+									callback.call(scope, null);
+								}
+
+							};
+
+							asset.load();
+
+						} else {
+							return asset;
+						}
+
+					} else {
+
+						if (callback !== null) {
+							callback.call(scope, null);
+						} else {
+							return null;
+						}
+
+					}
+
+				} else {
+
+					if (callback !== null) {
+						callback.call(scope, null);
+					} else {
+						return null;
+					}
+
+				}
+
+			} else {
+
+				if (callback !== null) {
+					callback.call(scope, null);
+				} else {
+					return null;
+				}
+
 			}
 
 		}

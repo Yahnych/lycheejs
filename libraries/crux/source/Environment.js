@@ -1212,7 +1212,7 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 			let proto = path.split(':')[0] || '';
 			if (/^http|https/g.test(proto) === false) {
 
-				if (path.startsWith(_lychee.ROOT.lychee) === false) {
+				if (path.startsWith('/tmp') === false && path.startsWith(_lychee.ROOT.lychee) === false) {
 
 					if (path.startsWith('/')) {
 						path = _lychee.ROOT.lychee + path;
