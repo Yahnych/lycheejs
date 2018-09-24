@@ -394,9 +394,8 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 		// this.then('write-assets');
 		// this.then('build-project');
 
-		this.unbind('package-project');
 		this.then('package-runtime');
-		// this.then('package-project');
+		this.then('package-project');
 
 	};
 
