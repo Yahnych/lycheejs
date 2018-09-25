@@ -1219,56 +1219,62 @@ lychee.define('strainer.event.flow.Check').requires([
 				let configs = this.configs.filter(config => config !== null);
 				if (configs.length > 0) {
 
-					let index = stash.read(project + '/api/strainer.pkg');
+					stash.read([
+						project + '/api/strainer.pkg'
+					], function(assets) {
 
-					index.onload = function(result) {
+						let index = assets[0] || null;
+						if (index !== null) {
 
-						if (result === false) {
-							this.buffer = {};
+							let buffer = index.buffer || null;
+							if (buffer === null) {
+								buffer = index.buffer = {};
+							}
+
+
+							for (let c = 0, cl = configs.length; c < cl; c++) {
+
+								let config     = configs[c];
+								let identifier = config.buffer.source.header.identifier;
+								let result     = config.buffer.source.result;
+
+
+								let knowledge = {};
+
+								knowledge.states     = Object.keys(result.states);
+								knowledge.properties = Object.keys(result.properties).map(function(pid) {
+									return [ pid, result.properties[pid].hash ];
+								});
+								knowledge.enums      = Object.keys(result.enums);
+								knowledge.events     = Object.keys(result.events).map(function(eid) {
+									return [ eid, result.events[eid].hash ];
+								});
+								knowledge.methods    = Object.keys(result.methods).map(function(mid) {
+									return [ mid, result.methods[mid].hash ];
+								});
+
+
+								buffer[config.url] = {
+									identifier: identifier,
+									timestamp:  Date.now(),
+									knowledge:  knowledge
+								};
+
+							}
+
+							stash.write([
+								index.url
+							], function(result) {
+								oncomplete(result);
+							});
+
+							stash.sync();
+
+						} else {
+							oncomplete(false);
 						}
 
-
-						let buffer = this.buffer;
-
-						for (let c = 0, cl = configs.length; c < cl; c++) {
-
-							let config     = configs[c];
-							let identifier = config.buffer.source.header.identifier;
-							let result     = config.buffer.source.result;
-
-
-							let knowledge = {};
-
-							knowledge.states     = Object.keys(result.states);
-							knowledge.properties = Object.keys(result.properties).map(function(pid) {
-								return [ pid, result.properties[pid].hash ];
-							});
-							knowledge.enums      = Object.keys(result.enums);
-							knowledge.events     = Object.keys(result.events).map(function(eid) {
-								return [ eid, result.events[eid].hash ];
-							});
-							knowledge.methods    = Object.keys(result.methods).map(function(mid) {
-								return [ mid, result.methods[mid].hash ];
-							});
-
-
-							buffer[config.url] = {
-								identifier: identifier,
-								timestamp:  Date.now(),
-								knowledge:  knowledge
-							};
-
-						}
-
-
-						stash.write(index.url, index);
-						stash.sync();
-
-						oncomplete(true);
-
-					};
-
-					index.load();
+					}, this);
 
 				} else {
 					oncomplete(true);

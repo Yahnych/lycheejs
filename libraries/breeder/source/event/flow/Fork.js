@@ -355,9 +355,13 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 					}
 
-					stash.write(pkg.url, pkg);
-
-					oncomplete(true);
+					stash.write([
+						pkg.url
+					], [
+						pkg
+					], function(result) {
+						oncomplete(true);
+					});
 
 				} else {
 					oncomplete(true);

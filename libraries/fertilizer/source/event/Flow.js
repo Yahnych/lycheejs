@@ -18,17 +18,7 @@ lychee.define('fertilizer.event.Flow').requires([
 	const _STASH       = new _Stash({
 		type: _Stash.TYPE.persistent
 	});
-
-
-	const _TEXTURE = (function(stash) {
-
-		let texture = stash.read('/libraries/breeder/asset/init/icon.png');
-
-		texture.load();
-
-		return texture;
-
-	})(_STASH);
+	const _TEXTURE     = _STASH.read('/libraries/breeder/asset/init/icon.png')[0] || null;
 
 
 

@@ -19,18 +19,23 @@ lychee.define('studio.net.Server').includes([
 			let stash = main.stash || null;
 			if (stash !== null) {
 
-				let root = lychee.ROOT.project;
+				let urls   = [];
+				let assets = [];
+				let root   = lychee.ROOT.project;
 
 				lychee.ROOT.project = lychee.ROOT.lychee;
 
-				for (let id in data.assets) {
+				for (let url in data.assets) {
 
-					let asset = lychee.deserialize(data.assets[id]);
+					let asset = lychee.deserialize(data.assets[url]);
 					if (asset !== null) {
-						stash.write(id, asset);
+						assets.push(asset);
+						urls.push(url);
 					}
 
 				}
+
+				stash.write(urls, assets);
 
 				lychee.ROOT.project = root;
 

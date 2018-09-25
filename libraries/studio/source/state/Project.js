@@ -116,18 +116,30 @@ lychee.define('studio.state.Project').requires([
 
 				if (asset !== null && stash !== null) {
 
+					let assets = [];
+					let urls   = [];
+
 					if (asset.icon !== null) {
-						stash.write(asset.icon.url, asset.icon);
+						assets.push(asset.icon);
+						urls.push(asset.icon.url);
 					}
 
 					if (asset.config !== null) {
-						stash.write(asset.config.url, asset.config);
+						assets.push(asset.config);
+						urls.push(asset.config.url);
 					}
 
+					if (urls.length > 0) {
 
-					if (notice !== null) {
-						notice.setLabel('Project saved.');
-						notice.setState('active');
+						stash.write(urls, assets, function(result) {
+
+							if (notice !== null) {
+								notice.setLabel('Project saved.');
+								notice.setState('active');
+							}
+
+						});
+
 					}
 
 				}

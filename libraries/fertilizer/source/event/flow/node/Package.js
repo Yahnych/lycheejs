@@ -28,29 +28,27 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 
 		if (project !== null && shell !== null && stash !== null && target !== null) {
 
-			let prefix  = project + '/build/' + target + '-' + os + '-' + arch;
-			let runtime = stash.read('/bin/runtime/node/' + os + '/' + arch + '/' + binary);
+			let prefix = project + '/build/' + target + '-' + os + '-' + arch;
 
-			runtime.onload = function(result) {
+			stash.read([
+				'/bin/runtime/node/' + os + '/' + arch + '/' + binary
+			], function(binaries) {
 
-				if (result === true) {
+				let runtime = binaries[0] || null;
+				if (runtime !== null) {
 
 					let files = assets.slice(0).concat(runtime).concat(_INDEX[os]);
 					let urls  = files.map(asset => prefix + '/' + asset.url.split('/').pop());
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', urls, files);
+					stash.write(urls, files, function(result) {
+						oncomplete(result);
+					});
 
 				} else {
 					oncomplete(false);
 				}
 
-			}.bind(this);
-
-			runtime.load();
+			});
 
 		} else {
 			oncomplete(false);

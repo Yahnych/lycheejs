@@ -251,30 +251,38 @@ lychee.define('studio.state.Asset').requires([
 
 				if (stash !== null) {
 
+					let assets = [];
+					let urls   = [];
+
 					if (_validate_asset(asset) === true) {
 
-						stash.write(asset.url, asset);
-
-						if (notice !== null) {
-							notice.setLabel('Asset saved.');
-							notice.setState('active');
-						}
+						assets.push(asset);
+						urls.push(asset.url);
 
 					} else if (asset instanceof Object) {
 
-						for (let id in asset) {
+						for (let aid in asset) {
 
-							let subasset = asset[id];
-							if (_validate_asset(subasset) === true) {
-								stash.write(subasset.url, subasset);
+							if (_validate_asset(asset[aid]) === true) {
+								urls.push(asset[aid].url);
+								assets.push(asset[aid]);
 							}
 
 						}
 
-						if (notice !== null) {
-							notice.setLabel('Assets saved.');
-							notice.setState('active');
-						}
+					}
+
+
+					if (urls.length > 0) {
+
+						stash.write(urls, assets, function(result) {
+
+							if (notice !== null) {
+								notice.setLabel('Assets saved.');
+								notice.setState('active');
+							}
+
+						});
 
 					}
 
