@@ -126,12 +126,10 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 					if (configs.length > 0) {
 
-						stash.bind('batch', function(type, assets) {
+						stash.read(configs.map(url => library + '/api/' + url), function(assets) {
 							this.configs = assets.filter(asset => asset !== null);
 							oncomplete(true);
-						}, this, true);
-
-						stash.batch('read', configs.map(url => library + '/api/' + url));
+						}, this);
 
 					} else {
 						oncomplete(true);
@@ -301,17 +299,9 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				let sources = this.sources.filter(asset => asset !== null);
 				if (sources.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-
-						if (assets.length === sources.length) {
-							oncomplete(true);
-						} else {
-							oncomplete(false);
-						}
-
-					}, this, true);
-
-					stash.batch('write', sources.map(asset => asset.url), sources);
+					stash.write(sources.map(asset => asset.url), sources, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);
@@ -339,17 +329,9 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 				let reviews = this.reviews.filter(asset => asset !== null);
 				if (reviews.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-
-						if (assets.length === reviews.length) {
-							oncomplete(true);
-						} else {
-							oncomplete(false);
-						}
-
-					}, this, true);
-
-					stash.batch('write', reviews.map(asset => asset.url), reviews);
+					stash.write(reviews.map(asset => asset.url), reviews, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);

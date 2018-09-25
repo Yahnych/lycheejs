@@ -193,7 +193,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 				console.log('breeder: FORK/READ-ASSETS "' + _ASSET + '"');
 
 
-				let assets = [
+				let urls = [
 					_ASSET + '/index.html',
 					_ASSET + '/lychee.pkg'
 				];
@@ -201,11 +201,11 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 				let node_main = this.__environments.find(env => env.id === 'node/main') || null;
 				if (node_main !== null) {
-					assets.push(_ASSET + '/harvester.js');
+					urls.push(_ASSET + '/harvester.js');
 				}
 
 
-				_STASH.bind('batch', function(type, assets) {
+				_STASH.read(urls, function(assets) {
 
 					this.assets = assets.filter(asset => asset !== null);
 
@@ -215,9 +215,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 					oncomplete(true);
 
-				}, this, true);
-
-				_STASH.batch('read', assets);
+				}, this);
 
 			} else {
 				oncomplete(false);
@@ -233,16 +231,16 @@ lychee.define('breeder.event.flow.Fork').requires([
 				console.log('breeder: FORK/READ-SOURCES "' + _ASSET + '"');
 
 
-				let assets = [
+				let urls = [
 					_ASSET + '/source/Main.js'
 				];
 
 				if (project.startsWith('/libraries')) {
-					assets.push(_ASSET + '/source/DIST.js');
+					urls.push(_ASSET + '/source/DIST.js');
 				}
 
 
-				_STASH.bind('batch', function(type, assets) {
+				_STASH.read(urls, function(assets) {
 
 					this.sources = assets.filter(asset => asset !== null);
 
@@ -252,10 +250,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 					oncomplete(true);
 
-				}, this, true);
-
-				_STASH.batch('read', assets);
-
+				}, this);
 
 			} else {
 				oncomplete(false);
@@ -281,11 +276,9 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 				if (assets.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', assets.map(asset => asset.url), assets);
+					stash.write(assets.map(asset => asset.url), assets, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);
@@ -313,11 +306,9 @@ lychee.define('breeder.event.flow.Fork').requires([
 				let sources = this.sources.filter(asset => asset !== null);
 				if (sources.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', sources.map(asset => asset.url), sources);
+					stash.write(sources.map(asset => asset.url), sources, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);

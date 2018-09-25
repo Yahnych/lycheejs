@@ -493,11 +493,9 @@ lychee.define('lychee.Stash').tags({
 
 							loading++;
 
-							asset.onload = function(result) {
+							asset.onload = function() {
 
-								if (result.includes(asset) === false) {
-									loading--;
-								}
+								loading--;
 
 								if (callback !== null && loading === 0) {
 									callback.call(scope, result);
@@ -515,9 +513,8 @@ lychee.define('lychee.Stash').tags({
 
 				}
 
-
 				if (callback !== null) {
-					callback.call(scope, result);
+					return;
 				} else {
 					return result;
 				}
@@ -558,6 +555,7 @@ lychee.define('lychee.Stash').tags({
 
 				if (callback !== null) {
 					callback.call(scope, true);
+					return;
 				} else {
 					return true;
 				}
@@ -581,7 +579,7 @@ lychee.define('lychee.Stash').tags({
 			scope    = scope !== undefined          ? scope    : this;
 
 
-			if (urls !== null) {
+			if (urls !== null && assets !== null) {
 
 				if (urls.length === assets.length) {
 
@@ -606,6 +604,7 @@ lychee.define('lychee.Stash').tags({
 
 					if (callback !== null) {
 						callback.call(scope, true);
+						return;
 					} else {
 						return true;
 					}

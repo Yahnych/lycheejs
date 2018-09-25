@@ -78,12 +78,9 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 		let stash = this.stash;
 		if (stash !== null) {
 
-			stash.bind('batch', function() {
-				console.log('ASD');
-				oncomplete(true);
-			}, this, true);
-
-			stash.batch('write', urls, binaries);
+			stash.write(urls, binaries, function(result) {
+				oncomplete(result);
+			});
 
 		} else {
 			oncomplete(false);
@@ -104,7 +101,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 			let prefix2 = '/bin/runtime/html-nwjs/linux/' + arch;
 
 
-			stash.bind('batch', function(type, binaries) {
+			stash.read(_ASSETS.linux.map(file => prefix2 + '/' + file), function(binaries) {
 
 				let runtime = binaries.find(asset => asset.url.endsWith('/nw')) || null;
 				if (runtime !== null) {
@@ -131,11 +128,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 					_write_binaries.call(this, urls, binaries, oncomplete);
 				}.bind(this), 100);
 
-			}, this, true);
-
-			stash.batch('read', _ASSETS.linux.map(file => {
-				return prefix2 + '/' + file;
-			}));
+			}, this);
 
 		} else {
 			oncomplete(false);
@@ -161,7 +154,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 				app_nw.url = prefix2 + '/nwjs.app/Contents/Resources/app.nw';
 
 
-				stash.bind('batch', function(type, binaries) {
+				stash.read(_ASSETS.macos.map(file => prefix2 + '/' + file), function(binaries) {
 
 					binaries = binaries.concat(app_nw);
 
@@ -203,11 +196,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 						_write_binaries.call(this, urls, binaries, oncomplete);
 					}.bind(this), 100);
 
-				}, this, true);
-
-				stash.batch('read', _ASSETS.macos.map(file => {
-					return prefix2 + '/' + file;
-				}));
+				}, this);
 
 			} else {
 				oncomplete(false);
@@ -232,7 +221,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 			let prefix2 = '/bin/runtime/html-nwjs/windows/' + arch;
 
 
-			stash.bind('batch', function(type, binaries) {
+			stash.read(_ASSETS.windows.map(file => prefix2 + '/' + file), function(binaries) {
 
 				let runtime = binaries.find(asset => asset.url.endsWith('/nw.exe')) || null;
 				if (runtime !== null) {
@@ -261,11 +250,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 					_write_binaries.call(this, urls, binaries, oncomplete);
 				}.bind(this), 100);
 
-			}, this, true);
-
-			stash.batch('read', _ASSETS.windows.map(file => {
-				return prefix2 + '/' + file;
-			}));
+			}, this);
 
 		} else {
 			oncomplete(false);

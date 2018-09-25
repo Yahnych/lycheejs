@@ -524,12 +524,10 @@ lychee.define('strainer.event.flow.Check').requires([
 					let sources = pkg.getFiles().filter(url => url.endsWith('.js') && url.split('/').pop().split('.').length === 2);
 					if (sources.length > 0) {
 
-						stash.bind('batch', function(type, assets) {
+						stash.read(sources.map(url => project + '/source/' + url), function(assets) {
 							this.sources = assets.filter(asset => asset !== null);
 							oncomplete(true);
-						}, this, true);
-
-						stash.batch('read', sources.map(url => project + '/source/' + url));
+						}, this);
 
 					} else {
 						oncomplete(true);
@@ -686,12 +684,10 @@ lychee.define('strainer.event.flow.Check').requires([
 					let reviews = pkg.getFiles().filter(url => url.endsWith('.js'));
 					if (reviews.length > 0) {
 
-						stash.bind('batch', function(type, assets) {
+						stash.read(reviews.map(url => project + '/review/' + url), function(assets) {
 							this.reviews = assets.filter(asset => asset !== null);
 							oncomplete(true);
-						}, this, true);
-
-						stash.batch('read', reviews.map(url => project + '/review/' + url));
+						}, this);
 
 					} else {
 						oncomplete(true);
@@ -877,7 +873,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					if (candidates.length > 0) {
 
-						stash.bind('batch', function(type, assets) {
+						stash.read(candidates, function(assets) {
 
 							for (let a = 0, al = assets.length; a < al; a++) {
 
@@ -906,9 +902,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 							}.bind(this), 100);
 
-						}, this, true);
-
-						stash.batch('read', candidates);
+						}, this);
 
 					} else {
 						oncomplete(true);
@@ -1105,17 +1099,9 @@ lychee.define('strainer.event.flow.Check').requires([
 				let sources = this.sources.filter(asset => asset._MODIFIED === true);
 				if (sources.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-
-						if (assets.length === sources.length) {
-							oncomplete(true);
-						} else {
-							oncomplete(false);
-						}
-
-					}, this, true);
-
-					stash.batch('write', sources.map(asset => asset.url), sources);
+					stash.write(sources.map(asset => asset.url), sources, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);
@@ -1143,17 +1129,9 @@ lychee.define('strainer.event.flow.Check').requires([
 				let reviews = this.reviews.filter(asset => asset._MODIFIED === true);
 				if (reviews.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-
-						if (assets.length === reviews.length) {
-							oncomplete(true);
-						} else {
-							oncomplete(false);
-						}
-
-					}, this, true);
-
-					stash.batch('write', reviews.map(asset => asset.url), reviews);
+					stash.write(reviews.map(asset => asset.url), reviews, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);
@@ -1181,17 +1159,9 @@ lychee.define('strainer.event.flow.Check').requires([
 				let configs = this.configs.filter(config => config !== null);
 				if (configs.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-
-						if (assets.length === configs.length) {
-							oncomplete(true);
-						} else {
-							oncomplete(false);
-						}
-
-					}, this, true);
-
-					stash.batch('write', configs.map(asset => asset.url), configs);
+					stash.write(configs.map(asset => asset.url), configs, function(result) {
+						oncomplete(result);
+					}, this);
 
 				} else {
 					oncomplete(true);
@@ -1264,6 +1234,8 @@ lychee.define('strainer.event.flow.Check').requires([
 
 							stash.write([
 								index.url
+							], [
+								index
 							], function(result) {
 								oncomplete(result);
 							});

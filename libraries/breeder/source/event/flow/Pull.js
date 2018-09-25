@@ -221,19 +221,15 @@ lychee.define('breeder.event.flow.Pull').requires([
 
 				console.log('breeder: PULL/READ-ASSETS "' + project + '"');
 
-
-				stash.bind('batch', function(type, assets) {
-
-					this.assets = assets.filter(asset => asset !== null && asset.buffer !== null);
-
-					oncomplete(true);
-
-				}, this, true);
-
-				stash.batch('read', [
+				stash.read([
 					project + '/harvester.js',
 					project + '/index.html'
-				]);
+				], function(assets) {
+
+					this.assets = assets.filter(asset => asset !== null && asset.buffer !== null);
+					oncomplete(true);
+
+				}, this);
 
 			} else {
 				oncomplete(false);
@@ -278,20 +274,14 @@ lychee.define('breeder.event.flow.Pull').requires([
 					pkg.setType('source');
 
 
-
 					if (platforms.length > 0) {
 
 						platforms = platforms.sort();
 
-						_STASH.bind('batch', function(type, assets) {
-
+						_STASH.read(platforms.map(platform => library + '/build/' + platform + '/dist/index.js'), function(assets) {
 							this.injects = assets.filter(asset => asset !== null && asset.buffer !== null);
-
 							oncomplete(true);
-
-						}, this, true);
-
-						_STASH.batch('read', platforms.map(platform => library + '/build/' + platform + '/dist/index.js'));
+						}, this);
 
 					} else {
 						oncomplete(true);
@@ -333,11 +323,9 @@ lychee.define('breeder.event.flow.Pull').requires([
 				let assets = this.assets;
 				if (assets.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', assets.map(asset => asset.url), assets);
+					stash.write(assets.map(asset => asset.url), assets, function(result) {
+						oncomplete(result);
+					});
 
 				} else {
 					oncomplete(true);
@@ -365,11 +353,9 @@ lychee.define('breeder.event.flow.Pull').requires([
 				let injects = this.injects;
 				if (injects.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', injects.map(asset => project + asset.url), injects);
+					stash.write(injects.map(asset => project + asset.url), injects, function(result) {
+						oncomplete(result);
+					});
 
 				} else {
 					oncomplete(true);

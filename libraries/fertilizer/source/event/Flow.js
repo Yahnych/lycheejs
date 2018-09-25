@@ -18,7 +18,7 @@ lychee.define('fertilizer.event.Flow').requires([
 	const _STASH       = new _Stash({
 		type: _Stash.TYPE.persistent
 	});
-	const _TEXTURE     = _STASH.read('/libraries/breeder/asset/init/icon.png')[0] || null;
+	const _TEXTURE     = _STASH.read([ '/libraries/breeder/asset/init/icon.png' ])[0] || null;
 
 
 
@@ -278,13 +278,13 @@ lychee.define('fertilizer.event.Flow').requires([
 				console.log('fertilizer: ' + action + '/READ-ASSETS "' + project + '"');
 
 
-				stash.bind('batch', function(type, assets) {
+				stash.read([
+					project + '/icon.png',
+					project + '/manifest.json',
+					project + '/package.json'
+				], function(assets) {
 
-					assets = assets.filter(asset => asset !== null);
-					assets = assets.filter(asset => asset.buffer !== null);
-
-					this.assets = assets;
-
+					this.assets = assets.filter(asset => asset.buffer !== null);
 
 					let meta_icon = this.assets.find(asset => asset.url.endsWith('/icon.png')) || null;
 					if (meta_icon === null || meta_icon.buffer === null) {
@@ -306,15 +306,7 @@ lychee.define('fertilizer.event.Flow').requires([
 
 					oncomplete(true);
 
-				}, this, true);
-
-				stash.batch('read', [
-
-					project + '/icon.png',
-					project + '/manifest.json',
-					project + '/package.json'
-
-				]);
+				}, this);
 
 			} else {
 				oncomplete(false);
@@ -337,9 +329,11 @@ lychee.define('fertilizer.event.Flow').requires([
 				let platform = target.split('/')[0] || null;
 				if (platform !== null) {
 
-					stash.bind('batch', function(type, assets) {
+					stash.read([
+						'/libraries/crux/build/' + platform + '/dist.js'
+					], function(assets) {
 
-						let asset = assets.find(asset => asset.url.endsWith('/dist.js')) || null;
+						let asset = assets[0] || null;
 						if (asset !== null) {
 
 							asset.url = './crux.js';
@@ -352,13 +346,7 @@ lychee.define('fertilizer.event.Flow').requires([
 							oncomplete(false);
 						}
 
-					}, this, true);
-
-					stash.batch('read', [
-
-						'/libraries/crux/build/' + platform + '/dist.js'
-
-					]);
+					}, this);
 
 				} else {
 					oncomplete(false);
@@ -552,11 +540,7 @@ lychee.define('fertilizer.event.Flow').requires([
 				let assets = this.assets;
 				if (assets.length > 0) {
 
-					stash.bind('batch', function(type, assets) {
-						oncomplete(true);
-					}, this, true);
-
-					stash.batch('write', assets.map(asset => {
+					stash.write(assets.map(asset => {
 
 						let url = asset.url;
 						if (url.startsWith(project)) {
@@ -565,7 +549,9 @@ lychee.define('fertilizer.event.Flow').requires([
 							return project + '/build/' + target + url.substr(1);
 						}
 
-					}), assets);
+					}), assets, function(result) {
+						oncomplete(true);
+					}, this);
 
 				} else {
 					oncomplete(true);
