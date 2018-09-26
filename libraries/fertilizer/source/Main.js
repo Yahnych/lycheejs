@@ -35,6 +35,53 @@ lychee.define('fertilizer.Main').requires([
 	 * HELPERS
 	 */
 
+	const _self_check = function(flows) {
+
+		flows = flows instanceof Array ? flows : null;
+
+
+		if (flows !== null) {
+
+			console.log('fertilizer: self-check');
+
+			let result = true;
+
+			for (let f = 0, fl = flows.length; f < fl; f++) {
+
+				let flow   = flows[f];
+				let events = Object.keys(flow.___events);
+				let stacks = Object.values(flow.___events);
+
+				let check = stacks.map(stack => stack.length).find(val => val > 1) || null;
+				if (check !== null) {
+
+					console.warn('fertilizer: -> Invalid Flow "' + flow.displayName + '".');
+					result = false;
+
+					events.forEach((event, e) => {
+
+						let length = stacks[e].length;
+						if (length > 1) {
+							console.warn('fertilizer: -> Event "' + event + '" has ' + length + ' bindings.');
+						}
+
+					});
+
+				}
+
+			}
+
+
+			if (result === true) {
+				console.info('fertilizer: -> SUCCESS');
+			} else {
+				console.warn('fertilizer: -> FAILURE');
+			}
+
+		}
+
+	};
+
 	const _create_flow = function(data) {
 
 		let platform = data.target.split('/').shift() || null;
@@ -50,6 +97,23 @@ lychee.define('fertilizer.Main').requires([
 				if (_flow[platform].Configure !== undefined) Configure = _flow[platform].Configure;
 				if (_flow[platform].Build !== undefined)     Build     = _flow[platform].Build;
 				if (_flow[platform].Package !== undefined)   Package   = _flow[platform].Package;
+
+			} else if (platform.includes('-') === true) {
+
+				let major = platform.split('-')[0];
+				let minor = platform.split('-')[1];
+
+				if (_flow[major] !== undefined) {
+					if (_flow[major].Configure !== undefined) Configure = _flow[major].Configure;
+					if (_flow[major].Build !== undefined)     Build     = _flow[major].Build;
+					if (_flow[major].Package !== undefined)   Package   = _flow[major].Package;
+				}
+
+				if (_flow[major + '-' + minor] !== undefined) {
+					if (_flow[major + '-' + minor].Configure !== undefined) Configure = _flow[major + '-' + minor].Configure;
+					if (_flow[major + '-' + minor].Build !== undefined)     Build     = _flow[major + '-' + minor].Build;
+					if (_flow[major + '-' + minor].Package !== undefined)   Package   = _flow[major + '-' + minor].Package;
+				}
 
 			}
 
@@ -100,39 +164,43 @@ lychee.define('fertilizer.Main').requires([
 
 				}
 
-
-				let events = Object.keys(flow_fertilize.___events);
-				let stacks = Object.values(flow_fertilize.___events);
-
-				let check = stacks.map(stack => stack.length).find(val => val > 1) || null;
-				if (check !== null) {
-					console.warn('fertilizer: -> Flow "fertilizer.event.flow.' + platform + '.*" might be invalid.');
-
-					events.forEach((event, e) => {
-
-						let length = stacks[e].length;
-						if (length > 1) {
-							console.warn('fertilizer: -> Event "' + event + '" has ' + length + ' bindings.');
-						}
-
-					});
-
-				}
-
+				_self_check([
+					flow_configure,
+					flow_build,
+					flow_package
+				]);
 
 				return flow_fertilize;
 
 			} else if (action === 'configure') {
 
-				return new Configure(data);
+				let flow = new Configure(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
 
 			} else if (action === 'build') {
 
-				return new Build(data);
+				let flow = new Build(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
 
 			} else if (action === 'package') {
 
-				return new Package(data);
+				let flow = new Package(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
 
 			}
 

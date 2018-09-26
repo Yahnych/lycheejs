@@ -170,6 +170,8 @@ lychee.define('fertilizer.event.flow.html-nwjs.Build').includes([
 		 * INITIALIZATION
 		 */
 
+		this.unbind('build-assets');
+
 		this.bind('build-assets', function(oncomplete) {
 
 			let action  = this.action;

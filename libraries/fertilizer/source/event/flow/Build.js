@@ -23,16 +23,6 @@ lychee.define('fertilizer.event.flow.Build').includes([
 
 
 		/*
-		 * INITIALIZATION
-		 */
-
-		this.bind('build-assets', function(oncomplete) {
-			oncomplete(true);
-		}, this);
-
-
-
-		/*
 		 * FLOW
 		 */
 
