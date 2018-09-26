@@ -244,8 +244,6 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 				});
 
-				urls.forEach(url => console.log(url));
-
 				setTimeout(function() {
 					_write_binaries.call(this, urls, binaries, oncomplete);
 				}.bind(this), 100);
