@@ -186,6 +186,9 @@
 					"Package": [
 						"js"
 					],
+					"Publish": [
+						"js"
+					],
 					"html": {
 						"Build": [
 							"index.appcache",

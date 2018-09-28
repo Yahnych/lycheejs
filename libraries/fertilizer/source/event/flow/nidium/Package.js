@@ -155,6 +155,8 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 		this.then('package-runtime');
 		this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 

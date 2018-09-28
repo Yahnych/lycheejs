@@ -104,7 +104,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 			try {
 
-				_exec('/bin/bash ' + _ROOT + '/bin/helper.sh lycheejs://' + value);
+				_exec('/bin/bash ' + _ROOT + '/bin/helper/helper.sh lycheejs://' + value);
 
 				result = true;
 

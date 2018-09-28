@@ -84,7 +84,7 @@ lychee.define('harvester.mod.Strainer').tags({
 
 		try {
 
-			// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', _ROOT + '/libraries/strainer/bin/strainer.js', target, project ])
+			// XXX: Alternative (_ROOT + '/bin/helper/helper.sh', [ 'env:node', _ROOT + '/libraries/strainer/bin/strainer.js', target, project ])
 
 			handle = _child_process.execFile(_BINARY, [
 				_ROOT + '/libraries/strainer/bin/strainer.js',

@@ -86,7 +86,7 @@ lychee.define('harvester.mod.Fertilizer').tags({
 
 		try {
 
-			// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', _ROOT + '/libraries/fertilizer/bin/fertilizer.js', target, project ])
+			// XXX: Alternative (_ROOT + '/bin/helper/helper.sh', [ 'env:node', _ROOT + '/libraries/fertilizer/bin/fertilizer.js', target, project ])
 			handle = _child_process.execFile(_BINARY, [
 				_ROOT + '/libraries/fertilizer/bin/fertilizer.js',
 				target,

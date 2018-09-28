@@ -119,7 +119,7 @@ const _read_pid = function() {
 
 	try {
 
-		let tmp = _fs.readFileSync(PID, 'utf8');
+		let tmp = _fs.readFileSync(_PID, 'utf8');
 
 		if (!isNaN(parseInt(tmp, 10))) {
 			pid = parseInt(tmp, 10);
@@ -138,7 +138,7 @@ const _write_pid = function() {
 	let result = false;
 
 	try {
-		_fs.writeFileSync(_PID, 'utf8', '' + process.pid);
+		_fs.writeFileSync(_PID, '' + process.pid, 'utf8');
 	} catch (err) {
 		result = false;
 	}
@@ -323,20 +323,27 @@ const _SETTINGS = (function() {
 
 		let pid = _read_pid();
 		if (pid !== null) {
-			console.log('Running (' + pid + ')');
-			process.exit(0);
-		} else {
-			console.log('Not running');
-			process.exit(1);
-		}
 
+			console.log('harvester: -> Checking');
+			console.info('harvester: -> Instance active ("' + pid + '").');
+
+			process.exit(0);
+
+		} else {
+
+			console.log('harvester: -> Checking');
+			console.error('harvester: -> Instance inactive.');
+
+			process.exit(1);
+
+		}
 
 	} else if (action === 'stop') {
 
 		let pid = _read_pid();
 		if (pid !== null) {
 
-			console.info('SHUTDOWN (' + pid + ')');
+			console.log('harvester: -> Stopping "' + pid + '"');
 
 			let killed = false;
 
@@ -357,20 +364,25 @@ const _SETTINGS = (function() {
 
 				_clear_pid();
 
+				console.info('harvester: -> SUCCESS');
+				process.exit(0);
+
 			} else {
 
-				console.info('RIGHTS FAILURE (OR PROCESS ' + pid + ' ALEADY DEAD?)');
+				console.error('harvester: -> FAILURE');
+				console.error('harvester: Please check whether process "' + pid + '" is already dead.');
+				console.error('harvester: Current user possibly has no rights to kill processes.');
+
+				process.exit(1);
 
 			}
 
-
-			process.exit(0);
-
 		} else {
 
-			console.info('PROCESS ALREADY DEAD!');
+			console.log('harvester: -> Stopping');
+			console.info('harvester: -> SUCCESS');
 
-			process.exit(1);
+			process.exit(0);
 
 		}
 

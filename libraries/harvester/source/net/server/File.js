@@ -34,6 +34,12 @@ lychee.define('harvester.net.server.File').requires([
 		'zip':      { binary: true,  type: 'application/zip'               }
 	};
 
+	const _GUIDES_PROJECT = {
+		identifier: '/guides',
+		filesystem: new _Filesystem({
+			root: '/guides'
+		})
+	};
 	const _PUBLIC_PROJECT = {
 		identifier: '/libraries/harvester/public',
 		filesystem: new _Filesystem({
@@ -130,24 +136,34 @@ lychee.define('harvester.net.server.File').requires([
 
 			let mime = _MIME[url.split('.').pop()] || _MIME['default'];
 
-			// Multi-library mode /libraries/*
 			if (url.startsWith('/libraries')) {
+
+				// /libraries/lychee/*
 
 				identifier = url.split('/').slice(0, 3).join('/');
 				path       = '/' + url.split('/').slice(3).join('/');
 				project    = lychee.import('MAIN')._libraries[identifier] || null;
 
 
-			// Multi-project mode /projects/*
 			} else if (url.startsWith('/projects')) {
+
+				// /projects/boilerplate/*
 
 				identifier = url.split('/').slice(0, 3).join('/');
 				path       = '/' + url.split('/').slice(3).join('/');
 				project    = lychee.import('MAIN')._projects[identifier] || null;
 
+			} else if (url.startsWith('/guides')) {
 
-			// /favicon.ico /index.html
+				// /guides/software/lycheejs-breeder.md
+
+				identifier = null;
+				path       = '/' + url.split('/').slice(2).join('/');
+				project    = _GUIDES_PROJECT;
+
 			} else {
+
+				// /favicon.ico /index.html
 
 				identifier = null;
 				path       = url;

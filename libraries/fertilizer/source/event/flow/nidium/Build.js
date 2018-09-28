@@ -183,6 +183,8 @@ lychee.define('fertilizer.event.flow.nidium.Build').includes([
 		// this.then('package-runtime');
 		// this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 

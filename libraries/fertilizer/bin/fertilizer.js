@@ -25,7 +25,7 @@ if (process.argv.includes('--autocomplete')) {
 
 const _print_autocomplete = function(action, project, target, flag1, flag2) {
 
-	let actions   = [ 'build', 'configure', 'package', 'fertilize' ];
+	let actions   = [ 'build', 'configure', 'package', 'fertilize', 'publish' ];
 	let flags     = [ '--debug', '--sandbox' ];
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
@@ -127,8 +127,9 @@ const _print_help = function() {
 	console.log('                                                                      ');
 	console.log('Available Actions:                                                    ');
 	console.log('                                                                      ');
-	console.log('    configure, build, package                                         ');
-	console.log('    fertilize (autonomous mode)                                       ');
+	console.log('    configure, build, package (manual mode)                           ');
+	console.log('    fertilize                 (autonomous mode)                       ');
+	console.log('    publish                                                           ');
 	console.log('                                                                      ');
 	console.log('Available Libraries:                                                  ');
 	console.log('                                                                      ');
@@ -379,7 +380,7 @@ const _SETTINGS = (function() {
 	};
 
 
-	let action       = args.find(val => /^(fertilize|build|configure|package)$/g.test(val));
+	let action       = args.find(val => /^(fertilize|build|configure|package|publish)$/g.test(val));
 	let project      = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
 	let target       = args.find(val => /^(([a-z-]+|\*))\/(([a-z]+)|\*)$/g.test(val));
 	let debug_flag   = args.find(val => /--([debug]{5})/g.test(val));

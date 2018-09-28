@@ -203,7 +203,7 @@ lychee.define('harvester.mod.Server').tags({
 					args.push('--debug');
 				}
 
-				// XXX: Alternative (_ROOT + '/bin/helper.sh', [ 'env:node', file, port, host ])
+				// XXX: Alternative (_ROOT + '/bin/helper/helper.sh', [ 'env:node', file, port, host ])
 				handle = _child_process.execFile(_BINARY, args, {
 					cwd: _ROOT + project
 				}, function(error) {

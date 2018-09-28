@@ -247,6 +247,8 @@ lychee.define('fertilizer.event.flow.html-nwjs.Build').includes([
 		// this.then('package-runtime');
 		// this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 

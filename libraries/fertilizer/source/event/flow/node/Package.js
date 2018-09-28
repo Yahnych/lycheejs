@@ -159,6 +159,8 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 		this.then('package-runtime');
 		this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 

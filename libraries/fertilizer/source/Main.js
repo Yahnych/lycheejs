@@ -7,6 +7,7 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.Configure',
 	'fertilizer.event.flow.Fertilize',
 	'fertilizer.event.flow.Package',
+	'fertilizer.event.flow.Publish',
 	'fertilizer.event.flow.html.Build',
 	'fertilizer.event.flow.html-nwjs.Build',
 	'fertilizer.event.flow.html-webview.Build',
@@ -27,6 +28,7 @@ lychee.define('fertilizer.Main').requires([
 	const _Flow      = lychee.import('fertilizer.event.Flow');
 	const _Fertilize = lychee.import('fertilizer.event.flow.Fertilize');
 	const _Package   = lychee.import('fertilizer.event.flow.Package');
+	const _Publish   = lychee.import('fertilizer.event.flow.Publish');
 	const _Queue     = lychee.import('lychee.event.Queue');
 
 
@@ -91,6 +93,7 @@ lychee.define('fertilizer.Main').requires([
 			let Build     = _Build;
 			let Package   = _Package;
 			let Fertilize = _Fertilize;
+			let Publish   = _Publish;
 
 			if (_flow[platform] !== undefined) {
 
@@ -195,6 +198,16 @@ lychee.define('fertilizer.Main').requires([
 			} else if (action === 'package') {
 
 				let flow = new Package(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
+
+			} else if (action === 'publish') {
+
+				let flow = new Publish(data);
 
 				_self_check([
 					flow

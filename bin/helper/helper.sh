@@ -12,7 +12,7 @@ if [ -z "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="/opt/lycheejs";
 fi;
 
-LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" | cut -d"\"" -f2);
+LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" | cut -d"'" -f2);
 CHILD_PID="";
 
 

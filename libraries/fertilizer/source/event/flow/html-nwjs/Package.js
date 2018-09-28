@@ -380,6 +380,8 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 		this.then('package-runtime');
 		this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 

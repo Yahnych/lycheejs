@@ -119,9 +119,10 @@ lychee.define('harvester.Main').requires([
 	const Composite = function(states) {
 
 		this.settings = lychee.assignsafe({
-			debug: false,
-			host:  'localhost',
-			port:  8080
+			debug:   false,
+			host:    'localhost',
+			port:    8080,
+			sandbox: false
 		}, states);
 
 
@@ -178,12 +179,12 @@ lychee.define('harvester.Main').requires([
 
 
 			console.log('');
-			console.info('+-------------------------------------------------------+');
-			console.info('| Open one of these URLs with a Blink-based Web Browser |');
-			console.info('+-------------------------------------------------------+');
+			console.info('harvester.Main: +-------------------------------------------------------+');
+			console.info('harvester.Main: | Open one of these URLs with a Blink-based Web Browser |');
+			console.info('harvester.Main: +-------------------------------------------------------+');
 			console.log('');
 			this.getHosts().forEach(function(host) {
-				console.log(host);
+				console.log('harvester.Main: ' + host);
 			});
 			console.log('');
 

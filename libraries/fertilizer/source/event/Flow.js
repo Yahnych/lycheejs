@@ -708,6 +708,53 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		}, this);
 
+		this.bind('publish-project', function(oncomplete) {
+
+			let action  = this.action;
+			let debug   = this.debug;
+			let project = this.project;
+			let shell   = this.shell;
+			let target  = this.target;
+
+			if (action !== null && project !== null && shell !== null && target !== null) {
+
+				console.log('fertilizer: ' + action + '/PUBLISH-PROJECT "' + project + '"');
+
+
+				let info = shell.info(project + '/bin/publish.sh');
+				if (info !== null && info.type === 'file') {
+
+					console.log('fertilizer: -> Executing "' + project + '/bin/publish.sh"');
+
+					shell.exec(project + '/bin/publish.sh "' + target + '"', result => {
+
+						if (result === false) {
+
+							console.warn('fertilizer: -> FAILURE');
+
+							if (debug === true) {
+								_trace_shell(shell.trace(1));
+							}
+
+							oncomplete(true);
+
+						} else {
+							oncomplete(true);
+						}
+
+					});
+
+				} else {
+					console.log('fertilizer: -> Skipping "' + project + '/bin/publish.sh"');
+					oncomplete(true);
+				}
+
+			} else {
+				oncomplete(true);
+			}
+
+		}, this);
+
 
 
 		/*
@@ -727,6 +774,8 @@ lychee.define('fertilizer.event.Flow').requires([
 
 		// this.then('package-runtime');
 		// this.then('package-project');
+
+		// this.then('publish-project');
 
 	};
 

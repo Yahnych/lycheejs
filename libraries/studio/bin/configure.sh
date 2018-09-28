@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LYCHEEJS_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../../../"; pwd);
-LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper.sh";
+LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
 PROJECT_ROOT=$(cd "$(dirname "$(readlink -f "$0")")/../"; pwd);
 PROJECT_BUILD="$1";
 

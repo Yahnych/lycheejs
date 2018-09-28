@@ -405,7 +405,7 @@ lychee.define('fertilizer.data.Shell').requires([
 					args.push('env:node');
 					args.reverse();
 
-					file = _ROOT + '/bin/helper.sh';
+					file = _ROOT + '/bin/helper/helper.sh';
 
 				}
 

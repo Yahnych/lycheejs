@@ -1,4 +1,4 @@
-lychee.define('fertilizer.event.flow.Package').includes([
+lychee.define('fertilizer.event.flow.Publish').includes([
 	'fertilizer.event.Flow'
 ]).exports(function(lychee, global, attachments) {
 
@@ -36,10 +36,10 @@ lychee.define('fertilizer.event.flow.Package').includes([
 		// this.then('write-assets');
 		// this.then('build-project');
 
-		this.then('package-runtime');
-		this.then('package-project');
+		// this.then('package-runtime');
+		// this.then('package-project');
 
-		// this.then('publish-project');
+		this.then('publish-project');
 
 	};
 
@@ -51,7 +51,7 @@ lychee.define('fertilizer.event.flow.Package').includes([
 		serialize: function() {
 
 			let data = _Flow.prototype.serialize.call(this);
-			data['constructor'] = 'fertilizer.event.flow.Package';
+			data['constructor'] = 'fertilizer.event.flow.Publish';
 
 
 			return data;

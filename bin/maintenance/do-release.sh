@@ -94,7 +94,7 @@ fi;
 
 
 CURRENT_FOLDER=$(cd "$(dirname "$0")/../../"; pwd);
-CURRENT_VERSION=$(cd $CURRENT_FOLDER && cat ./libraries/crux/source/lychee.js | grep VERSION | cut -d\" -f2);
+CURRENT_VERSION=$(grep "VERSION" "$CURRENT_FOLDER/libraries/crux/source/lychee.js" | cut -d"'" -f2);
 TARGET_VERSION=$(_get_version);
 LYCHEEJS_FERTILIZER="$TARGET_FOLDER/libraries/fertilizer/bin/fertilizer.sh";
 

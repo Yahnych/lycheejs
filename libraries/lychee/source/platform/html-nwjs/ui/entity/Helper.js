@@ -99,7 +99,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 			try {
 
-				let helper = _child_process.execFile(_ROOT + '/bin/helper.sh', [
+				let helper = _child_process.execFile(_ROOT + '/bin/helper/helper.sh', [
 					'lycheejs://' + value
 				], {
 					cwd: _ROOT

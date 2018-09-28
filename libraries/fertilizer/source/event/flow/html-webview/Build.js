@@ -266,6 +266,8 @@ lychee.define('fertilizer.event.flow.html-webview.Build').includes([
 		// this.then('package-runtime');
 		// this.then('package-project');
 
+		// this.then('publish-project');
+
 	};
 
 
