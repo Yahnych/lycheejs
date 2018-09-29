@@ -19,7 +19,6 @@ fi;
 
 
 REPO_LYCHEEJS="git@github.com:Artificial-Engineering/lycheejs.git";
-REPO_LYCHEEJS_BUNDLE="git@github.com:Artificial-Engineering/lycheejs-bundle.git";
 REPO_LYCHEEJS_LIBRARY="git@github.com:Artificial-Engineering/lycheejs-library.git";
 REPO_LYCHEEJS_RUNTIME="git@github.com:Artificial-Engineering/lycheejs-runtime.git";
 FILE_LYCHEEJS_RUNTIME="https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest";
@@ -403,50 +402,6 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 
 
-	#
-	# FERTILIZE lycheejs-bundle
-	#
-
-	if [ ! -d "$TARGET_FOLDER/projects/lycheejs-bundle" ]; then
-
-		echo " (L) ";
-		echo " (L) > Initializing lychee.js Bundle ...";
-		echo " (L)   cd $TARGET_FOLDER";
-		echo " (L)   git clone --single-branch --branch master $REPO_LYCHEEJS_BUNDLE $TARGET_FOLDER/projects/lycheejs-bundle";
-		cd $TARGET_FOLDER;
-		git clone --single-branch --branch master $REPO_LYCHEEJS_BUNDLE $TARGET_FOLDER/projects/lycheejs-bundle;
-		_check_or_exit $?;
-
-	else
-
-		echo " (L) ";
-		echo " (L) > Updating lychee.js Bundle ...";
-		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-bundle";
-		echo " (L)   git checkout master";
-		cd "$TARGET_FOLDER/projects/lycheejs-bundle";
-		git checkout master;
-		_check_or_exit $?;
-
-		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-bundle";
-		echo " (L)   git fetch --all";
-		echo " (L)   git reset \"origin/master\" --hard";
-		cd "$TARGET_FOLDER/projects/lycheejs-bundle";
-		git fetch --all;
-		git reset "origin/master" --hard;
-		_check_or_exit $?;
-
-	fi;
-
-	echo " (L)   cd $TARGET_FOLDER";
-	echo " (L)   export LYCHEEJS_ROOT=\"$TARGET_FOLDER\"";
-	echo " (L)   $LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-bundle";
-	cd $TARGET_FOLDER;
-	export LYCHEEJS_ROOT="$TARGET_FOLDER";
-	$LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-bundle;
-	_check_or_exit $?;
-
-
-
 	if [ "$ACCEPTED" == "false" ]; then
 
 		echo " (L) ";
@@ -552,23 +507,6 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 		echo -e "\e[43m\e[97m (W) SIMULATION SKIP \e[0m";
 	fi;
 
-
-
-	#
-	# PUBLISH lycheejs-bundle
-	#
-
-	if [ "$SIMULATION" == "false" ]; then
-
-		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-bundle";
-		echo " (L)   bash $TARGET_FOLDER/projects/lycheejs-bundle/bin/publish.sh";
-		cd $TARGET_FOLDER/projects/lycheejs-bundle;
-		bash $TARGET_FOLDER/projects/lycheejs-bundle/bin/publish.sh;
-		_check_or_exit $?;
-
-	else
-		echo -e "\e[43m\e[97m (W) SIMULATION SKIP \e[0m";
-	fi;
 
 
 	if [ "$SIMULATION" == "true" ]; then
