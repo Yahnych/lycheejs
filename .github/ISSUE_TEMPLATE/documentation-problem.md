@@ -1,13 +1,13 @@
 ---
-name: Bug report
-about: I wanted to use the lychee.js Tools, but a problem occured during usage.
+name: Documentation Problem
+about: I wanted to use the lychee.js Engine, but I don't understand the documentation.
 
 ---
 
-## Bug Report
+## Documentation Problem
 
-I wanted to use the lychee.js Tools,
-but a problem occured during usage.
+I wanted to use the lychee.js Engine, but
+I don't understand the documentation.
 
 
 ### Steps after Installation
@@ -20,7 +20,10 @@ cd /opt/lycheejs;
 ```
 
 
-### Bug Details
+### Documentation Problem Details
+
+I was reading the following documentation file:
+(Please insert /path/to/file.md here)
 
 I was using the following command:
 
@@ -33,3 +36,4 @@ If there's a log available, please paste it also here:
 ```bash
 (Please paste the log of the command output here)
 ```
+
