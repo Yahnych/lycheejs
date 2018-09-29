@@ -73,7 +73,7 @@
 	bottom: auto;
 	margin: 0px;
 	width: auto;
-	max-width: 640px;
+	max-width: 736px;
 	min-width: 544px;
 }
 
@@ -172,3 +172,14 @@ article pre {
 body > article hr {
 	margin: 64px 0px 16px 0px;
 }
+
+@media screen and (max-width: 1000px) {
+
+	#main > article {
+		width: calc(100% - 64px);
+		min-width: unset;
+		max-width: unset;
+	}
+
+}
+
