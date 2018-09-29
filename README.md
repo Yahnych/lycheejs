@@ -195,7 +195,8 @@ sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
 ![Quickstart CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/asset/quickstart.svg)
 
 Please let us know if we can improve anything in these documents
-by opening up an [Issue](https://github.com/Artificial-Engineering/lycheejs/issues/new).
+by opening up a [Documentation Problem](https://github.com/Artificial-Engineering/lycheejs/issues/new?template=documentation-problem.md)
+issue.
 
 
 ## Help

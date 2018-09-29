@@ -21,6 +21,9 @@
 					"Package": [
 						"json"
 					],
+					"Publish": [
+						"json"
+					],
 					"html": {
 						"Build": [
 							"json"
