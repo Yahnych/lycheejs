@@ -27,7 +27,10 @@
 	<ul>
 		<li><b>Quickstart</b></li>
 		<li><a href="#!quickstart/Installation">Installation</a></li>
+		<li><a href="#!quickstart/Troubleshooting">Troubleshooting</a></li>
 		<li><a href="#!quickstart/Filesystem">Filesystem</a></li>
+		<li><a href="#!quickstart/Workflow">Workflow</a></li>
+		<li><a href="#!quickstart/Updates">Updates</a></li>
 	</ul>
 	<ul>
 		<li><b>Software</b></li>
@@ -40,7 +43,7 @@
 	</ul>
 </menu>
 <main id="main">
-	<article id="welcome" class="visible">
+	<article id="welcome" class="active">
 		<label>lychee.js Guide</label>
 		<h3>Quickstart</h3>
 		<p>
@@ -50,7 +53,10 @@
 		</p>
 		<ul>
 			<li><a href="#!quickstart/Installation">Installation</a></li>
+			<li><a href="#!quickstart/Troubleshooting">Troubleshooting</a></li>
 			<li><a href="#!quickstart/Filesystem">Filesystem</a></li>
+			<li><a href="#!quickstart/Workflow">Workflow</a></li>
+			<li><a href="#!quickstart/Updates">Updates</a></li>
 		</ul>
 		<hr>
 		<h3>Software</h3>
@@ -109,7 +115,7 @@
 
 	};
 
-	const _format_link = function(url) {
+	const _format_href = function(url) {
 
 		if (url.startsWith('/guides/')) {
 
@@ -173,6 +179,50 @@
 
 	};
 
+	const _format_src = function(url) {
+
+		if (url.startsWith('../')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/');
+
+				for (let p = 0, pl = path_url.length; p < pl; p++) {
+
+					let tmp = path_url[p];
+					if (tmp === '..') {
+						path_url.splice(p, 1);
+						path_cwd.splice(path_cwd.length - 1, 1);
+						pl--;
+						p--;
+					}
+
+				}
+
+				url = '/guides/' + path_cwd.join('/') + '/' + path_url.join('/');
+
+			}
+
+		} else if (url.startsWith('./')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/').slice(1);
+
+				url = '/guides/' + path_cwd.join('/') + '/' + path_url.join('/');
+
+			}
+
+		}
+
+		return url;
+
+	};
+
 	const _render_inline = function(str) {
 
 		let loop = true;
@@ -196,8 +246,8 @@
 					let title = str.substr(c0 + 2, c1 - c0 - 2);
 					let state = 'normal';
 
-					let src = str.substr(c1 + 2, c2 - c1 - 2);
-					if (src.endsWith('.svg')) {
+					let src = _format_src(str.substr(c1 + 2, c2 - c1 - 2));
+					if (src.endsWith('.png') || src.endsWith('.svg')) {
 						state = 'wide';
 					}
 
@@ -239,7 +289,7 @@
 				let c2 = str.indexOf(')',  c1 + 2);
 
 				if (c0 !== -1 && c1 !== -1 && c2 !== -1) {
-					let href = _format_link(str.substr(c1 + 2, c2 - c1 - 2));
+					let href = _format_href(str.substr(c1 + 2, c2 - c1 - 2));
 					str = str.substr(0, c0) + '<a href="' + href + '">' + str.substr(c0 + 1, c1 - c0 - 1) + '</a>' + str.substr(c2 + 1);
 				} else {
 					loop = false;
@@ -377,11 +427,54 @@
 
 	};
 
+	const _OTHER = [];
 	const _VIEWS = {
 		'welcome.md': $('#welcome')
 	};
 
 	const _navigate = function(url, stuff) {
+
+		let name = url;
+		if (name.endsWith('.md')) {
+			name = name.substr(0, name.length - 3);
+		}
+
+		let item = $('#menu a').filter(function(item) {
+			return item.get('href').endsWith(name);
+		})[0] || null;
+
+		if (item !== null) {
+
+			$('#menu a').forEach(function(item) {
+				item.state('');
+			});
+
+		} else {
+
+			let other = $('#menu-other');
+			if (other === null) {
+
+				other = $('ul').set({
+					id: 'menu-other'
+				});
+
+				$('li').set({
+					html: '<b>Other</b>'
+				}).appendTo(other);
+
+				other.appendTo($('#menu'));
+			}
+
+			$('li').set({
+				html: '<a href="#!' + name + '">' + name + '</a>'
+			}).appendTo(other);
+
+			item = $('#menu a').filter(function(item) {
+				return item.get('href').endsWith(name);
+			})[0] || null;
+
+		}
+
 
 		Object.keys(_VIEWS).filter(function(v) {
 			return v !== url;
@@ -396,8 +489,17 @@
 			article.appendTo(main);
 		}
 
+
 		setTimeout(function() {
-			article.state('visible');
+
+			if (article !== null) {
+				article.state('active');
+			}
+
+			if (item !== null) {
+				item.state('active');
+			}
+
 		}, 250);
 
 	};
@@ -430,25 +532,14 @@
 
 	if (main !== null) {
 
-		let hash = global.location.hash || '';
-		if (hash.startsWith('#!') === true) {
-
-			let url = hash.substr(2);
-			if (url.endsWith('.md') === false) {
-				url = url + '.md';
-			}
-
-			$load(url, function(stuff) {
-				_navigate(url, stuff);
-			});
-
-		}
-
-
 		global.onhashchange = function() {
 
 			let hash = global.location.hash || '';
-			if (hash.startsWith('#!') === true) {
+			if (hash === '' || hash === '#!welcome') {
+
+				_navigate('welcome.md');
+
+			} else if (hash.startsWith('#!') === true) {
 
 				let url = hash.substr(2);
 				if (url.endsWith('.md') === false) {
@@ -459,13 +550,11 @@
 					_navigate(url, stuff);
 				});
 
-			} else if (hash === '') {
-
-				_navigate('welcome.md');
-
 			}
 
 		};
+
+		global.onhashchange();
 
 	}
 

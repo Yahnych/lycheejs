@@ -40,11 +40,13 @@
 	padding: 0px 0px 0px 16px;
 	color: #ffffff;
 	text-decoration: none;
+	transition: background 250ms ease-out;
 }
 
 #menu ul > li > a:hover,
 #menu ul > li > a.active {
 	background: rgba(255, 255, 255, 0.2);
+	transition: background 250ms ease-out;
 }
 
 #menu ul > li > a:hover {
@@ -60,9 +62,9 @@
 	bottom: 0px;
 	margin: 0px;
 	padding: 0px;
-	overflow: auto;
 	max-width: none;
 	text-align: unset;
+	overflow: hidden auto;
 }
 
 #main > article {
@@ -88,7 +90,7 @@ article {
 	transform: translate(0%, -200%);
 }
 
-article.visible {
+article.active {
 	opacity: 1;
 	z-index: 2;
 	transition: opacity 250ms ease-out;
@@ -139,6 +141,10 @@ article em {
 	font-weight: normal;
 	background: #1f2726;
 	border-radius: 3px;
+}
+
+article img:after {
+	display: none;
 }
 
 article img.normal {

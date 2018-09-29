@@ -1,10 +1,28 @@
 
 (function(global) {
 
+	const _CACHE = {
+		wraps:    [],
+		elements: []
+	};
+
 	const Wrap = function(element) {
+
+		let check = _CACHE.elements.indexOf(element);
+		if (check !== -1) {
+			return _CACHE.wraps[check];
+		}
+
+
 		this.chunk   = element.innerHTML || '';
 		this.element = element;
 		this.type    = element.tagName.toLowerCase();
+
+		if (_CACHE.elements.includes(element) === false) {
+			_CACHE.elements.push(element);
+			_CACHE.wraps.push(this);
+		}
+
 	};
 
 	Wrap.prototype = {
@@ -62,6 +80,18 @@
 
 		},
 
+		get: function(o) {
+
+			let data = null;
+
+			if (this.element[o] !== undefined) {
+				data = this.element[o];
+			}
+
+			return data;
+
+		},
+
 		set: function(options) {
 
 			for (let o in options) {
@@ -88,34 +118,50 @@
 
 	};
 
-	const $ = function(name) {
 
-		let element = null;
+
+	const $ = function(name) {
 
 		if (name instanceof Element) {
 
-			element = name;
+			return new Wrap(name);
 
 		} else if (typeof name === 'string') {
 
-			if (name.startsWith('#')) {
-				element = global.document.querySelector(name);
+			if (name.startsWith('#') || name.startsWith('.')) {
+
+				let elements = Array.from(global.document.querySelectorAll(name));
+				if (elements.length > 1) {
+
+					return elements.map(function(element) {
+						return new Wrap(element);
+					});
+
+				} else if (elements.length === 1) {
+					return new Wrap(elements[0]);
+				}
+
 			} else {
 
 				let tmp = name.split(/\.|\[|\]/g).filter(function(v) {
 					return v !== '';
 				});
 
-				element = global.document.createElement(tmp[0]);
-				tmp[1] && (element.className = tmp[1]);
+				let type = tmp[0] || '';
+				if (type !== '') {
+
+					let element = global.document.createElement(type);
+					let state   = tmp[1] || '';
+					if (state !== '') {
+						element.className = state;
+					}
+
+					return new Wrap(element);
+
+				}
 
 			}
 
-		}
-
-
-		if (element !== null) {
-			return new Wrap(element);
 		}
 
 
