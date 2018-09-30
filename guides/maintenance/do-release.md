@@ -1,11 +1,5 @@
 
-# Release Guide for lychee.js
-
-1. [Install Buildbot](#install-buildbot)
-2. [Authentication](#authentication)
-3. [Update lychee.js](#update-lycheejs)
-4. [Release lychee.js](#release-lycheejs)
-
+# Do-Release Guide
 
 ## Install Buildbot
 

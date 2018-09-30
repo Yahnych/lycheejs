@@ -115,7 +115,7 @@ A basic layout of a `Module` looks like this:
 lychee.define('my.ENCODER').requires([
 	// optional requirements
 	'my.Other'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Other = lychee.import('my.Other');
 
@@ -209,7 +209,7 @@ lychee.define('my.Definition').tags({
 	// optional includes
 	'lychee.game.Entity',
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	// optional feature detection
 	if (typeof global.addEventListener === 'function') {
@@ -218,7 +218,7 @@ lychee.define('my.Definition').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter       = lychee.import('lychee.event.Emitter');
 	const _Entity        = lychee.import('lychee.game.Entity');
@@ -336,7 +336,7 @@ lychee.define('my.Definition').tags({
 ### Callbacks
 
 ```javascript
-lychee.define('my.Definition').exports(function(lychee, global, attachments) {
+lychee.define('my.Definition').exports((lychee, global, attachments) => {
 
 	let _device = null;
 
@@ -749,7 +749,7 @@ A basic layout of an `Entity` looks like this:
 ```javascript
 lychee.define('my.ui.Menu').includes([
 	'lychee.ui.Select'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _Select = lychee.import('lychee.ui.Select');
