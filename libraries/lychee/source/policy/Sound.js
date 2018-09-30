@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.Sound').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.Sound').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

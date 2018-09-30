@@ -1,5 +1,5 @@
 
-lychee.define('game.effect.Explosion').exports(function(lychee, global, attachments) {
+lychee.define('game.effect.Explosion').exports((lychee, global, attachments) => {
 
 	const _CONFIG  = attachments['json'].buffer;
 	const _TEXTURE = attachments['png'];

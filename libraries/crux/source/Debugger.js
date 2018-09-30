@@ -69,9 +69,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 		let info1 = 'Report from ' + data.file + '#L' + data.line + ' in ' + data.method;
 		let info2 = data.message.trim();
-		let info3 = data.stacktrace.map(function(callsite) {
-			return callsite.file + '#L' + callsite.line + ' in ' + callsite.method;
-		}).join('\n');
+		let info3 = data.stacktrace.map(callsite => callsite.file + '#L' + callsite.line + ' in ' + callsite.method).join('\n');
 
 
 		let main = environment.global.MAIN || null;
@@ -98,7 +96,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 		if (info3.length > 0) {
 
-			info3.split('\n').forEach(function(line) {
+			info3.split('\n').forEach(line => {
 				console.error('lychee.Debugger: ' + line);
 			});
 
@@ -205,7 +203,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 					}
 
 
-					let stacktrace = error.stack.trim().split('\n').map(function(raw) {
+					let stacktrace = error.stack.trim().split('\n').map(raw => {
 
 						let file   = null;
 						let line   = null;
@@ -300,7 +298,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 							line:   line
 						};
 
-					}).filter(function(callsite) {
+					}).filter(callsite => {
 
 						if (
 							callsite.method === null
@@ -335,12 +333,11 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 					Error.prepareStackTrace = _error_trace;
 
 
-					let stacktrace = Array.from(error.stack).map(function(frame) {
+					let stacktrace = Array.from(error.stack).map(frame => {
 
 						let file   = frame.getFileName()     || null;
 						let line   = frame.getLineNumber()   || null;
 						let method = frame.getFunctionName() || frame.getMethodName() || null;
-
 
 						if (method !== null) {
 
@@ -362,7 +359,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 							method: method
 						};
 
-					}).filter(function(callsite) {
+					}).filter(callsite => {
 
 						if (
 							callsite.method === null

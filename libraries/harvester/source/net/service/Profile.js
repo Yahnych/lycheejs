@@ -4,7 +4,7 @@ lychee.define('harvester.net.service.Profile').requires([
 	'lychee.codec.JSON'
 ]).includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Service    = lychee.import('lychee.net.Service');
@@ -22,13 +22,10 @@ lychee.define('harvester.net.service.Profile').requires([
 
 	(function(cache, filesystem) {
 
-		let identifiers = filesystem.dir('/').map(function(value) {
-			return value.split('.').slice(0, -1).join('.');
-		});
-
+		let identifiers = filesystem.dir('/').map(path => path.split('.').slice(0, -1).join('.'));
 		if (identifiers.length > 0) {
 
-			identifiers.forEach(function(identifier) {
+			identifiers.forEach(identifier => {
 
 				let profile = filesystem.read('/' + identifier + '.json');
 				if (profile !== null) {
@@ -112,7 +109,7 @@ lychee.define('harvester.net.service.Profile').requires([
 
 		if (data instanceof Array) {
 
-			data.forEach(function(object) {
+			data.forEach(object => {
 				_CACHE[object.identifier] = object;
 			});
 

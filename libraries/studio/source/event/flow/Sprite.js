@@ -1,6 +1,6 @@
 lychee.define('studio.event.flow.Sprite').includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow = lychee.import('lychee.event.Flow');
 

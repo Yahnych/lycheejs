@@ -1,7 +1,7 @@
 
 lychee.define('game.ui.sprite.Background').includes([
 	'lychee.ui.sprite.Background'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _TEXTURE    = attachments['png'];
 	const _CONFIG     = attachments['json'].buffer;

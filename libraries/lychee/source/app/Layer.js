@@ -3,7 +3,7 @@ lychee.define('lychee.app.Layer').requires([
 	'lychee.app.Entity'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 	const _Entity  = lychee.import('lychee.app.Entity');
@@ -59,7 +59,7 @@ lychee.define('lychee.app.Layer').requires([
 
 		if (mode === true) {
 
-			this.entities.forEach(function(entity) {
+			this.entities.forEach(entity => {
 
 				let w = entity.width;
 				let h = entity.height;
@@ -101,7 +101,7 @@ lychee.define('lychee.app.Layer').requires([
 
 		} else {
 
-			this.entities.forEach(function(entity) {
+			this.entities.forEach(entity => {
 
 				let w = entity.width;
 				let h = entity.height;

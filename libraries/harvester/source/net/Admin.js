@@ -10,7 +10,7 @@ lychee.define('harvester.net.Admin').requires([
 	'lychee.codec.JSON'
 ]).includes([
 	'lychee.net.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _service = lychee.import('harvester.net.service');
 	const _Remote  = lychee.import('harvester.net.Remote');
@@ -44,7 +44,7 @@ lychee.define('harvester.net.Admin').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function(remote) {
+		this.bind('connect', remote => {
 
 			remote.addService(new _service.Console({
 				id: 'console',
@@ -77,7 +77,7 @@ lychee.define('harvester.net.Admin').requires([
 			}));
 
 
-			remote.bind('receive', function(payload, headers) {
+			remote.bind('receive', (payload, headers) => {
 
 				let method = headers['method'];
 				if (method === 'OPTIONS') {
@@ -134,4 +134,3 @@ lychee.define('harvester.net.Admin').requires([
 	return Composite;
 
 });
-

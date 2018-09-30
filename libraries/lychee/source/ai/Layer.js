@@ -3,7 +3,7 @@ lychee.define('lychee.ai.Layer').requires([
 	'lychee.ai.Agent'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent   = lychee.import('lychee.ai.Agent');
 	const _Emitter = lychee.import('lychee.event.Emitter');

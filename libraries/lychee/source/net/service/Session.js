@@ -1,7 +1,7 @@
 
 lychee.define('lychee.net.service.Session').includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _id       = 0;
 	const _Service  = lychee.import('lychee.net.Service');

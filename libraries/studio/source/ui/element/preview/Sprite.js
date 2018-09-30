@@ -4,7 +4,7 @@ lychee.define('studio.ui.element.preview.Sprite').requires([
 	'lychee.app.Sprite'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Entity  = lychee.import('lychee.app.Entity');
@@ -172,7 +172,7 @@ lychee.define('studio.ui.element.preview.Sprite').requires([
 
 				if (s_states !== null) {
 
-					this.__sprites = Object.keys(s_states).map(function(state) {
+					this.__sprites = Object.keys(s_states).map(state => {
 
 						let sprite = new _Sprite();
 

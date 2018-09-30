@@ -135,7 +135,7 @@ lychee.define('lychee.DIST').requires([
 	'lychee.verlet.Constraint',
 	'lychee.verlet.Entity',
 	'lychee.verlet.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const Module = {
 

@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 	platform: 'nidium'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.window === 'object') {
 
@@ -16,7 +16,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let   _exec    = function(cmd) {};
 	const _Button  = lychee.import('lychee.ui.entity.Button');
@@ -89,7 +89,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	};
 
-	const _help = function(value) {
+	const _on_change = function(value) {
 
 		let action = value.split('=')[0];
 		let result = false;
@@ -147,9 +147,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 		 * INITIALIZATION
 		 */
 
-		this.bind('change', function(value) {
-			return _help(value);
-		}, this);
+		this.bind('change', _on_change, this);
 
 	};
 

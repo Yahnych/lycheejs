@@ -1,7 +1,7 @@
 
 lychee.define('lychee.app.sprite.Background').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Sprite = lychee.import('lychee.app.Sprite');
 

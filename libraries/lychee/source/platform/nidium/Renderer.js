@@ -1,7 +1,7 @@
 
 lychee.define('lychee.Renderer').tags({
 	platform: 'nidium'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	if (
 		typeof global.Canvas === 'function'
@@ -15,7 +15,7 @@ lychee.define('lychee.Renderer').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let _window = null;
 	let _canvas = null;

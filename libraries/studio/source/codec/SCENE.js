@@ -2,7 +2,7 @@
 lychee.define('studio.codec.SCENE').requires([
 	'lychee.app.Entity',
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _CONFIG_ID = 0;
 	const _Entity    = lychee.import('lychee.app.Entity');

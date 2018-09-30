@@ -7,13 +7,13 @@ lychee.define('lychee.net.Server').tags({
 	'lychee.net.Remote'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	// TODO: Feature Detection of Raw TCP Socket API
 
 	return true;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 	const _JSON    = lychee.import('lychee.codec.JSON');
@@ -68,7 +68,7 @@ lychee.define('lychee.net.Server').tags({
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function(remote) {
+		this.bind('connect', remote => {
 
 			let id  = (/:/g.test(remote.host) ? '[' + remote.host + ']' : remote.host) + ':' + remote.port;
 			let obj = _storage.create();
@@ -85,7 +85,7 @@ lychee.define('lychee.net.Server').tags({
 
 		}, this);
 
-		this.bind('disconnect', function(remote) {
+		this.bind('disconnect', remote => {
 
 			let id  = (/:/g.test(remote.host) ? '[' + remote.host + ']' : remote.host) + ':' + remote.port;
 			let obj = _storage.read(id);

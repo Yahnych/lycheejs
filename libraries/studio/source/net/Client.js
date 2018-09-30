@@ -1,7 +1,7 @@
 
 lychee.define('studio.net.Client').includes([
 	'lychee.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client = lychee.import('lychee.net.Client');
 
@@ -28,7 +28,7 @@ lychee.define('studio.net.Client').includes([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function() {
+		this.bind('connect', _ => {
 
 			if (lychee.debug === true) {
 				console.log('studio.net.Client: Remote connected');
@@ -36,7 +36,7 @@ lychee.define('studio.net.Client').includes([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('studio.net.Client: Remote disconnected (' + code + ')');

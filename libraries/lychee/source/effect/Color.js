@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Color').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Color').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

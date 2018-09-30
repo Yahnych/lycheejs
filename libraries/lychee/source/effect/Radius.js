@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Radius').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Radius').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

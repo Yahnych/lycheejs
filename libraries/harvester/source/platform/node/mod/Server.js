@@ -4,7 +4,7 @@ lychee.define('harvester.mod.Server').tags({
 }).requires([
 	'harvester.data.Project',
 	'harvester.data.Server'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -24,7 +24,7 @@ lychee.define('harvester.mod.Server').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _child_process = global.require('child_process');
 	const _net           = global.require('net');
@@ -100,7 +100,7 @@ lychee.define('harvester.mod.Server').tags({
 			}
 
 
-			lines.forEach(function(line) {
+			lines.forEach(line => {
 
 				let err = line.substr(0, line.indexOf(':'));
 				if (/Error/g.test(err)) {
@@ -134,17 +134,17 @@ lychee.define('harvester.mod.Server').tags({
 
 			socket.setTimeout(100);
 
-			socket.on('connect', function() {
+			socket.on('connect', _ => {
 				status = 'used';
 				socket.destroy();
 			});
 
-			socket.on('timeout', function(err) {
+			socket.on('timeout', _ => {
 				status = 'free';
 				socket.destroy();
 			});
 
-			socket.on('error', function(err) {
+			socket.on('error', err => {
 
 				if (err.code === 'ECONNREFUSED') {
 					status = 'free';
@@ -156,7 +156,7 @@ lychee.define('harvester.mod.Server').tags({
 
 			});
 
-			socket.on('close', function(err) {
+			socket.on('close', err => {
 
 				if (status === 'free') {
 					callback.call(scope, port);
@@ -206,7 +206,7 @@ lychee.define('harvester.mod.Server').tags({
 				// XXX: Alternative (_ROOT + '/bin/helper/helper.sh', [ 'env:node', file, port, host ])
 				handle = _child_process.execFile(_BINARY, args, {
 					cwd: _ROOT + project
-				}, function(error) {
+				}, error => {
 
 					if (stderr.length > 0) {
 
@@ -246,31 +246,19 @@ lychee.define('harvester.mod.Server').tags({
 
 				});
 
-				handle.stdout.on('data', function(raw) {
-					_on_message.call(stdout, raw);
-				});
+				handle.stdout.on('data', raw => _on_message.call(stdout, raw));
+				handle.stderr.on('data', raw => _on_message.call(stderr, raw));
 
-				handle.stderr.on('data', function(raw) {
-					_on_message.call(stderr, raw);
-				});
-
-				handle.on('error', function() {
-
+				handle.on('error', _ => {
 					console.warn('harvester.mod.Server: SHUTDOWN (' + info + ')');
-
-					this.kill('SIGTERM');
-
+					handle.kill('SIGTERM');
 				});
 
-				handle.on('exit', function() {
-				});
+				handle.on('exit', _ => {});
 
-				handle.destroy = function() {
-
+				handle.destroy = _ => {
 					console.warn('harvester.mod.Server: SHUTDOWN (' + info + ')');
-
-					this.kill('SIGTERM');
-
+					handle.kill('SIGTERM');
 				};
 
 			} catch (err) {
@@ -350,7 +338,7 @@ lychee.define('harvester.mod.Server').tags({
 					let info = project.filesystem.info('/harvester.js');
 					if (info !== null && info.type === 'file') {
 
-						_scan_port(function(port) {
+						_scan_port(port => {
 
 							let server = _serve(project.identifier, port);
 							if (server !== null) {

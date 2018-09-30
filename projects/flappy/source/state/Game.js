@@ -8,7 +8,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Explosion = lychee.import('game.effect.Explosion');
 	const _Goal      = lychee.import('game.app.sprite.Goal');

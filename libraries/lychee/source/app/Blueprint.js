@@ -4,7 +4,7 @@ lychee.define('lychee.app.Blueprint').requires([
 	'lychee.app.Element'
 ]).includes([
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element  = lychee.import('lychee.app.Element');
 	const _Layer    = lychee.import('lychee.app.Layer');

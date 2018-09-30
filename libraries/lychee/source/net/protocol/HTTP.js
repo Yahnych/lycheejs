@@ -1,5 +1,5 @@
 
-lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attachments) {
+lychee.define('lychee.net.protocol.HTTP').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -158,7 +158,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 		}
 
 
-		headers_data.split('\r\n').forEach(function(line) {
+		headers_data.split('\r\n').forEach(line => {
 
 			let tmp = line.trim();
 			if (/^(OPTIONS|GET|POST)/g.test(tmp) === true) {
@@ -260,7 +260,7 @@ lychee.define('lychee.net.protocol.HTTP').exports(function(lychee, global, attac
 				let tmp5 = tmp4.split('?')[1].split('&');
 				let tmp6 = {};
 
-				tmp5.forEach(function(str) {
+				tmp5.forEach(str => {
 
 					let key = str.split('=')[0] || '';
 					let val = str.split('=')[1] || '';

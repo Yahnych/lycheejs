@@ -1,7 +1,7 @@
 
 lychee.define('app.net.service.Ping').includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Service = lychee.import('lychee.net.Service');
 

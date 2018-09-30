@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Music').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Music').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

@@ -4,7 +4,7 @@ lychee.define('lychee.ui.element.Search').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Input   = lychee.import('lychee.ui.entity.Input');
@@ -48,10 +48,7 @@ lychee.define('lychee.ui.element.Search').requires([
 			let select = this.getEntity('select');
 			if (select !== null) {
 
-				let filtered = this.data.filter(function(other) {
-					return other.indexOf(value) !== -1;
-				});
-
+				let filtered = this.data.filter(other => other.includes(value));
 				if (filtered.length === 0) {
 
 					select.setOptions([ '- No matches -' ]);
@@ -149,9 +146,7 @@ lychee.define('lychee.ui.element.Search').requires([
 
 			if (data !== null) {
 
-				this.data = data.map(function(value) {
-					return '' + value;
-				}).sort();
+				this.data = data.map(value => '' + value).sort();
 
 
 				let select = this.getEntity('select');

@@ -1,7 +1,7 @@
 
 lychee.define('strainer.api.PARSER').requires([
 	'lychee.crypto.MURMUR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _DICTIONARY = attachments['json'].buffer;
 	const _FEATURES   = lychee.FEATURES;
@@ -746,7 +746,7 @@ lychee.define('strainer.api.PARSER').requires([
 				&& val.value === undefined
 			) {
 
-				dictionary = _DICTIONARY.filter(function(other) {
+				dictionary = _DICTIONARY.filter(other => {
 
 					if (val.chunk.startsWith(other.chunk)) {
 
@@ -768,7 +768,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 					return false;
 
-				}).sort(function(a, b) {
+				}).sort((a, b) => {
 					if (a.chunk.length === b.chunk.length) return -1;
 					if (a.chunk.length !== b.chunk.length) return  1;
 					return 0;
@@ -823,7 +823,7 @@ lychee.define('strainer.api.PARSER').requires([
 				&& val.value === undefined
 			) {
 
-				dictionary = _DICTIONARY.filter(function(other) {
+				dictionary = _DICTIONARY.filter(other => {
 
 					if (val.chunk === other.chunk) {
 
@@ -845,7 +845,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 					return false;
 
-				}).sort(function(a, b) {
+				}).sort((a, b) => {
 					if (a.chunk.length === b.chunk.length) return -1;
 					if (a.chunk.length !== b.chunk.length) return  1;
 					return 0;
@@ -906,7 +906,7 @@ lychee.define('strainer.api.PARSER').requires([
 				lines.shift();
 
 
-				lines.filter(function(line) {
+				lines.filter(line => {
 
 					if (line.includes(':')) {
 
@@ -919,7 +919,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 					return false;
 
-				}).map(function(line) {
+				}).map(line => {
 
 					let i1 = line.indexOf(':');
 					let i2 = line.indexOf(',', i1);
@@ -938,7 +938,7 @@ lychee.define('strainer.api.PARSER').requires([
 						value: Module.detect(val)
 					};
 
-				}).forEach(function(val) {
+				}).forEach(val => {
 
 					if (val.value.type !== 'undefined') {
 
@@ -995,9 +995,7 @@ lychee.define('strainer.api.PARSER').requires([
 			}
 
 
-			lines.map(function(line) {
-				return line.trim();
-			}).filter(function(line) {
+			lines.map(line => line.trim()).filter(line => {
 
 				if (
 					line.includes('that.trigger(')
@@ -1006,7 +1004,7 @@ lychee.define('strainer.api.PARSER').requires([
 					return true;
 				}
 
-			}).map(function(line) {
+			}).map(line => {
 
 				let chunk = line.trim();
 
@@ -1031,7 +1029,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 					if (tmp2.startsWith('[') && tmp2.endsWith(']')) {
 
-						tmp2.substr(1, tmp2.length - 2).split(',').forEach(function(val) {
+						tmp2.substr(1, tmp2.length - 2).split(',').forEach(val => {
 							tmp3.push(Module.detect(val.trim()));
 						});
 
@@ -1068,11 +1066,11 @@ lychee.define('strainer.api.PARSER').requires([
 
 				}
 
-			}).forEach(function(val) {
+			}).forEach(val => {
 
 				if (val.parameters.length > 0) {
 
-					val.parameters.forEach(function(param) {
+					val.parameters.forEach(param => {
 
 						let chunk = param.chunk;
 						let type  = param.type;
@@ -1082,10 +1080,7 @@ lychee.define('strainer.api.PARSER').requires([
 							let mutations = Module.mutations(chunk, code);
 							if (mutations.length > 0) {
 
-								let val = mutations.find(function(mutation) {
-									return mutation.type !== 'undefined';
-								});
-
+								let val = mutations.find(mutation => mutation.type !== 'undefined');
 								if (val !== undefined) {
 
 									param.type  = val.type;
@@ -1277,9 +1272,7 @@ lychee.define('strainer.api.PARSER').requires([
 			}
 
 
-			lines.map(function(line) {
-				return line.trim();
-			}).filter(function(line) {
+			lines.map(line => line.trim()).filter(line => {
 
 				if (line.startsWith('//')) {
 					return false;
@@ -1334,7 +1327,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return result;
 
-			}).map(function(line) {
+			}).map(line => {
 
 				if (line.startsWith('_')) {
 
@@ -1387,7 +1380,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return null;
 
-			}).forEach(function(variable) {
+			}).forEach(variable => {
 
 				if (variable !== null) {
 
@@ -1416,7 +1409,7 @@ lychee.define('strainer.api.PARSER').requires([
 			let lines     = code.split('\n');
 
 
-			lines.filter(function(line) {
+			lines.filter(line => {
 
 				if (line.endsWith(';') || line.endsWith('= {')) {
 
@@ -1438,7 +1431,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return false;
 
-			}).map(function(line) {
+			}).map(line => {
 
 				let tmp = line.trim();
 				if (tmp.endsWith(' = {')) {
@@ -1452,7 +1445,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return tmp;
 
-			}).map(function(line) {
+			}).map(line => {
 
 				let i1 = line.indexOf('=');
 				let i2 = line.indexOf(';', i1);
@@ -1462,9 +1455,9 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return line.substr(i1 + 2, i2 - i1 - 2);
 
-			}).map(function(chunk) {
+			}).map(chunk => {
 				return Module.detect(chunk);
-			}).filter(function(val) {
+			}).filter(val => {
 
 				let chunk = val.chunk;
 				let type  = val.type;
@@ -1475,9 +1468,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return false;
 
-			}).forEach(function(val) {
-				mutations.push(val);
-			});
+			}).forEach(val => mutations.push(val));
 
 
 			return mutations;
@@ -1536,7 +1527,7 @@ lychee.define('strainer.api.PARSER').requires([
 					let tmp2 = tmp1[1].trim();
 					if (tmp2.length > 0) {
 
-						tmp2.split(',').forEach(function(val) {
+						tmp2.split(',').forEach(val => {
 
 							parameters.push({
 								chunk: null,
@@ -1558,9 +1549,7 @@ lychee.define('strainer.api.PARSER').requires([
 			}
 
 
-			lines.map(function(line) {
-				return line.trim();
-			}).filter(function(line) {
+			lines.map(line => line.trim()).filter(line => {
 
 				if (
 					line === ''
@@ -1574,9 +1563,9 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return true;
 
-			}).forEach(function(line) {
+			}).forEach(line => {
 
-				parameters.forEach(function(param) {
+				parameters.forEach(param => {
 
 					if (line.startsWith(param.name) && line.includes('=')) {
 
@@ -1632,9 +1621,7 @@ lychee.define('strainer.api.PARSER').requires([
 			}
 
 
-			lines.map(function(line) {
-				return line.trim();
-			}).filter(function(line) {
+			lines.map(line => line.trim()).filter(line => {
 
 				if (
 					line === ''
@@ -1648,7 +1635,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return true;
 
-			}).forEach(function(line) {
+			}).forEach(line => {
 
 				if (line.startsWith('this.set') && line.includes('states.')) {
 
@@ -1691,9 +1678,7 @@ lychee.define('strainer.api.PARSER').requires([
 			}
 
 
-			lines.map(function(line) {
-				return line.trim();
-			}).filter(function(line) {
+			lines.map(line => line.trim()).filter(line => {
 
 				if (line.startsWith('//')) {
 					return false;
@@ -1719,6 +1704,7 @@ lychee.define('strainer.api.PARSER').requires([
 					if (
 						(line.includes('(function') && line.endsWith('{'))
 						|| (line.includes(', function') && line.endsWith('{'))
+						|| line.endsWith('=> ({')
 						|| line.endsWith('=> {')
 					) {
 
@@ -1747,6 +1733,7 @@ lychee.define('strainer.api.PARSER').requires([
 							|| line.endsWith(');')
 							|| line.endsWith('}.bind(this));')
 							|| line.endsWith(') || null;')
+							|| line.endsWith(';')
 						)
 					) {
 
@@ -1774,7 +1761,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return result;
 
-			}).map(function(line) {
+			}).map(line => {
 
 				let chunk = line.trim();
 
@@ -1789,7 +1776,7 @@ lychee.define('strainer.api.PARSER').requires([
 
 				return Module.detect(chunk.trim());
 
-			}).forEach(function(val) {
+			}).forEach(val => {
 
 				let chunk = val.chunk;
 				let type  = val.type;
@@ -1800,7 +1787,7 @@ lychee.define('strainer.api.PARSER').requires([
 					let mutations = Module.mutations(chunk, code);
 					if (mutations.length > 0) {
 
-						mutations.forEach(function(mutation) {
+						mutations.forEach(mutation => {
 
 							candidates.push({
 								chunk: mutation.chunk,
@@ -1837,9 +1824,9 @@ lychee.define('strainer.api.PARSER').requires([
 			});
 
 
-			candidates.forEach(function(val) {
+			candidates.forEach(val => {
 
-				let found = values.find(function(other) {
+				let found = values.find(other => {
 
 					let otype = other.type;
 					if (otype === val.type) {

@@ -1,7 +1,7 @@
 
 lychee.define('studio.ui.element.preview.Font').includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _TEXT    = 'The quick brown fox jumps over the lazy dog?! ;*] \\_(-.+)_/ <{@.^}> %|#=~$'.split(' ');

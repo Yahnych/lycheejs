@@ -38,10 +38,9 @@
 		if (data.texture !== undefined) {
 
 			let texture = new Texture(data.texture);
-			let that    = this;
 
-			texture.onload = function() {
-				that.texture = this;
+			texture.onload = result => {
+				this.texture = texture;
 			};
 
 			texture.load();

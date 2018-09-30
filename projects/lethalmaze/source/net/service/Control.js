@@ -1,7 +1,7 @@
 
 lychee.define('game.net.service.Control').includes([
 	'lychee.net.service.Session'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _id       = 0;
 	const _Session  = lychee.import('lychee.net.service.Session');
@@ -66,10 +66,7 @@ lychee.define('game.net.service.Control').includes([
 		let tunnel = this.tunnel;
 		if (tunnel !== null && tunnel.type === 'remote') {
 
-			let session = Object.values(_SESSIONS).find(function(other) {
-				return other.active === false && other.tunnels.length < 6;
-			}) || null;
-
+			let session = Object.values(_SESSIONS).find(s => s.active === false && s.tunnels.length < 6) || null;
 			if (session !== null) {
 
 				session.players.push(tunnel.id);

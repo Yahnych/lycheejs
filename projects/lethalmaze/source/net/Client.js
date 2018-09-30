@@ -3,7 +3,7 @@ lychee.define('game.net.Client').requires([
 	'game.net.service.Control'
 ]).includes([
 	'lychee.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client  = lychee.import('lychee.net.Client');
 	const _Control = lychee.import('game.net.service.Control');
@@ -44,7 +44,7 @@ lychee.define('game.net.Client').requires([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('game.net.Client: Remote disconnected (' + code + ')');

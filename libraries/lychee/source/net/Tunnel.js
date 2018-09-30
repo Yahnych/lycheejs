@@ -9,7 +9,7 @@ lychee.define('lychee.net.Tunnel').requires([
 	'lychee.net.Service'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _socket  = lychee.import('lychee.net.socket');
 	const _Emitter = lychee.import('lychee.event.Emitter');
@@ -180,11 +180,7 @@ lychee.define('lychee.net.Tunnel').requires([
 
 
 			if (this.reconnect > 0) {
-
-				setTimeout(function() {
-					this.trigger('connect');
-				}.bind(this), this.reconnect);
-
+				setTimeout(_ => this.trigger('connect'), this.reconnect);
 			}
 
 		}, this);
@@ -658,14 +654,8 @@ lychee.define('lychee.net.Tunnel').requires([
 
 		removeServices: function() {
 
-			this.__services.waiting.slice(0).forEach(function(service) {
-				_unplug_service.call(this, service.id, service);
-			}.bind(this));
-
-			this.__services.active.slice(0).forEach(function(service) {
-				_unplug_service.call(this, service.id, service);
-			}.bind(this));
-
+			this.__services.waiting.slice(0).forEach(service => _unplug_service.call(this, service.id, service));
+			this.__services.active.slice(0).forEach(service => _unplug_service.call(this, service.id, service));
 
 			return true;
 

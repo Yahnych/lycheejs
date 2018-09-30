@@ -3,7 +3,7 @@ lychee.define('harvester.data.Project').requires([
 	'harvester.data.Filesystem',
 	'harvester.data.Package',
 	'harvester.data.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Package    = lychee.import('harvester.data.Package');

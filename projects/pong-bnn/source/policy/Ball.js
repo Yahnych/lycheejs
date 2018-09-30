@@ -1,5 +1,5 @@
 
-lychee.define('game.policy.Ball').exports(function(lychee, global, attachments) {
+lychee.define('game.policy.Ball').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

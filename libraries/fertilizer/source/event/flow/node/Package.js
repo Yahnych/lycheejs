@@ -3,7 +3,7 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 	'lychee.event.Queue'
 ]).includes([
 	'fertilizer.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow  = lychee.import('fertilizer.event.Flow');
 	const _Queue = lychee.import('lychee.event.Queue');
@@ -32,7 +32,7 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 
 			stash.read([
 				'/bin/runtime/node/' + os + '/' + arch + '/' + binary
-			], function(binaries) {
+			], binaries => {
 
 				let runtime = binaries[0] || null;
 				if (runtime !== null) {
@@ -40,9 +40,8 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 					let files = assets.slice(0).concat(runtime).concat(_INDEX[os]);
 					let urls  = files.map(asset => prefix + '/' + asset.url.split('/').pop());
 
-					stash.write(urls, files, function(result) {
-						oncomplete(result);
-					});
+					stash.write(urls, files, result => oncomplete(result), this);
+					stash.sync();
 
 				} else {
 					oncomplete(false);
@@ -104,9 +103,9 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 						queue.then({ name: 'Windows x86',    method: _package.bind(this, 'windows', 'x86',    'node.exe', assets) });
 						queue.then({ name: 'Windows x86_64', method: _package.bind(this, 'windows', 'x86_64', 'node.exe', assets) });
 
-						queue.bind('update', function(entry, oncomplete) {
+						queue.bind('update', (entry, oncomplete) => {
 
-							entry.method(function(result) {
+							entry.method(result => {
 
 								if (result === true) {
 									console.info('fertilizer: -> "' + entry.name + '" SUCCESS');
@@ -120,10 +119,8 @@ lychee.define('fertilizer.event.flow.node.Package').requires([
 
 						}, this);
 
-						queue.bind('complete', function() {
-							oncomplete(true);
-						}, this);
-
+						queue.bind('complete', _ => oncomplete(true), this);
+						queue.bind('error',    _ => oncomplete(false), this);
 						queue.init();
 
 					}

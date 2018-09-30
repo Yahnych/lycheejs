@@ -49,7 +49,10 @@
 		"eol-last": [ "error", "always" ],
 		"eqeqeq": [ "error", "always" ],
 		"func-names": [ "error", "never" ],
-		"func-style": [ "error", "expression" ],
+		"func-style": [ "error", "expression", {
+			"allowArrowFunctions": true
+		}],
+		"id-blacklist": [ "error", "that" ],
 		"indent": [ "error", "tab", {
 			"SwitchCase": 1
 		}],
@@ -107,6 +110,10 @@
 		}],
 		"no-var": [ "error" ],
 		"object-curly-spacing": [ "error", "always" ],
+		"prefer-arrow-callback": [ "error", {
+			"allowNamedFunctions": false,
+			"allowUnboundThis": true
+		}],
 		"quotes": [ "error", "single" ],
 		"semi": [ "error", "always" ],
 		"semi-spacing": [ "error" ],

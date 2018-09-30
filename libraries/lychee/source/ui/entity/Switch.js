@@ -1,7 +1,7 @@
 
 lychee.define('lychee.ui.entity.Switch').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _FONT   = attachments['fnt'];
@@ -327,9 +327,7 @@ lychee.define('lychee.ui.entity.Switch').includes([
 
 			if (options !== null && options.length === 2) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
 				return true;
 

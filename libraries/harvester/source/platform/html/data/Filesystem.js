@@ -1,11 +1,11 @@
 
 lychee.define('harvester.data.Filesystem').tags({
 	platform: 'html'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	return true;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _ROOT = lychee.ROOT.lychee;
 

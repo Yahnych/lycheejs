@@ -3,7 +3,7 @@ lychee.define('game.ui.layer.Board').requires([
 	'game.ui.sprite.Tile'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Layer   = lychee.import('lychee.ui.Layer');
 	const _Tile    = lychee.import('game.ui.sprite.Tile');

@@ -4,7 +4,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 	'lychee.event.Queue'
 ]).includes([
 	'fertilizer.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow   = lychee.import('fertilizer.event.Flow');
 	const _Queue  = lychee.import('lychee.event.Queue');
@@ -52,12 +52,12 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 	// XXX: html-nwjs runtime for MacOS contains hundreds of files...
 	(function(shell) {
 
-		shell.tree('/bin/runtime/html-nwjs/macos/x86_64', function(urls) {
+		shell.tree('/bin/runtime/html-nwjs/macos/x86_64', urls => {
 
 			let filtered = urls.filter(url => url.startsWith('./nwjs.app'));
 			if (filtered.length > 0) {
 
-				filtered.sort().forEach(function(url) {
+				filtered.sort().forEach(url => {
 					_ASSETS.macos.push(url.substr(2));
 				});
 
@@ -77,11 +77,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 		let stash = this.stash;
 		if (stash !== null) {
-
-			stash.write(urls, binaries, function(result) {
-				oncomplete(result);
-			});
-
+			stash.write(urls, binaries, result => oncomplete(result), this);
 		} else {
 			oncomplete(false);
 		}
@@ -124,9 +120,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 				});
 
-				setTimeout(function() {
-					_write_binaries.call(this, urls, binaries, oncomplete);
-				}.bind(this), 100);
+				setTimeout(_ => _write_binaries.call(this, urls, binaries, oncomplete), 100);
 
 			}, this);
 
@@ -182,7 +176,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 						return url;
 
-					}).map(function(url) {
+					}).map(url => {
 
 						if (url.startsWith(prefix1 + '/nwjs.app/')) {
 							return prefix1 + '/' + project.split('/').pop() + '.app/' + url.substr(prefix1.length + 10);
@@ -192,9 +186,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 					});
 
-					setTimeout(function() {
-						_write_binaries.call(this, urls, binaries, oncomplete);
-					}.bind(this), 100);
+					setTimeout(_ => _write_binaries.call(this, urls, binaries, oncomplete), 100);
 
 				}, this);
 
@@ -244,9 +236,7 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 				});
 
-				setTimeout(function() {
-					_write_binaries.call(this, urls, binaries, oncomplete);
-				}.bind(this), 100);
+				setTimeout(_ => _write_binaries.call(this, urls, binaries, oncomplete), 100);
 
 			}, this);
 
@@ -317,11 +307,11 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 								queue.then({ name: 'Windows x86',    method: _package_windows.bind(this, 'x86',    zip) });
 								queue.then({ name: 'Windows x86_64', method: _package_windows.bind(this, 'x86_64', zip) });
 
-								queue.bind('update', function(entry, oncomplete) {
+								queue.bind('update', (entry, oncomplete) => {
 
 									console.log('fertilizer: -> "' + entry.name + '"');
 
-									entry.method(function(result) {
+									entry.method(result => {
 
 										if (result === true) {
 											console.info('fertilizer: -> SUCCESS');
@@ -335,10 +325,8 @@ lychee.define('fertilizer.event.flow.html-nwjs.Package').requires([
 
 								}, this);
 
-								queue.bind('complete', function() {
-									oncomplete(true);
-								}, this);
-
+								queue.bind('complete', _ => oncomplete(true), this);
+								queue.bind('error',    _ => oncomplete(false), this);
 								queue.init();
 
 							} else {

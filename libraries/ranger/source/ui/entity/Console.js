@@ -1,7 +1,7 @@
 
 lychee.define('ranger.ui.entity.Console').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _FONT   = attachments['fnt'];
 	const _Entity = lychee.import('lychee.ui.Entity');
@@ -266,9 +266,7 @@ lychee.define('ranger.ui.entity.Console').includes([
 
 				this.value     = value;
 				this.__isDirty = true;
-				this.__lines   = value.split('\n').map(function(val) {
-					return val.replace('\t', ' ').replace('\\n', '').trim();
-				});
+				this.__lines   = value.split('\n').map(val => val.replace('\t', ' ').replace('\\n', '').trim());
 
 
 				return true;

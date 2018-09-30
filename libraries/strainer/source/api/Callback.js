@@ -2,7 +2,7 @@
 lychee.define('strainer.api.Callback').requires([
 	'strainer.api.PARSER',
 	'strainer.api.TRANSCRIPTOR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER       = lychee.import('strainer.api.PARSER');
 	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
@@ -35,7 +35,7 @@ lychee.define('strainer.api.Callback').requires([
 		};
 
 		let lines = stream.split('\n');
-		let line  = lines.findIndex(function(other) {
+		let line  = lines.findIndex(other => {
 
 			if (fuzzy === true) {
 				return other.includes(chunk.trim());
@@ -63,8 +63,8 @@ lychee.define('strainer.api.Callback').requires([
 
 	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
-		let d1 = 48;
+		let i1 = stream.indexOf('.exports((lychee, global, attachments) => {\n');
+		let d1 = 42;
 		let i2 = stream.indexOf('\n\tconst Callback =');
 
 		if (i1 === -1) {

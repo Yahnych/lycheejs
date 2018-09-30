@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.neat.Gene').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.neat.Gene').exports((lychee, global, attachments) => {
 
 	const Composite = function(data) {
 

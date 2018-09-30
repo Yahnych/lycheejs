@@ -4,7 +4,7 @@ lychee.define('lychee.ai.enn.Agent').requires([
 	'lychee.ai.enn.Genome'
 ]).includes([
 	'lychee.ai.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent          = lychee.import('lychee.ai.Agent');
 	const _Brain          = lychee.import('lychee.ai.enn.Brain');

@@ -1,7 +1,7 @@
 
 lychee.define('studio.ui.entity.input.Font').includes([
 	'lychee.ui.entity.Input'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Input = lychee.import('lychee.ui.entity.Input');
 

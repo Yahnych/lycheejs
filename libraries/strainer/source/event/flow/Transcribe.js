@@ -6,7 +6,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 	'strainer.plugin.API'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _plugin  = {
 		API: lychee.import('strainer.plugin.API')
@@ -91,11 +91,11 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			} else {
 				oncomplete(false);
@@ -120,13 +120,10 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 					pkg.setType('api');
 
-					let configs = pkg.getFiles().filter(function(url) {
-						return url.endsWith('.json');
-					});
-
+					let configs = pkg.getFiles().filter(url => url.endsWith('.json'));
 					if (configs.length > 0) {
 
-						stash.read(configs.map(url => library + '/api/' + url), function(assets) {
+						stash.read(configs.map(url => library + '/api/' + url), assets => {
 							this.configs = assets.filter(asset => asset !== null);
 							oncomplete(true);
 						}, this);
@@ -298,11 +295,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 				let sources = this.sources.filter(asset => asset !== null);
 				if (sources.length > 0) {
-
-					stash.write(sources.map(asset => asset.url), sources, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(sources.map(asset => asset.url), sources, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -328,11 +321,7 @@ lychee.define('strainer.event.flow.Transcribe').requires([
 
 				let reviews = this.reviews.filter(asset => asset !== null);
 				if (reviews.length > 0) {
-
-					stash.write(reviews.map(asset => asset.url), reviews, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(reviews.map(asset => asset.url), reviews, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}

@@ -152,7 +152,7 @@
 
 					let path = lychee.environment.resolve(url);
 
-					_fs.readFile(path, function(error, buffer) {
+					_fs.readFile(path, (error, buffer) => {
 
 						this.buffer = buffer || null;
 						this.__load = false;
@@ -171,7 +171,7 @@
 							this.onload = null;
 						}
 
-					}.bind(this));
+					});
 
 				} else {
 

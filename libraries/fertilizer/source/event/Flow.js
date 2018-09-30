@@ -6,7 +6,7 @@ lychee.define('fertilizer.event.Flow').requires([
 	'lychee.Stash'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _lychee      = lychee.import('lychee');
 	const _Environment = lychee.import('lychee.Environment');
@@ -255,11 +255,11 @@ lychee.define('fertilizer.event.Flow').requires([
 
 				console.log('fertilizer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			} else {
 				oncomplete(false);
@@ -479,9 +479,9 @@ lychee.define('fertilizer.event.Flow').requires([
 								let blob = environment.global.console.serialize().blob || null;
 								if (blob !== null) {
 
-									(blob.stderr || '').trim().split('\n').map(function(line) {
+									(blob.stderr || '').trim().split('\n').map(line => {
 										return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
-									}).forEach(function(line) {
+									}).forEach(line => {
 										console.warn('fertilizer: ' + line);
 									});
 
@@ -549,9 +549,7 @@ lychee.define('fertilizer.event.Flow').requires([
 							return project + '/build/' + target + url.substr(1);
 						}
 
-					}), assets, function(result) {
-						oncomplete(true);
-					}, this);
+					}), assets, result => oncomplete(true), this);
 
 				} else {
 					oncomplete(true);

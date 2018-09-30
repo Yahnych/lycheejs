@@ -5,7 +5,7 @@ lychee.define('app.Main').requires([
 	'app.state.Welcome'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _app  = lychee.import('app');
 	const _Main = lychee.import('lychee.app.Main');

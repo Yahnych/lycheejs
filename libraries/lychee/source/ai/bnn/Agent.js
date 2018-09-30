@@ -3,7 +3,7 @@ lychee.define('lychee.ai.bnn.Agent').requires([
 	'lychee.ai.bnn.Brain'
 ]).includes([
 	'lychee.ai.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent = lychee.import('lychee.ai.Agent');
 	const _Brain = lychee.import('lychee.ai.bnn.Brain');

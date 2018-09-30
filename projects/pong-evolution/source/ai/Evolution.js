@@ -1,7 +1,7 @@
 
 lychee.define('game.ai.Evolution').requires([
 	'game.ai.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent = lychee.import('game.ai.Agent');
 
@@ -87,7 +87,7 @@ lychee.define('game.ai.Evolution').requires([
 				// - Lower fitness last (to length - 1)
 
 				let current        = generations[generations.length - 1];
-				let old_population = current.sort(function(agent_a, agent_b) {
+				let old_population = current.sort((agent_a, agent_b) => {
 					if (agent_a.fitness > agent_b.fitness) return -1;
 					if (agent_a.fitness < agent_b.fitness) return  1;
 					return 0;
@@ -163,11 +163,7 @@ lychee.define('game.ai.Evolution').requires([
 
 			if (generations !== null) {
 
-				this.generations = generations.map(function(population) {
-					return population.filter(function(agent) {
-						return agent instanceof _Agent;
-					});
-				});
+				this.generations = generations.map(population => population.filter(agent => agent instanceof _Agent));
 
 				return true;
 

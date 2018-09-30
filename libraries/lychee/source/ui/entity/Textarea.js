@@ -1,7 +1,7 @@
 
 lychee.define('lychee.ui.entity.Textarea').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _FONT   = attachments['fnt'];
@@ -145,7 +145,13 @@ lychee.define('lychee.ui.entity.Textarea').includes([
 			this.__isDirty = true;
 		}, this);
 
-		this.bind('touch', function() {}, this);
+		this.bind('touch', function() {
+
+			if (this.state === 'active') {
+				// XXX: Do nothing
+			}
+
+		}, this);
 
 		this.bind('key', function(key, name, delta) {
 

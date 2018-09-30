@@ -16,7 +16,7 @@ require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 (function(lychee, global) {
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment, profile) {
+	lychee.pkg('build', 'node/main', (environment, profile) => {
 
 		if (environment !== null) {
 

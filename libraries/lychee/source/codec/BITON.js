@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.BITON').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -46,18 +46,12 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 		let keys = Object.keys(_CHARS_META);
 		let vals = Object.values(_CHARS_META);
 
-
-		keys.forEach(function(key, i) {
+		keys.forEach((key, i) => {
 			san = san.replace(key, vals[i]);
 		});
 
-
 		if (_CHARS_ESCAPABLE.test(san)) {
-
-			san = san.replace(_CHARS_ESCAPABLE, function(chr) {
-				return '\\u' + (chr.charCodeAt(0).toString(16)).slice(-4);
-			});
-
+			san = san.replace(_CHARS_ESCAPABLE, chr => '\\u' + (chr.charCodeAt(0).toString(16)).slice(-4));
 		}
 
 		return san;
@@ -70,15 +64,13 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 		let keys = Object.keys(_CHARS_META);
 		let vals = Object.values(_CHARS_META);
 
-
-		vals.forEach(function(val, i) {
+		vals.forEach((val, i) => {
 
 			if (val !== '') {
 				str = str.replace(val, keys[i]);
 			}
 
 		});
-
 
 		return str;
 

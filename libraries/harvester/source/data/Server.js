@@ -1,5 +1,5 @@
 
-lychee.define('harvester.data.Server').exports(function(lychee, global, attachments) {
+lychee.define('harvester.data.Server').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

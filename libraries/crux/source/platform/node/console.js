@@ -67,10 +67,7 @@
 			let body   = data.toString().split('\n');
 			let offset = 0;
 
-			let first = body.find(function(ch) {
-				return ch.startsWith('\t');
-			}) || null;
-
+			let first = body.find(ch => ch.startsWith('\t')) || null;
 			if (first !== null) {
 
 				let check = /(^\t+)/g.exec(first);
@@ -96,12 +93,9 @@
 
 		} else if (data instanceof Array) {
 
-			let is_primitive = data.find(function(val) {
-				return val instanceof Object || typeof val === 'function';
-			}) === undefined;
-
-			let dimension = Math.sqrt(data.length, 2);
-			let is_matrix = dimension === (dimension | 0);
+			let is_primitive = data.find(val => val instanceof Object || typeof val === 'function') === undefined;
+			let dimension    = Math.sqrt(data.length, 2);
+			let is_matrix    = dimension === (dimension | 0);
 
 			if (data.length === 0) {
 

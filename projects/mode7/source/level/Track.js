@@ -1,5 +1,5 @@
 
-lychee.define('game.level.Track').exports(function(lychee, global, attachments) {
+lychee.define('game.level.Track').exports((lychee, global, attachments) => {
 
 	const _TRACKS = {
 		circuit:  attachments['circuit.json'],

@@ -1,7 +1,7 @@
 
 lychee.define('strainer.api.Specification').requires([
 	'strainer.api.PARSER'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER = lychee.import('strainer.api.PARSER');
 
@@ -79,7 +79,7 @@ lychee.define('strainer.api.Specification').requires([
 
 		let i1 = stream.indexOf('requires([');
 		let i2 = stream.indexOf('\n])', i1);
-		let i3 = stream.indexOf('exports(function(lychee, sandbox) {\n');
+		let i3 = stream.indexOf('exports((lychee, sandbox) => {\n');
 
 		if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -89,9 +89,9 @@ lychee.define('strainer.api.Specification').requires([
 				let tmp2 = _parse_value(tmp1);
 				if (tmp2 !== undefined && tmp2 instanceof Array) {
 
-					tmp2.forEach(function(value) {
+					tmp2.forEach(value => {
 
-						if (requires.indexOf(value) === -1) {
+						if (requires.includes(value) === false) {
 							requires.push(value);
 						}
 
@@ -149,7 +149,7 @@ lychee.define('strainer.api.Specification').requires([
 
 
 				let i1 = stream.indexOf('lychee.specify(');
-				let i2 = stream.indexOf('exports(function(lychee, sandbox) {\n', i1);
+				let i2 = stream.indexOf('exports((lychee, sandbox) => {\n', i1);
 
 				if (i1 === -1) {
 
@@ -179,7 +179,7 @@ lychee.define('strainer.api.Specification').requires([
 
 
 				let i3 = stream.indexOf('requires([\n');
-				let i4 = stream.indexOf('exports(function(lychee, sandbox) {\n');
+				let i4 = stream.indexOf('exports((lychee, sandbox) => {\n');
 
 				if (i3 !== -1 && i4 !== -1 && i3 > i4) {
 					errors.push(_create_error('no-meta', 'Invalid Specification ("requires()" after "exports()").'));
@@ -222,14 +222,12 @@ lychee.define('strainer.api.Specification').requires([
 						let requires = report.header.requires || [];
 						if (requires.length > 0) {
 							code += '.requires([\n';
-							code += requires.map(function(value) {
-								return '\t\'' + value.toString() + '\'';
-							}).join(',\n') + '\n';
+							code += requires.map(value => '\t\'' + value.toString() + '\'').join(',\n') + '\n';
 							code += '])';
 						}
 
 
-						code += '.exports(function(lychee, sandbox) {';
+						code += '.exports((lychee, sandbox) => {';
 						code += '\n\n%BODY%\n\n';
 						code += '});';
 						code += '\n';

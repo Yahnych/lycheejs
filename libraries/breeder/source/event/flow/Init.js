@@ -5,7 +5,7 @@ lychee.define('breeder.event.flow.Init').requires([
 	'strainer.Main'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow    = lychee.import('lychee.event.Flow');
 	const _Main    = lychee.import('strainer.Main');
@@ -218,11 +218,11 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				console.log('breeder: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			} else if (identifier === null) {
 				oncomplete(true);
@@ -256,9 +256,7 @@ lychee.define('breeder.event.flow.Init').requires([
 						asset.url = project + asset.url.substr(_ASSET.length);
 					});
 
-					let lychee_pkg = assets.find(function(asset) {
-						return asset.url.endsWith('/lychee.pkg');
-					}) || null;
+					let lychee_pkg = assets.find(asset => asset.url.endsWith('/lychee.pkg')) || null;
 					if (lychee_pkg !== null) {
 
 						lychee_pkg.buffer = JSON.parse(JSON.stringify(lychee_pkg.buffer, null, '\t').replaceObject({
@@ -487,8 +485,17 @@ lychee.define('breeder.event.flow.Init').requires([
 		}, this);
 
 		this.bind('transcribe-reviews', function(oncomplete) {
-			// TODO: Transcribe Review from Source
+
+			let debug   = this.debug;
+			let project = this.project;
+			let stash   = this.stash;
+
+			if (debug === false && project !== null && stash !== null) {
+				// TODO: Transcribe Review from Source
+			}
+
 			oncomplete(true);
+
 		}, this);
 
 		this.bind('write-assets', function(oncomplete) {
@@ -504,11 +511,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				let assets = this.assets.filter(asset => asset !== null);
 				if (assets.length > 0) {
-
-					stash.write(assets.map(asset => asset.url), assets, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(assets.map(asset => asset.url), assets, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -534,11 +537,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				let configs = this.configs.filter(config => config !== null);
 				if (configs.length > 0) {
-
-					stash.write(configs.map(asset => asset.url), configs, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(configs.map(asset => asset.url), configs, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -564,11 +563,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				let sources = this.sources.filter(source => source !== null);
 				if (sources.length > 0) {
-
-					stash.write(sources.map(asset => asset.url), sources, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(sources.map(asset => asset.url), sources, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -594,11 +589,7 @@ lychee.define('breeder.event.flow.Init').requires([
 
 				let reviews = this.reviews.filter(review => review !== null);
 				if (reviews.length > 0) {
-
-					stash.write(reviews.map(asset => asset.url), reviews, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(reviews.map(asset => asset.url), reviews, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}

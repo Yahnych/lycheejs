@@ -48,7 +48,7 @@
 
 					let cache = [];
 
-					tmp = JSON.stringify(value, function(key, value) {
+					tmp = JSON.stringify(value, (key, value) => {
 
 						if (value instanceof Object) {
 

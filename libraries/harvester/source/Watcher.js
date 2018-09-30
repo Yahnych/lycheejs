@@ -8,7 +8,7 @@ lychee.define('harvester.Watcher').requires([
 	'harvester.mod.Packager',
 	'harvester.mod.Server',
 	'harvester.mod.Strainer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Project    = lychee.import('harvester.data.Project');
@@ -33,14 +33,10 @@ lychee.define('harvester.Watcher').requires([
 
 
 		// Libraries
-		let libraries = this.filesystem.dir('/libraries').filter(function(value) {
-			return /README\.md/.test(value) === false;
-		}).map(function(value) {
-			return '/libraries/' + value;
-		});
+		let libraries = this.filesystem.dir('/libraries').filter(v => /README\.md/.test(v) === false).map(v => '/libraries/' + v);
 
 		// Remove Libraries
-		Object.keys(this.libraries).forEach(function(identifier) {
+		Object.keys(this.libraries).forEach(identifier => {
 
 			let index = libraries.indexOf(identifier);
 			if (index === -1) {
@@ -58,10 +54,10 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 		// Add Libraries
-		libraries.forEach(function(identifier) {
+		libraries.forEach(identifier => {
 
 			let check = this.libraries[identifier] || null;
 			let info1 = this.filesystem.info(identifier + '/lychee.pkg');
@@ -78,20 +74,15 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 
 
 		// Projects
-		let projects = this.filesystem.dir('/projects').filter(function(value) {
-			return value !== 'README.md';
-		}).map(function(value) {
-			return '/projects/' + value;
-		});
-
+		let projects = this.filesystem.dir('/projects').filter(v => v !== 'README.md').map(v => '/projects/' + v);
 
 		// Remove Projects
-		Object.keys(this.projects).forEach(function(identifier) {
+		Object.keys(this.projects).forEach(identifier => {
 
 			let index = projects.indexOf(identifier);
 			if (index === -1) {
@@ -109,10 +100,10 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 		// Add Projects
-		projects.forEach(function(identifier) {
+		projects.forEach(identifier => {
 
 			let check = this.projects[identifier] || null;
 			let info1 = this.filesystem.info(identifier + '/index.html');
@@ -130,7 +121,7 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 	};
 
@@ -245,20 +236,17 @@ lychee.define('harvester.Watcher').requires([
 
 			if (reasons.length > 0) {
 
-				reasons.find(function(path) {
-					return path.startsWith('/api/files');
-				}) || null;
+				let changed_source = reasons.find(p => p.startsWith('/source/files')) || null;
+				if (changed_source !== null) {
 
-				let changed_source = reasons.find(function(path) {
-					return path.startsWith('/source/files');
-				}) || null;
+					if (Strainer !== null && Strainer.can(library) === true) {
+						Strainer.process(library);
+					}
 
-				if (changed_source !== null && Strainer !== null && Strainer.can(library) === true) {
-					Strainer.process(library);
-				}
+					if (Fertilizer !== null && Fertilizer.can(library) === true) {
+						Fertilizer.process(library);
+					}
 
-				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(library) === true) {
-					Fertilizer.process(library);
 				}
 
 			}
@@ -285,20 +273,17 @@ lychee.define('harvester.Watcher').requires([
 
 			if (reasons.length > 0) {
 
-				reasons.find(function(path) {
-					return path.startsWith('/api/files');
-				}) || null;
+				let changed_source = reasons.find(p => p.startsWith('/source/files')) || null;
+				if (changed_source !== null) {
 
-				let changed_source = reasons.find(function(path) {
-					return path.startsWith('/source/files');
-				}) || null;
+					if (Strainer !== null && Strainer.can(project) === true) {
+						Strainer.process(project);
+					}
 
-				if (changed_source !== null && Strainer !== null && Strainer.can(project) === true) {
-					Strainer.process(project);
-				}
+					if (Fertilizer !== null && Fertilizer.can(project) === true) {
+						Fertilizer.process(project);
+					}
 
-				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(project) === true) {
-					Fertilizer.process(project);
 				}
 
 			}

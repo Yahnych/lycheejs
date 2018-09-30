@@ -3,7 +3,7 @@ lychee.define('harvester.data.Git').tags({
 	platform: 'node'
 }).requires([
 	'harvester.data.Filesystem'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	try {
 
@@ -18,7 +18,7 @@ lychee.define('harvester.data.Git').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _ROOT          = lychee.ROOT.lychee;
 	const _Filesystem    = lychee.import('harvester.data.Filesystem');
@@ -36,7 +36,7 @@ lychee.define('harvester.data.Git').tags({
 		let remotes = {};
 		let pointer = null;
 
-		content.split('\n').map(function(line) {
+		content.split('\n').map(line => {
 
 			if (line.startsWith('[remote')) {
 
@@ -56,10 +56,7 @@ lychee.define('harvester.data.Git').tags({
 
 			} else if (pointer !== null) {
 
-				let tmp = line.trim().split('=').map(function(val) {
-					return val.trim();
-				});
-
+				let tmp = line.trim().split('=').map(val => val.trim());
 				if (tmp[0] === 'url') {
 					pointer.url = tmp[1];
 				} else if (tmp[0] === 'fetch') {
@@ -77,11 +74,9 @@ lychee.define('harvester.data.Git').tags({
 
 	const _parse_log = function(content) {
 
-		return content.split('\n').map(function(line) {
+		return content.split('\n').map(line => {
 			return line.substr(line.indexOf(' ') + 1).trim();
-		}).filter(function(line) {
-			return line !== '';
-		}).map(function(line) {
+		}).filter(line => line !== '').map(line => {
 
 			let hash = line.substr(0, line.indexOf(' '));
 			line = line.substr(hash.length + 1);
@@ -116,9 +111,7 @@ lychee.define('harvester.data.Git').tags({
 		let changes = [];
 		let branch  = null;
 
-		content.split('\n').filter(function(line) {
-			return line.trim() !== '';
-		}).map(function(line) {
+		content.split('\n').filter(line => line.trim()).map(line => {
 
 			let state = line.substr(0, 2);
 			let path  = line.substr(2).trim();
@@ -183,14 +176,10 @@ lychee.define('harvester.data.Git').tags({
 		let development = _parse_log((this.filesystem.read('/logs/refs/remotes/origin/development') || '').toString('utf8'));
 		let master      = _parse_log((this.filesystem.read('/logs/refs/remotes/origin/master')      || '').toString('utf8'));
 		let branch      = _parse_log((this.filesystem.read('/logs/HEAD')                            || '').toString('utf8'));
-		let diff        = branch.filter(function(commit) {
+		let diff        = branch.filter(commit => {
 
-			let is_master = master.find(function(other) {
-				return other.hash === commit.hash;
-			});
-			let is_development = development.find(function(other) {
-				return other.hash === commit.hash;
-			});
+			let is_master      = master.find(other => other.hash === commit.hash);
+			let is_development = development.find(other => other.hash === commit.hash);
 
 			if (is_master === false && is_development === false) {
 				return true;
@@ -425,10 +414,7 @@ lychee.define('harvester.data.Git').tags({
 
 				} else {
 
-					let check = log.development.find(function(other) {
-						return other.hash === head;
-					});
-
+					let check = log.development.find(other => other.hash === head);
 					if (check !== undefined) {
 						status = Composite.STATUS.update;
 					} else {
@@ -441,10 +427,7 @@ lychee.define('harvester.data.Git').tags({
 				// XXX: Verify that user did not break their git history
 				if (fetch_head !== orig_head) {
 
-					let check = log.development.find(function(other) {
-						return other.hash === orig_head;
-					});
-
+					let check = log.development.find(other => other.hash === orig_head);
 					if (check !== undefined) {
 						status = Composite.STATUS.update;
 					} else {

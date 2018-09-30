@@ -7,7 +7,7 @@ lychee.define('legacy.app.Main').tags({
 	'legacy.app.State'
 ]).includes([
 	'lychee.app.Main'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.document !== 'undefined'
@@ -28,7 +28,7 @@ lychee.define('legacy.app.Main').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _legacy  = lychee.import('legacy');
 	const _Main    = lychee.import('lychee.app.Main');

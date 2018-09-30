@@ -5,7 +5,7 @@ lychee.define('lychee.ui.layer.Table').requires([
 	'lychee.ui.entity.Label'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha  = lychee.import('lychee.effect.Alpha');
 	const _Entity = lychee.import('lychee.ui.Entity');
@@ -515,9 +515,7 @@ lychee.define('lychee.ui.layer.Table').requires([
 				}
 
 
-				this.__label = Object.keys(this.model).map(function(label) {
-					return label.toUpperCase();
-				});
+				this.__label = Object.keys(this.model).map(label => label.toUpperCase());
 
 
 				return true;
@@ -557,10 +555,7 @@ lychee.define('lychee.ui.layer.Table').requires([
 			if (value !== null) {
 
 				let keys = Object.keys(this.model);
-				let val  = value.filter(function(v) {
-					return keys.join(',') === Object.keys(v).join(',');
-				});
-
+				let val  = value.filter(v => keys.join(',') === Object.keys(v).join(','));
 
 				if (keys.length * val.length > this.__cache.length) {
 

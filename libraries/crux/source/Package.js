@@ -131,31 +131,24 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		tags = tags instanceof Object ? tags : null;
 
 
-		let that          = this;
 		let candidatepath = id.split('.').join('/');
 		let candidates    = [];
-		let filter_values = function(tags, tag) {
-
-			if (tags[tag] instanceof Array) {
-
-				return tags[tag].map(function(value) {
-					return _resolve_tag.call(that, tag, value) + '/' + candidatepath;
-				}).filter(function(path) {
-					return _resolve_path.call(that, path) !== null;
-				});
-
-			}
-
-			return [];
-
-		};
-
 
 		if (tags !== null) {
 
 			for (let tag in tags) {
 
-				let values = filter_values(tags, tag);
+				let values = [];
+
+				if (tags[tag] instanceof Array) {
+
+					let tmp = tags[tag].map(value => _resolve_tag.call(this, tag, value) + '/' + candidatepath);
+					if (tmp.length > 0) {
+						values = tmp.filter(path => _resolve_path.call(this, path) !== null);
+					}
+
+				}
+
 				if (values.length > 0) {
 					candidates.push.apply(candidates, values);
 				}
@@ -199,7 +192,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 				namespaces.push(path);
 			}
 
-			Object.keys(node).forEach(function(child) {
+			Object.keys(node).forEach(child => {
 
 				if (child.includes('__') === false) {
 
@@ -240,7 +233,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		} else if (node instanceof Object) {
 
-			Object.keys(node).forEach(function(child) {
+			Object.keys(node).forEach(child => {
 
 				if (child.includes('__') === false) {
 					_resolve_files(node[child], files, path + '/' + child, extensions);
@@ -443,7 +436,6 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 	const _load_candidate_implementation = function(candidate, implementation, attachments, map) {
 
-		let that       = this;
 		let type       = map.type;
 		let identifier = this.id + '.' + map.id;
 		if (identifier.endsWith('.')) {
@@ -451,7 +443,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		}
 
 
-		implementation.onload = function(result) {
+		implementation.onload = result => {
 
 			map.loading--;
 
@@ -460,7 +452,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				if (type === 'export' || type === 'source') {
 
-					let environment = that.environment || null;
+					let environment = this.environment || null;
 					if (environment !== null) {
 
 						let definition = environment.definitions[identifier] || null;
@@ -478,7 +470,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 								map.loading += attachment_ids.length;
 
 
-								attachment_ids.forEach(function(assetId) {
+								attachment_ids.forEach(assetId => {
 
 									let url   = attachments[assetId];
 									let asset = new lychee.Asset(url, null, true);
@@ -536,7 +528,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				} else if (type === 'review') {
 
-					let simulation = that.simulation || null;
+					let simulation = this.simulation || null;
 					if (simulation !== null) {
 
 						let specification = simulation.specifications[identifier] || null;
@@ -560,11 +552,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			}
 
 
-			that.__blacklist[candidate] = 1;
+			this.__blacklist[candidate] = 1;
 
 			// Load next candidate, if any available
 			if (map.candidates.length > 0) {
-				_load_candidate.call(that, map.id, map.candidates);
+				_load_candidate.call(this, map.id, map.candidates);
 			}
 
 		};
@@ -866,9 +858,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			filtered = filtered.sort(function(a, b) {
-				return _sort_by_tag(a.id, b.id);
-			});
+			filtered = filtered.sort((a, b) => _sort_by_tag(a.id, b.id));
 
 
 			return filtered;
@@ -1162,9 +1152,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			filtered = filtered.sort(function(a, b) {
-				return _sort_by_tag(a.id, b.id);
-			});
+			filtered = filtered.sort((a, b) => _sort_by_tag(a.id, b.id));
 
 
 			return filtered;
@@ -1297,10 +1285,9 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 				this.url    = url;
 
 
-				let that   = this;
 				let config = new Config(url);
 
-				config.onload = function(result) {
+				config.onload = result => {
 
 					let buffer = this.buffer || null;
 					if (
@@ -1311,13 +1298,13 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 						&& buffer.source instanceof Object
 					) {
 
-						console.info('lychee.Package ("' + that.id + '"): Config "' + this.url + '" ready.');
+						console.info('lychee.Package ("' + this.id + '"): Config "' + config.url + '" ready.');
 
-						that.config = this;
+						this.config = config;
 
 					} else {
 
-						console.error('lychee.Package ("' + that.id + '"): Config "' + this.url + '" corrupt.');
+						console.error('lychee.Package ("' + this.id + '"): Config "' + config.url + '" corrupt.');
 
 					}
 

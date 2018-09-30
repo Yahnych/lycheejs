@@ -1,7 +1,7 @@
 
 lychee.define('app.net.Server').includes([
 	'lychee.net.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Server = lychee.import('lychee.net.Server');
 
@@ -27,16 +27,12 @@ lychee.define('app.net.Server').includes([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function(remote) {
-
+		this.bind('connect', remote => {
 			console.log('app.net.Server: Remote connected (' + remote.id + ')');
-
 		}, this);
 
-		this.bind('disconnect', function(remote) {
-
+		this.bind('disconnect', remote => {
 			console.log('app.net.Server: Remote disconnected (' + remote.id + ')');
-
 		}, this);
 
 

@@ -28,7 +28,7 @@
 
 			let tmp = new Audio();
 
-			[ 'application/ogg', 'audio/ogg', 'audio/ogg; codecs=theora, vorbis' ].forEach(function(variant) {
+			[ 'application/ogg', 'audio/ogg', 'audio/ogg; codecs=theora, vorbis' ].forEach(variant => {
 
 				if (tmp.canPlayType(variant)) {
 					supports.ogg = true;
@@ -36,7 +36,7 @@
 
 			});
 
-			[ 'audio/mpeg' ].forEach(function(variant) {
+			[ 'audio/mpeg' ].forEach(variant => {
 
 				if (tmp.canPlayType(variant)) {
 					supports.mp3 = true;
@@ -70,9 +70,7 @@
 			clone.buffer.src        = origin.buffer.src;
 			clone.buffer.load();
 
-			clone.buffer.addEventListener('ended', function() {
-				clone.play();
-			}, true);
+			clone.buffer.addEventListener('ended', _ => clone.play(), true);
 
 			clone.__buffer.ogg = origin.__buffer.ogg;
 			clone.__buffer.mp3 = origin.__buffer.mp3;
@@ -126,9 +124,7 @@
 
 					let buffer = new Audio();
 
-					buffer.addEventListener('ended', function() {
-						this.play();
-					}.bind(this), true);
+					buffer.addEventListener('ended', _ => this.play(), true);
 
 					buffer.autobuffer = true;
 					buffer.preload    = true;
@@ -143,9 +139,7 @@
 
 					let buffer = new Audio();
 
-					buffer.addEventListener('ended', function() {
-						this.play();
-					}.bind(this), true);
+					buffer.addEventListener('ended', _ => this.play(), true);
 
 					buffer.autobuffer = true;
 					buffer.preload    = true;
@@ -257,9 +251,7 @@
 
 				}.bind(this);
 
-				buffer.addEventListener('ended', function() {
-					this.play();
-				}.bind(this), true);
+				buffer.addEventListener('ended', _ => this.play(), true);
 
 				buffer.autobuffer = true;
 				buffer.preload    = true;
@@ -303,7 +295,7 @@
 
 					let p = this.buffer.play();
 					if (typeof p === 'object' && typeof p.catch === 'function') {
-						p.catch(function(err) {});
+						p.catch(err => {});
 					}
 
 					this.isIdle = false;
@@ -328,7 +320,7 @@
 
 				let p = this.buffer.play();
 				if (typeof p === 'object' && typeof p.catch === 'function') {
-					p.catch(function(err) {});
+					p.catch(err => {});
 				}
 
 				this.isIdle = false;

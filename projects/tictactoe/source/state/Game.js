@@ -6,7 +6,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.entity.Label'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Shake = lychee.import('lychee.effect.Shake');
 	const _State = lychee.import('lychee.app.State');
@@ -54,10 +54,7 @@ lychee.define('game.state.Game').requires([
 
 	const _is_game_draw = function() {
 
-		let empty = this.query('ui > board').entities.filter(function(tile) {
-			return tile.state === 'default';
-		});
-
+		let empty = this.query('ui > board').entities.filter(tile => tile.state === 'default');
 		if (empty.length === 0) {
 			return true;
 		}
@@ -75,10 +72,7 @@ lychee.define('game.state.Game').requires([
 
 		for (let y = 1; y <= 3; y++) {
 
-			let horizontal = tiles.filter(function(tile) {
-				return tile.y === y && tile.state === state;
-			});
-
+			let horizontal = tiles.filter(tile => tile.y === y && tile.state === state);
 			if (horizontal.length === 3) {
 				return true;
 			}
@@ -88,10 +82,7 @@ lychee.define('game.state.Game').requires([
 
 		for (let x = 1; x <= 3; x++) {
 
-			let vertical = tiles.filter(function(tile) {
-				return tile.x === x && tile.state === state;
-			});
-
+			let vertical = tiles.filter(tile => tile.x === x && tile.state === state);
 			if (vertical.length === 3) {
 				return true;
 			}
@@ -99,13 +90,8 @@ lychee.define('game.state.Game').requires([
 		}
 
 
-		let diagonal_tlbr = tiles.filter(function(tile) {
-			return tile.x === tile.y && tile.state === state;
-		});
-
-		let diagonal_trbl = tiles.filter(function(tile) {
-			return tile.x === (4 - tile.y) && tile.state === state;
-		});
+		let diagonal_tlbr = tiles.filter(tile => tile.x === tile.y && tile.state === state);
+		let diagonal_trbl = tiles.filter(tile => tile.x === (4 - tile.y) && tile.state === state);
 
 		if (diagonal_trbl.length === 3 || diagonal_tlbr.length === 3) {
 			return true;
@@ -124,7 +110,7 @@ lychee.define('game.state.Game').requires([
 		let board = this.query('ui > board');
 		if (board !== null) {
 
-			board.entities.forEach(function(entity) {
+			board.entities.forEach(entity => {
 
 				entity.addEffect(new _Shake({
 					type:     _Shake.TYPE.bounceeaseout,
@@ -143,7 +129,7 @@ lychee.define('game.state.Game').requires([
 
 			this.loop.setTimeout(700, function() {
 
-				board.entities.forEach(function(entity) {
+				board.entities.forEach(entity => {
 					entity.setState('default');
 				});
 
@@ -238,9 +224,9 @@ lychee.define('game.state.Game').requires([
 
 			let board = this.query('ui > board');
 			if (board !== null) {
-				board.entities.forEach(function(entity) {
+				board.entities.forEach(entity => {
 					entity.bind('#touch', _on_touch, this);
-				}.bind(this));
+				});
 			}
 
 		},
@@ -266,7 +252,7 @@ lychee.define('game.state.Game').requires([
 
 			let board = this.query('ui > board');
 			if (board !== null) {
-				board.entities.forEach(function(entity) {
+				board.entities.forEach(entity => {
 					entity.setState('default');
 				});
 			}

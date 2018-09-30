@@ -3,7 +3,7 @@ lychee.define('game.app.entity.Vesicle').requires([
 	'lychee.effect.Color'
 ]).includes([
 	'lychee.app.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Color   = lychee.import('lychee.effect.Color');
 	const _Entity  = lychee.import('lychee.app.Entity');

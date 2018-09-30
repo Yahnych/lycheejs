@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.neat.Genome').exports((lychee, global, attachments) => {
 
 	const _MAX_NODES     = 1000000;
 	const _MUTATION_RATE = {
@@ -85,11 +85,9 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 
 			if (input === true) {
 
-				inputs.forEach(function(input, i) {
-					neurons.push(i);
-				});
+				inputs.forEach((input, i) => neurons.push(i));
 
-				this.genes.forEach(function(gene) {
+				this.genes.forEach(gene => {
 
 					if (neurons.indexOf(gene.into) === -1) {
 						neurons.push(gene.into);
@@ -103,7 +101,7 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 
 			} else {
 
-				this.genes.forEach(function(gene) {
+				this.genes.forEach(gene => {
 
 					if (neurons.indexOf(gene.into) === -1 && gene.into > inputs.length) {
 						neurons.push(gene.into);
@@ -117,9 +115,7 @@ lychee.define('lychee.ai.neat.Genome').exports(function(lychee, global, attachme
 
 			}
 
-			outputs.forEach(function(output, o) {
-				neurons.push(_MAX_NODES + o);
-			});
+			outputs.forEach((output, o) => neurons.push(_MAX_NODES + o));
 
 
 			let neuron = neurons[(Math.random() * neurons.length) | 0] || null;

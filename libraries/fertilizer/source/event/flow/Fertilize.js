@@ -1,6 +1,6 @@
 lychee.define('fertilizer.event.flow.Fertilize').includes([
 	'fertilizer.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow = lychee.import('fertilizer.event.Flow');
 
@@ -26,11 +26,7 @@ lychee.define('fertilizer.event.flow.Fertilize').includes([
 		 */
 
 		if (this.has('build-assets') === false) {
-
-			this.bind('build-assets', function(oncomplete) {
-				oncomplete(true);
-			}, this);
-
+			this.bind('build-assets', oncomplete => oncomplete(true), this);
 		}
 
 

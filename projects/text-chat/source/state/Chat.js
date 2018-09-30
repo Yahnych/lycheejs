@@ -12,7 +12,7 @@ lychee.define('app.state.Chat').requires([
 	'app.ui.sprite.Avatar'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Offset = lychee.import('lychee.effect.Offset');
@@ -29,23 +29,6 @@ lychee.define('app.state.Chat').requires([
 	/*
 	 * HELPERS
 	 */
-
-	const _get_user_diff = function(users) {
-
-		let raw = this.__cache.users;
-
-
-		return users.filter(function(usr) {
-
-			if (raw.indexOf(usr) !== -1) {
-				return false;
-			}
-
-			return true;
-
-		});
-
-	};
 
 	const _on_sync = function(room) {
 
@@ -96,7 +79,7 @@ lychee.define('app.state.Chat').requires([
 		}
 
 
-		let user_diff = _get_user_diff.call(this, room.users);
+		let user_diff = room.users.filter(user => this.__cache.users.includes(user) === false);
 		if (user_diff.length > 0) {
 			this.__cache.users = room.users;
 		}
@@ -109,10 +92,7 @@ lychee.define('app.state.Chat').requires([
 
 			if (user !== null && message !== null) {
 
-				let found = this.__cache.messages.find(function(other) {
-					return other.user === user && other.message === message;
-				}) || null;
-
+				let found = this.__cache.messages.find(m => m.user === user && m.message === message) || null;
 				if (found === null) {
 
 					this.__cache.messages.push({
@@ -285,13 +265,8 @@ lychee.define('app.state.Chat').requires([
 				let service = this.client.getService('chat');
 
 				if (message !== null && service !== null) {
-
-					message.value.split('\n').forEach(function(val) {
-						service.message(val);
-					});
-
+					message.value.split('\n').forEach(val => service.message(val));
 					message.setValue('');
-
 				}
 
 			}, this);

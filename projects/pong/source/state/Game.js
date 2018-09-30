@@ -9,7 +9,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.sprite.Welcome'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Shake  = lychee.import('lychee.effect.Shake');

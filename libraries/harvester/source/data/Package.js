@@ -1,5 +1,5 @@
 
-lychee.define('harvester.data.Package').exports(function(lychee, global, attachments) {
+lychee.define('harvester.data.Package').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -91,7 +91,7 @@ lychee.define('harvester.data.Package').exports(function(lychee, global, attachm
 
 		if (node instanceof Array) {
 
-			node.forEach(function(ext) {
+			node.forEach(ext => {
 
 				if (/(msc|snd)$/.test(ext)) {
 
@@ -116,11 +116,7 @@ lychee.define('harvester.data.Package').exports(function(lychee, global, attachm
 			});
 
 		} else if (node instanceof Object) {
-
-			Object.keys(node).forEach(function(child) {
-				_walk_directory(files, node[child], path + '/' + child);
-			});
-
+			Object.keys(node).forEach(child => _walk_directory(files, node[child], path + '/' + child));
 		}
 
 	};

@@ -8,7 +8,7 @@ lychee.define('studio.state.Project').requires([
 	'lychee.ui.element.Search'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Project = lychee.import('studio.data.Project');
 	const _State   = lychee.import('lychee.ui.State');
@@ -28,19 +28,15 @@ lychee.define('studio.state.Project').requires([
 
 			let filtered = Array.from(select.data);
 
-			data.map(function(project) {
-				return project.identifier;
-			}).forEach(function(value) {
+			data.map(project => project.identifier).forEach(identifier => {
 
-				if (filtered.indexOf(value) === -1) {
-					filtered.push(value);
+				if (filtered.includes(identifier) === false) {
+					filtered.push(identifier);
 				}
 
 			});
 
-			filtered = filtered.filter(function(value) {
-				return value !== '/libraries/harvester';
-			});
+			filtered = filtered.filter(v => v !== '/libraries/harvester');
 
 			select.setData(filtered);
 
@@ -131,14 +127,14 @@ lychee.define('studio.state.Project').requires([
 
 					if (urls.length > 0) {
 
-						stash.write(urls, assets, function(result) {
+						stash.write(urls, assets, result => {
 
 							if (notice !== null) {
 								notice.setLabel('Project saved.');
 								notice.setState('active');
 							}
 
-						});
+						}, this);
 
 					}
 

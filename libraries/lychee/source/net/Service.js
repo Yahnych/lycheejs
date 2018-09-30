@@ -1,7 +1,7 @@
 
 lychee.define('lychee.net.Service').includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _id       = 0;
 	const _Emitter  = lychee.import('lychee.event.Emitter');
@@ -442,9 +442,7 @@ lychee.define('lychee.net.Service').includes([
 
 			if (multicast !== null) {
 
-				this.__multicast = multicast.filter(function(instance) {
-					return lychee.interfaceof(lychee.net.Tunnel, instance);
-				});
+				this.__multicast = multicast.filter(instance => lychee.interfaceof(_Tunnel, instance));
 
 				return true;
 

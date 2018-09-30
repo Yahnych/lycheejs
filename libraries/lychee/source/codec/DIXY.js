@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.DIXY').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -39,13 +39,13 @@ lychee.define('lychee.codec.DIXY').exports(function(lychee, global, attachments)
 
 		if (_CHARS_SEARCH.test(san)) {
 
-			san = san.replace(_CHARS_SEARCH, function(char) {
+			san = san.replace(_CHARS_SEARCH, character => {
 
-				let meta = _CHARS_META[char];
+				let meta = _CHARS_META[character];
 				if (meta !== undefined) {
 					return meta;
 				} else {
-					return '\\u' + (char.charCodeAt(0).toString(16)).slice(-4);
+					return '\\u' + (character.charCodeAt(0).toString(16)).slice(-4);
 				}
 
 			});

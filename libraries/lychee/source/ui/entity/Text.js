@@ -1,7 +1,7 @@
 
 lychee.define('lychee.ui.entity.Text').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _FONT   = attachments['fnt'];
@@ -226,12 +226,9 @@ lychee.define('lychee.ui.entity.Text').includes([
 					let realheight = 0;
 					let lines      = value.split('\n');
 
-					lines.forEach(function(line) {
-
-						let tmp = font.measure(line);
-						if (tmp.realwidth  > realwidth)  realwidth  = tmp.realwidth;
-						if (tmp.realheight > realheight) realheight = tmp.realheight;
-
+					lines.map(line => font.measure(line)).forEach(dim => {
+						if (dim.realwidth  > realwidth)  realwidth  = dim.realwidth;
+						if (dim.realheight > realheight) realheight = dim.realheight;
 					});
 
 					this.width  = realwidth;

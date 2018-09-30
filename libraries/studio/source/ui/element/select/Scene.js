@@ -5,7 +5,7 @@ lychee.define('studio.ui.element.select.Scene').requires([
 	'lychee.ui.entity.List'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 

@@ -1,7 +1,7 @@
 
 lychee.define('strainer.api.Core').requires([
 	'strainer.api.PARSER'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER = lychee.import('strainer.api.PARSER');
 

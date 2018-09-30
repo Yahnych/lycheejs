@@ -8,7 +8,7 @@ lychee.define('strainer.plugin.API').requires([
 	'strainer.api.Sandbox',
 	'strainer.api.Specification',
 	'strainer.fix.API'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _FIXES = lychee.import('strainer.fix.API');
 	const _api   = {
@@ -155,7 +155,7 @@ lychee.define('strainer.plugin.API').requires([
 					}
 
 
-					report.errors.forEach(function(err) {
+					report.errors.forEach(err => {
 
 						if (err.url === null) {
 							err.url = asset.url;
@@ -203,7 +203,7 @@ lychee.define('strainer.plugin.API').requires([
 				let modified = false;
 
 
-				report.errors.forEach(function(err) {
+				report.errors.forEach(err => {
 
 					let rule = err.rule;
 

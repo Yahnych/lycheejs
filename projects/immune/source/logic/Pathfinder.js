@@ -1,7 +1,7 @@
 
 lychee.define('game.logic.Pathfinder').requires([
 	'game.app.entity.Cell'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Cell = lychee.import('game.app.entity.Cell');
 
@@ -36,25 +36,18 @@ lychee.define('game.logic.Pathfinder').requires([
 
 			if (entities !== null) {
 
-				let cells = entities.filter(function(entity) {
-					return entity instanceof _Cell;
-				});
+				let cells = entities.filter(entity => entity instanceof _Cell);
 
+				cells.forEach(cell_a => {
 
-				cells.forEach(function(cell_a) {
-
-					cells.filter(function(cell) {
-						return cell !== cell_a;
-					}).forEach(function(cell_b) {
+					cells.filter(cell => cell !== cell_a).forEach(cell_b => {
 
 						let vesicle_a = cell_a.getVesicle(null, cell_b.position);
 						let vesicle_b = cell_b.getVesicle(null, cell_a.position);
 
 						if (vesicle_a !== null && vesicle_b !== null) {
 
-							cells.filter(function(cell) {
-								return cell !== cell_a && cell !== cell_b;
-							}).forEach(function(cell) {
+							cells.filter(cell => cell !== cell_a && cell !== cell_b).forEach(cell => {
 
 								if (cell.collides(vesicle_a) === true) {
 									vesicle_a = null;

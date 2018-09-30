@@ -85,14 +85,14 @@ const _print_help = function() {
 	console.log('                                                              ');
 	console.log('Available Libraries:                                          ');
 	console.log('                                                              ');
-	libraries.forEach(function(library) {
+	libraries.forEach(library => {
 		let diff = ('                                                          ').substr(library.length);
 		console.log('    ' + library + diff);
 	});
 	console.log('                                                              ');
 	console.log('Available Projects:                                           ');
 	console.log('                                                              ');
-	projects.forEach(function(project) {
+	projects.forEach(project => {
 		let diff = ('                                                          ').substr(project.length);
 		console.log('    ' + project + diff);
 	});
@@ -120,12 +120,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/strainer';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: settings.debug === true ? false : true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			if (sandbox !== null) {
 
@@ -133,13 +133,13 @@ const _bootup = function(settings) {
 				let strainer = sandbox.strainer;
 
 
+				// Show more debug messages
+				lychee.debug = settings.debug === true;
+
+
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new strainer.Main(settings);
-
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(code);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 
 
@@ -154,7 +154,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 

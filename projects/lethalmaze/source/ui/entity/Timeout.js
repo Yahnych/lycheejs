@@ -4,7 +4,7 @@ lychee.define('game.ui.entity.Timeout').requires([
 	'lychee.effect.Visible'
 ]).includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha   = lychee.import('lychee.effect.Alpha');
 	const _Visible = lychee.import('lychee.effect.Visible');
@@ -54,12 +54,24 @@ lychee.define('game.ui.entity.Timeout').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('touch', function() {
+		this.bind('touch', function(id, position, delta) {
+
+			if (this.state === 'active') {
+				// XXX: Do nothing
+			}
+
 			return false;
+
 		}, this);
 
 		this.bind('key', function(key, name, delta) {
+
+			if (this.state === 'active') {
+				// XXX: Do nothing
+			}
+
 			return false;
+
 		}, this);
 
 		this.bind('focus', function() {

@@ -3,7 +3,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 	platform: 'node'
 }).requires([
 	'strainer.fix.ESLINT'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	try {
 
@@ -24,7 +24,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 	// XXX: See above
 	// return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _CONFIG = new Config('/.eslintrc.json');
 	const _FIXES  = lychee.import('strainer.fix.ESLINT');
@@ -63,9 +63,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 
 				config         = {};
 				config.envs    = Object.values(this.buffer.env);
-				config.globals = Object.values(this.buffer.globals).map(function(value) {
-					return value + ':true';
-				});
+				config.globals = Object.values(this.buffer.globals).map(val => val + ':true');
 
 			}
 
@@ -179,7 +177,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 				let modified = false;
 				let range    = [ 0 ];
 
-				code.forEach(function(chunk, c) {
+				code.forEach((chunk, c) => {
 					range[c + 1] = range[c] + chunk.length + 1;
 				});
 
@@ -187,7 +185,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 				let prev_l    = -1;
 				let prev_diff = 0;
 
-				report.forEach(function(err) {
+				report.forEach(err => {
 
 					let line = err.line;
 					let rule = err.ruleId;
@@ -205,9 +203,7 @@ lychee.define('strainer.plugin.ESLINT').tags({
 								diff = prev_diff;
 							}
 
-							tmp.range = tmp.range.map(function(value) {
-								return value - range[line - 1] + diff;
-							});
+							tmp.range = tmp.range.map(val => val - range[line - 1] + diff);
 
 						}
 

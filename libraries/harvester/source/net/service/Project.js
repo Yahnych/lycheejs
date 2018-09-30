@@ -3,7 +3,7 @@ lychee.define('harvester.net.service.Project').requires([
 	'harvester.mod.Server'
 ]).includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Service = lychee.import('lychee.net.Service');
 	const _Server  = lychee.import('harvester.mod.Server');
@@ -114,7 +114,7 @@ lychee.define('harvester.net.service.Project').requires([
 
 		if (data instanceof Array) {
 
-			data.forEach(function(object) {
+			data.forEach(object => {
 				_CACHE[object.identifier] = object;
 			});
 

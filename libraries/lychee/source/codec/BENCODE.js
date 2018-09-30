@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.BENCODE').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -28,13 +28,13 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 		if (_CHARS_ESCAPABLE.test(san)) {
 
-			san = san.replace(_CHARS_ESCAPABLE, function(char) {
+			san = san.replace(_CHARS_ESCAPABLE, character => {
 
-				let val = _CHARS_META[char];
+				let val = _CHARS_META[character];
 				if (typeof val === 'string') {
 					return val;
 				} else {
-					return '\\u' + (char.charCodeAt(0).toString(16)).slice(-4);
+					return '\\u' + (character.charCodeAt(0).toString(16)).slice(-4);
 				}
 
 			});
@@ -238,7 +238,7 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 			stream.write('d');
 
-			let keys = Object.keys(data).sort(function(a, b) {
+			let keys = Object.keys(data).sort((a, b) => {
 				if (a > b) return  1;
 				if (a < b) return -1;
 				return 0;

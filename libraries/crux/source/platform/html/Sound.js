@@ -28,7 +28,7 @@
 
 			let tmp = new Audio();
 
-			[ 'application/ogg', 'audio/ogg', 'audio/ogg; codecs=theora, vorbis' ].forEach(function(variant) {
+			[ 'application/ogg', 'audio/ogg', 'audio/ogg; codecs=theora, vorbis' ].forEach(variant => {
 
 				if (tmp.canPlayType(variant)) {
 					supports.ogg = true;
@@ -36,7 +36,7 @@
 
 			});
 
-			[ 'audio/mpeg' ].forEach(function(variant) {
+			[ 'audio/mpeg' ].forEach(variant => {
 
 				if (tmp.canPlayType(variant)) {
 					supports.mp3 = true;
@@ -70,7 +70,7 @@
 			clone.buffer.src        = origin.buffer.src;
 			clone.buffer.load();
 
-			clone.buffer.addEventListener('ended', function() {
+			clone.buffer.addEventListener('ended', _ => {
 				clone.isIdle = true;
 				clone.stop();
 			}, true);
@@ -127,9 +127,7 @@
 
 					let buffer = new Audio();
 
-					buffer.addEventListener('ended', function() {
-						this.stop();
-					}.bind(this), true);
+					buffer.addEventListener('ended', _ => this.stop(), true);
 
 					buffer.autobuffer = true;
 					buffer.preload    = true;
@@ -144,9 +142,7 @@
 
 					let buffer = new Audio();
 
-					buffer.addEventListener('ended', function() {
-						this.stop();
-					}.bind(this), true);
+					buffer.addEventListener('ended', _ => this.stop(), true);
 
 					buffer.autobuffer = true;
 					buffer.preload    = true;
@@ -257,10 +253,10 @@
 
 				}.bind(this);
 
-				buffer.addEventListener('ended', function() {
+				buffer.addEventListener('ended', _ => {
 					this.isIdle = true;
 					this.stop();
-				}.bind(this), true);
+				}, true);
 
 				buffer.autobuffer = true;
 				buffer.preload    = true;
@@ -304,7 +300,7 @@
 
 					let p = this.buffer.play();
 					if (typeof p === 'object' && typeof p.catch === 'function') {
-						p.catch(function(err) {});
+						p.catch(err => {});
 					}
 
 					this.isIdle = false;
@@ -330,7 +326,7 @@
 
 				let p = this.buffer.play();
 				if (typeof p === 'object' && typeof p.catch === 'function') {
-					p.catch(function(err) {});
+					p.catch(err => {});
 				}
 
 				this.isIdle = false;

@@ -1,5 +1,5 @@
 
-lychee.define('game.policy.Position').exports(function(lychee, global, attachments) {
+lychee.define('game.policy.Position').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

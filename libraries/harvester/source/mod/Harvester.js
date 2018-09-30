@@ -3,7 +3,7 @@ lychee.define('harvester.mod.Harvester').requires([
 	'harvester.data.Git',
 	'harvester.data.Project',
 	'harvester.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client  = lychee.import('harvester.net.Client');
 	const _Git     = lychee.import('harvester.data.Git');

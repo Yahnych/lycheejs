@@ -4,7 +4,7 @@ lychee.define('lychee.app.Element').requires([
 	'lychee.app.entity.Text'
 ]).includes([
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Label = lychee.import('lychee.app.entity.Label');
 	const _Layer = lychee.import('lychee.app.Layer');

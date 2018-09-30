@@ -5,7 +5,7 @@ lychee.define('harvester.net.Server').requires([
 	'harvester.net.server.Redirect'
 ]).includes([
 	'lychee.net.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _File     = lychee.import('harvester.net.server.File');
 	const _Redirect = lychee.import('harvester.net.server.Redirect');
@@ -41,7 +41,7 @@ lychee.define('harvester.net.Server').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function(remote) {
+		this.bind('connect', remote => {
 
 			remote.bind('receive', function(payload, headers) {
 

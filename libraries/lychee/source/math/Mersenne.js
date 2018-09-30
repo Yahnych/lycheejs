@@ -1,5 +1,5 @@
 
-lychee.define('lychee.math.Mersenne').exports(function(lychee, global, attachments) {
+lychee.define('lychee.math.Mersenne').exports((lychee, global, attachments) => {
 
 	const _UPPER_MASK = 0x80000000;
 	const _LOWER_MASK = 0x7fffffff;

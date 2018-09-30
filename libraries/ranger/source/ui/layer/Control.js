@@ -3,7 +3,7 @@ lychee.define('ranger.ui.layer.Control').requires([
 	'lychee.ui.entity.Helper'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Helper = lychee.import('lychee.ui.entity.Helper');
 	const _Layer  = lychee.import('lychee.ui.Layer');
@@ -163,9 +163,7 @@ lychee.define('ranger.ui.layer.Control').requires([
 
 			if (label !== null) {
 
-				this.label = label.filter(function(val) {
-					return '' + val;
-				});
+				this.label = label.map(val => '' + val);
 				this.trigger('relayout');
 
 
@@ -185,9 +183,7 @@ lychee.define('ranger.ui.layer.Control').requires([
 
 			if (value !== null) {
 
-				this.value = value.filter(function(val) {
-					return '' + val;
-				});
+				this.value = value.map(val => '' + val);
 				this.trigger('relayout');
 
 

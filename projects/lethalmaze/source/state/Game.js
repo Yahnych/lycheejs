@@ -15,7 +15,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.layer.Control'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Explosion = lychee.import('game.effect.Explosion');
 	const _Lightning = lychee.import('game.effect.Lightning');

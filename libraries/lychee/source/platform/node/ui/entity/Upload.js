@@ -3,13 +3,13 @@ lychee.define('lychee.ui.entity.Upload').tags({
 	platform: 'node'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	// XXX: This is a stub API
 
 	return true;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Button = lychee.import('lychee.ui.entity.Button');
 
@@ -50,9 +50,11 @@ lychee.define('lychee.ui.entity.Upload').tags({
 		this.unbind('touch');
 		this.bind('touch', function() {
 
-			// TODO: Show file dialog
-			// TODO: trigger 'change' with null on no selection
-			// TODO: trigger 'change' with Asset array on selection
+			if (this.state === 'active') {
+				// TODO: Show file dialog
+				// TODO: trigger 'change' with null on no selection
+				// TODO: trigger 'change' with Asset array on selection
+			}
 
 		}, this);
 
@@ -119,7 +121,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 			if (value !== null) {
 
-				this.value = value.filter(function(asset) {
+				this.value = value.filter(asset => {
 
 					if (asset instanceof global.Config)  return true;
 					if (asset instanceof global.Font)    return true;

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.Velocity').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.Velocity').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

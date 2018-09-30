@@ -3,7 +3,7 @@ lychee.define('harvester.net.service.Harvester').requires([
 	'lychee.Storage'
 ]).includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Service = lychee.import('lychee.net.Service');
 	const _Storage = lychee.import('lychee.Storage');
@@ -191,9 +191,7 @@ lychee.define('harvester.net.service.Harvester').requires([
 
 		index: function() {
 
-			return this.send(_storage.filter(function(harvester) {
-				return true;
-			}), {
+			return this.send(_storage.filter(_ => true), {
 				event: 'sync'
 			});
 

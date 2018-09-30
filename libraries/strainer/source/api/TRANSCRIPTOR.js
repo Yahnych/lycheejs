@@ -1,5 +1,5 @@
 
-lychee.define('strainer.api.TRANSCRIPTOR').exports(function(lychee, global, attachments) {
+lychee.define('strainer.api.TRANSCRIPTOR').exports((lychee, global, attachments) => {
 
 	const _FEATURES  = lychee.FEATURES;
 	const _PLATFORMS = lychee.PLATFORMS;

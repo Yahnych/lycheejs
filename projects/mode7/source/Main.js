@@ -7,7 +7,7 @@ lychee.define('game.Main').requires([
 	'game.state.Game'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _game      = lychee.import('game');
 	const _Main      = lychee.import('lychee.app.Main');
@@ -22,7 +22,7 @@ lychee.define('game.Main').requires([
 
 	(function(viewport) {
 
-		viewport.bind('reshape', function(orientation, rotation, width, height) {
+		viewport.bind('reshape', (orientation, rotation, width, height) => {
 
 			if (_INSTANCES.length > 1) {
 

@@ -133,14 +133,14 @@ const _print_help = function() {
 	console.log('                                                                      ');
 	console.log('Available Libraries:                                                  ');
 	console.log('                                                                      ');
-	libraries.forEach(function(library) {
+	libraries.forEach(library => {
 		let diff = ('                                                                  ').substr(library.length);
 		console.log('    ' + library + diff);
 	});
 	console.log('                                                                      ');
 	console.log('Available Projects:                                                   ');
 	console.log('                                                                      ');
-	projects.forEach(function(project) {
+	projects.forEach(project => {
 		let diff = ('                                                                  ').substr(project.length);
 		console.log('    ' + project + diff);
 	});
@@ -180,12 +180,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/fertilizer';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: settings.debug === true ? false : settings.sandbox === true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			if (sandbox !== null) {
 
@@ -199,10 +199,7 @@ const _bootup = function(settings) {
 
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new fertilizer.Main(settings);
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(code);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 
 
@@ -217,7 +214,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 
@@ -276,14 +273,14 @@ const _spawn = function(args) {
 
 		let handle = _child_process.execFile(_BINARY, args, {
 			cwd: _ROOT + args[2]
-		}, function(error, stdout, stderr) {
+		}, (error, stdout, stderr) => {
 
 			stdout = (stdout.toString() || '').trim();
 			stderr = (stderr.toString() || '').trim();
 
 			if (stderr !== '') {
 
-				let lines = stderr.split('\n').map(function(message) {
+				let lines = stderr.split('\n').map(message => {
 
 					let prefix = '\u001b[41m\u001b[97m';
 					let suffix = '\u001b[39m\u001b[49m\u001b[0m';
@@ -303,7 +300,7 @@ const _spawn = function(args) {
 
 				if (lines.length > 0) {
 
-					lines.forEach(function(message) {
+					lines.forEach(message => {
 
 						let chunk = message.trim();
 						if (chunk.startsWith('(')) {

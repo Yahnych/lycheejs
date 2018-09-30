@@ -5,7 +5,7 @@ lychee.define('strainer.Main').requires([
 	'strainer.event.flow.Transcribe'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _lychee     = lychee.import('lychee');
 	const _Emitter    = lychee.import('lychee.event.Emitter');
@@ -153,7 +153,7 @@ lychee.define('strainer.Main').requires([
 
 						} else {
 
-							flow.errors.forEach(function(err) {
+							flow.errors.forEach(err => {
 
 								let path = err.url;
 								let rule = err.rule    || 'parser-error';
@@ -297,21 +297,12 @@ lychee.define('strainer.Main').requires([
 						this.sources = [ asset ];
 						oncomplete(true);
 					});
-					flow.bind('read-reviews', function(oncomplete) {
-						oncomplete(true);
-					});
-					flow.bind('write-sources', function(oncomplete) {
-						oncomplete(true);
-					});
-					flow.bind('write-reviews', function(oncomplete) {
-						oncomplete(true);
-					});
-					flow.bind('write-configs', function(oncomplete) {
-						oncomplete(true);
-					});
-					flow.bind('write-package', function(oncomplete) {
-						oncomplete(true);
-					});
+
+					flow.bind('read-reviews',  oncomplete => oncomplete(true));
+					flow.bind('write-sources', oncomplete => oncomplete(true));
+					flow.bind('write-reviews', oncomplete => oncomplete(true));
+					flow.bind('write-configs', oncomplete => oncomplete(true));
+					flow.bind('write-package', oncomplete => oncomplete(true));
 
 					flow.bind('complete', function() {
 
@@ -364,9 +355,8 @@ lychee.define('strainer.Main').requires([
 						this.configs = [ asset ];
 						oncomplete(true);
 					});
-					flow.bind('write-sources', function(oncomplete) {
-						oncomplete(true);
-					});
+
+					flow.bind('write-sources', oncomplete => oncomplete(true));
 
 					flow.bind('complete', function() {
 

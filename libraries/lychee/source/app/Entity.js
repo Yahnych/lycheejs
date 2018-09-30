@@ -1,5 +1,5 @@
 
-lychee.define('lychee.app.Entity').exports(function(lychee, global, attachments) {
+lychee.define('lychee.app.Entity').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

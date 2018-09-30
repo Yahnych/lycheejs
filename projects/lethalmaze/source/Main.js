@@ -5,7 +5,7 @@ lychee.define('game.Main').requires([
 	'game.state.Game'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client = lychee.import('game.net.Client');
 	const _Game   = lychee.import('game.state.Game');

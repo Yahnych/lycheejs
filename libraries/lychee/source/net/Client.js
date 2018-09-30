@@ -5,7 +5,7 @@ lychee.define('lychee.net.Client').requires([
 	'lychee.net.service.Storage'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Debugger = lychee.import('lychee.net.service.Debugger');
 	const _Stash    = lychee.import('lychee.net.service.Stash');

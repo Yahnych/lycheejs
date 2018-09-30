@@ -7,7 +7,7 @@ lychee.define('lychee.ui.Notice').requires([
 	'lychee.ui.entity.Label'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha    = lychee.import('lychee.effect.Alpha');
 	const _Button   = lychee.import('lychee.ui.entity.Button');
@@ -278,9 +278,7 @@ lychee.define('lychee.ui.Notice').requires([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
 
 				let next = this.getEntity('@options-next');

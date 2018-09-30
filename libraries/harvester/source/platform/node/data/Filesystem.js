@@ -1,7 +1,7 @@
 
 lychee.define('harvester.data.Filesystem').tags({
 	platform: 'node'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	try {
 
@@ -17,7 +17,7 @@ lychee.define('harvester.data.Filesystem').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _ROOT = lychee.ROOT.lychee;
 	const _fs   = require('fs');
@@ -244,7 +244,7 @@ lychee.define('harvester.data.Filesystem').tags({
 			let resolved = _path.normalize(this.__root + path);
 			if (callback !== null) {
 
-				_fs.readdir(resolved, function(err, data) {
+				_fs.readdir(resolved, (err, data) => {
 
 					if (err) {
 						callback.call(scope, []);

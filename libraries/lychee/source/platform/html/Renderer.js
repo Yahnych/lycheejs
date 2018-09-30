@@ -1,7 +1,7 @@
 
 lychee.define('lychee.Renderer').tags({
 	platform: 'html'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	/*
 	 * XXX: typeof CanvasRenderingContext2D is:
@@ -21,7 +21,7 @@ lychee.define('lychee.Renderer').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _PI2  = Math.PI * 2;
 	let   _id   = 0;

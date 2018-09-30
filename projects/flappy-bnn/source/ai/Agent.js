@@ -5,7 +5,7 @@ lychee.define('game.ai.Agent').requires([
 	'game.policy.Position'
 ]).includes([
 	'lychee.ai.enn.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent    = lychee.import('lychee.ai.enn.Agent');
 	const _Control  = lychee.import('game.policy.Control');

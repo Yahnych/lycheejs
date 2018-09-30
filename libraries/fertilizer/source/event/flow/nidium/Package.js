@@ -3,7 +3,7 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 	'lychee.event.Queue'
 ]).includes([
 	'fertilizer.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow  = lychee.import('fertilizer.event.Flow');
 	const _Queue = lychee.import('lychee.event.Queue');
@@ -31,7 +31,7 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 
 			stash.read([
 				'/bin/runtime/nidium/' + os + '/' + arch + '/nidium'
-			], function(binaries) {
+			], binaries => {
 
 				let runtime = binaries[0] || null;
 				if (runtime !== null) {
@@ -39,9 +39,8 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 					let files = assets.slice(0).concat(runtime).concat(_INDEX[os]);
 					let urls  = files.map(asset => prefix + '/' + asset.url.split('/').pop());
 
-					stash.write(urls, files, function(result) {
-						oncomplete(result);
-					});
+					stash.write(urls, files, result => oncomplete(result), this);
+					stash.sync();
 
 				} else {
 					oncomplete(false);
@@ -100,9 +99,9 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 						queue.then({ name: 'Linux x86_64', method: _package.bind(this, 'linux', 'x86_64', assets) });
 						queue.then({ name: 'MacOS x86_64', method: _package.bind(this, 'macos', 'x86_64', assets) });
 
-						queue.bind('update', function(entry, oncomplete) {
+						queue.bind('update', (entry, oncomplete) => {
 
-							entry.method(function(result) {
+							entry.method(result => {
 
 								if (result === true) {
 									console.info('fertilizer: -> "' + entry.name + '" SUCCESS');
@@ -116,10 +115,8 @@ lychee.define('fertilizer.event.flow.nidium.Package').requires([
 
 						}, this);
 
-						queue.bind('complete', function() {
-							oncomplete(true);
-						}, this);
-
+						queue.bind('complete', _ => oncomplete(true),  this);
+						queue.bind('error',    _ => oncomplete(false), this);
 						queue.init();
 
 					}

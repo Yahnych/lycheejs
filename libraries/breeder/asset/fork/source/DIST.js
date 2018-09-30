@@ -1,7 +1,7 @@
 
 lychee.define('fork.DIST').requires([
 	'app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Main = lychee.import('app.Main');
 

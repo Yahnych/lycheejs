@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.INI').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -167,13 +167,13 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 		if (_CHARS_SEARCH.test(san)) {
 
-			san = san.replace(_CHARS_SEARCH, function(char) {
+			san = san.replace(_CHARS_SEARCH, character => {
 
-				let meta = _CHARS_META[char];
+				let meta = _CHARS_META[character];
 				if (meta !== undefined) {
 					return meta;
 				} else {
-					return '\\u' + (char.charCodeAt(0).toString(16)).slice(-4);
+					return '\\u' + (character.charCodeAt(0).toString(16)).slice(-4);
 				}
 
 			});
@@ -422,11 +422,8 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 			let root = [];
 
-			let check = lines.find(function(line) {
-				return line.startsWith('[');
-			}) !== undefined;
-
-			if (check === true) {
+			let check = lines.find(line => line.startsWith('[')) || null;
+			if (check !== null) {
 				root = {};
 			}
 
@@ -441,7 +438,7 @@ lychee.define('lychee.codec.INI').exports(function(lychee, global, attachments) 
 
 					if (line.startsWith('[') && line.endsWith(']')) {
 
-						path = line.substr(1, line.length - 2).split('/').map(function(val) {
+						path = line.substr(1, line.length - 2).split('/').map(val => {
 
 							if (/^([0-9]+)$/g.test(val)) {
 								return parseInt(val, 10);

@@ -3,7 +3,7 @@ lychee.define('lychee.Viewport').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.addEventListener === 'function'
@@ -20,7 +20,7 @@ lychee.define('lychee.Viewport').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _CLOCK     = {
@@ -81,7 +81,7 @@ lychee.define('lychee.Viewport').tags({
 		 * waiting for 500ms to let the reflow finish.
 		 */
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			for (let i = 0, l = _INSTANCES.length; i < l; i++) {
 				_process_reshape.call(_INSTANCES[i], global.innerWidth, global.innerHeight);
@@ -414,14 +414,14 @@ lychee.define('lychee.Viewport').tags({
 		 * INITIALIZATION
 		 */
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			this.width  = 0;
 			this.height = 0;
 
 			_process_reshape.call(this, global.innerWidth | 0, global.innerHeight | 0);
 
-		}.bind(this), 100);
+		}, 100);
 
 
 		states = null;

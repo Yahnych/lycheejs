@@ -3,7 +3,7 @@ lychee.define('fertilizer.data.Shell').requires([
 	'lychee.Asset'
 ]).tags({
 	platform: 'node'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -23,7 +23,7 @@ lychee.define('fertilizer.data.Shell').requires([
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _child_process = require('child_process');
 	const _fs            = require('fs');
@@ -110,9 +110,7 @@ lychee.define('fertilizer.data.Shell').requires([
 			} catch (err) {
 			}
 
-			files.filter(function(file) {
-				return file.startsWith('.') === false;
-			}).forEach(function(file) {
+			files.filter(file => file.startsWith('.') === false).forEach(file => {
 
 				let info = this.info(path + '/' + file);
 				if (info !== null) {
@@ -132,7 +130,7 @@ lychee.define('fertilizer.data.Shell').requires([
 
 				}
 
-			}.bind(this));
+			});
 
 		}
 
@@ -416,7 +414,7 @@ lychee.define('fertilizer.data.Shell').requires([
 
 						_child_process.execFile(file, args, {
 							cwd: path
-						}, function(error, stdout, stderr) {
+						}, (error, stdout, stderr) => {
 
 							let code = 0;
 							if (error !== null) {
@@ -536,11 +534,7 @@ lychee.define('fertilizer.data.Shell').requires([
 
 				_walk_recursive.call(this, path, urls);
 
-				let filtered = urls.map(function(url) {
-					return '.' + url.substr(path.length);
-				});
-
-
+				let filtered = urls.map(url => '.' + url.substr(path.length));
 				if (callback !== null) {
 					callback.call(scope, filtered);
 				} else {
@@ -569,7 +563,7 @@ lychee.define('fertilizer.data.Shell').requires([
 			if (assets !== null) {
 
 				let sandbox = '/tmp/fertilizer-data-Shell-' + Date.now();
-				let urls = assets.map(function(asset) {
+				let urls = assets.map(asset => {
 
 					if (asset instanceof Object) {
 
@@ -592,7 +586,7 @@ lychee.define('fertilizer.data.Shell').requires([
 
 				});
 
-				let buffers = assets.map(function(asset) {
+				let buffers = assets.map(asset => {
 
 					if (asset instanceof Object) {
 
@@ -626,7 +620,8 @@ lychee.define('fertilizer.data.Shell').requires([
 
 				_create_directory(sandbox);
 
-				urls.forEach(function(url, u) {
+
+				urls.forEach((url, u) => {
 
 					let buffer = buffers[u] || null;
 					let result = false;

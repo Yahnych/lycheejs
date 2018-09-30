@@ -3,7 +3,7 @@ lychee.define('legacy.Renderer').tags({
 	platform: 'html'
 }).includes([
 	'lychee.Renderer'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.document !== 'undefined'
@@ -25,7 +25,7 @@ lychee.define('legacy.Renderer').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Renderer = lychee.import('lychee.Renderer');
 	const _CACHE    = {
@@ -78,7 +78,7 @@ lychee.define('legacy.Renderer').tags({
 			let raw_css = asset.buffer.toString('utf8');
 
 			raw_css += '\n' + identifier + '{\ndisplay:block;\nposition: absolute;\n}';
-			raw_css  = raw_css.split('\n').map(function(line) {
+			raw_css  = raw_css.split('\n').map(line => {
 
 				let tmp = line.trim();
 				if (tmp.startsWith(':host(')) {
@@ -99,7 +99,7 @@ lychee.define('legacy.Renderer').tags({
 
 				return tmp;
 
-			}).map(function(line) {
+			}).map(line => {
 
 				let tmp = line.trim();
 				if (tmp.startsWith('::content')) {

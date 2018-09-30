@@ -1,7 +1,7 @@
 
 lychee.define('fertilizer.event.flow.Build').includes([
 	'fertilizer.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow = lychee.import('fertilizer.event.Flow');
 

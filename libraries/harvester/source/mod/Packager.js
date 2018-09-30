@@ -2,7 +2,7 @@
 lychee.define('harvester.mod.Packager').requires([
 	'harvester.data.Package',
 	'harvester.data.Project'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Package = lychee.import('harvester.data.Package');
 	const _Project = lychee.import('harvester.data.Project');
@@ -39,10 +39,7 @@ lychee.define('harvester.mod.Packager').requires([
 			for (let a = 0, al = akeys.length; a < al; a++) {
 
 				let aval = akeys[a];
-				let bval = bkeys.find(function(val) {
-					return val === aval;
-				});
-
+				let bval = bkeys.find(val => val === aval);
 				if (bval === undefined) {
 					reasons.push(path + '/' + aval);
 				}
@@ -52,10 +49,7 @@ lychee.define('harvester.mod.Packager').requires([
 			for (let b = 0, bl = bkeys.length; b < bl; b++) {
 
 				let bval = bkeys[b];
-				let aval = akeys.find(function(val) {
-					return val === bval;
-				});
-
+				let aval = akeys.find(val => val === bval);
 				if (aval === undefined) {
 					reasons.push(path + '/' + bval);
 				}
@@ -175,7 +169,7 @@ lychee.define('harvester.mod.Packager').requires([
 			if (name === 'platform') {
 
 				// XXX: platform: [ 'html-webview', 'html', 'node-sdl', 'node' ]
-				return obj.sort(function(a, b) {
+				return obj.sort((a, b) => {
 
 					let rank_a = 0;
 					let rank_b = 0;
@@ -267,7 +261,6 @@ lychee.define('harvester.mod.Packager').requires([
 
 	const _walk_directory = function(pointer, path) {
 
-		let that = this;
 		let name = path.split('/').pop();
 
 		let info = this.info(path);
@@ -307,9 +300,7 @@ lychee.define('harvester.mod.Packager').requires([
 
 				pointer[name] = {};
 
-				this.dir(path).forEach(function(child) {
-					_walk_directory.call(that, pointer[name], path + '/' + child);
-				});
+				this.dir(path).forEach(child => _walk_directory.call(this, pointer[name], path + '/' + child));
 
 			}
 

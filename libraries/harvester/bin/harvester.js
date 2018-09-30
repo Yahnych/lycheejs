@@ -79,7 +79,7 @@ const _print_help = function() {
 	console.log('                                                          ');
 	console.log('Available Profiles:                                       ');
 	console.log('                                                          ');
-	profiles.forEach(function(profile) {
+	profiles.forEach(profile => {
 		let diff = ('                                                      ').substr(profile.length);
 		console.log('    ' + profile + diff);
 	});
@@ -155,12 +155,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/harvester';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			lychee.ROOT.project = lychee.ROOT.lychee;
 
@@ -176,10 +176,7 @@ const _bootup = function(settings) {
 
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new harvester.Main(settings);
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(0);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 				_write_pid();
 
@@ -197,7 +194,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 

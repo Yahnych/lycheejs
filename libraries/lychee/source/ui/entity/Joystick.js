@@ -1,7 +1,7 @@
 
 lychee.define('lychee.ui.entity.Joystick').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 

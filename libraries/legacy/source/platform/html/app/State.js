@@ -5,7 +5,7 @@ lychee.define('legacy.app.State').requires([
 	'lychee.ui.Layer'
 ]).includes([
 	'lychee.app.State'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.document !== 'undefined'
@@ -26,7 +26,7 @@ lychee.define('legacy.app.State').requires([
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _State = lychee.import('lychee.app.State');
 

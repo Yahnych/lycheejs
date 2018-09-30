@@ -3,7 +3,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 	'lychee.Stash'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Flow    = lychee.import('lychee.event.Flow');
 	const _Package = lychee.import('lychee.Package');
@@ -90,13 +90,13 @@ lychee.define('breeder.event.flow.Fork').requires([
 				console.log('breeder: -> Mapping ' + pkg_library.url + ' as "' + pkg_library.id + '"');
 				console.log('breeder: -> Mapping ' + pkg_project.url + ' as "' + pkg_project.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace                = pkg_project.id;
 					this.__library                  = pkg_library;
 					this.__packages[pkg_library.id] = pkg_library;
 					this.__packages[pkg_project.id] = pkg_project;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			} else {
 				oncomplete(false);
@@ -275,11 +275,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 				assets = assets.filter(asset => !asset.url.endsWith('/lychee.pkg'));
 
 				if (assets.length > 0) {
-
-					stash.write(assets.map(asset => asset.url), assets, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(assets.map(asset => asset.url), assets, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -305,11 +301,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 				let sources = this.sources.filter(asset => asset !== null);
 				if (sources.length > 0) {
-
-					stash.write(sources.map(asset => asset.url), sources, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(sources.map(asset => asset.url), sources, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -333,7 +325,7 @@ lychee.define('breeder.event.flow.Fork').requires([
 				console.log('breeder: INIT/WRITE-PACKAGE "' + project + '"');
 
 
-				let pkg = this.assets.filter(asset => asset.url.endsWith('/lychee.pkg'))[0] || null;
+				let pkg = this.assets.find(asset => asset.url.endsWith('/lychee.pkg')) || null;
 				if (pkg !== null) {
 
 					let environments = this.__environments;
@@ -346,13 +338,8 @@ lychee.define('breeder.event.flow.Fork').requires([
 
 					}
 
-					stash.write([
-						pkg.url
-					], [
-						pkg
-					], function(result) {
-						oncomplete(true);
-					});
+					stash.write([ pkg.url ], [ pkg ], result => oncomplete(result), this);
+					stash.sync();
 
 				} else {
 					oncomplete(true);

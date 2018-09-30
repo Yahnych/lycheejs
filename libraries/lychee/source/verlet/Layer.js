@@ -3,7 +3,7 @@ lychee.define('lychee.verlet.Layer').requires([
 	'lychee.math.Vector3'
 ]).includes([
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Layer   = lychee.import('lychee.app.Layer');
 	const _Vector3 = lychee.import('lychee.math.Vector3');

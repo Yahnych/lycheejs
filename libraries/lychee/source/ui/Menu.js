@@ -10,7 +10,7 @@ lychee.define('lychee.ui.Menu').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha    = lychee.import('lychee.effect.Alpha');
 	const _Event    = lychee.import('lychee.effect.Event');
@@ -441,9 +441,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (helpers !== null) {
 
-				this.helpers = helpers.map(function(helper) {
-					return '' + helper;
-				});
+				this.helpers = helpers.map(helper => '' + helper);
 
 
 				this.__helpers = [];
@@ -500,10 +498,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
-
+				this.options = options.map(option => '' + option);
 				this.getEntity('@select').setOptions(this.options);
 
 

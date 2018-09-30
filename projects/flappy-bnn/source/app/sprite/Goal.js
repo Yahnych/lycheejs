@@ -3,7 +3,7 @@ lychee.define('game.app.sprite.Goal').requires([
 	'game.app.sprite.Plane'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Plane   = lychee.import('game.app.sprite.Plane');
 	const _Sprite  = lychee.import('lychee.app.Sprite');

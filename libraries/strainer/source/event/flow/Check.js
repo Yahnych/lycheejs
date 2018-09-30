@@ -7,7 +7,7 @@ lychee.define('strainer.event.flow.Check').requires([
 	'strainer.plugin.ESLINT'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _plugin    = {
 		API:    lychee.import('strainer.plugin.API'),
@@ -33,41 +33,23 @@ lychee.define('strainer.event.flow.Check').requires([
 		let configs      = this.configs;
 		let dependencies = [];
 
-		configs.filter(function(config) {
-			return config !== null;
-		}).map(function(config) {
-			return config.buffer.source.header || { requires: [], includes: [] };
-		}).forEach(function(header) {
+		configs.filter(config => config !== null).map(config => config.buffer.source.header || { requires: [], includes: [] }).forEach(header => {
 
-			if (header.requires.length > 0) {
-
-				header.requires.forEach(function(id) {
-
-					if (dependencies.indexOf(id) === -1) {
-						dependencies.push(id);
-					}
-
-				});
-
+			let requires = header.requires || [];
+			if (requires.length > 0) {
+				dependencies.concat(requires.filter(id => dependencies.includes(id) === false));
 			}
 
-			if (header.includes.length > 0) {
-
-				header.includes.forEach(function(id) {
-
-					if (dependencies.indexOf(id) === -1) {
-						dependencies.push(id);
-					}
-
-				});
-
+			let includes = header.includes || [];
+			if (includes.length > 0) {
+				dependencies.concat(includes.filter(id => dependencies.includes(id) === false));
 			}
 
 		});
 
-		dependencies = dependencies.filter(function(identifier) {
+		dependencies = dependencies.filter(identifier => {
 
-			let config = configs.find(function(other) {
+			let config = configs.find(other => {
 
 				let buffer = other.buffer;
 				if (buffer !== null) {
@@ -108,7 +90,7 @@ lychee.define('strainer.event.flow.Check').requires([
 				if (variable.value !== undefined) {
 
 					let identifier = variable.value.reference;
-					let config     = this.configs.find(function(other) {
+					let config     = this.configs.find(other => {
 
 						if (other !== null) {
 
@@ -160,10 +142,7 @@ lychee.define('strainer.event.flow.Check').requires([
 							if (enam !== null) {
 
 								let name  = tmp.shift();
-								let value = enam.values.find(function(val) {
-									return val.name === name;
-								}) || null;
-
+								let value = enam.values.find(val => val.name === name) || null;
 								if (value !== null) {
 
 									values.push({
@@ -262,7 +241,7 @@ lychee.define('strainer.event.flow.Check').requires([
 			for (let i = 0, il = header.includes.length; i < il; i++) {
 
 				let identifier = header.includes[i];
-				let definition = configs.find(function(other) {
+				let definition = configs.find(other => {
 
 					let buffer = other.buffer;
 					if (buffer !== null) {
@@ -358,11 +337,11 @@ lychee.define('strainer.event.flow.Check').requires([
 
 				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			} else {
 				oncomplete(false);
@@ -609,11 +588,9 @@ lychee.define('strainer.event.flow.Check').requires([
 
 						if (api_unfixed.length > 0) {
 
-							api_unfixed.forEach(function(err) {
-
+							api_unfixed.forEach(err => {
 								result.push(err);
 								errors.push(err);
-
 							});
 
 							api_report.errors = result;
@@ -769,11 +746,9 @@ lychee.define('strainer.event.flow.Check').requires([
 
 						if (api_unfixed.length > 0) {
 
-							api_unfixed.forEach(function(err) {
-
+							api_unfixed.forEach(err => {
 								result.push(err);
 								errors.push(err);
-
 							});
 
 							api_report.errors = result;
@@ -858,11 +833,7 @@ lychee.define('strainer.event.flow.Check').requires([
 								});
 
 								if (resolved.length > 0) {
-
-									resolved.forEach(function(path) {
-										candidates.push(prefix + '/api/' + path + '.json');
-									});
-
+									resolved.forEach(path => candidates.push(prefix + '/api/' + path + '.json'));
 								}
 
 							}
@@ -884,23 +855,16 @@ lychee.define('strainer.event.flow.Check').requires([
 
 							}
 
-							setTimeout(function() {
+							setTimeout(_ => {
 
-								let unknown_includes = _trace_dependencies.call(this).filter(function(dependency) {
-									return dependencies.includes(dependency) === false;
-								});
-
+								let unknown_includes = _trace_dependencies.call(this).filter(dep => dependencies.includes(dep) === false);
 								if (unknown_includes.length > 0) {
-
 									this.trigger('trace-includes', [ oncomplete ]);
-
 								} else {
-
 									oncomplete(true);
-
 								}
 
-							}.bind(this), 100);
+							}, 100);
 
 						}, this);
 
@@ -950,10 +914,7 @@ lychee.define('strainer.event.flow.Check').requires([
 									properties[pid].value = references[0];
 
 
-									let error = config.buffer.errors.find(function(err) {
-										return err.rule === 'unguessable-property-value' && err.message.includes('"' + pid + '"');
-									}) || null;
-
+									let error = config.buffer.errors.find(err => err.rule === 'unguessable-property-value' && err.message.includes('"' + pid + '"')) || null;
 									if (error !== null) {
 
 										let e0 = errors.indexOf(error);
@@ -1003,10 +964,7 @@ lychee.define('strainer.event.flow.Check').requires([
 											}
 
 
-											let error = config.buffer.errors.find(function(err) {
-												return err.rule === 'unguessable-return-value' && err.message.includes('"' + mid + '()"');
-											}) || null;
-
+											let error = config.buffer.errors.find(err => err.rule === 'unguessable-return-value' && err.message.includes('"' + mid + '()"'));
 											if (error !== null) {
 
 												let e0 = errors.indexOf(error);
@@ -1098,11 +1056,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 				let sources = this.sources.filter(asset => asset._MODIFIED === true);
 				if (sources.length > 0) {
-
-					stash.write(sources.map(asset => asset.url), sources, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(sources.map(asset => asset.url), sources, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -1128,11 +1082,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 				let reviews = this.reviews.filter(asset => asset._MODIFIED === true);
 				if (reviews.length > 0) {
-
-					stash.write(reviews.map(asset => asset.url), reviews, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(reviews.map(asset => asset.url), reviews, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -1158,11 +1108,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 				let configs = this.configs.filter(config => config !== null);
 				if (configs.length > 0) {
-
-					stash.write(configs.map(asset => asset.url), configs, function(result) {
-						oncomplete(result);
-					}, this);
-
+					stash.write(configs.map(asset => asset.url), configs, result => oncomplete(result), this);
 				} else {
 					oncomplete(true);
 				}
@@ -1191,7 +1137,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					stash.read([
 						project + '/api/strainer.pkg'
-					], function(assets) {
+					], assets => {
 
 						let index = assets[0] || null;
 						if (index !== null) {
@@ -1212,17 +1158,10 @@ lychee.define('strainer.event.flow.Check').requires([
 								let knowledge = {};
 
 								knowledge.states     = Object.keys(result.states);
-								knowledge.properties = Object.keys(result.properties).map(function(pid) {
-									return [ pid, result.properties[pid].hash ];
-								});
+								knowledge.properties = Object.keys(result.properties).map(pid => [ pid, result.properties[pid].hash ]);
 								knowledge.enums      = Object.keys(result.enums);
-								knowledge.events     = Object.keys(result.events).map(function(eid) {
-									return [ eid, result.events[eid].hash ];
-								});
-								knowledge.methods    = Object.keys(result.methods).map(function(mid) {
-									return [ mid, result.methods[mid].hash ];
-								});
-
+								knowledge.events     = Object.keys(result.events).map(eid => [ eid, result.events[eid].hash ]);
+								knowledge.methods    = Object.keys(result.methods).map(mid => [ mid, result.methods[mid].hash ]);
 
 								buffer[config.url] = {
 									identifier: identifier,
@@ -1232,14 +1171,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 							}
 
-							stash.write([
-								index.url
-							], [
-								index
-							], function(result) {
-								oncomplete(result);
-							});
-
+							stash.write([ index.url ], [ index ], result => oncomplete(result), this);
 							stash.sync();
 
 						} else {

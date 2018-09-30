@@ -1,7 +1,7 @@
 
 lychee.define('strainer.api.Definition').requires([
 	'strainer.api.PARSER'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER = lychee.import('strainer.api.PARSER');
 
@@ -119,7 +119,7 @@ lychee.define('strainer.api.Definition').requires([
 
 		let i1 = stream.indexOf('attaches({');
 		let i2 = stream.indexOf('\n})', i1);
-		let i3 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+		let i3 = stream.indexOf('exports((lychee, global, attachments) => {\n');
 
 		if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -145,7 +145,7 @@ lychee.define('strainer.api.Definition').requires([
 
 		let i1 = stream.indexOf('tags({');
 		let i2 = stream.indexOf('\n})', i1);
-		let i3 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+		let i3 = stream.indexOf('exports((lychee, global, attachments) => {\n');
 
 		if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -171,7 +171,7 @@ lychee.define('strainer.api.Definition').requires([
 
 		let i1 = stream.indexOf('requires([');
 		let i2 = stream.indexOf('\n])', i1);
-		let i3 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+		let i3 = stream.indexOf('exports((lychee, global, attachments) => {\n');
 
 		if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -181,9 +181,9 @@ lychee.define('strainer.api.Definition').requires([
 				let tmp2 = _parse_value(tmp1);
 				if (tmp2 !== undefined && tmp2 instanceof Array) {
 
-					tmp2.forEach(function(value) {
+					tmp2.forEach(value => {
 
-						if (requires.indexOf(value) === -1) {
+						if (requires.includes(value) === false) {
 							requires.push(value);
 						}
 
@@ -201,7 +201,7 @@ lychee.define('strainer.api.Definition').requires([
 
 		let i1 = stream.indexOf('includes([');
 		let i2 = stream.indexOf('\n])', i1);
-		let i3 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+		let i3 = stream.indexOf('exports((lychee, global, attachments) => {\n');
 
 		if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -211,9 +211,9 @@ lychee.define('strainer.api.Definition').requires([
 				let tmp2 = _parse_value(tmp1);
 				if (tmp2 !== undefined && tmp2 instanceof Array) {
 
-					tmp2.forEach(function(value) {
+					tmp2.forEach(value => {
 
-						if (includes.indexOf(value) === -1) {
+						if (includes.includes(value) === false) {
 							includes.push(value);
 						}
 
@@ -289,7 +289,7 @@ lychee.define('strainer.api.Definition').requires([
 
 
 				let i1 = stream.indexOf('lychee.define(');
-				let i2 = stream.indexOf('exports(function(lychee, global, attachments) {\n', i1);
+				let i2 = stream.indexOf('exports((lychee, global, attachments) => {\n', i1);
 
 				if (i1 === -1) {
 
@@ -320,8 +320,8 @@ lychee.define('strainer.api.Definition').requires([
 
 				let i3 = stream.indexOf('requires([\n');
 				let i4 = stream.indexOf('includes([\n');
-				let i5 = stream.indexOf('supports(function(lychee, global) {\n');
-				let i6 = stream.indexOf('exports(function(lychee, global, attachments) {\n');
+				let i5 = stream.indexOf('supports((lychee, global) => {\n');
+				let i6 = stream.indexOf('exports((lychee, global, attachments) => {\n');
 
 				if (i3 !== -1 && i4 !== -1 && i3 > i4) {
 					errors.push(_create_error('no-meta', 'Invalid Definition ("requires()" after "includes()").'));
@@ -384,27 +384,21 @@ lychee.define('strainer.api.Definition').requires([
 						let tags = report.header.tags || {};
 						if (Object.keys(tags).length > 0) {
 							code += '.tags({\n';
-							code += Object.entries(tags).map(function(pair) {
-								return '\t' + pair[0] + ': \'' + pair[1] + '\'';
-							}).join('\n') + '\n';
+							code += Object.entries(tags).map(pair => '\t' + pair[0] + ': \'' + pair[1] + '\'').join('\n') + '\n';
 							code += '})';
 						}
 
 						let requires = report.header.requires || [];
 						if (requires.length > 0) {
 							code += '.requires([\n';
-							code += requires.map(function(value) {
-								return '\t\'' + value.toString() + '\'';
-							}).join(',\n') + '\n';
+							code += requires.map(value => '\t\'' + value.toString() + '\'').join(',\n') + '\n';
 							code += '])';
 						}
 
 						let includes = report.header.includes || [];
 						if (includes.length > 0) {
 							code += '.includes([\n';
-							code += includes.map(function(value) {
-								return '\t\'' + value.toString() + '\'';
-							}).join(',\n') + '\n';
+							code += includes.map(value => '\t\'' + value.toString() + '\'').join(',\n') + '\n';
 							code += '])';
 						}
 
@@ -416,7 +410,7 @@ lychee.define('strainer.api.Definition').requires([
 						}
 
 
-						code += '.exports(function(lychee, global, attachments) {';
+						code += '.exports((lychee, global, attachments) => {';
 						code += '\n\n%BODY%\n\n';
 						code += '});';
 						code += '\n';

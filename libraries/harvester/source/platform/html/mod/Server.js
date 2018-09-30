@@ -3,11 +3,11 @@ lychee.define('harvester.mod.Server').tags({
 	platform: 'html'
 }).requires([
 	'harvester.data.Project'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	return true;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Project = lychee.import('harvester.data.Project');
 

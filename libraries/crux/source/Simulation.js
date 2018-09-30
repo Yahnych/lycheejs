@@ -156,11 +156,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 
 		if (cache.load.length > 0) {
-
-			console.error('lychee.Simulation ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(function(value) {
-				return '\t - ' + value;
-			}).join('\n') + '.');
-
+			console.error('lychee.Simulation ("' + this.id + '"): Invalid Dependencies\n' + cache.load.map(value => '\t - ' + value).join('\n') + '.');
 		}
 
 
@@ -510,7 +506,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 					cache.active  = true;
 
 
-					let interval = setInterval(function() {
+					let interval = setInterval(_ => {
 
 						let cache = this.__cache;
 						if (cache.active === true) {
@@ -552,7 +548,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 
 						}
 
-					}.bind(this), (1000 / 60) | 0);
+					}, (1000 / 60) | 0);
 
 				} else {
 
@@ -565,9 +561,7 @@ lychee.Simulation = typeof lychee.Simulation !== 'undefined' ? lychee.Simulation
 							console.warn('lychee.Simulation ("' + this.id + '"): Unready Package "' + target + '" (retrying in 100ms ...).');
 						}
 
-						setTimeout(function() {
-							this.init(callback);
-						}.bind(this), 100);
+						setTimeout(_ => this.init(callback), 100);
 
 					} else {
 

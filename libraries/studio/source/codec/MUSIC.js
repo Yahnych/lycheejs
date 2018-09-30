@@ -1,5 +1,5 @@
 
-lychee.define('studio.codec.MUSIC').exports(function(lychee, global, attachments) {
+lychee.define('studio.codec.MUSIC').exports((lychee, global, attachments) => {
 
 	let _MUSIC_ID = 0;
 

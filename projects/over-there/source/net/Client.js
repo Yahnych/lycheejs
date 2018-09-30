@@ -1,7 +1,7 @@
 
 lychee.define('app.net.Client').includes([
 	'lychee.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client = lychee.import('lychee.net.Client');
 	const _CONFIG = attachments['json'].buffer;
@@ -58,7 +58,7 @@ lychee.define('app.net.Client').includes([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function() {
+		this.bind('connect', _ => {
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote connected');
@@ -66,7 +66,7 @@ lychee.define('app.net.Client').includes([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote disconnected (' + code + ')');
@@ -78,17 +78,14 @@ lychee.define('app.net.Client').includes([
 		this.connect();
 
 
+		setInterval(_ => {
 
-		let that = this;
+			Object.keys(_SENSORS).forEach(room => {
 
-		setInterval(function() {
-
-			Object.keys(_SENSORS).forEach(function(room) {
-
-				Object.keys(_SENSORS[room]).forEach(function(sensor) {
+				Object.keys(_SENSORS[room]).forEach(sensor => {
 
 					let value = '' + (Math.random() * 100).toFixed(2);
-					that.trigger('sensor', [ room, sensor, value ]);
+					this.trigger('sensor', [ room, sensor, value ]);
 
 				});
 
@@ -96,13 +93,12 @@ lychee.define('app.net.Client').includes([
 
 		}, 5000);
 
-
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			let _id = 0;
 			let _ACTIVITIES = [ 'sleep', 'sleep', 'science', 'sleep', 'sleep', 'science' ];
 
-			_CONFIG.forEach(function(data) {
+			_CONFIG.forEach(data => {
 
 				_id++;
 				_id = _id % 6;
@@ -113,7 +109,7 @@ lychee.define('app.net.Client').includes([
 					data.activity = _ACTIVITIES[_id];
 				}
 
-				that.trigger('astronaut', [ data ]);
+				this.trigger('astronaut', [ data ]);
 
 			});
 

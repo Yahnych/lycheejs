@@ -6,7 +6,7 @@ lychee.define('app.state.Welcome').requires([
 	'lychee.ui.entity.Text'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _State = lychee.import('lychee.ui.State');
 	const _BLOB  = attachments['json'].buffer;
@@ -55,10 +55,15 @@ lychee.define('app.state.Welcome').requires([
 					'refresh'
 				]);
 
-				this.query('ui > welcome > dialog').bind('change', function(value) {
-					menu.setValue(value);
-					menu.trigger('change', [ value ]);
-				}, this);
+				let dialog = this.query('ui > welcome > dialog');
+				if (dialog !== null) {
+
+					dialog.bind('change', value => {
+						menu.setValue(value);
+						menu.trigger('change', [ value ]);
+					}, this);
+
+				}
 
 			}
 

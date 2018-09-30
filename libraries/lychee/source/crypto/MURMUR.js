@@ -1,5 +1,5 @@
 
-lychee.define('lychee.crypto.MURMUR').exports(function(lychee, global, attachments) {
+lychee.define('lychee.crypto.MURMUR').exports((lychee, global, attachments) => {
 
 	const _C1  = 0xcc9e2d51;
 	const _C1B = 0x85ebca6b;

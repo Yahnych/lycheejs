@@ -7,7 +7,7 @@ lychee.define('strainer.event.flow.Simulate').requires([
 	'lychee.event.Queue'
 ]).includes([
 	'lychee.event.Flow'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Environment = lychee.import('lychee.Environment');
 	const _Flow        = lychee.import('lychee.event.Flow');
@@ -171,11 +171,11 @@ lychee.define('strainer.event.flow.Simulate').requires([
 
 				console.log('strainer: -> Mapping ' + pkg.url + ' as "' + pkg.id + '"');
 
-				setTimeout(function() {
+				setTimeout(_ => {
 					this.__namespace        = pkg.id;
 					this.__packages[pkg.id] = pkg;
 					oncomplete(true);
-				}.bind(this), 200);
+				}, 200);
 
 			}
 
@@ -265,16 +265,17 @@ lychee.define('strainer.event.flow.Simulate').requires([
 				let default_env = lychee.environment;
 				let queue       = new _Queue();
 
-				queue.bind('update', function(settings, oncomplete) {
+				queue.bind('update', (settings, oncomplete) => {
 
 					console.log('strainer: CHECK-SIMULATIONS "' + settings.id + '"');
+
 
 					let simulation = new _Simulation(settings);
 
 					lychee.setEnvironment(settings.environment);
 					lychee.setSimulation(simulation);
 
-					lychee.init(simulation, {}, function(sandboxes) {
+					lychee.init(simulation, {}, sandboxes => {
 
 						let remaining      = 0;
 						let specifications = Object.keys(simulation.specifications);
@@ -300,7 +301,7 @@ lychee.define('strainer.event.flow.Simulate').requires([
 
 								remaining++;
 
-								entry.sandbox.evaluate(function(statistics) {
+								entry.sandbox.evaluate(statistics => {
 									_render_statistics(entry.id, statistics);
 									remaining--;
 								});
@@ -323,7 +324,7 @@ lychee.define('strainer.event.flow.Simulate').requires([
 
 				}, this);
 
-				queue.bind('complete', function() {
+				queue.bind('complete', _ => {
 
 					lychee.setEnvironment(default_env);
 					lychee.setSimulation(null);
@@ -332,7 +333,7 @@ lychee.define('strainer.event.flow.Simulate').requires([
 
 				}, this);
 
-				queue.bind('error', function() {
+				queue.bind('error', _ => {
 
 					lychee.setEnvironment(default_env);
 					lychee.setSimulation(null);

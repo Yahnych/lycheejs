@@ -12,7 +12,7 @@ lychee.define('harvester.net.Client').requires([
 	'lychee.net.Client'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client  = lychee.import('lychee.net.Client');
 	const _Tunnel  = lychee.import('lychee.net.Tunnel');
@@ -89,7 +89,7 @@ lychee.define('harvester.net.Client').requires([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('harvester.net.Client: Remote disconnected (' + code + ')');

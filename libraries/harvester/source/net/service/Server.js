@@ -1,7 +1,7 @@
 
 lychee.define('harvester.net.service.Server').includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Service = lychee.import('lychee.net.Service');
 
@@ -26,16 +26,12 @@ lychee.define('harvester.net.service.Server').includes([
 					let objects = database['server']['@objects'] || null;
 					if (objects instanceof Object) {
 
-						remotes = Object.values(objects).map(function(remote) {
-
-							return {
-								id:   remote.id,
-								type: remote.type,
-								host: remote.host,
-								port: remote.port
-							};
-
-						});
+						remotes = Object.values(objects).map(remote => ({
+							id:   remote.id,
+							type: remote.type,
+							host: remote.host,
+							port: remote.port
+						}));
 
 					}
 
@@ -165,7 +161,7 @@ lychee.define('harvester.net.service.Server').includes([
 					}
 
 
-					all.forEach(function(project) {
+					all.forEach(project => {
 						project.host = project.host !== 'localhost' ? project.host : host;
 					});
 

@@ -9,7 +9,7 @@ lychee.define('game.state.Simulation').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent     = lychee.import('game.ai.Agent');
 	const _Evolution = lychee.import('game.ai.Evolution');

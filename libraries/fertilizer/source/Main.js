@@ -18,7 +18,7 @@ lychee.define('fertilizer.Main').requires([
 	'fertilizer.event.flow.node.Package'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _flow      = lychee.import('fertilizer.event.flow');
 	const _lychee    = lychee.import('lychee');
@@ -258,7 +258,7 @@ lychee.define('fertilizer.Main').requires([
 			console.log('');
 			console.info('fertilizer: ' + flow.action + ' "' + flow.project + '" "' + flow.target + '"');
 
-			flow.bind('complete', function() {
+			flow.bind('complete', _ => {
 
 				console.info('fertilizer: SUCCESS');
 
@@ -270,7 +270,7 @@ lychee.define('fertilizer.Main').requires([
 
 			}, this);
 
-			flow.bind('error', function(event) {
+			flow.bind('error', event => {
 
 				console.error('fertilizer: FAILURE at "' + event + '" event.');
 
@@ -283,7 +283,7 @@ lychee.define('fertilizer.Main').requires([
 
 		}, this);
 
-		queue.bind('complete', function(flow) {
+		queue.bind('complete', _ => {
 
 			if (autofixed === true) {
 				process.exit(2);
@@ -295,7 +295,7 @@ lychee.define('fertilizer.Main').requires([
 
 		}, this);
 
-		queue.bind('error', function() {
+		queue.bind('error', _ => {
 			process.exit(1);
 		}, this);
 
@@ -362,7 +362,7 @@ lychee.define('fertilizer.Main').requires([
 					type: 'build'
 				});
 
-				setTimeout(function() {
+				setTimeout(_ => {
 
 					this.__package = pkg;
 
@@ -386,7 +386,7 @@ lychee.define('fertilizer.Main').requires([
 
 					}
 
-				}.bind(this), 200);
+				}, 200);
 
 			} else {
 

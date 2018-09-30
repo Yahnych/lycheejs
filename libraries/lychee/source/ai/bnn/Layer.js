@@ -3,7 +3,7 @@ lychee.define('lychee.ai.bnn.Layer').requires([
 	'lychee.ai.bnn.Agent'
 ]).includes([
 	'lychee.ai.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent = lychee.import('lychee.ai.bnn.Agent');
 	const _Layer = lychee.import('lychee.ai.Layer');

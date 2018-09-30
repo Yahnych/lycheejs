@@ -1,5 +1,5 @@
 
-lychee.define('game.Camera').exports(function(lychee, global, attachments) {
+lychee.define('game.Camera').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

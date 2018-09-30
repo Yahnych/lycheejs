@@ -125,10 +125,8 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 		this._expect++;
 
 
-		let that = this;
-
-		callback(function(a, b) {
-			that._expect--;
+		callback((a, b) => {
+			this._expect--;
 			assert(a, b);
 		});
 
@@ -377,7 +375,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 
 						let timeout  = Date.now() + 5000;
-						let interval = setInterval(function() {
+						let interval = setInterval(_ => {
 
 							if (Date.now() > timeout) {
 
@@ -414,7 +412,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 							}
 
-						}.bind(this), 500);
+						}, 500);
 
 					} else {
 
@@ -601,11 +599,8 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 				if (tmp.startsWith('('))         tmp = tmp.substr(1).trim();
 				if (tmp.endsWith(')'))           tmp = tmp.substr(0, tmp.length - 1).trim();
 
-				let bindargs = tmp.split(',').map(function(name) {
-					return name.trim();
-				});
-
-				let check = bindargs[bindargs.length - 1];
+				let bindargs = tmp.split(',').map(name => name.trim());
+				let check    = bindargs[bindargs.length - 1];
 				if (check.includes('\n')) {
 					bindargs[bindargs.length - 1] = check.split('\n')[0];
 				}
@@ -716,11 +711,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 				if (this._exports !== null) {
 
-					let requires = this._requires.map(function(id) {
-						return _resolve.call(sandboxes, id);
-					});
-
-
+					let requires = this._requires.map(id => _resolve.call(sandboxes, id));
 					if (requires.includes(null) === false) {
 
 						let id        = this.id;
@@ -747,10 +738,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 					} else {
 
-						let invalid_requires = this._requires.filter(function(id, r) {
-							return requires[r] === null;
-						});
-
+						let invalid_requires = this._requires.filter((id, r) => requires[r] === null);
 						if (invalid_requires.length > 0) {
 
 							for (let i = 0, il = invalid_requires.length; i < il; i++) {

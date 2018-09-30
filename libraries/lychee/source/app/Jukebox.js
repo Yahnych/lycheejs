@@ -1,5 +1,5 @@
 
-lychee.define('lychee.app.Jukebox').exports(function(lychee, global, attachments) {
+lychee.define('lychee.app.Jukebox').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.State').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.State').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

@@ -5,7 +5,7 @@ lychee.define('lychee.Stash').tags({
 	'lychee.Asset'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.Storage !== 'undefined'
@@ -17,7 +17,7 @@ lychee.define('lychee.Stash').tags({
 
 	return true;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let   _id         = 0;
 	const _Asset      = lychee.import('lychee.Asset');

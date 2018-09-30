@@ -114,7 +114,7 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 				let data = {};
 
-				Object.keys(clone).forEach(function(key) {
+				Object.keys(clone).forEach(key => {
 
 					if (/toJSON/g.test(key) === false) {
 
@@ -368,11 +368,8 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 				if (tmp.startsWith('('))         tmp = tmp.substr(1).trim();
 				if (tmp.endsWith(')'))           tmp = tmp.substr(0, tmp.length - 1).trim();
 
-				let bindargs = tmp.split(',').map(function(name) {
-					return name.trim();
-				});
-
-				let check = bindargs[bindargs.length - 1];
+				let bindargs = tmp.split(',').map(name => name.trim());
+				let check    = bindargs[bindargs.length - 1];
 				if (check.includes('\n')) {
 					bindargs[bindargs.length - 1] = check.split('\n')[0];
 				}
@@ -399,11 +396,8 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 				if (tmp.startsWith('('))         tmp = tmp.substr(1).trim();
 				if (tmp.endsWith(')'))           tmp = tmp.substr(0, tmp.length - 1).trim();
 
-				let bindargs = tmp.split(',').map(function(name) {
-					return name.trim();
-				});
-
-				let check = bindargs[bindargs.length - 1];
+				let bindargs = tmp.split(',').map(name => name.trim());
+				let check    = bindargs[bindargs.length - 1];
 				if (check.includes('\n')) {
 					bindargs[bindargs.length - 1] = check.split('\n')[0];
 				}
@@ -642,14 +636,8 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 				if (this._exports !== null) {
 
-					let includes = this._includes.map(function(id) {
-						return _resolve.call(sandbox, id);
-					});
-
-					let requires = this._requires.map(function(id) {
-						return _resolve.call(sandbox, id);
-					});
-
+					let includes = this._includes.map(id => _resolve.call(sandbox, id));
+					let requires = this._requires.map(id => _resolve.call(sandbox, id));
 
 					if (includes.includes(null) === false && requires.includes(null) === false) {
 
@@ -816,10 +804,7 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 
 					} else {
 
-						let invalid_includes = this._includes.filter(function(id, i) {
-							return includes[i] === null;
-						});
-
+						let invalid_includes = this._includes.filter((id, i) => includes[i] === null);
 						if (invalid_includes.length > 0) {
 
 							for (let i = 0, il = invalid_includes.length; i < il; i++) {
@@ -830,10 +815,7 @@ lychee.Definition = typeof lychee.Definition !== 'undefined' ? lychee.Definition
 						}
 
 
-						let invalid_requires = this._requires.filter(function(id, r) {
-							return requires[r] === null;
-						});
-
+						let invalid_requires = this._requires.filter((id, r) => requires[r] === null);
 						if (invalid_requires.length > 0) {
 
 							for (let i = 0, il = invalid_requires.length; i < il; i++) {

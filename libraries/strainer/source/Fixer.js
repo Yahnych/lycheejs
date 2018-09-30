@@ -3,7 +3,7 @@ lychee.define('strainer.Fixer').requires([
 	'strainer.event.flow.Check'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');
@@ -151,7 +151,7 @@ lychee.define('strainer.Fixer').requires([
 
 					if (errors.length > 0) {
 
-						errors.forEach(function(err) {
+						errors.forEach(err => {
 
 							let path = err.url;
 							if (
@@ -196,15 +196,9 @@ lychee.define('strainer.Fixer').requires([
 
 				}, this);
 
-				flow.bind('read-reviews', function(oncomplete) {
-					oncomplete(true);
-				}, flow);
+				flow.bind('read-reviews', oncomplete => oncomplete(true), flow);
 
-				flow.bind('error', function(event) {
-					this.destroy(1);
-				}, this);
-
-
+				flow.bind('error', _ => this.destroy(1), this);
 				flow.init();
 
 			}

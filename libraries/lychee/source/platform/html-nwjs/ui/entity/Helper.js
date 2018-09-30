@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 	platform: 'html-nwjs'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.require === 'function'
@@ -28,7 +28,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _child_process = global.require('child_process');
 	const _Button        = lychee.import('lychee.ui.entity.Button');
@@ -83,7 +83,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	};
 
-	const _help = function(value) {
+	const _on_change = function(value) {
 
 		let action = value.split('=')[0];
 		let helper = null;
@@ -103,7 +103,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 					'lycheejs://' + value
 				], {
 					cwd: _ROOT
-				}, function(error, stdout, stderr) {
+				}, (error, stdout, stderr) => {
 
 					stderr = (stderr.trim() || '').toString();
 
@@ -115,7 +115,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 						if (lychee.debug === true) {
 
-							stderr.trim().split('\n').forEach(function(line) {
+							stderr.trim().split('\n').forEach(line => {
 								console.error('lychee.ui.entity.Helper: "' + line.trim() + '"');
 							});
 
@@ -125,14 +125,21 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 				});
 
-				helper.stdout.on('data', function(lines) {});
-				helper.stderr.on('data', function(lines) {});
+				helper.stdout.on('data', _ => {
+					// XXX: Do nothing
+				});
+
+				helper.stderr.on('data', _ => {
+					// XXX: Do nothing
+				});
 
 				helper.on('error', function() {
 					this.kill('SIGTERM');
 				});
 
-				helper.on('exit', function(code) {});
+				helper.on('exit', code => {
+					// XXX: Do nothing
+				});
 
 			} catch (err) {
 
@@ -173,9 +180,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 		 * INITIALIZATION
 		 */
 
-		this.bind('change', function(value) {
-			return _help(value);
-		}, this);
+		this.bind('change', _on_change, this);
 
 	};
 

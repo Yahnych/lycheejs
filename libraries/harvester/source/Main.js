@@ -5,7 +5,7 @@ lychee.define('harvester.Main').requires([
 	'harvester.Watcher'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _harvester     = lychee.import('harvester');
 	const _clearInterval = global.clearInterval || function() {};
@@ -25,9 +25,9 @@ lychee.define('harvester.Main').requires([
 
 			let candidates = [];
 
-			Object.values(os.networkInterfaces()).forEach(function(iface) {
+			Object.values(os.networkInterfaces()).forEach(iface => {
 
-				iface.forEach(function(alias) {
+				iface.forEach(alias => {
 
 					if (alias.internal === false) {
 
@@ -183,9 +183,7 @@ lychee.define('harvester.Main').requires([
 			console.info('harvester.Main: | Open one of these URLs with a Blink-based Web Browser |');
 			console.info('harvester.Main: +-------------------------------------------------------+');
 			console.log('');
-			this.getHosts().forEach(function(host) {
-				console.log('harvester.Main: ' + host);
-			});
+			this.getHosts().forEach(host => console.log('harvester.Main: ' + host));
 			console.log('');
 
 		}, this, true);
@@ -197,9 +195,7 @@ lychee.define('harvester.Main').requires([
 
 				watcher.init();
 
-				this.__interval = _setInterval(function() {
-					watcher.update();
-				}.bind(this), 30000);
+				this.__interval = _setInterval(_ => watcher.update(), 30000);
 
 			}
 
@@ -365,7 +361,7 @@ lychee.define('harvester.Main').requires([
 					networks.push((/:/g.test(host) ? '[' + host + ']' : host) + ':' + port);
 				}
 
-				networks.push.apply(networks, _INTERFACES.filter(_is_public).map(function(host) {
+				networks.push.apply(networks, _INTERFACES.filter(_is_public).map(host => {
 					return (/:/g.test(host) ? '[' + host + ']' : host) + ':' + port;
 				}));
 

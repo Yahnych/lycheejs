@@ -6,7 +6,7 @@ lychee.define('lychee.net.socket.WS').tags({
 	'lychee.net.protocol.WS'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.WebSocket !== 'undefined') {
 		return true;
@@ -15,7 +15,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _JSON      = lychee.import('lychee.codec.JSON');
@@ -30,10 +30,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	const _connect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection !== socket) {
+		if (this.__connection !== socket) {
 
-			socket.onmessage = function(event) {
+			socket.onmessage = event => {
 
 				let blob = null;
 
@@ -63,14 +62,14 @@ lychee.define('lychee.net.socket.WS').tags({
 						let chunk = chunks[c];
 						if (chunk.payload[0] === 136) {
 
-							that.send(chunk.payload, chunk.headers, true);
-							that.disconnect();
+							this.send(chunk.payload, chunk.headers, true);
+							this.disconnect();
 
 							return;
 
 						} else {
 
-							that.trigger('receive', [ chunk.payload, chunk.headers ]);
+							this.trigger('receive', [ chunk.payload, chunk.headers ]);
 
 						}
 
@@ -80,27 +79,26 @@ lychee.define('lychee.net.socket.WS').tags({
 
 			};
 
-			socket.onerror = function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.onerror = _ => {
+				this.trigger('error');
+				this.disconnect();
 			};
 
-			socket.ontimeout = function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.ontimeout = _ => {
+				this.trigger('error');
+				this.disconnect();
 			};
 
-			socket.onclose = function() {
-				that.disconnect();
+			socket.onclose = _ => {
+				this.disconnect();
 			};
 
 
-			that.__connection = socket;
-			that.__protocol   = protocol;
+			this.__connection = socket;
+			this.__protocol   = protocol;
 
-
-			socket.onopen = function() {
-				that.trigger('connect');
+			socket.onopen = _ => {
+				this.trigger('connect');
 			};
 
 		}
@@ -109,8 +107,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	const _disconnect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection === socket) {
+		if (this.__connection === socket) {
 
 			socket.onmessage = function() {};
 			socket.onerror   = function() {};
@@ -121,10 +118,10 @@ lychee.define('lychee.net.socket.WS').tags({
 			protocol.close();
 
 
-			that.__connection = null;
-			that.__protocol   = null;
+			this.__connection = null;
+			this.__protocol   = null;
 
-			that.trigger('disconnect');
+			this.trigger('disconnect');
 
 		}
 
@@ -178,34 +175,29 @@ lychee.define('lychee.net.socket.WS').tags({
 			connection = typeof connection === 'object' ? connection : null;
 
 
-			let that     = this;
-			let url      = /:/g.test(host) ? ('ws://[' + host + ']:' + port) : ('ws://' + host + ':' + port);
-			let protocol = null;
-
-
 			if (host !== null && port !== null) {
+
+				let url = /:/g.test(host) ? ('ws://[' + host + ']:' + port) : ('ws://' + host + ':' + port);
 
 				if (connection !== null) {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.remote
-					});
 					connection = null;
 
 					// TODO: Remote Socket API
 
-					// _connect_socket.call(that, connection, protocol);
+					// _connect_socket.call(this, connection, new _Protocol({
+					//	type: _Protocol.TYPE.remote
+					// }));
 					// connection.resume();
 
 				} else {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.client
-					});
 					connection = new _WebSocket(url, [ 'lycheejs' ]);
 
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.client
+					}));
 
 				}
 

@@ -5,7 +5,7 @@ lychee.define('game.app.sprite.Portal').requires([
 	'game.effect.Lightning'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity    = lychee.import('lychee.app.Entity');
 	const _Lightning = lychee.import('game.effect.Lightning');

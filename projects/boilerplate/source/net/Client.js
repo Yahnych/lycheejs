@@ -3,7 +3,7 @@ lychee.define('app.net.Client').requires([
 	'app.net.service.Ping'
 ]).includes([
 	'lychee.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client = lychee.import('lychee.net.Client');
 	const _Ping   = lychee.import('app.net.service.Ping');
@@ -44,7 +44,7 @@ lychee.define('app.net.Client').requires([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('app.net.Client: Remote disconnected (' + code + ')');

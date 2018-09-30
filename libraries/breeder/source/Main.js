@@ -5,7 +5,7 @@ lychee.define('breeder.Main').requires([
 	'breeder.event.flow.Pull'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _lychee  = lychee.import('lychee');
 	const _Emitter = lychee.import('lychee.event.Emitter');

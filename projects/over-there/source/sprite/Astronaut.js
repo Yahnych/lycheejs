@@ -3,7 +3,7 @@ lychee.define('app.sprite.Astronaut').requires([
 	'lychee.app.Entity'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _id       = 0;
 	const _Entity   = lychee.import('lychee.app.Entity');

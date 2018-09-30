@@ -7,7 +7,7 @@ lychee.define('studio.ui.element.modify.Sprite').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Entity  = lychee.import('lychee.app.Entity');

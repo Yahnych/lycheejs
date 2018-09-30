@@ -425,7 +425,7 @@ lychee = (function(global) {
 
 				if (value instanceof Array) {
 
-					clone[key] = value.map(function(element) {
+					clone[key] = value.map(element => {
 
 						if (element instanceof Array) {
 							return element;
@@ -1240,7 +1240,7 @@ lychee = (function(global) {
 					let resolved_composite = _resolve_reference.call(scope, data.constructor);
 					if (typeof resolved_composite === 'function') {
 
-						let bindargs = Array.from(data.arguments).map(function(value) {
+						let bindargs = Array.from(data.arguments).map(value => {
 
 							if (typeof value === 'string' && value.charAt(0) === '#') {
 
@@ -1374,25 +1374,6 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let that = this;
-
-
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-
 				let asset = new lychee.Asset(target, null, false);
 				if (asset !== null) {
 					asset.load();
@@ -1424,34 +1405,23 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let that       = this;
 				let definition = new lychee.Definition({
 					id:  identifier,
 					url: lychee.FILENAME || null
 				});
 
 
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
+				let count   = 0;
+				let sandbox = this;
 
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
+				while (count < 64 && sandbox.environment.sandbox === true) {
+					sandbox = sandbox.environment.global.lychee;
+					count++;
 				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
 
 				definition.exports = function(callback) {
-
 					lychee.Definition.prototype.exports.call(this, callback);
-					that.environment.define(this, false);
-
+					sandbox.environment.define(this, false);
 				};
 
 
@@ -1520,26 +1490,16 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
+				let count    = 0;
 				let instance = null;
-				let that     = this;
+				let sandbox  = this;
 
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
+				while (count < 64 && sandbox.environment.sandbox === true) {
+					sandbox = sandbox.environment.global.lychee;
+					count++;
 				}
 
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-
-				let resolved_module = _resolve_reference.call(that.environment.global, reference);
+				let resolved_module = _resolve_reference.call(sandbox.environment.global, reference);
 				if (resolved_module !== null) {
 					instance = resolved_module;
 				}
@@ -1584,13 +1544,13 @@ lychee = (function(global) {
 
 					if (environment instanceof lychee.Environment) {
 
-						Object.values(_environment.definitions).forEach(function(definition) {
+						Object.values(_environment.definitions).forEach(definition => {
 							environment.define(definition, true);
 						});
 
 					} else if (environment instanceof lychee.Simulation) {
 
-						Object.values(_environment.definitions).forEach(function(definition) {
+						Object.values(_environment.definitions).forEach(definition => {
 							environment.environment.define(definition, true);
 						});
 
@@ -1682,7 +1642,7 @@ lychee = (function(global) {
 
 					lychee.setEnvironment(environment);
 
-					environment.init(function(sandbox) {
+					environment.init(sandbox => {
 
 						if (sandbox === null) {
 							console.error('lychee: environment.init() failed.');
@@ -1729,10 +1689,8 @@ lychee = (function(global) {
 
 				if (this.environment !== null) {
 
-					let that = this;
-
-					Object.values(environment.definitions).forEach(function(definition) {
-						that.environment.define(definition, true);
+					Object.values(environment.definitions).forEach(definition => {
+						this.environment.define(definition, true);
 					});
 
 					let build_old = this.environment.definitions[this.environment.target] || null;
@@ -1846,18 +1804,15 @@ lychee = (function(global) {
 				_bootstrap_simulation.call(this);
 
 
-				let that          = this;
+				let sandbox       = this;
 				let specification = new lychee.Specification({
 					id:  identifier,
 					url: lychee.FILENAME || null
 				});
 
-
 				specification.exports = function(callback) {
-
 					lychee.Specification.prototype.exports.call(this, callback);
-					that.simulation.specify(this, false);
-
+					sandbox.simulation.specify(this, false);
 				};
 
 

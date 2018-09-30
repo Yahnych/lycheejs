@@ -1,7 +1,7 @@
 
 lychee.define('lychee.ui.entity.Select').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _FONT   = attachments['fnt'];
@@ -485,12 +485,10 @@ lychee.define('lychee.ui.entity.Select').includes([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
 
-				if (this.options.indexOf(this.value) === -1) {
+				if (this.options.includes(this.value) === false) {
 
 					let result = this.setValue(this.options[0] || null);
 					if (result === true) {

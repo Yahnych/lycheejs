@@ -13,7 +13,7 @@ lychee.define('studio.Main').requires([
 	'harvester.net.Client'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _studio  = lychee.import('studio');
 	const _lychee  = lychee.import('lychee');
@@ -52,7 +52,7 @@ lychee.define('studio.Main').requires([
 
 		if (argv !== null) {
 
-			argv.forEach(function(arg) {
+			argv.forEach(arg => {
 
 				let tmp = arg.trim();
 				if (tmp.startsWith('/libraries') || tmp.startsWith('/projects')) {
@@ -192,11 +192,11 @@ lychee.define('studio.Main').requires([
 						main: this
 					});
 
-					flow.bind('complete', function() {
+					flow.bind('complete', _ => {
 						console.info('studio: SUCCESS ("' + project + '")');
 					}, this);
 
-					flow.bind('error', function(event) {
+					flow.bind('error', event => {
 						console.error('studio: FAILURE ("' + project + '") at "' + event + '" event.');
 					}, this);
 

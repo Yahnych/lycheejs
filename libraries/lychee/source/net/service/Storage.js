@@ -1,7 +1,7 @@
 
 lychee.define('lychee.net.service.Storage').includes([
 	'lychee.net.Service'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Service = lychee.import('lychee.net.Service');
 

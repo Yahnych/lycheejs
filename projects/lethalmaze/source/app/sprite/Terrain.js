@@ -3,7 +3,7 @@ lychee.define('game.app.sprite.Terrain').requires([
 	'lychee.app.Entity'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Sprite  = lychee.import('lychee.app.Sprite');

@@ -1,7 +1,7 @@
 
 lychee.define('harvester.net.server.File').requires([
 	'harvester.data.Filesystem'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _MIME       = {
@@ -208,7 +208,7 @@ lychee.define('harvester.net.server.File').requires([
 
 					} else {
 
-						project.filesystem.read(path, function(payload) {
+						project.filesystem.read(path, payload => {
 							tunnel.send(payload, _get_headers(info, mime, custom));
 						});
 
@@ -218,7 +218,7 @@ lychee.define('harvester.net.server.File').requires([
 
 				} else {
 
-					project.filesystem.read(path, function(payload) {
+					project.filesystem.read(path, payload => {
 						tunnel.send(payload, _get_headers(info, mime, custom));
 					});
 

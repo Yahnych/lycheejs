@@ -3,7 +3,7 @@ lychee.define('lychee.app.State').requires([
 	'lychee.ai.Layer',
 	'lychee.app.Layer',
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Ai_layer  = lychee.import('lychee.ai.Layer');
 	const _App_layer = lychee.import('lychee.app.Layer');
