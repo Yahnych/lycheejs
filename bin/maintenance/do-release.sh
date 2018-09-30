@@ -220,7 +220,7 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 			echo " (L)   (This might take a while)";
 
-			DOWNLOAD_URL=$(curl -s "$FILE_LYCHEEJS_RUNTIME" | grep browser_download_url | grep lycheejs-runtime | head -n 1 | cut -d'"' -f4);
+			DOWNLOAD_URL=$(curl -s "$FILE_LYCHEEJS_RUNTIME" | grep browser_download_url | grep "lycheejs-runtime.zip" | head -n 1 | cut -d'"' -f4);
 
 			if [ "$DOWNLOAD_URL" != "" ]; then
 
