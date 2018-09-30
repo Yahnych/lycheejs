@@ -148,6 +148,9 @@
 					"icon": [
 						"png"
 					],
+					"index": [
+						"js"
+					],
 					"manifest": [
 						"json"
 					],
