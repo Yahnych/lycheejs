@@ -5,7 +5,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 	'lychee.net.protocol.HTTP'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -23,7 +23,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _net      = global.require('net');
 	const _Emitter  = lychee.import('lychee.event.Emitter');
@@ -37,10 +37,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _connect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection !== socket) {
+		if (this.__connection !== socket) {
 
-			socket.on('data', function(raw) {
+			socket.on('data', raw => {
 
 				// XXX: nwjs has global scope problems
 				// XXX: Internal Buffer is not our global.Buffer interface
@@ -55,36 +54,36 @@ lychee.define('lychee.net.socket.HTTP').tags({
 				if (chunks.length > 0) {
 
 					for (let c = 0, cl = chunks.length; c < cl; c++) {
-						that.trigger('receive', [ chunks[c].payload, chunks[c].headers ]);
+						this.trigger('receive', [ chunks[c].payload, chunks[c].headers ]);
 					}
 
 				}
 
 			});
 
-			socket.on('error', function(err) {
-				that.trigger('error');
-				that.disconnect();
+			socket.on('error', _ => {
+				this.trigger('error');
+				this.disconnect();
 			});
 
-			socket.on('timeout', function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.on('timeout', _ => {
+				this.trigger('error');
+				this.disconnect();
 			});
 
-			socket.on('close', function() {
-				that.disconnect();
+			socket.on('close', _ => {
+				this.disconnect();
 			});
 
-			socket.on('end', function() {
-				that.disconnect();
+			socket.on('end', _ => {
+				this.disconnect();
 			});
 
 
-			that.__connection = socket;
-			that.__protocol   = protocol;
+			this.__connection = socket;
+			this.__protocol   = protocol;
 
-			that.trigger('connect');
+			this.trigger('connect');
 
 		}
 
@@ -92,8 +91,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _disconnect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection === socket) {
+		if (this.__connection === socket) {
 
 			socket.removeAllListeners('data');
 			socket.removeAllListeners('error');
@@ -105,10 +103,10 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			protocol.close();
 
 
-			that.__connection = null;
-			that.__protocol   = null;
+			this.__connection = null;
+			this.__protocol   = null;
 
-			that.trigger('disconnect');
+			this.trigger('disconnect');
 
 		}
 
@@ -162,17 +160,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			connection = typeof connection === 'object' ? connection : null;
 
 
-			let that     = this;
-			let protocol = null;
-
-
 			if (host !== null && port !== null) {
 
 				if (connection !== null) {
-
-					protocol = new _Protocol({
-						type: _Protocol.TYPE.remote
-					});
 
 					connection.allowHalfOpen = true;
 					connection.setTimeout(0);
@@ -181,15 +171,14 @@ lychee.define('lychee.net.socket.HTTP').tags({
 					connection.removeAllListeners('timeout');
 
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.remote
+					}));
 
 					connection.resume();
 
 				} else {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.client
-					});
 					connection = new _net.Socket({
 						readable: true,
 						writable: true
@@ -203,7 +192,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 					connection.removeAllListeners('timeout');
 
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.client
+					}));
 
 					connection.connect({
 						host: host,

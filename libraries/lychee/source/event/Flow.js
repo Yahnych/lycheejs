@@ -1,7 +1,7 @@
 
 lychee.define('lychee.event.Flow').includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 
@@ -17,12 +17,10 @@ lychee.define('lychee.event.Flow').includes([
 
 			if (this.___timeout === null) {
 
-				this.___timeout = setTimeout(function() {
-
+				this.___timeout = setTimeout(_ => {
 					this.___timeout = null;
 					_process_stack.call(this);
-
-				}.bind(this), 0);
+				}, 0);
 
 			}
 
@@ -127,28 +125,6 @@ lychee.define('lychee.event.Flow').includes([
 		 * CUSTOM API
 		 */
 
-		then: function(event, data) {
-
-			event = typeof event === 'string' ? event : null;
-			data  = data instanceof Array     ? data  : null;
-
-
-			if (event !== null) {
-
-				this.___stack.push({
-					event: event,
-					data:  data
-				});
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
 		init: function() {
 
 			if (this.___init === false) {
@@ -163,6 +139,36 @@ lychee.define('lychee.event.Flow').includes([
 					return true;
 
 				}
+
+			}
+
+
+			return false;
+
+		},
+
+		reset: function() {
+
+			this.__stack = [];
+
+			return true;
+
+		},
+
+		then: function(event, data) {
+
+			event = typeof event === 'string' ? event : null;
+			data  = data instanceof Array     ? data  : null;
+
+
+			if (event !== null) {
+
+				this.___stack.push({
+					event: event,
+					data:  data
+				});
+
+				return true;
 
 			}
 

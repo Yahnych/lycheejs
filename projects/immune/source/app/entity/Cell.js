@@ -3,7 +3,7 @@ lychee.define('game.app.entity.Cell').requires([
 	'game.app.entity.Vesicle'
 ]).includes([
 	'lychee.app.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Vesicle = lychee.import('game.app.entity.Vesicle');
@@ -14,9 +14,9 @@ lychee.define('game.app.entity.Cell').requires([
 		virus:   '#d0494b'
 	};
 	const _FONTS   = {
-		immune:  attachments["immune.fnt"],
-		neutral: attachments["neutral.fnt"],
-		virus:   attachments["virus.fnt"]
+		immune:  attachments['immune.fnt'],
+		neutral: attachments['neutral.fnt'],
+		virus:   attachments['virus.fnt']
 	};
 
 
@@ -374,9 +374,7 @@ lychee.define('game.app.entity.Cell').requires([
 
 			if (vesicles !== null) {
 
-				this.vesicles = vesicles.map(function(vesicle) {
-					return vesicle instanceof _Vesicle ? vesicle : null;
-				});
+				this.vesicles = vesicles.map(vesicle => vesicle instanceof _Vesicle ? vesicle : null);
 
 				return true;
 

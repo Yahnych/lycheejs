@@ -5,10 +5,10 @@ lychee.define('ranger.state.Console').requires([
 	'lychee.ui.layer.Table'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _State  = lychee.import('lychee.ui.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 
 
 
@@ -77,7 +77,7 @@ lychee.define('ranger.state.Console').requires([
 
 				if (blueprint !== null) {
 
-					blueprint.bind('#relayout', function(blueprint) {
+					blueprint.bind('#relayout', blueprint => {
 
 						if (stdout !== null) {
 							stdout.width      = blueprint.width;

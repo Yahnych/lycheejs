@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.Radius').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.Radius').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

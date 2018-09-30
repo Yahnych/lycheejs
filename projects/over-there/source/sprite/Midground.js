@@ -1,10 +1,10 @@
 
 lychee.define('app.sprite.Midground').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _TEXTURE = attachments["png"];
+	const _TEXTURE = attachments['png'];
 	const _CONFIG  = {
 		states: { 'default': 0 },
 		map:    { 'default': [{ x: 0, y: 0, w: 2048, h: 2048 }] }

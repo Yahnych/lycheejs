@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.neat.Pool').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.neat.Pool').exports((lychee, global, attachments) => {
 
 	// XXX: Only a Cache Struct
 	const _Species = function() {

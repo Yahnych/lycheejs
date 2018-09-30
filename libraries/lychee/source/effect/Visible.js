@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Visible').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Visible').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

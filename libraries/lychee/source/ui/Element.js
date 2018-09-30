@@ -5,15 +5,15 @@ lychee.define('lychee.ui.Element').requires([
 	'lychee.ui.entity.Text'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Button = lychee.import('lychee.ui.entity.Button');
 	const _Label  = lychee.import('lychee.ui.entity.Label');
 	const _Layer  = lychee.import('lychee.ui.Layer');
 	const _Text   = lychee.import('lychee.ui.entity.Text');
 	const _FONTS  = {
-		label: attachments["label.fnt"],
-		order: attachments["order.fnt"]
+		label: attachments['label.fnt'],
+		order: attachments['order.fnt']
 	};
 
 
@@ -30,7 +30,6 @@ lychee.define('lychee.ui.Element').requires([
 				typeof entity.update === 'function'
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -314,17 +313,14 @@ lychee.define('lychee.ui.Element').requires([
 
 			if (this.entities.length > 4) {
 
-				let entities = this.entities.slice(2, -2).filter(function(value, index) {
-					return index % 2 === 1;
-				});
+				let entities = this.entities.slice(2, -2).filter((value, index) => index % 2 === 1);
 
-				let map = Object.map(this.__map, function(val, key) {
+				let map = Object.map(this.__map, (val, key) => {
 
 					let index = entities.indexOf(val);
 					if (index !== -1) {
 						return index;
 					}
-
 
 					return undefined;
 
@@ -467,7 +463,7 @@ lychee.define('lychee.ui.Element').requires([
 						let entity = this.entities[e];
 						if (entity.visible === false) continue;
 
-						if (entity.isAtPosition(position) === true) {
+						if (entity.confines(position) === true) {
 							found = entity;
 							break;
 						}
@@ -652,9 +648,7 @@ lychee.define('lychee.ui.Element').requires([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
 
 				let next = this.getEntity('@options-next');

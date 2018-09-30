@@ -5,7 +5,7 @@ lychee.define('game.state.Game').requires([
 	'game.level.Track'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Background = lychee.import('game.app.entity.Background');
 	const _Emblem     = lychee.import('lychee.app.sprite.Emblem');

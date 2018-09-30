@@ -15,7 +15,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.layer.Control'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Explosion = lychee.import('game.effect.Explosion');
 	const _Lightning = lychee.import('game.effect.Lightning');
@@ -26,12 +26,12 @@ lychee.define('game.state.Game').requires([
 	const _Tank      = lychee.import('game.app.sprite.Tank');
 	const _Wall      = lychee.import('game.app.sprite.Wall');
 	const _LEVEL     = lychee.import('game.data.LEVEL');
-	const _BLOB      = attachments["json"].buffer;
-	const _LEVELS    = attachments["levels.json"].buffer;
-	const _MUSIC     = attachments["msc"];
+	const _BLOB      = attachments['json'].buffer;
+	const _LEVELS    = attachments['levels.json'].buffer;
+	const _MUSIC     = attachments['msc'];
 	const _SOUNDS    = {
-		kill:  attachments["kill.snd"],
-		spawn: attachments["spawn.snd"]
+		kill:  attachments['kill.snd'],
+		spawn: attachments['spawn.snd']
 	};
 
 
@@ -588,7 +588,7 @@ lychee.define('game.state.Game').requires([
 						let entity = entities[e];
 						if (entity === player) continue;
 
-						if (entity.collidesWith(player)) {
+						if (entity.collides(player)) {
 
 							if (entity instanceof _Item) {
 
@@ -620,7 +620,7 @@ lychee.define('game.state.Game').requires([
 
 						let bullet = this.__bullets[p][b];
 
-						if (bullet.collidesWith(portal)) {
+						if (bullet.collides(portal)) {
 
 							bullet.velocity.x *= Math.abs(bullet.velocity.x) > 0 ? -1 : 1;
 							bullet.velocity.y *= Math.abs(bullet.velocity.y) > 0 ? -1 : 1;

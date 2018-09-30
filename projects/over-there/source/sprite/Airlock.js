@@ -1,11 +1,11 @@
 
 lychee.define('app.sprite.Airlock').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 

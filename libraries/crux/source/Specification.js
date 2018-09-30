@@ -125,10 +125,8 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 		this._expect++;
 
 
-		let that = this;
-
-		callback(function(a, b) {
-			that._expect--;
+		callback((a, b) => {
+			this._expect--;
 			assert(a, b);
 		});
 
@@ -377,7 +375,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 
 						let timeout  = Date.now() + 5000;
-						let interval = setInterval(function() {
+						let interval = setInterval(_ => {
 
 							if (Date.now() > timeout) {
 
@@ -414,7 +412,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 							}
 
-						}.bind(this), 500);
+						}, 500);
 
 					} else {
 
@@ -589,22 +587,29 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 				this.requires(blob.requires);
 			}
 
-
-			let index1   = 0;
-			let index2   = 0;
-			let tmp      = null;
-			let bindargs = null;
-
 			if (typeof blob.exports === 'string') {
 
 				// Function head
-				tmp      = blob.exports.split('{')[0].trim().substr('function '.length);
-				bindargs = tmp.substr(1, tmp.length - 2).split(',');
+				let tmp = blob.exports.split('{')[0].trim();
+				if (tmp.startsWith('function')) {
+					tmp = tmp.substr('function'.length).trim();
+				}
+
+				if (tmp.startsWith('anonymous')) tmp = tmp.substr('anonymous'.length).trim();
+				if (tmp.startsWith('('))         tmp = tmp.substr(1).trim();
+				if (tmp.endsWith(')'))           tmp = tmp.substr(0, tmp.length - 1).trim();
+
+				let bindargs = tmp.split(',').map(name => name.trim());
+				let check    = bindargs[bindargs.length - 1];
+				if (check.includes('\n')) {
+					bindargs[bindargs.length - 1] = check.split('\n')[0];
+				}
+
 
 				// Function body
-				index1 = blob.exports.indexOf('{') + 1;
-				index2 = blob.exports.lastIndexOf('}') - 1;
-				bindargs.push(blob.exports.substr(index1, index2 - index1));
+				let i1 = blob.exports.indexOf('{') + 1;
+				let i2 = blob.exports.lastIndexOf('}') - 1;
+				bindargs.push(blob.exports.substr(i1, i2 - i1));
 
 				this.exports(Function.apply(Function, bindargs));
 
@@ -659,13 +664,13 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 						this.id = fuzzed;
 
-						console.warn('lychee.Specification: Injecting Identifier "' + fuzzed + '" (' + this.url + ')');
+						console.warn('lychee.Specification: Injecting Identifier "' + fuzzed + '" ("' + this.url + '").');
 
 						return true;
 
 					} else {
 
-						console.error('lychee.Specification: Invalid Identifier "' + id + '" (' + this.url + ')');
+						console.error('lychee.Specification: Invalid Identifier "' + id + '" ("' + this.url + '").');
 
 					}
 
@@ -706,11 +711,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 				if (this._exports !== null) {
 
-					let requires = this._requires.map(function(id) {
-						return _resolve.call(sandboxes, id);
-					});
-
-
+					let requires = this._requires.map(id => _resolve.call(sandboxes, id));
 					if (requires.includes(null) === false) {
 
 						let id        = this.id;
@@ -737,10 +738,7 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 					} else {
 
-						let invalid_requires = this._requires.filter(function(id, r) {
-							return requires[r] === null;
-						});
-
+						let invalid_requires = this._requires.filter((id, r) => requires[r] === null);
 						if (invalid_requires.length > 0) {
 
 							for (let i = 0, il = invalid_requires.length; i < il; i++) {
@@ -767,7 +765,19 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 
 
 			if (callback !== null) {
-				this._exports = callback;
+
+				let check = (callback).toString().split('{')[0];
+				if (check.includes('\n')) {
+					check = check.split('\n').join('');
+				}
+
+				if (check.includes('(lychee, sandbox)') || check.includes('(lychee,sandbox)')) {
+					this._exports = callback;
+				} else {
+					console.error('lychee.Specification ("' + this.id + '"): Invalid exports callback.');
+					console.info('lychee.Specification ("' + this.id + '"): Use lychee.specify(id).exports(function(lychee, sandbox) {}).');
+				}
+
 			}
 
 
@@ -800,6 +810,8 @@ lychee.Specification = typeof lychee.Specification !== 'undefined' ? lychee.Spec
 							this._requires.push(definition);
 						}
 
+					} else {
+						console.warn('lychee.Specification ("' + this.id + '"): Invalid Requirement #' + d + '.');
 					}
 
 				}

@@ -1,7 +1,7 @@
 
 lychee.define('lychee.math.Matrix').requires([
 	'lychee.math.Vector3'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Vector3 = lychee.import('lychee.math.Vector3');
 

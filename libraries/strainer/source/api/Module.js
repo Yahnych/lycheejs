@@ -2,7 +2,7 @@
 lychee.define('strainer.api.Module').requires([
 	'strainer.api.PARSER',
 	'strainer.api.TRANSCRIPTOR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER       = lychee.import('strainer.api.PARSER');
 	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
@@ -17,6 +17,7 @@ lychee.define('strainer.api.Module').requires([
 		chunk:      'function() { return {}; }',
 		type:       'function',
 		hash:       _PARSER.hash('function() { return {}; }'),
+		memory:     [],
 		parameters: [],
 		values:     [{
 			type: 'SerializationBlob',
@@ -32,6 +33,7 @@ lychee.define('strainer.api.Module').requires([
 		chunk:      'function(blob) {}',
 		type:       'function',
 		hash:       _PARSER.hash('function(blob) {}'),
+		memory:     [],
 		parameters: [{
 			name:  'blob',
 			type:  'SerializationBlob',
@@ -48,6 +50,27 @@ lychee.define('strainer.api.Module').requires([
 	/*
 	 * HELPERS
 	 */
+
+	const _get_serialize = function(identifier) {
+
+		let code = [];
+		let data = lychee.assignunlink({}, _SERIALIZE);
+
+		code.push('function() {');
+		code.push('');
+		code.push('\treturn {');
+		code.push('\t\t\'reference\': \'' + identifier + '\',');
+		code.push('\t\t\'blob\':      null');
+		code.push('\t};');
+		code.push('');
+		code.push('}');
+
+		data.chunk = code.join('\n');
+		data.hash  = _PARSER.hash(data.chunk);
+
+		return data;
+
+	};
 
 	const _validate_asset = function(asset) {
 
@@ -71,7 +94,7 @@ lychee.define('strainer.api.Module').requires([
 		};
 
 		let lines = stream.split('\n');
-		let line  = lines.findIndex(function(other) {
+		let line  = lines.findIndex(other => {
 
 			if (fuzzy === true) {
 				return other.includes(chunk.trim());
@@ -107,7 +130,12 @@ lychee.define('strainer.api.Module').requires([
 		let i2 = stream.indexOf(str2, i1);
 
 		if (i1 !== -1 && i2 !== -1) {
-			return 'function' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+
+			let body = '\t\tfunction' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+			if (body !== '\t\tfunction') {
+				return _PARSER.outdent(body, '\t\t');
+			}
+
 		}
 
 		return 'undefined';
@@ -133,12 +161,18 @@ lychee.define('strainer.api.Module').requires([
 
 	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
+		let i1 = stream.indexOf('.exports((lychee, global, attachments) => {\n');
+		let d1 = 42;
 		let i2 = stream.indexOf('\n\tconst Module =');
+
+		if (i1 === -1) {
+			i1 = stream.indexOf('(function(global) {');
+			d1 = 19;
+		}
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48);
+			let body = stream.substr(i1 + d1, i2 - i1 - d1);
 			if (body.length > 0) {
 
 				body.split('\n')
@@ -567,8 +601,9 @@ lychee.define('strainer.api.Module').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
-					let memory = api.memory || null;
-					let result = api.result || null;
+					let header = api.header || {};
+					let memory = api.memory || {};
+					let result = api.result || {};
 
 
 					if (memory instanceof Object) {
@@ -585,13 +620,37 @@ lychee.define('strainer.api.Module').requires([
 					}
 
 
-					if (Object.keys(result.methods).length > 0) {
+					let methods = result.methods || {};
 
-						let chunk = _TRANSCRIPTOR.transcribe('Module', result.methods);
+					let check_serialize = methods.serialize || null;
+					if (check_serialize === null) {
+						methods.serialize = _get_serialize(header.identifier);
+					}
+
+					let mids = Object.keys(methods);
+					if (mids.length > 0) {
+
+						let chunk = _TRANSCRIPTOR.transcribe('Module', {});
 						if (chunk !== null) {
+
+							let tmp = chunk.split('\n');
+							code.push('\t' + tmp[0]);
+
+							let last = mids[mids.length - 1];
+
+							for (let mid in methods) {
+
+								let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+								if (chunk !== null) {
+									code.push('');
+									code.push('\t\t' + mid + ': ' + _PARSER.indent(chunk, '\t\t').trim() + ((mid === last) ? '' : ','));
+								}
+
+							}
+
 							code.push('');
-							code.push('');
-							code.push('\t' + chunk);
+							code.push.apply(code, tmp.slice(1).map(t => '\t' + t));
+
 						}
 
 					}

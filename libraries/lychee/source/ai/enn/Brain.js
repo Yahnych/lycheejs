@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.enn.Brain').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.enn.Brain').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -15,13 +15,8 @@ lychee.define('lychee.ai.enn.Brain').exports(function(lychee, global, attachment
 
 	const _init_network = function() {
 
-		let input_size = this.__sensors_map.reduce(function(a, b) {
-			return a + b;
-		}, 0);
-
-		let output_size = this.__controls_map.reduce(function(a, b) {
-			return a + b;
-		}, 0);
+		let input_size  = this.__sensors_map.reduce((a, b) => a + b, 0);
+		let output_size = this.__controls_map.reduce((a, b) => a + b, 0);
 
 
 		if (input_size === 0 || output_size === 0) {
@@ -304,15 +299,9 @@ lychee.define('lychee.ai.enn.Brain').exports(function(lychee, global, attachment
 
 				this.controls = controls;
 
-				this.__controls_map = controls.map(function(control) {
-					return (control.sensor() || [ 1 ]).length;
-				});
+				this.__controls_map = controls.map(control => (control.sensor() || [ 1 ]).length);
 
-
-				let size = this.__controls_map.reduce(function(a, b) {
-					return a + b;
-				}, 0);
-
+				let size = this.__controls_map.reduce((a, b) => a + b, 0);
 				if (size !== this.__size.output) {
 					_init_network.call(this);
 				}
@@ -336,15 +325,9 @@ lychee.define('lychee.ai.enn.Brain').exports(function(lychee, global, attachment
 
 				this.sensors = sensors;
 
-				this.__sensors_map = sensors.map(function(sensor) {
-					return (sensor.sensor() || [ 1 ]).length;
-				});
+				this.__sensors_map = sensors.map(sensor => (sensor.sensor() || [ 1 ]).length);
 
-
-				let size = this.__sensors_map.reduce(function(a, b) {
-					return a + b;
-				}, 0);
-
+				let size = this.__sensors_map.reduce((a, b) => a + b, 0);
 				if (size !== this.__size.input) {
 					_init_network.call(this);
 				}

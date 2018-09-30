@@ -1,0 +1,25 @@
+{
+	"main":        "./index.html",
+	"name":        "${id}",
+	"title":       "${id} (powered by lychee.js)",
+	"version":     "${version}",
+	"homepage":    "https://lychee.js.org",
+	"description": "Next-Gen Isomorphic Application Engine",
+	"license":     "(MIT AND GPL-3.0)",
+	"repository":  {
+		"type": "git",
+		"url": "https://github.com/Artificial-Engineering/lycheejs.git"
+	},
+	"window": {
+		"title":    "${id} (powered by lychee.js)",
+		"icon":     "./icon.png",
+		"toolbar":  false,
+		"frame":    true,
+		"width":    640,
+		"height":   480,
+		"position": "center"
+	},
+	"webkit": {
+		"plugin": false
+	}
+}

@@ -38,6 +38,7 @@ lychee.define('lychee.DIST').requires([
 	'lychee.codec.BENCODE',
 	'lychee.codec.BITON',
 	'lychee.codec.DIXY',
+	'lychee.codec.INI',
 	'lychee.codec.JSON',
 	'lychee.crypto.BLAKE2B',
 	'lychee.crypto.CRC32',
@@ -76,18 +77,13 @@ lychee.define('lychee.DIST').requires([
 	'lychee.net.Server',
 	'lychee.net.Service',
 	'lychee.net.Tunnel',
-	'lychee.net.client.Chat',
-	'lychee.net.client.Debugger',
-	'lychee.net.client.Session',
-	'lychee.net.client.Stash',
-	'lychee.net.client.Storage',
 	'lychee.net.protocol.HTTP',
 	'lychee.net.protocol.WS',
-	'lychee.net.remote.Chat',
-	'lychee.net.remote.Debugger',
-	'lychee.net.remote.Session',
-	'lychee.net.remote.Stash',
-	'lychee.net.remote.Storage',
+	'lychee.net.service.Chat',
+	'lychee.net.service.Debugger',
+	'lychee.net.service.Session',
+	'lychee.net.service.Stash',
+	'lychee.net.service.Storage',
 	'lychee.net.socket.HTTP',
 	'lychee.net.socket.WS',
 	'lychee.policy.Alpha',
@@ -139,7 +135,7 @@ lychee.define('lychee.DIST').requires([
 	'lychee.verlet.Constraint',
 	'lychee.verlet.Entity',
 	'lychee.verlet.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const Module = {
 

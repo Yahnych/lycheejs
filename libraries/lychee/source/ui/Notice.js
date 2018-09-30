@@ -7,7 +7,7 @@ lychee.define('lychee.ui.Notice').requires([
 	'lychee.ui.entity.Label'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha    = lychee.import('lychee.effect.Alpha');
 	const _Button   = lychee.import('lychee.ui.entity.Button');
@@ -15,7 +15,7 @@ lychee.define('lychee.ui.Notice').requires([
 	const _Layer    = lychee.import('lychee.ui.Layer');
 	const _Position = lychee.import('lychee.effect.Position');
 	const _State    = lychee.import('lychee.effect.State');
-	const _FONT     = attachments["fnt"];
+	const _FONT     = attachments['fnt'];
 
 
 
@@ -85,7 +85,7 @@ lychee.define('lychee.ui.Notice').requires([
 		this.bind('touch', function(id, position, delta) {
 
 			let button = this.getEntity('@options-next');
-			if (button.visible === true && button.isAtPosition(position) === true) {
+			if (button.visible === true && button.confines(position) === true) {
 
 				button.trigger('touch', [ id, {
 					x: position.x - button.position.x,
@@ -278,9 +278,7 @@ lychee.define('lychee.ui.Notice').requires([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
 
 				let next = this.getEntity('@options-next');

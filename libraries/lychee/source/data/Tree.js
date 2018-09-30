@@ -1,5 +1,5 @@
 
-lychee.define('lychee.data.Tree').exports(function(lychee, global, attachments) {
+lychee.define('lychee.data.Tree').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -211,18 +211,11 @@ lychee.define('lychee.data.Tree').exports(function(lychee, global, attachments) 
 				let node = this.__root;
 
 				if (parent !== null) {
-
-					node = this.find(function(other) {
-						return other.entity === parent;
-					});
-
+					node = this.find(other => other.entity === parent);
 				}
 
 
-				let found = node.children.find(function(other) {
-					return other.entity === entity;
-				}) || null;
-
+				let found = node.children.find(other => other.entity === entity);
 				if (found === null) {
 
 					node.children.push({

@@ -1,12 +1,9 @@
 
-lychee.define('studio.net.Client').requires([
-	'lychee.net.client.Stash'
-]).includes([
+lychee.define('studio.net.Client').includes([
 	'lychee.net.Client'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client = lychee.import('lychee.net.Client');
-	const _Stash  = lychee.import('lychee.net.client.Stash');
 
 
 
@@ -14,7 +11,7 @@ lychee.define('studio.net.Client').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({
 			reconnect: 10000
@@ -31,9 +28,7 @@ lychee.define('studio.net.Client').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function() {
-
-			this.addService(new _Stash(this));
+		this.bind('connect', _ => {
 
 			if (lychee.debug === true) {
 				console.log('studio.net.Client: Remote connected');
@@ -41,7 +36,7 @@ lychee.define('studio.net.Client').requires([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('studio.net.Client: Remote disconnected (' + code + ')');

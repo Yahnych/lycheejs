@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Depth').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Depth').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

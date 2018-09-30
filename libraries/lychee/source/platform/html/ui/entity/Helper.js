@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 	platform: 'html'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.document !== 'undefined'
@@ -17,11 +17,11 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Button  = lychee.import('lychee.ui.entity.Button');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 
@@ -70,7 +70,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	};
 
-	const _help = function(value) {
+	const _on_change = function(value) {
 
 		let action  = value.split('=')[0];
 		let element = global.document.createElement('a');
@@ -115,9 +115,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 		 * INITIALIZATION
 		 */
 
-		this.bind('change', function(value) {
-			return _help(value);
-		}, this);
+		this.bind('change', _on_change, this);
 
 	};
 

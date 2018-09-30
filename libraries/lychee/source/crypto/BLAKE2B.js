@@ -1,5 +1,5 @@
 
-lychee.define('lychee.crypto.BLAKE2B').exports(function(lychee, global, attachments) {
+lychee.define('lychee.crypto.BLAKE2B').exports((lychee, global, attachments) => {
 
 	const _BLAKE2B_IV32 = new Uint32Array([
 		0xF3BCC908, 0x6A09E667, 0x84CAA73B, 0xBB67AE85,

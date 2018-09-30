@@ -1,15 +1,15 @@
 
 lychee.define('app.ui.entity.Bubble').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity  = lychee.import('lychee.ui.Entity');
-	const _CONFIG  = attachments["json"].buffer;
-	const _FONT    = attachments["fnt"];
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _FONT    = attachments['fnt'];
+	const _TEXTURE = attachments['png'];
 	const _AVATAR  = {
-		config:  attachments["avatar.json"].buffer,
-		texture: attachments["avatar.png"]
+		config:  attachments['avatar.json'].buffer,
+		texture: attachments['avatar.png']
 	};
 
 

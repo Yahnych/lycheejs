@@ -5,7 +5,7 @@ lychee.define('lychee.ui.element.Jukebox').requires([
 	'lychee.ui.entity.Switch'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Slider  = lychee.import('lychee.ui.entity.Slider');

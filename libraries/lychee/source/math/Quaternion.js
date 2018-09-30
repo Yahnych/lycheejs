@@ -1,7 +1,7 @@
 
 lychee.define('lychee.math.Quaternion').requires([
 	'lychee.math.Vector4'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Vector4 = lychee.import('lychee.math.Vector4');
 

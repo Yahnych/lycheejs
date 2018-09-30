@@ -6,7 +6,7 @@ lychee.define('lychee.net.socket.WS').tags({
 	'lychee.net.protocol.WS'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.require === 'function'
@@ -27,7 +27,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _net           = global.require('net');
 	const _clearInterval = global.clearInterval;
@@ -44,10 +44,9 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	const _connect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection !== socket) {
+		if (this.__connection !== socket) {
 
-			socket.on('data', function(blob) {
+			socket.on('data', blob => {
 
 				let chunks = protocol.receive(blob);
 				if (chunks.length > 0) {
@@ -57,14 +56,14 @@ lychee.define('lychee.net.socket.WS').tags({
 						let chunk = chunks[c];
 						if (chunk.payload[0] === 136) {
 
-							that.send(chunk.payload, chunk.headers, true);
-							that.disconnect();
+							this.send(chunk.payload, chunk.headers, true);
+							this.disconnect();
 
 							return;
 
 						} else {
 
-							that.trigger('receive', [ chunk.payload, chunk.headers ]);
+							this.trigger('receive', [ chunk.payload, chunk.headers ]);
 
 						}
 
@@ -74,29 +73,29 @@ lychee.define('lychee.net.socket.WS').tags({
 
 			});
 
-			socket.on('error', function(err) {
-				that.trigger('error');
-				that.disconnect();
+			socket.on('error', _ => {
+				this.trigger('error');
+				this.disconnect();
 			});
 
-			socket.on('timeout', function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.on('timeout', _ => {
+				this.trigger('error');
+				this.disconnect();
 			});
 
-			socket.on('close', function() {
-				that.disconnect();
+			socket.on('close', _ => {
+				this.disconnect();
 			});
 
-			socket.on('end', function() {
-				that.disconnect();
+			socket.on('end', _ => {
+				this.disconnect();
 			});
 
 
-			that.__connection = socket;
-			that.__protocol   = protocol;
+			this.__connection = socket;
+			this.__protocol   = protocol;
 
-			that.trigger('connect');
+			this.trigger('connect');
 
 		}
 
@@ -104,8 +103,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 	const _disconnect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection === socket) {
+		if (this.__connection === socket) {
 
 			socket.removeAllListeners('data');
 			socket.removeAllListeners('error');
@@ -117,10 +115,10 @@ lychee.define('lychee.net.socket.WS').tags({
 			protocol.close();
 
 
-			that.__connection = null;
-			that.__protocol   = null;
+			this.__connection = null;
+			this.__protocol   = null;
 
-			that.trigger('disconnect');
+			this.trigger('disconnect');
 
 		}
 
@@ -238,13 +236,13 @@ lychee.define('lychee.net.socket.WS').tags({
 		handshake += '\r\n';
 
 
-		this.once('data', function(data) {
+		this.once('data', data => {
 
 			let headers = {};
 			let lines   = data.toString('utf8').split('\r\n');
 
 
-			lines.forEach(function(line) {
+			lines.forEach(line => {
 
 				let index = line.indexOf(':');
 				if (index !== -1) {
@@ -278,7 +276,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 			}
 
-		}.bind(this));
+		});
 
 
 		this.write(handshake, 'ascii');
@@ -291,7 +289,7 @@ lychee.define('lychee.net.socket.WS').tags({
 		let headers = {};
 
 
-		lines.forEach(function(line) {
+		lines.forEach(line => {
 
 			let index = line.indexOf(':');
 			if (index !== -1) {
@@ -372,9 +370,6 @@ lychee.define('lychee.net.socket.WS').tags({
 			connection = typeof connection === 'object' ? connection : null;
 
 
-			let that = this;
-
-
 			if (host !== null && port !== null) {
 
 				if (connection !== null) {
@@ -382,7 +377,7 @@ lychee.define('lychee.net.socket.WS').tags({
 					connection.once('data', _upgrade_remote.bind(connection));
 					connection.resume();
 
-					connection.once('error', function(err) {
+					connection.once('error', err => {
 
 						if (lychee.debug === true) {
 
@@ -393,12 +388,12 @@ lychee.define('lychee.net.socket.WS').tags({
 
 						}
 
-						that.trigger('error');
-						that.disconnect();
+						this.trigger('error');
+						this.disconnect();
 
 					});
 
-					connection.on('upgrade', function(event) {
+					connection.on('upgrade', event => {
 
 						let protocol = new _Protocol({
 							type: _Protocol.TYPE.remote
@@ -419,7 +414,7 @@ lychee.define('lychee.net.socket.WS').tags({
 								socket.write(verification, 'ascii');
 
 
-								_connect_socket.call(that, socket, protocol);
+								_connect_socket.call(this, socket, protocol);
 
 							} else {
 
@@ -432,8 +427,8 @@ lychee.define('lychee.net.socket.WS').tags({
 								socket.end();
 								socket.destroy();
 
-								that.trigger('error');
-								that.disconnect();
+								this.trigger('error');
+								this.disconnect();
 
 							}
 
@@ -453,7 +448,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 					connector.once('connect', _upgrade_client.bind(connector, host, port, nonce));
 
-					connector.on('upgrade', function(event) {
+					connector.on('upgrade', event => {
 
 						let protocol = new _Protocol({
 							type: _Protocol.TYPE.client
@@ -472,7 +467,7 @@ lychee.define('lychee.net.socket.WS').tags({
 								socket.removeAllListeners('timeout');
 
 
-								let interval_id = _setInterval(function() {
+								let interval_id = _setInterval(_ => {
 
 									if (socket.writable) {
 
@@ -488,10 +483,10 @@ lychee.define('lychee.net.socket.WS').tags({
 
 									}
 
-								}.bind(this), 60000);
+								}, 60000);
 
 
-								_connect_socket.call(that, socket, protocol);
+								_connect_socket.call(this, socket, protocol);
 
 							} else {
 
@@ -503,8 +498,8 @@ lychee.define('lychee.net.socket.WS').tags({
 								socket.end();
 								socket.destroy();
 
-								that.trigger('error');
-								that.disconnect();
+								this.trigger('error');
+								this.disconnect();
 
 							}
 
@@ -512,7 +507,7 @@ lychee.define('lychee.net.socket.WS').tags({
 
 					});
 
-					connector.once('error', function(err) {
+					connector.once('error', err => {
 
 						if (lychee.debug === true) {
 
@@ -523,11 +518,11 @@ lychee.define('lychee.net.socket.WS').tags({
 
 						}
 
-						that.trigger('error');
-						that.disconnect();
+						this.trigger('error');
+						this.disconnect();
 
-						this.end();
-						this.destroy();
+						connector.end();
+						connector.destroy();
 
 					});
 

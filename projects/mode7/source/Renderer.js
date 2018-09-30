@@ -4,7 +4,7 @@ lychee.define('game.Renderer').requires([
 	'game.Compositor'
 ]).includes([
 	'lychee.Renderer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Camera     = lychee.import('game.Camera');
 	const _Compositor = lychee.import('game.Compositor');

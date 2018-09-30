@@ -1,5 +1,5 @@
 
-lychee.define('studio.codec.SOUND').exports(function(lychee, global, attachments) {
+lychee.define('studio.codec.SOUND').exports((lychee, global, attachments) => {
 
 	let _SOUND_ID = 0;
 

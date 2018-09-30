@@ -2,7 +2,7 @@
 lychee.define('strainer.api.Sandbox').requires([
 	'strainer.api.PARSER',
 	'strainer.api.TRANSCRIPTOR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER       = lychee.import('strainer.api.PARSER');
 	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
@@ -31,7 +31,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		let chunk    = [];
 		let chunks   = [];
 
-		buffer.forEach(function(line) {
+		buffer.forEach(line => {
 
 			if (line.startsWith(prefix)) {
 				chunk.push(line);
@@ -47,7 +47,7 @@ lychee.define('strainer.api.Sandbox').requires([
 
 		});
 
-		chunks.forEach(function(chunk) {
+		chunks.forEach(chunk => {
 
 			let id = null;
 
@@ -96,12 +96,13 @@ lychee.define('strainer.api.Sandbox').requires([
 
 	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('.exports(function(lychee, sandbox) {');
+		let i1 = stream.indexOf('.exports((lychee, sandbox) => {');
+		let d1 = 31;
 		let i2 = stream.indexOf('\n\tsandbox.');
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 36, i2 - i1 - 36);
+			let body = stream.substr(i1 + d1, i2 - i1 - d1);
 			if (body.length > 0) {
 
 				body.split('\n')
@@ -158,7 +159,7 @@ lychee.define('strainer.api.Sandbox').requires([
 		let chunk    = [];
 		let chunks   = [];
 
-		buffer.forEach(function(line) {
+		buffer.forEach(line => {
 
 			if (line.startsWith('\tsandbox.setStates(')) {
 				chunk.push(line);
@@ -174,7 +175,7 @@ lychee.define('strainer.api.Sandbox').requires([
 
 		});
 
-		chunks.forEach(function(chunk) {
+		chunks.forEach(chunk => {
 
 			if (chunk.startsWith('\tsandbox.setStates(')) {
 				chunk = chunk.substr(19);
@@ -204,7 +205,8 @@ lychee.define('strainer.api.Sandbox').requires([
 		let blocks = _find_blocks('\tsandbox.setProperty(', stream);
 		if (blocks.length > 0) {
 
-			blocks.forEach(function(block) {
+			blocks.forEach(block => {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				properties[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -217,7 +219,8 @@ lychee.define('strainer.api.Sandbox').requires([
 		let blocks = _find_blocks('\tsandbox.setEnum(', stream);
 		if (blocks.length > 0) {
 
-			blocks.forEach(function(block) {
+			blocks.forEach(block => {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				enums[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -230,7 +233,8 @@ lychee.define('strainer.api.Sandbox').requires([
 		let blocks = _find_blocks('\tsandbox.setEvent(', stream);
 		if (blocks.length > 0) {
 
-			blocks.forEach(function(block) {
+			blocks.forEach(block => {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				events[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -243,7 +247,8 @@ lychee.define('strainer.api.Sandbox').requires([
 		let blocks = _find_blocks('\tsandbox.setMethod(', stream);
 		if (blocks.length > 0) {
 
-			blocks.forEach(function(block) {
+			blocks.forEach(block => {
+				block.chunk = _PARSER.outdent('\t' + block.chunk.trim(), '\t');
 				methods[block.id] = _PARSER.detect(block.chunk);
 			});
 
@@ -312,6 +317,120 @@ lychee.define('strainer.api.Sandbox').requires([
 		transcribe: function(asset) {
 
 			asset = _validate_asset(asset) === true ? asset : null;
+
+
+			if (asset !== null) {
+
+				let code = [];
+
+
+				let api = asset.buffer;
+				if (api instanceof Object) {
+
+					let memory = api.memory || {};
+					let result = api.result || {};
+
+
+					if (memory instanceof Object) {
+
+						for (let m in memory) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(m, memory[m]);
+							if (chunk !== null) {
+								code.push('\t' + chunk);
+							}
+
+						}
+
+					}
+
+
+					let states = result.states || null;
+					if (states !== null) {
+
+						let chunk = _TRANSCRIPTOR.transcribe(null, states);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push('\tsandbox.setStates(' + chunk + ');');
+						}
+
+					}
+
+					let properties = result.properties || null;
+					if (properties !== null && Object.keys(properties).length > 0) {
+
+						for (let pid in properties) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, properties[pid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setProperty(\'' + pid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let enums = result.enums || null;
+					if (enums !== null && Object.keys(enums).length > 0) {
+
+						for (let eid in enums) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, enums[eid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setEnum(\'' + eid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let events = result.events || null;
+					if (events !== null && Object.keys(events).length > 0) {
+
+						for (let eid in events) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, events[eid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setEvent(\'' + eid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+					let methods = result.methods || null;
+					if (methods !== null && Object.keys(methods).length > 0) {
+
+						for (let mid in methods) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\tsandbox.setMethod(\'' + mid + '\', ' + _PARSER.indent(chunk, '\t').trim() + ');');
+							}
+
+						}
+
+					}
+
+
+					code.push('');
+
+				}
+
+
+				if (code.length > 0) {
+					return code.join('\n');
+				}
+
+			}
+
+
+			return null;
 
 		}
 

@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 	platform: 'html'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.addEventListener === 'function'
@@ -18,7 +18,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Button     = lychee.import('lychee.ui.entity.Button');
 	const _FileReader = global.FileReader;
@@ -36,7 +36,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 		let focus = 'onfocus' in document;
 		if (focus === true && typeof document.addEventListener === 'function') {
 
-			document.addEventListener('focus', function() {
+			document.addEventListener('focus', _ => {
 
 				for (let w = 0, wl = _WRAPPERS.length; w < wl; w++) {
 
@@ -84,9 +84,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 
 		element._visible = false;
-		element.setAttribute('accept',   allowed.map(function(v) {
-			return '.' + v;
-		}).join(','));
+		element.setAttribute('accept',   allowed.map(v => '.' + v).join(','));
 		element.setAttribute('type',     'file');
 		element.setAttribute('multiple', '');
 
@@ -114,13 +112,8 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 			if (files.length > 0) {
 
-				let check_mp3 = files.find(function(file) {
-					return file.name.endsWith('.mp3');
-				}) || null;
-
-				let check_ogg = files.find(function(file) {
-					return file.name.endsWith('.ogg');
-				}) || null;
+				let check_mp3 = files.find(file => file.name.endsWith('.mp3')) || null;
+				let check_ogg = files.find(file => file.name.endsWith('.ogg')) || null;
 
 				if (check_mp3 !== null || check_ogg !== null) {
 
@@ -207,7 +200,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 				} else {
 
-					files.forEach(function(file) {
+					files.forEach(file => {
 
 						let reader = new _FileReader();
 
@@ -233,7 +226,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 				}
 
 
-				setTimeout(function() {
+				setTimeout(_ => {
 
 					let result = instance.setValue(val);
 					if (result === true) {
@@ -302,7 +295,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 			if (wrapper !== null) {
 
 				// XXX: Removing this causes endless loop
-				setTimeout(function() {
+				setTimeout(_ => {
 					wrapper.click();
 				}, 250);
 
@@ -373,7 +366,7 @@ lychee.define('lychee.ui.entity.Upload').tags({
 
 			if (value !== null) {
 
-				this.value = value.filter(function(asset) {
+				this.value = value.filter(asset => {
 
 					if (asset instanceof global.Config)  return true;
 					if (asset instanceof global.Font)    return true;

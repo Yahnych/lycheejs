@@ -17,6 +17,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"entity": {
 					"Messages": [

@@ -5,7 +5,7 @@ lychee.define('lychee.ui.element.Stash').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Input   = lychee.import('lychee.ui.entity.Input');

@@ -3,12 +3,12 @@ lychee.define('game.app.sprite.Wall').requires([
 	'lychee.app.Entity'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _TEXTURE = attachments["png"];
-	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments['png'];
+	const _CONFIG  = attachments['json'].buffer;
 
 
 
@@ -32,13 +32,8 @@ lychee.define('game.app.sprite.Wall').requires([
 
 
 		if (Math.random() > 0.6) {
-
-			let tmp = Object.keys(states.states).filter(function(val) {
-				return val.match(/damage/) === null;
-			});
-
+			let tmp = Object.keys(states.states).filter(val => /damage/.test(val) === false);
 			states.state = tmp[(Math.random() * (tmp.length - 1)) | 0];
-
 		}
 
 

@@ -115,7 +115,7 @@
 
 			_File.read(path, {
 				encoding: 'utf8'
-			}, function(error, buffer) {
+			}, (error, buffer) => {
 
 				let data = null;
 				try {
@@ -137,7 +137,7 @@
 					this.onload = null;
 				}
 
-			}.bind(this));
+			});
 
 		}
 

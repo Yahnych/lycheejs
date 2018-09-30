@@ -3,7 +3,7 @@ lychee.define('lychee.ai.Layer').requires([
 	'lychee.ai.Agent'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent   = lychee.import('lychee.ai.Agent');
 	const _Emitter = lychee.import('lychee.event.Emitter');
@@ -54,6 +54,7 @@ lychee.define('lychee.ai.Layer').requires([
 		this.alpha    = 1;
 		this.entities = [];
 		this.position = { x: 0, y: 0, z: 0 };
+		this.shape    = 1;
 		this.visible  = true;
 
 
@@ -149,6 +150,85 @@ lychee.define('lychee.ai.Layer').requires([
 		/*
 		 * CUSTOM API
 		 */
+
+		collides: function(agent) {
+
+			agent = lychee.interfaceof(_Agent, agent) ? agent : null;
+
+
+			if (agent !== null) {
+				// XXX: AI Agents cannot collide
+			}
+
+
+			return false;
+
+		},
+
+		confines: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+				// XXX: AI Layers cannot confine space
+			}
+
+
+			return false;
+
+		},
+
+		query: function(query) {
+
+			query = typeof query === 'string' ? query : null;
+
+
+			if (query !== null) {
+
+				let tmp    = query.split(' > ');
+				let aid    = tmp.shift().trim();
+				let entity = this.getAgent(aid);
+				if (entity !== null) {
+
+					if (tmp.length > 0) {
+
+						if (typeof entity.query === 'function') {
+							return entity.query(tmp.join(' > ').trim());
+						} else {
+
+							if (lychee.debug === true) {
+								console.warn('lychee.app.Layer: Invalid query "' + tmp.join(' > ') + '" on entity "' + aid + '".');
+							}
+
+						}
+
+					} else {
+						return entity;
+					}
+
+				}
+
+			}
+
+
+			return null;
+
+		},
+
+		trace: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+				// XXX: AI Layers cannot trace
+			}
+
+
+			return null;
+
+		},
 
 		addAgent: function(agent) {
 

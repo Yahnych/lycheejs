@@ -3,7 +3,7 @@ lychee.define('legacy.Input').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.addEventListener === 'function') {
 		return true;
@@ -12,7 +12,7 @@ lychee.define('legacy.Input').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _INSTANCES = [];

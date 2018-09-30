@@ -8,12 +8,12 @@ lychee.define('ranger.state.Profile').requires([
 	'lychee.ui.entity.Switch'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Helper = lychee.import('lychee.ui.entity.Helper');
 	const _State  = lychee.import('lychee.ui.State');
 	const _JSON   = lychee.import('lychee.codec.JSON');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _CACHE  = {};
 	const _helper = new _Helper();
 

@@ -24,7 +24,7 @@ const _merge_font = function(family, styles) {
 
 	} else {
 
-		styles.forEach(function(style) {
+		styles.forEach(style => {
 
 			if (object.styles.includes(style) === false) {
 				object.styles.push(style);
@@ -57,11 +57,7 @@ if (_fs.existsSync(lychee.ROOT.project + '/.fc-cache') === true) {
 
 		let data = {};
 
-		buffer.trim().split('\n').map(function(val) {
-			return val.trim();
-		}).filter(function(val) {
-			return val !== '';
-		}).forEach(function(line) {
+		buffer.trim().split('\n').map(val => val.trim()).filter(val => val !== '').forEach(line => {
 
 			let tmp1   = line.split(':');
 			let family = tmp1[0].trim() || null;
@@ -73,9 +69,7 @@ if (_fs.existsSync(lychee.ROOT.project + '/.fc-cache') === true) {
 
 				if (family.includes(',')) {
 
-					family = family.split(',').filter(function(val) {
-						return /^([A-Za-z0-9,\s]+)$/g.test(val);
-					}).join(',');
+					family = family.split(',').filter(val => /^([A-Za-z0-9,\s]+)$/g.test(val)).join(',');
 
 					if (family === '') {
 						family = null;
@@ -113,9 +107,7 @@ if (_fs.existsSync(lychee.ROOT.project + '/.fc-cache') === true) {
 
 				if (family.includes(',')) {
 
-					family.split(',').map(function(val) {
-						return val.trim();
-					}).forEach(function(family) {
+					family.split(',').map(val => val.trim()).forEach(family => {
 						_merge_font.call(data, family, styles);
 					});
 
@@ -130,9 +122,7 @@ if (_fs.existsSync(lychee.ROOT.project + '/.fc-cache') === true) {
 		});
 
 
-		data = Object.values(data).sort(function(a, b) {
-			return a.family.localeCompare(b.family);
-		});
+		data = Object.values(data).sort((a, b) => a.family.localeCompare(b.family));
 
 
 		_fs.writeFileSync(

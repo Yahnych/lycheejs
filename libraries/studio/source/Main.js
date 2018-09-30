@@ -5,49 +5,68 @@ lychee.define('studio.Main').requires([
 	'studio.data.Project',
 	'studio.net.Client',
 	'studio.net.Server',
+	'studio.event.flow.Font',
+	'studio.event.flow.Sprite',
 	'studio.state.Asset',
 	'studio.state.Project',
 	'studio.state.Scene',
 	'harvester.net.Client'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _studio  = lychee.import('studio');
 	const _lychee  = lychee.import('lychee');
 	const _Client  = lychee.import('harvester.net.Client');
 	const _Main    = lychee.import('lychee.app.Main');
 	const _Project = lychee.import('studio.data.Project');
-	const _ARGS    = [];
 
 
 
-	(function(process) {
+	/*
+	 * HELPERS
+	 */
 
-		let node_argv = process.argv || [];
-		let nwjs_argv = [];
+	const _parse_arguments = function(states) {
 
+		let argv = null;
+
+		// platform: html-nwjs
 		try {
-			nwjs_argv = global.require('nw.gui').App.argv;
+			argv = global.require('nw.gui').App.argv;
 		} catch (err) {
-			nwjs_argv = [];
+			argv = null;
 		}
 
-		if (nwjs_argv.length > 0) {
+		// platform: node
+		if (argv === null) {
 
-			for (let a = 0, al = nwjs_argv.length; a < al; a++) {
-				_ARGS.push(nwjs_argv[a]);
-			}
-
-		} else if (node_argv.length > 1) {
-
-			for (let a = 1, al = node_argv.length; a < al; a++) {
-				_ARGS.push(node_argv[a]);
+			try {
+				argv = process.argv.slice(2);
+			} catch (err) {
+				argv = null;
 			}
 
 		}
 
-	})(typeof process === 'object' ? process : {});
+
+		if (argv !== null) {
+
+			argv.forEach(arg => {
+
+				let tmp = arg.trim();
+				if (tmp.startsWith('/libraries') || tmp.startsWith('/projects')) {
+					states.project = tmp;
+				} else if (tmp === '--debug') {
+					lychee.debug = true;
+					states.debug = true;
+				}
+
+			});
+
+		}
+
+	};
 
 
 
@@ -73,6 +92,9 @@ lychee.define('studio.Main').requires([
 				sound: true
 			},
 
+			project: null,
+			// project: '/projects/boilerplate',
+
 			renderer: {
 				id:     'studio',
 				width:  null,
@@ -89,6 +111,9 @@ lychee.define('studio.Main').requires([
 		this.api     = null;
 		this.project = null;
 
+
+		// XXX: nwjs and node-sdl integration
+		_parse_arguments(states);
 
 		_Main.call(this, states);
 
@@ -116,7 +141,7 @@ lychee.define('studio.Main').requires([
 
 			let appclient = this.settings.appclient || null;
 			if (appclient !== null) {
-				this.client = new _studio.net.Client(appclient, this);
+				this.client = new _studio.net.Client(appclient);
 				this.api    = new _Client({
 					host: this.client.host
 				}, this);
@@ -124,7 +149,8 @@ lychee.define('studio.Main').requires([
 
 			let appserver = this.settings.appserver || null;
 			if (appserver !== null) {
-				this.server = new _studio.net.Server(appserver, this);
+				appserver.main = this;
+				this.server = new _studio.net.Server(appserver);
 			}
 
 
@@ -136,31 +162,51 @@ lychee.define('studio.Main').requires([
 			this.changeState('project', 'Project');
 
 
-			let api     = this.api;
-			let project = _ARGS.find(function(val) {
-				return /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val);
-			}) || null;
+			let project = this.settings.project;
+			if (project !== null) {
 
-			if (api !== null && project !== null) {
+				this.loop.setTimeout(1000, function() {
 
-				let service = this.api.getService('project');
-				if (service !== null) {
+					let entity = this.state.query('ui > project > select > search');
+					if (entity !== null) {
+						entity.setValue(project);
+						entity.trigger('change', [ entity.value ]);
+					}
 
-					service.bind('sync', function() {
-
-						let entity = this.state.query('ui > project > select > search');
-						let result = entity.setValue(project);
-						if (result === true) {
-							entity.trigger('change', [ entity.value ]);
-						}
-
-					}, this, true);
-
-				}
+				}, this);
 
 			}
 
 		}, this, true);
+
+
+		let Flow = _studio.event.flow[this.settings.flow] || null;
+		if (Flow !== null) {
+
+			this.bind('init', function() {
+
+				this.loop.setTimeout(1000, function() {
+
+					let project = this.settings.project;
+					let flow    = new Flow({
+						main: this
+					});
+
+					flow.bind('complete', _ => {
+						console.info('studio: SUCCESS ("' + project + '")');
+					}, this);
+
+					flow.bind('error', event => {
+						console.error('studio: FAILURE ("' + project + '") at "' + event + '" event.');
+					}, this);
+
+					flow.init();
+
+				}, this);
+
+			}, this, true);
+
+		}
 
 	};
 

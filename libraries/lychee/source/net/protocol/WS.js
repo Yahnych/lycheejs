@@ -1,7 +1,7 @@
 
 lychee.define('lychee.net.protocol.WS').requires([
 	'lychee.codec.JSON'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _JSON = lychee.import('lychee.codec.JSON');
 
@@ -109,17 +109,13 @@ lychee.define('lychee.net.protocol.WS').requires([
 			mask_data[2] = (Math.random() * 0xff) | 0;
 			mask_data[3] = (Math.random() * 0xff) | 0;
 
-			payload_data = data.map(function(value, index) {
-				return value ^ mask_data[index % 4];
-			});
+			payload_data = data.map((value, index) => value ^ mask_data[index % 4]);
 
 		} else {
 
 			mask         = false;
 			mask_data    = Buffer.alloc(4);
-			payload_data = data.map(function(value) {
-				return value;
-			});
+			payload_data = data.map(value => value);
 
 		}
 
@@ -294,11 +290,7 @@ lychee.define('lychee.net.protocol.WS').requires([
 
 
 		if (mask_data !== null) {
-
-			payload_data = payload_data.map(function(value, index) {
-				return value ^ mask_data[index % 4];
-			});
-
+			payload_data = payload_data.map((value, index) => value ^ mask_data[index % 4]);
 		}
 
 

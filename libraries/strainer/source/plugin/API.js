@@ -8,7 +8,7 @@ lychee.define('strainer.plugin.API').requires([
 	'strainer.api.Sandbox',
 	'strainer.api.Specification',
 	'strainer.fix.API'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _FIXES = lychee.import('strainer.fix.API');
 	const _api   = {
@@ -70,21 +70,14 @@ lychee.define('strainer.plugin.API').requires([
 				let first  = stream.trim().split('\n')[0];
 
 
-				let is_core          = asset.url.startsWith('/libraries/crux/source') && first.endsWith('(function(global) {');
+				let is_core          = asset.url.startsWith('/libraries/crux/source') && (first.endsWith('(function(global) {') || first.endsWith('(function(lychee, global) {'));
 				let is_definition    = first.startsWith('lychee.define(');
 				let is_specification = first.startsWith('lychee.specify(');
-				let i_callback       = stream.lastIndexOf('return Callback;');
-				let i_composite      = stream.lastIndexOf('return Composite;');
-				let i_module         = stream.lastIndexOf('return Module;');
-				let i_check          = Math.max(i_callback, i_composite, i_module);
-				let is_callback      = i_check !== -1 && i_check === i_callback;
-				let is_composite     = i_check !== -1 && i_check === i_composite;
-				let is_module        = i_check !== -1 && i_check === i_module;
-
 
 				if (is_definition === true) {
 
 					header = _api['Definition'].check(asset);
+					api    = _api[header.result.type] || null;
 
 				} else if (is_specification === true) {
 
@@ -94,35 +87,26 @@ lychee.define('strainer.plugin.API').requires([
 				} else if (is_core === true) {
 
 					header = _api['Core'].check(asset);
+					api    = _api[header.result.type] || null;
 
 				} else {
 
-					if (asset.url.includes('/review/')) {
+					if (asset.url.includes('/source/')) {
+
+						header = _api['Definition'].check(asset);
+						api    = _api[header.result.type] || null;
+
+					} else if (asset.url.includes('/review/')) {
+
 						header = _api['Specification'].check(asset);
 						api    = _api['Sandbox'] || null;
-					} else if (asset.url.includes('/source/')) {
-						header = _api['Definition'].check(asset);
+
 					} else {
 
 						// XXX: autofix assumes lychee.Definition syntax
 						header = _api['Definition'].check(asset);
+						api    = _api[header.result.type] || null;
 
-					}
-
-				}
-
-
-				if (api === null) {
-
-					if (is_callback === true) {
-						header.result.type = 'Callback';
-						api = _api['Callback'] || null;
-					} else if (is_composite === true) {
-						header.result.type = 'Composite';
-						api = _api['Composite'] || null;
-					} else if (is_module === true) {
-						header.result.type = 'Module';
-						api = _api['Module'] || null;
 					}
 
 				}
@@ -148,7 +132,8 @@ lychee.define('strainer.plugin.API').requires([
 							properties:  {},
 							enums:       {},
 							events:      {},
-							methods:     {}
+							methods:     {},
+							type:        null
 						}
 					};
 
@@ -169,7 +154,7 @@ lychee.define('strainer.plugin.API').requires([
 					}
 
 
-					report.errors.forEach(function(err) {
+					report.errors.forEach(err => {
 
 						if (err.url === null) {
 							err.url = asset.url;
@@ -217,7 +202,7 @@ lychee.define('strainer.plugin.API').requires([
 				let modified = false;
 
 
-				report.errors.forEach(function(err) {
+				report.errors.forEach(err => {
 
 					let rule = err.rule;
 
@@ -277,24 +262,37 @@ lychee.define('strainer.plugin.API').requires([
 				let code   = null;
 
 
-				let is_core       = asset.url.startsWith('/libraries/crux/source');
-				let is_definition = is_core === false && asset.url.includes('/api/');
+				let is_core          = asset.url.startsWith('/libraries/crux/source');
+				let is_definition    = is_core === false && asset.url.includes('/api/');
+				let is_specification = false;
+
+				let type = report.header.type || null;
+				if (type === 'Sandbox') {
+					is_definition    = false;
+					is_specification = true;
+				} else if (type === 'Callback' || type === 'Composite' || type === 'Module') {
+					is_definition    = true;
+					is_specification = false;
+				}
 
 
 				if (is_definition === true) {
 					header = _api['Definition'].transcribe(asset);
+				} else if (is_specification === true) {
+					header = _api['Specification'].transcribe(asset);
 				} else if (is_core === true) {
 					header = _api['Core'].transcribe(asset);
 				}
 
 
-				let type = report.header.type || null;
 				if (type === 'Callback') {
 					api = _api['Callback'] || null;
 				} else if (type === 'Composite') {
 					api = _api['Composite'] || null;
 				} else if (type === 'Module') {
 					api = _api['Module'] || null;
+				} else if (type === 'Sandbox') {
+					api = _api['Sandbox'] || null;
 				}
 
 

@@ -8,12 +8,39 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 	 * HELPERS
 	 */
 
+	const _fuzz_id = function() {
+
+		let found = null;
+
+		if (this.url !== null) {
+
+			let url = this.url;
+			if (url.includes('/libraries/')) {
+
+				let ns    = url.split('/');
+				let tmp_i = ns.indexOf('libraries');
+				let tmp_s = ns[tmp_i + 1] || '';
+
+				if (tmp_s !== '') {
+					found = tmp_s;
+				}
+
+			}
+
+		}
+
+		return found;
+
+	};
+
 	const _resolve_root = function() {
 
 		let root = this.root;
 		let type = this.type;
 
-		if (type === 'build') {
+		if (type === 'api') {
+			root += '/api';
+		} else if (type === 'build') {
 			root += '/build';
 		} else if (type === 'review') {
 			root += '/review';
@@ -44,6 +71,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		if (config !== null && path !== null) {
 
 			let pointer = config.buffer[this.type].files || null;
+
 			if (pointer !== null) {
 
 				for (let p = 0, pl = path.length; p < pl; p++) {
@@ -60,13 +88,12 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-
-			return pointer !== null ? true : false;
+			return pointer;
 
 		}
 
 
-		return false;
+		return null;
 
 	};
 
@@ -74,37 +101,19 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		let config      = this.config;
 		let attachments = {};
-		let path        = candidate.split('/');
 
-		if (config !== null && path.length > 0) {
+		if (config !== null) {
 
-			let pointer = config.buffer.source.files || null;
-			if (pointer !== null) {
+			let pointer = _resolve_path.call(this, candidate);
+			if (pointer !== null && pointer instanceof Array) {
 
-				for (let pa = 0, pal = path.length; pa < pal; pa++) {
+				let definition_path = _resolve_root.call(this) + '/' + candidate;
 
-					let name = path[pa];
-					if (pointer[name] !== undefined) {
-						pointer = pointer[name];
-					} else {
-						pointer = null;
-						break;
-					}
+				for (let po = 0, pol = pointer.length; po < pol; po++) {
 
-				}
-
-
-				if (pointer !== null && pointer instanceof Array) {
-
-					let definition_path = _resolve_root.call(this) + '/' + path.join('/');
-
-					for (let po = 0, pol = pointer.length; po < pol; po++) {
-
-						let type = pointer[po];
-						if (type !== 'js') {
-							attachments[type] = definition_path + '.' + type;
-						}
-
+					let type = pointer[po];
+					if (type !== 'js') {
+						attachments[type] = definition_path + '.' + type;
 					}
 
 				}
@@ -112,7 +121,6 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			}
 
 		}
-
 
 		return attachments;
 
@@ -123,31 +131,24 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		tags = tags instanceof Object ? tags : null;
 
 
-		let that          = this;
 		let candidatepath = id.split('.').join('/');
 		let candidates    = [];
-		let filter_values = function(tags, tag) {
-
-			if (tags[tag] instanceof Array) {
-
-				return tags[tag].map(function(value) {
-					return _resolve_tag.call(that, tag, value) + '/' + candidatepath;
-				}).filter(function(path) {
-					return _resolve_path.call(that, path);
-				});
-
-			}
-
-			return [];
-
-		};
-
 
 		if (tags !== null) {
 
 			for (let tag in tags) {
 
-				let values = filter_values(tags, tag);
+				let values = [];
+
+				if (tags[tag] instanceof Array) {
+
+					let tmp = tags[tag].map(value => _resolve_tag.call(this, tag, value) + '/' + candidatepath);
+					if (tmp.length > 0) {
+						values = tmp.filter(path => _resolve_path.call(this, path) !== null);
+					}
+
+				}
+
 				if (values.length > 0) {
 					candidates.push.apply(candidates, values);
 				}
@@ -164,7 +165,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		} else {
 
-			if (_resolve_path.call(this, candidatepath) === true) {
+			if (_resolve_path.call(this, candidatepath) !== null) {
 				candidates.push(candidatepath);
 			}
 
@@ -172,6 +173,40 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 
 		return candidates;
+
+	};
+
+	const _resolve_namespaces = function(node, namespaces, path) {
+
+		namespaces = namespaces instanceof Array ? namespaces : [];
+		path       = typeof path === 'string'    ? path       : '';
+
+
+		if (node instanceof Array) {
+
+			// Ignore Arrays specifically
+
+		} else if (node instanceof Object) {
+
+			if (path !== '' && namespaces.includes(path) === false) {
+				namespaces.push(path);
+			}
+
+			Object.keys(node).forEach(child => {
+
+				if (child.includes('__') === false) {
+
+					if (node[child] instanceof Array) {
+						// Ignore Arrays specifically
+					} else {
+						_resolve_namespaces(node[child], namespaces, (path !== '' ? (path + '.') : '') + child);
+					}
+
+				}
+
+			});
+
+		}
 
 	};
 
@@ -198,7 +233,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		} else if (node instanceof Object) {
 
-			Object.keys(node).forEach(function(child) {
+			Object.keys(node).forEach(child => {
 
 				if (child.includes('__') === false) {
 					_resolve_files(node[child], files, path + '/' + child, extensions);
@@ -240,6 +275,114 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 
 		return '';
+
+	};
+
+	const _sort_by_tag = function(a, b) {
+
+		let rank_a = 0;
+		let rank_b = 0;
+
+		let check_a = a.includes('-');
+		let check_b = b.includes('-');
+
+		if (check_a && check_b) {
+
+			let tmp_a = a.split('-');
+			let tmp_b = b.split('-');
+
+			if (tmp_a[0] > tmp_b[0]) rank_a += 3;
+			if (tmp_b[0] > tmp_a[0]) rank_b += 3;
+
+			if (tmp_a[0] === tmp_b[0]) {
+				if (tmp_a[1] > tmp_b[1]) rank_a += 1;
+				if (tmp_b[1] > tmp_a[1]) rank_b += 1;
+			}
+
+		} else if (check_a && !check_b) {
+
+			let tmp_a = a.split('-');
+
+			if (tmp_a[0] > b)   rank_a += 3;
+			if (b > tmp_a[0])   rank_b += 3;
+			if (tmp_a[0] === b) rank_b += 1;
+
+		} else if (!check_a && check_b) {
+
+			let tmp_b = b.split('-');
+
+			if (a > tmp_b[0])   rank_a += 3;
+			if (tmp_b[0] > a)   rank_b += 3;
+			if (a === tmp_b[0]) rank_a += 1;
+
+		} else {
+
+			if (a > b) rank_a += 3;
+			if (b > a) rank_b += 3;
+
+		}
+
+		if (rank_a > rank_b) return  1;
+		if (rank_b > rank_a) return -1;
+		return 0;
+
+	};
+
+	const _validate_env_tags = function(source_tags, target_tags) {
+
+		for (let tag in source_tags) {
+
+			let source_value = source_tags[tag];
+			let target_value = target_tags[tag] || null;
+			if (target_value !== null) {
+
+				if (source_value instanceof Array && target_value instanceof Array) {
+
+					let valid = true;
+
+					for (let t = 0, tl = target_value.length; t < tl; t++) {
+
+						let check = source_value.includes(target_value[t]);
+						if (check === false) {
+							valid = false;
+							break;
+						}
+
+					}
+
+					if (valid === false) {
+						return false;
+					}
+
+				} else if (source_value instanceof Array && typeof target_value === 'string') {
+
+					let check = source_value.includes(target_value);
+					if (check === false) {
+						return false;
+					}
+
+				} else if (typeof source_value === 'string' && typeof target_value === 'string') {
+
+					let check = source_value === target_value;
+					if (check === false) {
+						return false;
+					}
+
+				} else if (typeof source_value === 'string' && target_value instanceof Array) {
+
+					let check = target_value.includes(source_value);
+					if (check === false) {
+						return false;
+					}
+
+				}
+
+			}
+
+		}
+
+
+		return true;
 
 	};
 
@@ -293,7 +436,6 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 	const _load_candidate_implementation = function(candidate, implementation, attachments, map) {
 
-		let that       = this;
 		let type       = map.type;
 		let identifier = this.id + '.' + map.id;
 		if (identifier.endsWith('.')) {
@@ -301,7 +443,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		}
 
 
-		implementation.onload = function(result) {
+		implementation.onload = result => {
 
 			map.loading--;
 
@@ -310,7 +452,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				if (type === 'export' || type === 'source') {
 
-					let environment = that.environment || null;
+					let environment = this.environment || null;
 					if (environment !== null) {
 
 						let definition = environment.definitions[identifier] || null;
@@ -328,10 +470,10 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 								map.loading += attachment_ids.length;
 
 
-								attachment_ids.forEach(function(assetId) {
+								attachment_ids.forEach(assetId => {
 
 									let url   = attachments[assetId];
-									let asset = new lychee.Asset(url);
+									let asset = new lychee.Asset(url, null, true);
 									if (asset !== null) {
 
 										asset.onload = function(result) {
@@ -386,7 +528,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				} else if (type === 'review') {
 
-					let simulation = that.simulation || null;
+					let simulation = this.simulation || null;
 					if (simulation !== null) {
 
 						let specification = simulation.specifications[identifier] || null;
@@ -410,11 +552,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 			}
 
 
-			that.__blacklist[candidate] = 1;
+			this.__blacklist[candidate] = 1;
 
 			// Load next candidate, if any available
 			if (map.candidates.length > 0) {
-				_load_candidate.call(that, map.id, map.candidates);
+				_load_candidate.call(this, map.id, map.candidates);
 			}
 
 		};
@@ -447,8 +589,15 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 		this.__warnings  = {};
 
 
-		this.setId(states.id);
-		this.setUrl(states.url);
+		let check = states.id || null;
+		if (check !== null && /^([a-z]+)$/g.test(check)) {
+			this.setId(states.id);
+			this.setUrl(states.url);
+		} else {
+			this.setUrl(states.url);
+			this.setId(states.id);
+		}
+
 
 		this.setEnvironment(states.environment);
 		this.setSimulation(states.simulation);
@@ -518,11 +667,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					let files = [];
 					let type  = this.type;
-					let root = buffer[type].files || null;
+					let root  = buffer[type].files || null;
+
 					if (root !== null) {
 						_resolve_files(root, files, '', false);
 					}
-
 
 					if (tags !== null) {
 
@@ -656,7 +805,63 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort();
+			filtered = filtered.sort();
+
+
+			return filtered;
+
+		},
+
+		getEnvironments: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let type         = this.type;
+					let environments = buffer[type].environments || null;
+
+					if (environments !== null) {
+
+						for (let id in environments) {
+
+							let environment = lychee.assignunlink({
+								id: id
+							}, environments[id]);
+
+
+							if (tags !== null) {
+
+								let valid = _validate_env_tags(environment.tags || {}, tags);
+								if (valid === true) {
+									filtered.push(environment);
+								}
+
+							} else {
+
+								filtered.push(environment);
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			filtered = filtered.sort((a, b) => _sort_by_tag(a.id, b.id));
+
+
+			return filtered;
 
 		},
 
@@ -675,11 +880,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 					let files = [];
 					let type  = this.type;
-					let root = buffer[type].files || null;
+					let root  = buffer[type].files || null;
+
 					if (root !== null) {
 						_resolve_files(root, files, '', true);
 					}
-
 
 					if (tags !== null) {
 
@@ -733,7 +938,224 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			}
 
-			return filtered.sort();
+			filtered = filtered.sort();
+
+
+			return filtered;
+
+		},
+
+		getNamespaces: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let namespaces = [];
+					let type       = this.type;
+					let root       = buffer[type].files || null;
+
+					if (root !== null) {
+						_resolve_namespaces(root, namespaces, '');
+					}
+
+					if (tags !== null) {
+
+						for (let tag in tags) {
+
+							if (tags[tag] instanceof Array) {
+
+								for (let t = 0, tl = tags[tag].length; t < tl; t++) {
+
+									let value  = tags[tag][t];
+									let prefix = _resolve_tag.call(this, tag, value).split('/').join('.');
+
+									for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+										let namespace = namespaces[n];
+										if (namespace.startsWith(prefix + '.')) {
+
+											let id = namespace.substr(prefix.length + 1);
+											if (filtered.includes(id) === false) {
+												filtered.push(id);
+											}
+
+										}
+
+									}
+
+								}
+
+							} else if (typeof tags[tag] === 'string') {
+
+								let value  = tags[tag];
+								let prefix = _resolve_tag.call(this, tag, value).split('/').join('.');
+
+								for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+									let namespace = namespaces[n];
+									if (namespace.startsWith(prefix + '.')) {
+
+										let id = namespace.substr(prefix.length + 1);
+										if (filtered.includes(id) === false) {
+											filtered.push(id);
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					} else {
+
+						let tags     = [];
+						let prefixes = [];
+						let pointer  = config.buffer[this.type].tags || null;
+						if (pointer !== null) {
+
+							for (let tag in pointer) {
+
+								tags.push(tag);
+
+
+								let pkg_tags = pointer[tag];
+								if (pkg_tags instanceof Object) {
+
+									for (let id in pkg_tags) {
+
+										let prefix = pkg_tags[id] || null;
+										if (prefix !== null) {
+											prefixes.push(prefix.split('/').join('.'));
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+
+						for (let n = 0, nl = namespaces.length; n < nl; n++) {
+
+							let namespace = namespaces[n];
+
+							for (let p = 0, pl = prefixes.length; p < pl; p++) {
+
+								let prefix = prefixes[p];
+
+								if (namespace.startsWith(prefix + '.')) {
+
+									let id = namespace.substr(prefix.length + 1);
+									if (filtered.includes(id) === false) {
+										filtered.push(id);
+									}
+
+								} else {
+
+									let untagged = true;
+
+									for (let t = 0, tl = tags.length; t < tl; t++) {
+
+										let tag = tags[t];
+
+										if (namespace.startsWith(tag)) {
+											untagged = false;
+											break;
+										}
+
+									}
+
+									if (untagged === true) {
+
+										let id = namespace;
+										if (filtered.includes(id) === false) {
+											filtered.push(id);
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			filtered = filtered.sort();
+
+
+			return filtered;
+
+		},
+
+		getSimulations: function(tags) {
+
+			tags = tags instanceof Object ? tags : null;
+
+
+			let filtered = [];
+
+			let config = this.config || null;
+			if (config !== null) {
+
+				let buffer = config.buffer || null;
+				if (buffer !== null) {
+
+					let type        = this.type;
+					let simulations = buffer[type].simulations || null;
+
+					if (simulations !== null) {
+
+						for (let id in simulations) {
+
+							let simulation = lychee.assignunlink({
+								id: id
+							}, simulations[id]);
+
+
+							let environment = simulation.environment || null;
+							if (environment instanceof Object && tags !== null) {
+
+								let valid = _validate_env_tags(environment.tags || {}, tags);
+								if (valid === true) {
+									filtered.push(simulation);
+								}
+
+							} else {
+
+								filtered.push(simulation);
+
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			filtered = filtered.sort((a, b) => _sort_by_tag(a.id, b.id));
+
+
+			return filtered;
 
 		},
 
@@ -763,10 +1185,10 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 						if (check === null) {
 
 							if (tags !== null) {
-								let info = Object.keys(tags).length > 0 ? (' (' + JSON.stringify(tags) + ')') : '.';
+								let info = Object.keys(tags).length > 0 ? (' (' + JSON.stringify(tags) + ').') : '.';
 								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"' + info);
 							} else {
-								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '"');
+								console.error('lychee.Package ("' + this.id + '"): Invalid Definition "' + id + '".');
 							}
 
 							this.__warnings[id] = 1;
@@ -816,16 +1238,33 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 		},
 
-		setId: function(identifier) {
+		setId: function(id) {
 
-			identifier = typeof identifier === 'string' ? identifier : null;
+			id = typeof id === 'string' ? id : null;
 
 
-			if (identifier !== null && /^([a-z]+)$/g.test(identifier)) {
+			if (id !== null && /^([a-z]+)$/g.test(id)) {
 
-				this.id = identifier;
+				this.id = id;
 
 				return true;
+
+			} else {
+
+				let fuzzed = _fuzz_id.call(this);
+				if (fuzzed !== null) {
+
+					this.id = fuzzed;
+
+					console.warn('lychee.Package: Injecting Identifier "' + fuzzed + '" ("' + this.url + '").');
+
+					return true;
+
+				} else if (id !== null) {
+
+					console.error('lychee.Package: Invalid Identifier "' + id + '" ("' + this.url + '").');
+
+				}
 
 			}
 
@@ -846,12 +1285,11 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 				this.url    = url;
 
 
-				let that   = this;
 				let config = new Config(url);
 
-				config.onload = function(result) {
+				config.onload = result => {
 
-					let buffer = this.buffer || null;
+					let buffer = config.buffer || null;
 					if (
 						buffer !== null
 						&& buffer instanceof Object
@@ -860,13 +1298,13 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 						&& buffer.source instanceof Object
 					) {
 
-						console.info('lychee.Package ("' + that.id + '"): Config "' + this.url + '" ready.');
+						console.info('lychee.Package ("' + this.id + '"): Config "' + config.url + '" ready.');
 
-						that.config = this;
+						this.config = config;
 
 					} else {
 
-						console.error('lychee.Package ("' + that.id + '"): Config "' + this.url + '" corrupt.');
+						console.error('lychee.Package ("' + this.id + '"): Config "' + config.url + '" corrupt.');
 
 					}
 
@@ -935,7 +1373,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 			if (type !== null) {
 
-				if (/^(build|review|source)$/g.test(type)) {
+				if (/^(api|build|review|source)$/g.test(type)) {
 
 					this.type = type;
 

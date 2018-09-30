@@ -10,16 +10,16 @@ lychee.define('game.state.Game').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent  = lychee.import('game.ai.Agent');
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Shake  = lychee.import('lychee.effect.Shake');
 	const _State  = lychee.import('lychee.app.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _SOUNDS = {
-		ping: attachments["ping.snd"],
-		pong: attachments["pong.snd"]
+		ping: attachments['ping.snd'],
+		pong: attachments['pong.snd']
 	};
 
 
@@ -402,7 +402,7 @@ lychee.define('game.state.Game').requires([
 			 * 3: COLLISIONS
 			 */
 
-			if (ball.collidesWith(good) === true) {
+			if (ball.collides(good) === true) {
 
 				position.x = good.position.x + 24;
 				velocity.x = Math.abs(velocity.x);
@@ -410,7 +410,7 @@ lychee.define('game.state.Game').requires([
 
 				_bounce_effect.call(this, 'good');
 
-			} else if (ball.collidesWith(evil) === true) {
+			} else if (ball.collides(evil) === true) {
 
 				position.x = evil.position.x - 24;
 				velocity.x = -1 * Math.abs(velocity.x);

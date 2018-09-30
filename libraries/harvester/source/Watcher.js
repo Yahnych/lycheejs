@@ -8,7 +8,7 @@ lychee.define('harvester.Watcher').requires([
 	'harvester.mod.Packager',
 	'harvester.mod.Server',
 	'harvester.mod.Strainer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Filesystem = lychee.import('harvester.data.Filesystem');
 	const _Project    = lychee.import('harvester.data.Project');
@@ -33,14 +33,10 @@ lychee.define('harvester.Watcher').requires([
 
 
 		// Libraries
-		let libraries = this.filesystem.dir('/libraries').filter(function(value) {
-			return /README\.md/.test(value) === false;
-		}).map(function(value) {
-			return '/libraries/' + value;
-		});
+		let libraries = this.filesystem.dir('/libraries').filter(v => /README\.md/.test(v) === false).map(v => '/libraries/' + v);
 
 		// Remove Libraries
-		Object.keys(this.libraries).forEach(function(identifier) {
+		Object.keys(this.libraries).forEach(identifier => {
 
 			let index = libraries.indexOf(identifier);
 			if (index === -1) {
@@ -58,10 +54,10 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 		// Add Libraries
-		libraries.forEach(function(identifier) {
+		libraries.forEach(identifier => {
 
 			let check = this.libraries[identifier] || null;
 			let info1 = this.filesystem.info(identifier + '/lychee.pkg');
@@ -78,20 +74,15 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 
 
 		// Projects
-		let projects = this.filesystem.dir('/projects').filter(function(value) {
-			return value !== 'README.md';
-		}).map(function(value) {
-			return '/projects/' + value;
-		});
-
+		let projects = this.filesystem.dir('/projects').filter(v => v !== 'README.md').map(v => '/projects/' + v);
 
 		// Remove Projects
-		Object.keys(this.projects).forEach(function(identifier) {
+		Object.keys(this.projects).forEach(identifier => {
 
 			let index = projects.indexOf(identifier);
 			if (index === -1) {
@@ -109,10 +100,10 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 		// Add Projects
-		projects.forEach(function(identifier) {
+		projects.forEach(identifier => {
 
 			let check = this.projects[identifier] || null;
 			let info1 = this.filesystem.info(identifier + '/index.html');
@@ -130,7 +121,7 @@ lychee.define('harvester.Watcher').requires([
 
 			}
 
-		}.bind(this));
+		});
 
 	};
 
@@ -139,7 +130,16 @@ lychee.define('harvester.Watcher').requires([
 		silent = silent === true;
 
 
-		if (_mod.Harvester !== null) {
+		let Harvester = _mod.Harvester;
+
+
+		let sandbox = this.sandbox;
+		if (sandbox === true) {
+			Harvester = null;
+		}
+
+
+		if (Harvester !== null) {
 
 			let branch = 'master';
 			let check  = false;
@@ -159,13 +159,10 @@ lychee.define('harvester.Watcher').requires([
 
 				if (silent === false) {
 
-					console.info('+-------------------------------------------------------+');
-					console.info('| Software Updates and AI Knowledge Updates enabled     |');
-					console.info('+-------------------------------------------------------+');
-					console.log('\n');
+					console.info('harvester.Watcher: Autonomous Software Updates enabled.');
+					console.log('');
 
 				}
-
 
 				_mod.Harvester.process();
 
@@ -173,22 +170,25 @@ lychee.define('harvester.Watcher').requires([
 
 				if (silent === false) {
 
-					console.warn('+-------------------------------------------------------+');
-					console.warn('| Software Updates and AI Knowledge Updates disabled    |');
-					console.warn('+-------------------------------------------------------+');
-					console.log('');
+					console.warn('harvester.Watcher: Autonomous Software Updates disabled.');
 
 					if (status.ahead !== 0) {
-						console.warn('Local git branch is ahead of "upstream" or "origin".');
+						console.warn('harvester.Watcher: Local git branch "' + branch + '" is ahead of remote "upstream".');
 					} else if (status.changes.length > 0) {
-						console.warn('Local changes need to be commited before starting lychee.js Harvester.');
+						console.warn('harvester.Watcher: Local uncommited changes cannot be transmitted to the cloud.');
 					}
 
-					console.warn('Please use "git pull upstream ' + branch + '" manually.');
 					console.log('');
 
 				}
 
+			}
+
+		} else {
+
+			if (silent === false) {
+				console.warn('harvester.Watcher: Autonomous Software Updates disabled.');
+				console.log('');
 			}
 
 		}
@@ -199,10 +199,21 @@ lychee.define('harvester.Watcher').requires([
 
 		// XXX: Fertilizer disabled for performance reasons
 		// let Fertilizer = _mod.Fertilizer;
+		let Beautifier = _mod.Beautifier;
 		let Fertilizer = null;
 		let Packager   = _mod.Packager;
 		let Server     = _mod.Server;
 		let Strainer   = _mod.Strainer;
+
+
+		let sandbox = this.sandbox;
+		if (sandbox === true) {
+
+			Fertilizer = null;
+			Server     = null;
+			Strainer   = null;
+
+		}
 
 
 		for (let lid in this.libraries) {
@@ -214,6 +225,10 @@ lychee.define('harvester.Watcher').requires([
 				reasons = Packager.process(library);
 			}
 
+			if (Beautifier !== null && Beautifier.can(library) === true) {
+				Beautifier.process(library);
+			}
+
 			if (Server !== null && Server.can(library) === true) {
 				Server.process(library);
 			}
@@ -221,20 +236,17 @@ lychee.define('harvester.Watcher').requires([
 
 			if (reasons.length > 0) {
 
-				reasons.find(function(path) {
-					return path.startsWith('/api/files');
-				}) || null;
+				let changed_source = reasons.find(p => p.startsWith('/source/files')) || null;
+				if (changed_source !== null) {
 
-				let changed_source = reasons.find(function(path) {
-					return path.startsWith('/source/files');
-				}) || null;
+					if (Strainer !== null && Strainer.can(library) === true) {
+						Strainer.process(library);
+					}
 
-				if (changed_source !== null && Strainer !== null && Strainer.can(library) === true) {
-					Strainer.process(library);
-				}
+					if (Fertilizer !== null && Fertilizer.can(library) === true) {
+						Fertilizer.process(library);
+					}
 
-				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(library) === true) {
-					Fertilizer.process(library);
 				}
 
 			}
@@ -250,6 +262,10 @@ lychee.define('harvester.Watcher').requires([
 				reasons = Packager.process(project);
 			}
 
+			if (Beautifier !== null && Beautifier.can(project) === true) {
+				Beautifier.process(project);
+			}
+
 			if (Server !== null && Server.can(project) === true) {
 				Server.process(project);
 			}
@@ -257,20 +273,17 @@ lychee.define('harvester.Watcher').requires([
 
 			if (reasons.length > 0) {
 
-				reasons.find(function(path) {
-					return path.startsWith('/api/files');
-				}) || null;
+				let changed_source = reasons.find(p => p.startsWith('/source/files')) || null;
+				if (changed_source !== null) {
 
-				let changed_source = reasons.find(function(path) {
-					return path.startsWith('/source/files');
-				}) || null;
+					if (Strainer !== null && Strainer.can(project) === true) {
+						Strainer.process(project);
+					}
 
-				if (changed_source !== null && Strainer !== null && Strainer.can(project) === true) {
-					Strainer.process(project);
-				}
+					if (Fertilizer !== null && Fertilizer.can(project) === true) {
+						Fertilizer.process(project);
+					}
 
-				if (changed_source !== null && Fertilizer !== null && Fertilizer.can(project) === true) {
-					Fertilizer.process(project);
 				}
 
 			}
@@ -290,7 +303,7 @@ lychee.define('harvester.Watcher').requires([
 		this.filesystem = new _Filesystem();
 		this.libraries  = {};
 		this.projects   = {};
-
+		this.sandbox    = main.settings.sandbox === true;
 
 		// Figure out if there's a cleaner way
 		main._libraries = this.libraries;
@@ -317,31 +330,46 @@ lychee.define('harvester.Watcher').requires([
 
 		init: function() {
 
-			// XXX: Don't flood log on initialization
 			_update_cache.call(this, true);
-
-
 			_update_harvester.call(this);
+
+
+			// XXX: Fertilizer disabled for performance reasons
+			// let Fertilizer = _mod.Fertilizer;
+			let Beautifier = _mod.Beautifier;
+			let Packager   = _mod.Packager;
+			let Server     = _mod.Server;
+			let Strainer   = _mod.Strainer;
+
+
+			let sandbox = this.sandbox;
+			if (sandbox === true) {
+
+				// Fertilizer = null;
+				Server     = null;
+				Strainer   = null;
+
+			}
 
 
 			for (let lid in this.libraries) {
 
 				let library = this.libraries[lid];
 
-				if (_mod.Packager !== null && _mod.Packager.can(library) === true) {
-					_mod.Packager.process(library);
+				if (Packager !== null && Packager.can(library) === true) {
+					Packager.process(library);
 				}
 
-				if (_mod.Beautifier !== null && _mod.Beautifier.can(library) === true) {
-					_mod.Beautifier.process(library);
+				if (Beautifier !== null && Beautifier.can(library) === true) {
+					Beautifier.process(library);
 				}
 
-				if (_mod.Server !== null && _mod.Server.can(library) === true) {
-					_mod.Server.process(library);
+				if (Server !== null && Server.can(library) === true) {
+					Server.process(library);
 				}
 
-				if (_mod.Strainer !== null && _mod.Strainer.can(library) === true) {
-					_mod.Strainer.process(library);
+				if (Strainer !== null && Strainer.can(library) === true) {
+					Strainer.process(library);
 				}
 
 			}
@@ -350,20 +378,20 @@ lychee.define('harvester.Watcher').requires([
 
 				let project = this.projects[pid];
 
-				if (_mod.Packager !== null && _mod.Packager.can(project) === true) {
-					_mod.Packager.process(project);
+				if (Packager !== null && Packager.can(project) === true) {
+					Packager.process(project);
 				}
 
-				if (_mod.Beautifier !== null && _mod.Beautifier.can(project) === true) {
-					_mod.Beautifier.process(project);
+				if (Beautifier !== null && Beautifier.can(project) === true) {
+					Beautifier.process(project);
 				}
 
-				if (_mod.Server !== null && _mod.Server.can(project) === true) {
-					_mod.Server.process(project);
+				if (Server !== null && Server.can(project) === true) {
+					Server.process(project);
 				}
 
-				if (_mod.Strainer !== null && _mod.Strainer.can(project) === true) {
-					_mod.Strainer.process(project);
+				if (Strainer !== null && Strainer.can(project) === true) {
+					Strainer.process(project);
 				}
 
 			}
@@ -377,9 +405,6 @@ lychee.define('harvester.Watcher').requires([
 
 			_update_cache.call(this);
 			_update_mods.call(this);
-
-
-			// XXX: Don't flood log on update
 			_update_harvester.call(this, true);
 
 		}

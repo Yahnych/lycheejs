@@ -1,7 +1,7 @@
 
 lychee.define('lychee.event.Queue').includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 

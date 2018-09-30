@@ -1,18 +1,18 @@
 
-lychee.define('studio.data.Project').exports(function(lychee, global, attachments) {
+lychee.define('studio.data.Project').exports((lychee, global, attachments) => {
 
 	const _DEFAULT_SETTINGS = {
-		"debug": false,
-		"packages": {
-			"app": "./lychee.pkg"
+		'debug': false,
+		'packages': {
+			'app': './lychee.pkg'
 		},
-		"sandbox": false,
-		"tags": {
-			"platform": []
+		'sandbox': false,
+		'tags': {
+			'platform': []
 		},
-		"target": "app.Main",
-		"variant": "application",
-		"profile": {}
+		'target': 'app.Main',
+		'variant': 'application',
+		'profile': {}
 	};
 
 
@@ -53,15 +53,11 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 		}
 
 
-		return files.map(function(value) {
-			return value.substr(1);
-		}).sort(function(a, b) {
+		return files.map(value => value.substr(1)).sort((a, b) => {
 			if (a > b) return  1;
 			if (a < b) return -1;
 			return 0;
-		}).filter(function(value) {
-			return value.includes('__') === false;
-		});
+		}).filter(value => value.includes('__') === false);
 
 	};
 
@@ -304,24 +300,22 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 
 		load: function() {
 
-			let callback = this.onload instanceof Function ? this.onload : null;
-			let that     = this;
+			this.config.onload = result => {
 
-			this.config.onload = function() {
-
-				if (this.buffer instanceof Object) {
-					_parse_package.call(that);
+				if (this.config.buffer instanceof Object) {
+					_parse_package.call(this);
 				}
 
 			};
 
-			this.__harvester.onload = function(result) {
+			this.__harvester.onload = result => {
 
-				let line = (this.buffer || '').split('\n')[0];
+				let buffer = this.__harvester.buffer.toString('utf8');
+				let line   = buffer.split('\n')[0];
 				if (line.startsWith('#!')) {
-					that.setHarvester(true);
+					this.setHarvester(true);
 				} else {
-					that.setHarvester(false);
+					this.setHarvester(false);
 				}
 
 			};
@@ -332,12 +326,8 @@ lychee.define('studio.data.Project').exports(function(lychee, global, attachment
 			this.icon.load();
 
 
-			if (callback !== null) {
-
-				setTimeout(function() {
-					callback(that);
-				}, 500);
-
+			if (this.onload instanceof Function) {
+				setTimeout(_ => this.onload(this), 500);
 			}
 
 

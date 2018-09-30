@@ -1,11 +1,12 @@
 
 lychee.define('lychee.ui.entity.Input').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
-	const _Entity = lychee.import('lychee.ui.Entity');
-	const _FONT   = attachments["fnt"];
-
+	const _Entity         = lychee.import('lychee.ui.Entity');
+	const _FONT           = attachments['fnt'];
+	const _PATTERN_TEXT   = /^([A-Za-z0-9\s`~!@#$%^&*()-_=+[{\]}\\|;:'",<.>/?]+)$/g;
+	const _PATTERN_NUMBER = /^[0-9-+]$/g;
 
 
 	/*
@@ -140,7 +141,13 @@ lychee.define('lychee.ui.entity.Input').includes([
 			this.__isDirty = true;
 		}, this);
 
-		this.bind('touch', function() {}, this);
+		this.bind('touch', function(id, position, delta) {
+
+			if (this.state === 'active') {
+				// XXX: Do nothing
+			}
+
+		}, this);
 
 		this.bind('key', function(key, name, delta) {
 
@@ -186,11 +193,11 @@ lychee.define('lychee.ui.entity.Input').includes([
 
 				if (key.length === 1) {
 
-					if (type === Composite.TYPE.text && /^([A-Za-z0-9\s`~!@#$%^&*()-_=+[{\]}\\|;:'",<.>/?]+)$/g.test(key)) {
+					if (type === Composite.TYPE.text && _PATTERN_TEXT.test(key) === true) {
 
 						this.__value = this.__value + key;
 
-					} else if (type === Composite.TYPE.number && /^[0-9-+]$/g.test(key)) {
+					} else if (type === Composite.TYPE.number && _PATTERN_NUMBER.test(key) === true) {
 
 						let value = parseInt('' + this.__value + key, 10);
 						if (!isNaN(value)) {

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.crypto.SHA1').exports(function(lychee, global, attachments) {
+lychee.define('lychee.crypto.SHA1').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.BENCODE').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -17,6 +17,10 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 		'\\': '\\\\'
 	};
 
+	const _format_date = function(n) {
+		return n < 10 ? '0' + n : '' + n;
+	};
+
 	const _sanitize_string = function(str) {
 
 		let san = str;
@@ -24,13 +28,13 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 		if (_CHARS_ESCAPABLE.test(san)) {
 
-			san = san.replace(_CHARS_ESCAPABLE, function(char) {
+			san = san.replace(_CHARS_ESCAPABLE, character => {
 
-				let val = _CHARS_META[char];
+				let val = _CHARS_META[character];
 				if (typeof val === 'string') {
 					return val;
 				} else {
-					return '\\u' + (char.charCodeAt(0).toString(16)).slice(-4);
+					return '\\u' + (character.charCodeAt(0).toString(16)).slice(-4);
 				}
 
 			});
@@ -199,6 +203,25 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 			stream.write(data.length + ':' + data);
 
 
+		// t<contents>e : Date
+		} else if (data instanceof Date) {
+
+			stream.write('t');
+
+			let str = '';
+
+			str += data.getUTCFullYear()                + '-';
+			str += _format_date(data.getUTCMonth() + 1) + '-';
+			str += _format_date(data.getUTCDate())      + 'T';
+			str += _format_date(data.getUTCHours())     + ':';
+			str += _format_date(data.getUTCMinutes())   + ':';
+			str += _format_date(data.getUTCSeconds())   + 'Z';
+
+			stream.write(str);
+
+			stream.write('e');
+
+
 		// l<contents>e : Array
 		} else if (data instanceof Array) {
 
@@ -210,13 +233,12 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 			stream.write('e');
 
-
 		// d<contents>e : Object
 		} else if (data instanceof Object && typeof data.serialize !== 'function') {
 
 			stream.write('d');
 
-			let keys = Object.keys(data).sort(function(a, b) {
+			let keys = Object.keys(data).sort((a, b) => {
 				if (a > b) return  1;
 				if (a < b) return -1;
 				return 0;
@@ -252,7 +274,7 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 	const _is_decodeable_value = function(str) {
 
 		let head = str.charAt(0);
-		if (/([piflds]+)/g.test(head) === true) {
+		if (/([piftlds]+)/g.test(head) === true) {
 			return true;
 		} else if (isNaN(parseInt(head, 10)) === false) {
 			return true;
@@ -335,7 +357,6 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 				}
 
-
 			// <length>:<contents> : String
 			} else if (isNaN(parseInt(seek, 10)) === false) {
 
@@ -352,6 +373,20 @@ lychee.define('lychee.codec.BENCODE').exports(function(lychee, global, attachmen
 
 				}
 
+			// t<contents>e : Date
+			} else if (seek === 't') {
+
+				stream.read(1);
+
+				size = stream.search([ 'e' ]);
+
+				if (size > 0) {
+
+					tmp   = stream.read(size);
+					value = new Date(tmp);
+					check = stream.read(1);
+
+				}
 
 			// l<contents>e : Array
 			} else if (seek === 'l') {

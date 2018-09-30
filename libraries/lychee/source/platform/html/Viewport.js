@@ -3,7 +3,7 @@ lychee.define('lychee.Viewport').tags({
 	platform: 'html'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.addEventListener === 'function'
@@ -20,7 +20,7 @@ lychee.define('lychee.Viewport').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _CLOCK     = {
@@ -81,7 +81,7 @@ lychee.define('lychee.Viewport').tags({
 		 * waiting for 500ms to let the reflow finish.
 		 */
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			for (let i = 0, l = _INSTANCES.length; i < l; i++) {
 				_process_reshape.call(_INSTANCES[i], global.innerWidth, global.innerHeight);
@@ -291,21 +291,16 @@ lychee.define('lychee.Viewport').tags({
 		let rotation    = null;
 
 
-
-		/*
-		 *    TOP
-		 *  _______
-		 * |       |
-		 * |       |
-		 * |       |
-		 * |       |
-		 * |       |
-		 * [X][X][X]
-		 *
-		 *  BOTTOM
-		 */
-
 		if (this.__orientation === 0) {
+
+			/*  _______
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * [X][X][X]
+			 */
 
 			if (width > height) {
 
@@ -318,24 +313,17 @@ lychee.define('lychee.Viewport').tags({
 				rotation    = 'portrait';
 
 			}
-
-
-
-		/*
-		 *  BOTTOM
-		 *
-		 * [X][X][X]
-		 * |       |
-		 * |       |
-		 * |       |
-		 * |       |
-		 * |_______|
-		 *
-		 *    TOP
-		 */
 
 		} else if (this.__orientation === 180) {
 
+			/* [X][X][X]
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |_______|
+			 */
+
 			if (width > height) {
 
 				orientation = 'landscape';
@@ -347,20 +335,15 @@ lychee.define('lychee.Viewport').tags({
 				rotation    = 'portrait';
 
 			}
-
-
-
-		/*
-		 *    ____________    B
-		 * T |            [x] O
-		 * O |            [x] T
-		 * P |____________[x] T
-		 *                    O
-		 *                    M
-		 */
 
 		} else if (this.__orientation === 90) {
 
+			/*  ____________
+			 * |            [x]
+			 * |            [x]
+			 * |____________[x]
+			 */
+
 			if (width > height) {
 
 				orientation = 'portrait';
@@ -373,18 +356,13 @@ lychee.define('lychee.Viewport').tags({
 
 			}
 
-
-
-		/*
-		 * B    ____________
-		 * O [x]            | T
-		 * T [x]            | O
-		 * T [x]____________| P
-		 * O
-		 * M
-		 */
-
 		} else if (this.__orientation === -90) {
+
+			/*    ____________
+			 * [x]            |
+			 * [x]            |
+			 * [x]____________|
+			 */
 
 			if (width > height) {
 
@@ -436,14 +414,14 @@ lychee.define('lychee.Viewport').tags({
 		 * INITIALIZATION
 		 */
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			this.width  = 0;
 			this.height = 0;
 
 			_process_reshape.call(this, global.innerWidth | 0, global.innerHeight | 0);
 
-		}.bind(this), 100);
+		}, 100);
 
 
 		states = null;

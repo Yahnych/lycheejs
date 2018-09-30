@@ -8,11 +8,11 @@ lychee.define('ranger.state.Servers').requires([
 	'ranger.ui.layer.Web'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Helper = lychee.import('lychee.ui.entity.Helper');
 	const _State  = lychee.import('lychee.ui.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _helper = new _Helper();
 
 
@@ -34,7 +34,7 @@ lychee.define('ranger.state.Servers').requires([
 
 		if (projects instanceof Array) {
 
-			let value = projects.map(function(project) {
+			let value = projects.map(project => {
 
 				let control = {
 					label: [],
@@ -68,11 +68,9 @@ lychee.define('ranger.state.Servers').requires([
 
 				if (project.web.length > 0) {
 
-					project.web.forEach(function(value) {
-
+					project.web.forEach(value => {
 						web.label.push('Web');
 						web.value.push('web=' + value);
-
 					});
 
 				}
@@ -169,7 +167,7 @@ lychee.define('ranger.state.Servers').requires([
 
 			if (viewport !== null && servers !== null) {
 
-				servers.bind('#relayout', function(self) {
+				servers.bind('#relayout', self => {
 
 					let element = self.query('status');
 					if (element !== null) {

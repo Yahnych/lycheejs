@@ -1,5 +1,5 @@
 
-lychee.define('strainer.fix.ESLINT').exports(function(lychee, global, attachments) {
+lychee.define('strainer.fix.ESLINT').exports((lychee, global, attachments) => {
 
 	const _TAB_STR = new Array(128).fill('\t').join('');
 
@@ -67,19 +67,11 @@ lychee.define('strainer.fix.ESLINT').exports(function(lychee, global, attachment
 
 
 				let tmp = prefix.split('\n').pop().split('');
-				let tl  = tmp.indexOf(tmp.find(function(val) {
-					return val !== '\t';
-				}));
-
-
+				let tl  = tmp.indexOf(tmp.find(val => val !== '\t'));
 				if (err.message.startsWith('Statement inside of curly braces')) {
-
 					tl += 1;
-
 				} else if (err.message.startsWith('Closing curly brace')) {
-
 					tl -= 1;
-
 				}
 
 
@@ -124,10 +116,7 @@ lychee.define('strainer.fix.ESLINT').exports(function(lychee, global, attachment
 				if (prev !== null && prev.startsWith('\t')) {
 
 					let tmp = prev.split('\n').pop().split('');
-					let tl  = tmp.indexOf(tmp.find(function(val) {
-						return val !== '\t';
-					}));
-
+					let tl  = tmp.indexOf(tmp.find(val => val !== '\t'));
 					if (prev.endsWith('{')) {
 						tl += 1;
 					} else if (line.endsWith('}') || line.endsWith('});')) {
@@ -171,10 +160,7 @@ lychee.define('strainer.fix.ESLINT').exports(function(lychee, global, attachment
 			if (prev !== null && prev.startsWith('\t')) {
 
 				let tmp = prev.split('\n').pop().split('');
-				let tl  = tmp.indexOf(tmp.find(function(val) {
-					return val !== '\t';
-				}));
-
+				let tl  = tmp.indexOf(tmp.find(val => val !== '\t'));
 				if (prev.endsWith('{')) {
 					tl += 1;
 				} else if (line.endsWith('}') || line.endsWith('});')) {

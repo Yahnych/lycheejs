@@ -15,14 +15,14 @@ lychee.define('studio.state.Asset').requires([
 	'lychee.ui.element.Search'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _State   = lychee.import('lychee.ui.State');
 	const _modify  = lychee.import('studio.ui.element.modify');
 	const _preview = lychee.import('studio.ui.element.preview');
 	const _FONT    = lychee.import('studio.codec.FONT');
-	const _BLOB    = attachments["json"].buffer;
+	const _BLOB    = attachments['json'].buffer;
 
 
 
@@ -113,9 +113,7 @@ lychee.define('studio.state.Asset').requires([
 			preview.visible = true;
 			preview.setValue(asset);
 
-			setTimeout(function() {
-				preview.trigger('relayout');
-			}, 200);
+			setTimeout(_ => preview.trigger('relayout'), 200);
 
 		}
 
@@ -126,7 +124,6 @@ lychee.define('studio.state.Asset').requires([
 
 	const _on_select_change = function(value) {
 
-		let that    = this;
 		let project = this.main.project;
 		let path    = project.identifier + '/source/' + value;
 		let ns      = value.split('/')[0];
@@ -136,10 +133,7 @@ lychee.define('studio.state.Asset').requires([
 
 			let asset = new Font(path);
 
-			asset.onload = function(result) {
-				_update_view.call(that, 'Font', asset);
-			}.bind(this);
-
+			asset.onload = _ => _update_view.call(this, 'Font', asset);
 			asset.load();
 
 		} else if (value.endsWith('.png')) {
@@ -149,14 +143,9 @@ lychee.define('studio.state.Asset').requires([
 				config:  new Config(path.replace('.png', '.json'))
 			};
 
-			asset.texture.onload = function() {
-
-				asset.config.onload = function() {
-					_update_view.call(that, 'Sprite', asset);
-				};
-
+			asset.texture.onload = _ => {
+				asset.config.onload = _ => _update_view.call(this, 'Sprite', asset);
 				asset.config.load();
-
 			};
 
 			asset.texture.load();
@@ -168,14 +157,9 @@ lychee.define('studio.state.Asset').requires([
 				config:  new Config(path)
 			};
 
-			asset.texture.onload = function() {
-
-				asset.config.onload = function() {
-					_update_view.call(that, 'Sprite', asset);
-				};
-
+			asset.texture.onload = _ => {
+				asset.config.onload = _ => _update_view.call(this, 'Sprite', asset);
 				asset.config.load();
-
 			};
 
 			asset.texture.load();
@@ -184,30 +168,21 @@ lychee.define('studio.state.Asset').requires([
 
 			let asset = new Config(path);
 
-			asset.onload = function(result) {
-				_update_view.call(that, 'Config', asset);
-			}.bind(this);
-
+			asset.onload = _ => _update_view.call(this, 'Config', asset);
 			asset.load();
 
 		} else if (value.endsWith('.msc')) {
 
 			let asset = new Music(path);
 
-			asset.onload = function(result) {
-				_update_view.call(that, 'Music', asset);
-			}.bind(this);
-
+			asset.onload = _ => _update_view.call(this, 'Music', asset);
 			asset.load();
 
 		} else if (value.endsWith('.snd')) {
 
 			let asset = new Sound(path);
 
-			asset.onload = function(result) {
-				_update_view.call(that, 'Sound', asset);
-			}.bind(this);
-
+			asset.onload = _ => _update_view.call(this, 'Sound', asset);
 			asset.load();
 
 		}
@@ -228,9 +203,7 @@ lychee.define('studio.state.Asset').requires([
 
 			preview.setValue(value);
 
-			setTimeout(function() {
-				preview.trigger('relayout');
-			}, 200);
+			setTimeout(_ => preview.trigger('relayout'), 200);
 
 		}
 
@@ -251,30 +224,38 @@ lychee.define('studio.state.Asset').requires([
 
 				if (stash !== null) {
 
+					let assets = [];
+					let urls   = [];
+
 					if (_validate_asset(asset) === true) {
 
-						stash.write(asset.url, asset);
-
-						if (notice !== null) {
-							notice.setLabel('Asset saved.');
-							notice.setState('active');
-						}
+						assets.push(asset);
+						urls.push(asset.url);
 
 					} else if (asset instanceof Object) {
 
-						for (let id in asset) {
+						for (let aid in asset) {
 
-							let subasset = asset[id];
-							if (_validate_asset(subasset) === true) {
-								stash.write(subasset.url, subasset);
+							if (_validate_asset(asset[aid]) === true) {
+								urls.push(asset[aid].url);
+								assets.push(asset[aid]);
 							}
 
 						}
 
-						if (notice !== null) {
-							notice.setLabel('Assets saved.');
-							notice.setState('active');
-						}
+					}
+
+
+					if (urls.length > 0) {
+
+						stash.write(urls, assets, result => {
+
+							if (notice !== null) {
+								notice.setLabel('Assets saved.');
+								notice.setState('active');
+							}
+
+						}, this);
 
 					}
 
@@ -337,15 +318,14 @@ lychee.define('studio.state.Asset').requires([
 
 			if (modify !== null && preview !== null) {
 
-				modify.bind('change', function(value) {
+				modify.bind('change', value => {
 
 					preview.setValue(value);
 
-					setTimeout(function() {
-						preview.trigger('relayout');
-					}, 200);
+					setTimeout(_ => preview.trigger('relayout'), 200);
 
 				}, this);
+
 				preview.bind('change', _on_preview_change, this);
 
 			}
@@ -366,7 +346,7 @@ lychee.define('studio.state.Asset').requires([
 				let filtered = [];
 				let assets   = project.getAssets();
 
-				assets.forEach(function(asset) {
+				assets.forEach(asset => {
 
 					let ext  = asset.split('.').pop();
 					let path = asset.split('.').slice(0, -1).join('.');

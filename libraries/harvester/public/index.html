@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Welcome to lychee.js Engine</title>
+	<title>lychee.js Engine</title>
 	<link rel="shortcut icon" type="image/png" href="/desktop.png">
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,6 +14,7 @@
 
 	<!-- DESIGN -->
 	<link rel="stylesheet" href="/design/index.css">
+	<script src="/design/index.js"></script>
 
 </head>
 <body id="body">
@@ -25,10 +26,9 @@
 	<h2>lychee<span>js</span></h2>
 </header>
 <article>
-	<label>Welcome to lychee.js Engine</label>
+	<label>lychee.js Overview</label>
 	<p>
-		The <a target="_blank" href="https://github.com/Artificial-Engineering/lycheejs-guide.git">lychee.js Guide</a>
-		helps you to get started easily.
+		The <a target="_blank" href="/guide.html">lychee.js Guide</a> helps you to get started easily.
 		Please also take a look at the <a href="lycheejs://file=/README.md">README.md</a> and the <a href="lycheejs://file=/CHANGELOG.md">CHANGELOG.md</a>.
 	</p>
 	<p>
@@ -40,11 +40,12 @@ cd /opt/lycheejs;
 ./bin/maintenance/do-update.sh;</code></pre>
 	<hr>
 	<div>
+		<a class="button" href="/guide.html" target="_blank">lychee.js&nbsp;Guide</a>
 		<a class="button" href="lycheejs://cmd=lycheejs-studio">lychee.js&nbsp;Studio</a>
 		<a class="button" href="lycheejs://cmd=lycheejs-ranger">lychee.js&nbsp;Ranger</a>
 	</div>
 	<hr>
-	<p>
+	<p class="hint">
 		Need Help? Join our IRC channel <a target="_blank" href="https://webchat.freenode.net/?channels=%23artificial-engineering">#artificial-engineering @ freenode</a>
 	</p>
 </article>
@@ -82,109 +83,6 @@ cd /opt/lycheejs;
 		};
 
 		config.load();
-
-	};
-
-	const Wrap = function(element) {
-		this.element = element;
-	};
-
-	Wrap.prototype = {
-
-		appendTo: function(other) {
-
-			if (other.element !== null) {
-				other.element.appendChild(this.element);
-			} else {
-				other.appendChild(this.element);
-			}
-
-			return this;
-
-		},
-
-		clear: function() {
-
-			if (this.element.parentNode !== null) {
-				this.element.parentNode.removeChild(this.element);
-			}
-
-			return this;
-
-		},
-
-		html: function(html) {
-
-			this.element.innerHTML = html;
-
-			return this;
-
-		},
-
-		onclick: function(callback) {
-
-			this.element.onclick = function() {
-				callback();
-				return false;
-			};
-
-			return this;
-
-		},
-
-		set: function(options) {
-
-			for (let o in options) {
-
-				if (typeof this[o] === 'function') {
-					this[o](options[o]);
-				} else {
-					this.element.setAttribute(o, options[o]);
-				}
-
-			}
-
-			return this;
-
-		},
-
-		state: function(state) {
-
-			this.element.className = state;
-
-			return this;
-
-		}
-
-	};
-
-	const $ = function(name) {
-
-		let element = null;
-
-		if (name instanceof Element) {
-
-			element = name;
-
-		} else if (typeof name === 'string') {
-
-			if (name.startsWith('#')) {
-				element = global.document.querySelector(name);
-			} else {
-				let tmp = name.split(/\.|\[|\]/g).filter(function(v) { return v !== ''; });
-				element = global.document.createElement(tmp[0]);
-				tmp[1] && (element.className = tmp[1]);
-			}
-
-		}
-
-
-		if (element !== null) {
-			return new Wrap(element);
-		}
-
-
-		return null;
 
 	};
 

@@ -8,12 +8,12 @@ lychee.define('game.state.Game').requires([
 	'lychee.ui.Layer'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Pathfinder = lychee.import('game.logic.Pathfinder');
 	const _State      = lychee.import('lychee.app.State');
-	const _BLOB       = attachments["json"].buffer;
-	const _LEVELS     = attachments["levels.json"].buffer;
+	const _BLOB       = attachments['json'].buffer;
+	const _LEVELS     = attachments['levels.json'].buffer;
 
 
 
@@ -144,10 +144,7 @@ lychee.define('game.state.Game').requires([
 			let level = _LEVELS[data] || null;
 			if (level !== null) {
 
-				let entities = level.map(function(value) {
-					return lychee.deserialize(value);
-				});
-
+				let entities = level.map(value => lychee.deserialize(value));
 				if (entities.length > 0) {
 					this.__map = _Pathfinder.generate(entities);
 				}

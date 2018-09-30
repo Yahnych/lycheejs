@@ -3,7 +3,7 @@ lychee.define('lychee.Viewport').tags({
 	platform: 'nidium'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.window !== 'undefined'
@@ -19,7 +19,7 @@ lychee.define('lychee.Viewport').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _INSTANCES = [];
@@ -137,10 +137,26 @@ lychee.define('lychee.Viewport').tags({
 
 		if (width > height) {
 
+			/*  ___________
+			 * |           |
+			 * |           |
+			 * |           |
+			 * |_[X][X][X]_|
+			 */
+
 			orientation = 'landscape';
 			rotation    = 'landscape';
 
 		} else {
+
+			/*  _______
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * |       |
+			 * [X][X][X]
+			 */
 
 			orientation = 'portrait';
 			rotation    = 'portrait';
@@ -181,14 +197,14 @@ lychee.define('lychee.Viewport').tags({
 		 * INITIALIZATION
 		 */
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			this.width  = 0;
 			this.height = 0;
 
 			_process_reshape.call(this, _window.innerWidth | 0, _window.innerHeight | 0);
 
-		}.bind(this), 100);
+		}, 100);
 
 
 		states = null;

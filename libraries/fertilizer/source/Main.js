@@ -1,25 +1,35 @@
 
 lychee.define('fertilizer.Main').requires([
-	'fertilizer.Template',
-	'fertilizer.data.Shell',
-	'fertilizer.template.html.Application',
-	'fertilizer.template.html.Library',
-	'fertilizer.template.html-nwjs.Application',
-	'fertilizer.template.html-nwjs.Library',
-	'fertilizer.template.html-webview.Application',
-	'fertilizer.template.html-webview.Library',
-	'fertilizer.template.nidium.Application',
-	'fertilizer.template.nidium.Library',
-	'fertilizer.template.node.Application',
-	'fertilizer.template.node.Library'
+	'lychee.Package',
+	'lychee.event.Queue',
+	'fertilizer.event.Flow',
+	'fertilizer.event.flow.Build',
+	'fertilizer.event.flow.Configure',
+	'fertilizer.event.flow.Fertilize',
+	'fertilizer.event.flow.Package',
+	'fertilizer.event.flow.Publish',
+	'fertilizer.event.flow.html.Build',
+	'fertilizer.event.flow.html-nwjs.Build',
+	'fertilizer.event.flow.html-webview.Build',
+	'fertilizer.event.flow.nidium.Build',
+	'fertilizer.event.flow.node.Build',
+	'fertilizer.event.flow.html-nwjs.Package',
+	'fertilizer.event.flow.nidium.Package',
+	'fertilizer.event.flow.node.Package'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
-	const _lychee   = lychee.import('lychee');
-	const _template = lychee.import('fertilizer.template');
-	const _Emitter  = lychee.import('lychee.event.Emitter');
-	const _Template = lychee.import('fertilizer.Template');
+	const _flow      = lychee.import('fertilizer.event.flow');
+	const _lychee    = lychee.import('lychee');
+	const _Build     = lychee.import('fertilizer.event.flow.Build');
+	const _Configure = lychee.import('fertilizer.event.flow.Configure');
+	const _Emitter   = lychee.import('lychee.event.Emitter');
+	const _Flow      = lychee.import('fertilizer.event.Flow');
+	const _Fertilize = lychee.import('fertilizer.event.flow.Fertilize');
+	const _Package   = lychee.import('fertilizer.event.flow.Package');
+	const _Publish   = lychee.import('fertilizer.event.flow.Publish');
+	const _Queue     = lychee.import('lychee.event.Queue');
 
 
 
@@ -27,26 +37,269 @@ lychee.define('fertilizer.Main').requires([
 	 * HELPERS
 	 */
 
-	const _on_failure = function(event, project, identifier, environment) {
+	const _self_check = function(flows) {
 
-		console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "' + event + '" event');
+		flows = flows instanceof Array ? flows : null;
 
-		if (typeof environment.global.console.serialize === 'function') {
 
-			let debug = environment.global.console.serialize();
-			if (debug.blob !== null) {
+		if (flows !== null) {
 
-				(debug.blob.stderr || '').trim().split('\n').map(function(line) {
-					return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
-				}).forEach(function(line) {
-					console.error('fertilizer: ' + line);
-				});
+			console.log('fertilizer: self-check');
+
+			let result = true;
+
+			for (let f = 0, fl = flows.length; f < fl; f++) {
+
+				let flow   = flows[f];
+				let events = Object.keys(flow.___events);
+				let stacks = Object.values(flow.___events);
+
+				let check = stacks.map(stack => stack.length).find(val => val > 1) || null;
+				if (check !== null) {
+
+					console.warn('fertilizer: -> Invalid Flow "' + flow.displayName + '".');
+					result = false;
+
+					events.forEach((event, e) => {
+
+						let length = stacks[e].length;
+						if (length > 1) {
+							console.warn('fertilizer: -> Event "' + event + '" has ' + length + ' bindings.');
+						}
+
+					});
+
+				}
+
+			}
+
+
+			if (result === true) {
+				console.info('fertilizer: -> SUCCESS');
+			} else {
+				console.warn('fertilizer: -> FAILURE');
+			}
+
+		}
+
+	};
+
+	const _create_flow = function(data) {
+
+		let platform = data.target.split('/').shift() || null;
+		if (platform !== null) {
+
+			let Configure = _Configure;
+			let Build     = _Build;
+			let Package   = _Package;
+			let Fertilize = _Fertilize;
+			let Publish   = _Publish;
+
+			if (_flow[platform] !== undefined) {
+
+				if (_flow[platform].Configure !== undefined) Configure = _flow[platform].Configure;
+				if (_flow[platform].Build !== undefined)     Build     = _flow[platform].Build;
+				if (_flow[platform].Package !== undefined)   Package   = _flow[platform].Package;
+
+			} else if (platform.includes('-') === true) {
+
+				let major = platform.split('-')[0];
+				let minor = platform.split('-')[1];
+
+				if (_flow[major] !== undefined) {
+					if (_flow[major].Configure !== undefined) Configure = _flow[major].Configure;
+					if (_flow[major].Build !== undefined)     Build     = _flow[major].Build;
+					if (_flow[major].Package !== undefined)   Package   = _flow[major].Package;
+				}
+
+				if (_flow[major + '-' + minor] !== undefined) {
+					if (_flow[major + '-' + minor].Configure !== undefined) Configure = _flow[major + '-' + minor].Configure;
+					if (_flow[major + '-' + minor].Build !== undefined)     Build     = _flow[major + '-' + minor].Build;
+					if (_flow[major + '-' + minor].Package !== undefined)   Package   = _flow[major + '-' + minor].Package;
+				}
+
+			}
+
+
+			let action = data.action;
+			if (action === 'fertilize') {
+
+				let flow_fertilize = new Fertilize(data);
+				let flow_configure = new Configure(data);
+				let flow_build     = new Build(data);
+				let flow_package   = new Package(data);
+
+				if (Configure !== _Configure) {
+
+					flow_fertilize.unbind('configure-project');
+
+					flow_configure.transfer('configure-project', flow_fertilize);
+
+				}
+
+				if (Build !== _Build) {
+
+					flow_fertilize.unbind('read-package');
+					flow_fertilize.unbind('read-assets');
+					flow_fertilize.unbind('read-assets-crux');
+					flow_fertilize.unbind('build-environment');
+					flow_fertilize.unbind('build-assets');
+					flow_fertilize.unbind('write-assets');
+					flow_fertilize.unbind('build-project');
+
+					flow_build.transfer('read-package',      flow_fertilize);
+					flow_build.transfer('read-assets',       flow_fertilize);
+					flow_build.transfer('read-assets-crux',  flow_fertilize);
+					flow_build.transfer('build-environment', flow_fertilize);
+					flow_build.transfer('build-assets',      flow_fertilize);
+					flow_build.transfer('write-assets',      flow_fertilize);
+					flow_build.transfer('build-project',     flow_fertilize);
+
+				}
+
+				if (Package !== _Package) {
+
+					flow_fertilize.unbind('package-runtime');
+					flow_fertilize.unbind('package-project');
+
+					flow_package.transfer('package-runtime', flow_fertilize);
+					flow_package.transfer('package-project', flow_fertilize);
+
+				}
+
+				_self_check([
+					flow_configure,
+					flow_build,
+					flow_package
+				]);
+
+				return flow_fertilize;
+
+			} else if (action === 'configure') {
+
+				let flow = new Configure(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
+
+			} else if (action === 'build') {
+
+				let flow = new Build(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
+
+			} else if (action === 'package') {
+
+				let flow = new Package(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
+
+			} else if (action === 'publish') {
+
+				let flow = new Publish(data);
+
+				_self_check([
+					flow
+				]);
+
+				return flow;
 
 			}
 
 		}
 
-		this.destroy(1);
+
+		return null;
+
+	};
+
+	const _create_flow_thirdparty = function(data) {
+
+		let action = data.action;
+		let flow   = new _Flow(data);
+
+		flow.reset();
+
+		if (action === 'configure' || action === 'fertilize') {
+			flow.then('configure-project');
+		}
+
+		if (action === 'build' || action === 'fertilize') {
+			flow.then('build-project');
+		}
+
+		if (action === 'package' || action === 'fertilize') {
+			flow.then('package-project');
+		}
+
+		return flow;
+
+	};
+
+	const _init_queue = function(queue) {
+
+		let autofixed = false;
+		let haderrors = false;
+
+		queue.bind('update', function(flow, oncomplete) {
+
+			console.log('');
+			console.log('');
+			console.info('fertilizer: ' + flow.action + ' "' + flow.project + '" "' + flow.target + '"');
+
+			flow.bind('complete', _ => {
+
+				console.info('fertilizer: SUCCESS');
+
+				if (flow._autofixed === true) {
+					autofixed = true;
+				}
+
+				oncomplete(true);
+
+			}, this);
+
+			flow.bind('error', event => {
+
+				console.error('fertilizer: FAILURE at "' + event + '" event.');
+
+				haderrors = true;
+				oncomplete(true);
+
+			}, this);
+
+			flow.init();
+
+		}, this);
+
+		queue.bind('complete', _ => {
+
+			if (autofixed === true) {
+				process.exit(2);
+			} else if (haderrors === true) {
+				process.exit(1);
+			} else {
+				process.exit(0);
+			}
+
+		}, this);
+
+		queue.bind('error', _ => {
+			process.exit(1);
+		}, this);
+
+		queue.init();
 
 	};
 
@@ -59,16 +312,28 @@ lychee.define('fertilizer.Main').requires([
 	const Composite = function(states) {
 
 		this.settings = _lychee.assignunlink({
-			project:    null,
-			identifier: null,
-			settings:   null
+			action:  null,
+			debug:   false,
+			project: null,
+			target:  null
 		}, states);
 
 		this.defaults = _lychee.assignunlink({
-			project:    null,
-			identifier: null,
-			settings:   null
+			action:  null,
+			debug:   false,
+			project: null,
+			target:  null
 		}, this.settings);
+
+
+		let debug = this.settings.debug;
+		if (debug === true) {
+			console.log('fertilizer.Main: Parsed settings are ...');
+			console.log(this.settings);
+		}
+
+
+		this.__package = null;
 
 
 		_Emitter.call(this);
@@ -83,357 +348,161 @@ lychee.define('fertilizer.Main').requires([
 
 		this.bind('load', function() {
 
-			let identifier = this.settings.identifier || null;
-			let project    = this.settings.project    || null;
-			let data       = this.settings.settings   || null;
+			let debug   = this.settings.debug   || false;
+			let project = this.settings.project || null;
 
-			if (identifier !== null && project !== null && data !== null) {
-
-				let platform = data.tags.platform[0] || null;
-				let variant  = data.variant || null;
-				let settings = _lychee.assignunlink({}, data, {
-					debug:   false,
-					sandbox: true,
-					timeout: 5000,
-					type:    'export'
-				});
-
-
-				let profile = {};
-				if (settings.profile instanceof Object) {
-					profile = settings.profile;
-				}
-
-
-				if (platform !== null && /application|library/g.test(variant)) {
-
-					if (settings.packages instanceof Object) {
-
-						for (let pid in settings.packages) {
-
-							let url = settings.packages[pid];
-							if (typeof url === 'string' && url.startsWith('./')) {
-								settings.packages[pid] = project + '/' + url.substr(2);
-							}
-
-						}
-
-					}
-
-
-					let that           = this;
-					let environment    = new _lychee.Environment(settings);
-					let fertilizer_pkg = environment.packages['fertilizer'] || null;
-					if (fertilizer_pkg !== null) {
-
-						for (let id in _lychee.environment.definitions) {
-							environment.define(_lychee.environment.definitions[id]);
-						}
-
-					}
-
-
-					_lychee.debug = false;
-					_lychee.setEnvironment(environment);
-
-
-					environment.init(function(sandbox) {
-
-						if (sandbox !== null) {
-
-							// XXX: Don't use Environment's imperative API here!
-							// XXX: /libraries/lychee/main instead of /libraries/lychee/html/main
-
-							environment.id       = project + '/' + identifier.split('/').pop();
-							environment.type     = 'build';
-							environment.debug    = that.defaults.settings.debug;
-							environment.sandbox  = that.defaults.settings.sandbox;
-							environment.packages = {};
-
-
-							_lychee.setEnvironment(null);
-
-
-							that.trigger('init', [ project, identifier, platform, variant, environment, profile ]);
-
-						} else if (variant === 'library') {
-
-							let dependencies = {};
-
-							if (typeof environment.global.console.serialize === 'function') {
-
-								let debug = environment.global.console.serialize();
-								if (debug.blob !== null) {
-
-									(debug.blob.stderr || '').trim().split('\n').filter(function(line) {
-										return line.includes('-') && line.includes('required by ');
-									}).forEach(function(line) {
-
-										let tmp = line.trim().split('-')[1];
-										if (tmp.endsWith('.')) tmp = tmp.substr(0, tmp.length - 1);
-
-										let dep = tmp.split('required by ')[0].trim();
-										let req = tmp.split('required by ')[1].trim();
-
-										if (dep.endsWith('(')) dep = dep.substr(0, dep.length - 1).trim();
-										if (req.endsWith(')')) req = req.substr(0, req.length - 1).trim();
-
-										dependencies[req] = dep;
-
-									});
-
-								}
-
-							}
-
-
-							if (Object.keys(dependencies).length > 0) {
-
-								environment.id       = project + '/' + identifier.split('/').pop();
-								environment.type     = 'build';
-								environment.debug    = that.defaults.settings.debug;
-								environment.sandbox  = that.defaults.settings.sandbox;
-								environment.packages = {};
-
-								_lychee.setEnvironment(null);
-
-
-								let remaining = Object.values(dependencies).length;
-								if (remaining > 0) {
-
-									let target = environment.definitions[environment.target] || null;
-
-									for (let req in dependencies) {
-
-										let dep = dependencies[req];
-
-										let definition = environment.definitions[req] || null;
-										if (definition !== null) {
-
-											let i0 = definition._requires.indexOf(dep);
-											if (i0 !== -1) {
-												definition._requires.splice(i0, 1);
-												remaining--;
-											}
-
-										}
-
-										if (target !== null) {
-
-											let i0 = target._requires.indexOf(req);
-											if (i0 !== -1) {
-												target._requires.splice(i0, 1);
-											}
-
-										}
-
-									}
-
-
-									if (remaining === 0) {
-
-										console.warn('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "load" event');
-
-
-										if (typeof environment.global.console.serialize === 'function') {
-
-											let debug = environment.global.console.serialize();
-											if (debug.blob !== null) {
-
-												(debug.blob.stderr || '').trim().split('\n').map(function(line) {
-													return (line.indexOf(':') !== -1 ? line.split(':')[1].trim() : line.trim());
-												}).forEach(function(line) {
-													console.warn('fertilizer: ' + line);
-												});
-
-											}
-
-										}
-
-
-										that.trigger('init', [ project, identifier, platform, variant, environment, profile, true ]);
-
-									} else {
-
-										_on_failure.call(that, 'load', project, identifier, environment);
-
-									}
-
-								} else {
-
-									_on_failure.call(that, 'load', project, identifier, environment);
-
-								}
-
-							} else {
-
-								_on_failure.call(that, 'load', project, identifier, environment);
-
-							}
-
-						} else {
-
-							_on_failure.call(that, 'load', project, identifier, environment);
-
-
-						}
-
-					});
-
-
-					return true;
-
-				}
-
-			} else if (project !== null) {
-
-				this.trigger('init', [ project, identifier, null, null ]);
-
-				return true;
-
-			} else {
-
-				console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "load" event');
-				console.error('fertilizer: Invalid settings via CLI');
-
-				this.destroy(1);
-
-
-				return false;
-
-			}
-
-		}, this, true);
-
-		this.bind('init', function(project, identifier, platform, variant, environment, profile, modified) {
-
-			modified = modified === true;
-
-
-			let construct = null;
-			if (platform !== null && variant !== null && typeof _template[platform] === 'object') {
-				construct = _template[platform][variant.charAt(0).toUpperCase() + variant.substr(1).toLowerCase()] || null;
-			} else {
-				construct = _Template;
-			}
-
-
-			if (construct !== null) {
+			if (project !== null) {
 
 				lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
 				lychee.environment.global.lychee.ROOT.project = _lychee.ROOT.lychee + project;
 
 
-				let template = new construct({});
-				if (template instanceof _Template) {
+				let pkg = new _lychee.Package({
+					url:  project + '/lychee.pkg',
+					type: 'build'
+				});
 
-					// XXX: Third-party project
+				setTimeout(_ => {
 
-					template.setSandbox(project + '/build');
+					this.__package = pkg;
 
-					template.then('configure-project');
-					template.then('build-project');
-					template.then('package-project');
+					if (pkg.config !== null && pkg.config.buffer !== null) {
 
-				} else {
+						if (debug === true) {
+							console.info('fertilizer: Valid Package at "' + project + '/lychee.pkg".');
+							console.info('fertilizer: Initializing lychee.js Mode.');
+						}
 
-					// XXX: lychee.js project
+						this.trigger('init');
 
-					template.setEnvironment(environment);
-					template.setProfile(profile);
-					template.setSandbox(project + '/build/' + identifier);
+					} else {
 
-					template.then('configure');
-					template.then('configure-project');
-					template.then('build');
-					template.then('build-project');
-					template.then('package');
-					template.then('package-project');
+						if (debug === true) {
+							console.warn('fertilizer: Invalid Package at "' + project + '/lychee.pkg".');
+							console.warn('fertilizer: Initializing Third-Party Mode.');
+						}
 
+						this.trigger('init-thirdparty');
+
+					}
+
+				}, 200);
+
+			} else {
+
+				if (debug === true) {
+					console.error('fertilizer: FAILURE ("' + project + '") at "load" event.');
 				}
 
-
-				template.bind('configure-project', function(oncomplete) {
-
-					this.shell.exec(project + '/bin/configure.sh ' + identifier, function(result) {
-
-						if (result === true) {
-							console.info('fertilizer: CONFIGURE-PROJECT SUCCESS');
-						} else {
-							console.warn('fertilizer: CONFIGURE-PROJECT FAILURE');
-						}
-
-						oncomplete(true);
-
-					});
-
-				}, template);
-
-				template.bind('build-project', function(oncomplete) {
-
-					this.shell.exec(project + '/bin/build.sh ' + identifier, function(result) {
-
-						if (result === true) {
-							console.info('fertilizer: BUILD-PROJECT SUCCESS');
-						} else {
-							console.warn('fertilizer: BUILD-PROJECT FAILURE');
-						}
-
-						oncomplete(true);
-
-					});
-
-				}, template);
-
-				template.bind('package-project', function(oncomplete) {
-
-					this.shell.exec(project + '/bin/package.sh ' + identifier, function(result) {
-
-						if (result === true) {
-
-							console.info('fertilizer: PACKAGE-PROJECT SUCCESS');
-							oncomplete(true);
-
-						} else {
-
-							console.warn('fertilizer: PACKAGE-PROJECT FAILURE');
-							oncomplete(true);
-
-						}
-
-					});
-
-				}, template);
-
-
-				template.bind('complete', function() {
-
-					console.info('fertilizer: SUCCESS ("' + project + ' | ' + identifier + '")');
-					this.destroy(modified === true ? 2 : 0);
-
-				}, this);
-
-				template.bind('error', function(event) {
-
-					console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "' + event + '" event');
-					this.destroy(1);
-
-				}, this);
-
-
-				template.init();
-
-
-				return true;
+				this.destroy(1);
 
 			}
 
+		}, this, true);
 
-			console.error('fertilizer: FAILURE ("' + project + ' | ' + identifier + '") at "init" event');
-			this.destroy(1);
+		this.bind('init', function() {
 
+			let action  = this.settings.action  || null;
+			let debug   = this.settings.debug   || false;
+			let project = this.settings.project || null;
+			let target  = this.settings.target  || null;
 
-			return false;
+			if (action !== null && project !== null && target !== null) {
+
+				let queue = new _Queue();
+				let flow  = _create_flow({
+					action:  action,
+					debug:   debug,
+					project: project,
+					target:  target
+				});
+
+				if (flow !== null) {
+					queue.then(flow);
+				}
+
+				_init_queue.call(this, queue);
+
+			} else if (action !== null && project !== null) {
+
+				let pkg = this.__package;
+				if (pkg !== null) {
+
+					let targets = pkg.getEnvironments().map(env => env.id);
+					if (targets.length > 0) {
+
+						let queue = new _Queue();
+
+						targets.forEach(target => {
+
+							if (debug === true) {
+								console.log('fertilizer: -> Queueing Flow "lycheejs-fertilizer ' + action + ' ' + project + ' ' + target + '"');
+							}
+
+							let flow = _create_flow({
+								action:  action,
+								debug:   debug,
+								project: project,
+								target:  target
+							});
+
+							if (flow !== null) {
+								queue.then(flow);
+							}
+
+						});
+
+						_init_queue.call(this, queue);
+
+					} else {
+						this.destroy(0);
+					}
+
+				} else {
+
+					if (debug === true) {
+						console.error('fertilizer: FAILURE ("' + project + '") at "init" event.');
+					}
+
+					this.destroy(1);
+
+				}
+
+			}
+
+		}, this, true);
+
+		this.bind('init-thirdparty', function() {
+
+			let action  = this.settings.action  || null;
+			let project = this.settings.project || null;
+			let target  = this.settings.target  || null;
+
+			if (action !== null && project !== null) {
+
+				let queue = new _Queue();
+				let flow  = _create_flow_thirdparty({
+					action:  action,
+					debug:   debug,
+					project: project,
+					target:  target || '*'
+				});
+
+				if (flow !== null) {
+					queue.then(flow);
+				}
+
+				_init_queue(queue);
+
+			} else {
+
+				if (debug === true) {
+					console.error('fertilizer: FAILURE ("' + project + '") at "init-thirdparty" event.');
+				}
+
+				this.destroy(1);
+
+			}
 
 		}, this, true);
 
@@ -474,9 +543,19 @@ lychee.define('fertilizer.Main').requires([
 
 		init: function() {
 
-			this.trigger('load');
+			let action  = this.settings.action  || null;
+			let project = this.settings.project || null;
 
-			return true;
+			if (action !== null && project !== null) {
+
+				this.trigger('load');
+
+				return true;
+
+			}
+
+
+			return false;
 
 		},
 

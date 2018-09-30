@@ -4,7 +4,7 @@ lychee.define('lychee.ui.element.Network').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Input   = lychee.import('lychee.ui.entity.Input');
@@ -18,8 +18,8 @@ lychee.define('lychee.ui.element.Network').requires([
 
 	const _API_ORIGIN = (function(location) {
 
-		let origin = location.origin || '';
-		let proto  = origin.split(':')[0];
+		let tmp   = (location.origin || '').split(':');
+		let proto = tmp[0] || '';
 
 		if (/app|file|chrome-extension/g.test(proto)) {
 
@@ -27,12 +27,15 @@ lychee.define('lychee.ui.element.Network').requires([
 
 		} else if (/http|https/g.test(proto)) {
 
-			return location.origin;
+			let port = parseInt(tmp[tmp.length - 1], 10);
+			if (!isNaN(port)) {
+				return tmp.slice(0, tmp.length - 1).join(':') + ':4848';
+			} else {
+				return tmp.join(':');
+			}
 
 		} else {
-
 			return '';
-
 		}
 
 	})(global.location || {});
@@ -106,12 +109,14 @@ lychee.define('lychee.ui.element.Network').requires([
 
 				if (client !== null) {
 
-					_load_api(this.getEntity('API').value, function(settings) {
+					_load_api(this.getEntity('API').value, settings => {
 
-						client.disconnect();
-						client.setHost(settings.host);
-						client.setPort(settings.port);
-						client.connect();
+						if (settings !== null) {
+							client.disconnect();
+							client.setHost(settings.host);
+							client.setPort(settings.port);
+							client.connect();
+						}
 
 					}, this);
 
@@ -120,12 +125,14 @@ lychee.define('lychee.ui.element.Network').requires([
 
 				if (server !== null) {
 
-					_load_api(this.getEntity('API').value, function(settings) {
+					_load_api(this.getEntity('API').value, settings => {
 
-						server.disconnect();
-						server.setHost(settings.host);
-						server.setPort(settings.port);
-						server.connect();
+						if (settings !== null) {
+							server.disconnect();
+							server.setHost(settings.host);
+							server.setPort(settings.port);
+							server.connect();
+						}
 
 					}, this);
 

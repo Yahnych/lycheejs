@@ -68,13 +68,12 @@
 
 			if (typeof blob.buffer === 'string') {
 
-				let that  = this;
 				let image = new Image();
 
-				image.onload = function() {
-					that.buffer = this;
-					that.width  = this.width;
-					that.height = this.height;
+				image.onload = _ => {
+					this.buffer = image;
+					this.width  = image.width;
+					this.height = image.height;
 				};
 
 				image.src   = blob.buffer;
@@ -117,7 +116,6 @@
 
 
 			let buffer;
-			let that = this;
 
 			let url = this.url;
 			if (url.startsWith('data:')) {
@@ -126,14 +124,14 @@
 
 					buffer = new Image();
 
-					buffer.addEventListener('load', function() {
+					buffer.addEventListener('load', _ => {
 
-						that.buffer = this;
-						that.width  = this.width;
-						that.height = this.height;
+						this.buffer = buffer;
+						this.width  = buffer.width;
+						this.height = buffer.height;
 
-						that.__load = false;
-						that.buffer.toString('base64');
+						this.__load = false;
+						this.buffer.toString('base64');
 
 
 						let is_power_of_two = (this.width & (this.width - 1)) === 0 && (this.height & (this.height - 1)) === 0;
@@ -142,18 +140,18 @@
 						}
 
 
-						if (that.onload instanceof Function) {
-							that.onload(true);
-							that.onload = null;
+						if (this.onload instanceof Function) {
+							this.onload(true);
+							this.onload = null;
 						}
 
 					});
 
-					buffer.addEventListener('error', function() {
+					buffer.addEventListener('error', _ => {
 
-						if (that.onload instanceof Function) {
-							that.onload(false);
-							that.onload = null;
+						if (this.onload instanceof Function) {
+							this.onload(false);
+							this.onload = null;
 						}
 
 					});
@@ -178,14 +176,14 @@
 
 					buffer = new Image();
 
-					buffer.addEventListener('load', function() {
+					buffer.addEventListener('load', _ => {
 
-						that.buffer = this;
-						that.width  = this.width;
-						that.height = this.height;
+						this.buffer = buffer;
+						this.width  = buffer.width;
+						this.height = buffer.height;
 
-						that.__load = false;
-						that.buffer.toString('base64');
+						this.__load = false;
+						this.buffer.toString('base64');
 
 
 						let is_power_of_two = (this.width & (this.width - 1)) === 0 && (this.height & (this.height - 1)) === 0;
@@ -194,18 +192,18 @@
 						}
 
 
-						if (that.onload instanceof Function) {
-							that.onload(true);
-							that.onload = null;
+						if (this.onload instanceof Function) {
+							this.onload(true);
+							this.onload = null;
 						}
 
 					});
 
-					buffer.addEventListener('error', function() {
+					buffer.addEventListener('error', _ => {
 
-						if (that.onload instanceof Function) {
-							that.onload(false);
-							that.onload = null;
+						if (this.onload instanceof Function) {
+							this.onload(false);
+							this.onload = null;
 						}
 
 					});

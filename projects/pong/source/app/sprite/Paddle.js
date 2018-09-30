@@ -1,13 +1,13 @@
 
 lychee.define('game.app.sprite.Paddle').includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Sprite   = lychee.import('lychee.app.Sprite');
-	const _CONFIG   = attachments["json"].buffer;
+	const _CONFIG   = attachments['json'].buffer;
 	const _TEXTURES = {
-		evil: attachments["evil.png"],
-		good: attachments["good.png"]
+		evil: attachments['evil.png'],
+		good: attachments['good.png']
 	};
 
 

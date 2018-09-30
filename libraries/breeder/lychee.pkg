@@ -4,8 +4,21 @@
 			"Main": [
 				"json"
 			],
-			"Template": [
-				"json"
+			"event": {
+				"flow": {
+					"Fork": [
+						"json"
+					],
+					"Init": [
+						"json"
+					],
+					"Pull": [
+						"json"
+					]
+				}
+			},
+			"strainer": [
+				"pkg"
 			]
 		}
 	},
@@ -15,7 +28,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -31,7 +44,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -46,7 +59,7 @@
 				"debug": false,
 				"packages": {
 					"breeder": "./lychee.pkg",
-					"fertilizer": "/libraries/fertilizer/lychee.pkg"
+					"strainer": "/libraries/strainer/lychee.pkg"
 				},
 				"sandbox": false,
 				"tags": {
@@ -61,8 +74,39 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"index": [
+						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -78,14 +122,19 @@
 			"Main": [
 				"js"
 			],
-			"Template": [
-				"dist.tpl",
-				"harvester.tpl",
-				"index.tpl",
-				"js",
-				"json",
-				"main.tpl"
-			]
+			"event": {
+				"flow": {
+					"Fork": [
+						"js"
+					],
+					"Init": [
+						"js"
+					],
+					"Pull": [
+						"js"
+					]
+				}
+			}
 		}
 	}
 }

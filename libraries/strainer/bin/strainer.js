@@ -1,10 +1,18 @@
 #!/usr/local/bin/lycheejs-helper env:node
 
 
-const _fs   = require('fs');
-const _path = require('path');
-const _CWD  = process.env.STRAINER_CWD  || process.cwd();
-const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _fs    = require('fs');
+const _path  = require('path');
+const _CWD   = process.env.STRAINER_CWD  || process.cwd();
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
+
+if (process.argv.includes('--autocomplete')) {
+	console.log   = function() {};
+	console.info  = function() {};
+	console.warn  = function() {};
+	console.error = function() {};
+}
 
 
 
@@ -14,7 +22,7 @@ const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
 
 const _print_autocomplete = function(action, project, flag) {
 
-	let actions   = [ 'check', 'transcribe' ];
+	let actions   = [ 'check', 'simulate', 'transcribe' ];
 	let flags     = [ '--debug' ];
 	let libraries = _fs.readdirSync(_ROOT + '/libraries')
 		.sort()
@@ -65,41 +73,42 @@ const _print_help = function() {
 		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
 
 
-	console.log('                                                            ');
+	console.log('                                                              ');
 	console.info('lychee.js ' + lychee.VERSION + ' Strainer');
-	console.log('                                                            ');
-	console.log('Usage: lycheejs-strainer [Action] [Library/Project] [Flag]  ');
-	console.log('                                                            ');
-	console.log('                                                            ');
-	console.log('Available Actions:                                          ');
-	console.log('                                                            ');
-	console.log('    check, transcribe                                       ');
-	console.log('                                                            ');
-	console.log('Available Libraries:                                        ');
-	console.log('                                                            ');
-	libraries.forEach(function(library) {
-		let diff = ('                                                        ').substr(library.length);
+	console.log('                                                              ');
+	console.log('Usage: lycheejs-strainer [Action] [Library/Project] [Flag]    ');
+	console.log('                                                              ');
+	console.log('                                                              ');
+	console.log('Available Actions:                                            ');
+	console.log('                                                              ');
+	console.log('    check, simulate, transcribe                               ');
+	console.log('                                                              ');
+	console.log('Available Libraries:                                          ');
+	console.log('                                                              ');
+	libraries.forEach(library => {
+		let diff = ('                                                          ').substr(library.length);
 		console.log('    ' + library + diff);
 	});
-	console.log('                                                            ');
-	console.log('Available Projects:                                         ');
-	console.log('                                                            ');
-	projects.forEach(function(project) {
-		let diff = ('                                                        ').substr(project.length);
+	console.log('                                                              ');
+	console.log('Available Projects:                                           ');
+	console.log('                                                              ');
+	projects.forEach(project => {
+		let diff = ('                                                          ').substr(project.length);
 		console.log('    ' + project + diff);
 	});
-	console.log('                                                            ');
-	console.log('Available Flags:                                            ');
-	console.log('                                                            ');
-	console.log('    --debug    Enable debug messages.                       ');
-	console.log('                                                            ');
-	console.log('Examples:                                                   ');
-	console.log('                                                            ');
-	console.log('    lycheejs-strainer check /libraries/lychee;              ');
-	console.log('                                                            ');
-	console.log('    lycheejs-strainer transcribe /projects/pong /tmp/target;');
-	console.log('    lycheejs-strainer transcribe /tmp/source /projects/pong;');
-	console.log('                                                            ');
+	console.log('                                                              ');
+	console.log('Available Flags:                                              ');
+	console.log('                                                              ');
+	console.log('    --debug    Enable debug messages.                         ');
+	console.log('                                                              ');
+	console.log('Examples:                                                     ');
+	console.log('                                                              ');
+	console.log('    lycheejs-strainer check /libraries/lychee;                ');
+	console.log('    lycheejs-strainer simulate /libraries/lychee;             ');
+	console.log('                                                              ');
+	console.log('    lycheejs-strainer transcribe /projects/pong /projects/tmp;');
+	console.log('    lycheejs-strainer transcribe /projects/tmp /projects/pong;');
+	console.log('                                                              ');
 
 };
 
@@ -111,12 +120,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/strainer';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: settings.debug === true ? false : true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			if (sandbox !== null) {
 
@@ -124,13 +133,13 @@ const _bootup = function(settings) {
 				let strainer = sandbox.strainer;
 
 
+				// Show more debug messages
+				lychee.debug = settings.debug === true;
+
+
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new strainer.Main(settings);
-
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(code);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 
 
@@ -145,7 +154,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 
@@ -178,7 +187,6 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
@@ -191,12 +199,12 @@ const _SETTINGS = (function() {
 	};
 
 
-	let action     = args.find(val => /^(check|transcribe)$/g.test(val));
+	let action     = args.find(val => /^(check|simulate|transcribe)$/g.test(val));
 	let project    = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
 	let debug_flag = args.find(val => /--([debug]{5})/g.test(val));
 
 
-	if (action === 'check') {
+	if (action === 'check' || action === 'simulate') {
 
 		settings.action = action;
 
@@ -364,6 +372,15 @@ const _SETTINGS = (function() {
 
 
 	if (action === 'check' && has_project) {
+
+		_bootup({
+			cwd:     settings.cwd,
+			action:  settings.action,
+			debug:   settings.debug === true,
+			project: settings.project
+		});
+
+	} else if (action === 'simulate' && has_project) {
 
 		_bootup({
 			cwd:     settings.cwd,

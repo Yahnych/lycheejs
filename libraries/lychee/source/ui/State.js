@@ -17,14 +17,14 @@ lychee.define('lychee.ui.State').requires([
 	'lychee.ui.sprite.Emblem'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Blueprint = lychee.import('lychee.ui.Blueprint');
 	const _Layer     = lychee.import('lychee.ui.Layer');
 	const _Position  = lychee.import('lychee.effect.Position');
 	const _State     = lychee.import('lychee.app.State');
 	const _Visible   = lychee.import('lychee.effect.Visible');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 	let   _BG        = null;
 	const _INSTANCES = [];
 	let   _MENU      = null;
@@ -69,14 +69,11 @@ lychee.define('lychee.ui.State').requires([
 
 		let fade_offset = -3 / 2 * this.getLayer('ui').height;
 		let entity      = this.query('ui > ' + id);
-		let layers      = this.getLayer('ui').entities.filter(function(layer) {
-			return layer !== _MENU && layer !== _NOTICE;
-		});
-
+		let layers      = this.getLayer('ui').entities.filter(layer => layer !== _MENU && layer !== _NOTICE);
 
 		if (entity !== null && entity.visible === false) {
 
-			layers.forEach(function(layer) {
+			layers.forEach(layer => {
 
 				if (entity === layer) {
 
@@ -118,7 +115,7 @@ lychee.define('lychee.ui.State').requires([
 
 		} else if (entity === null) {
 
-			layers.forEach(function(layer) {
+			layers.forEach(layer => {
 
 				layer.setPosition({
 					y: 0
@@ -301,10 +298,7 @@ lychee.define('lychee.ui.State').requires([
 									this.query('ui > menu'),
 									this.query('ui > notice'),
 									this.query('ui > settings')
-								].filter(function(entity) {
-									return entity !== null;
-								});
-
+								].filter(entity => entity !== null);
 
 								for (let e = 0, el = entities.length; e < el; e++) {
 									entities[e].trigger('reshape', args);

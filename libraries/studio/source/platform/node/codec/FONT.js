@@ -1,7 +1,7 @@
 
 lychee.define('studio.codec.FONT').tags({
 	platform: 'node'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -23,7 +23,7 @@ lychee.define('studio.codec.FONT').tags({
 	// XXX: This is correct
 	// return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	// const _Canvas  = global.require('canvas');
 	// const _CANVAS  = new _Canvas(300, 150);
@@ -79,7 +79,7 @@ lychee.define('studio.codec.FONT').tags({
 		}
 
 
-		baselines.sort(function(a, b) {
+		baselines.sort((a, b) => {
 			if (a < b) return -1;
 			if (a > b) return  1;
 			return 0;

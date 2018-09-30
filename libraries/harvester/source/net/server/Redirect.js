@@ -1,5 +1,5 @@
 
-lychee.define('harvester.net.server.Redirect').exports(function(lychee, global, attachments) {
+lychee.define('harvester.net.server.Redirect').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION
@@ -37,6 +37,9 @@ lychee.define('harvester.net.server.Redirect').exports(function(lychee, global, 
 			let tunnel = this.tunnel;
 			let url    = headers['url'];
 
+			if (url.includes('?')) {
+				url = url.split('?')[0];
+			}
 
 			// Multi-project mode /index.html
 			if (url === '/') {

@@ -5,13 +5,13 @@ lychee.define('app.ui.layer.Overlay').requires([
 	'app.ui.entity.Bubble'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha  = lychee.import('lychee.effect.Alpha');
 	const _Entity = lychee.import('lychee.app.Entity');
 	const _Bubble = lychee.import('app.ui.entity.Bubble');
 	const _Layer  = lychee.import('lychee.ui.Layer');
-	const _SOUND  = attachments["snd"];
+	const _SOUND  = attachments['snd'];
 
 
 

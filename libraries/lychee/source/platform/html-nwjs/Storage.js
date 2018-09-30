@@ -3,7 +3,7 @@ lychee.define('lychee.Storage').tags({
 	platform: 'html-nwjs'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -22,7 +22,7 @@ lychee.define('lychee.Storage').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let   _id         = 0;
 	const _Emitter    = lychee.import('lychee.event.Emitter');

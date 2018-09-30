@@ -3,7 +3,7 @@ lychee.define('lychee.ui.Layer').requires([
 	'lychee.ui.Entity'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 	const _Entity  = lychee.import('lychee.ui.Entity');
@@ -40,7 +40,6 @@ lychee.define('lychee.ui.Layer').requires([
 				typeof entity.update === 'function'
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -60,7 +59,7 @@ lychee.define('lychee.ui.Layer').requires([
 
 		if (mode === true) {
 
-			this.entities.forEach(function(entity) {
+			this.entities.forEach(entity => {
 
 				let w = entity.width;
 				let h = entity.height;
@@ -102,7 +101,7 @@ lychee.define('lychee.ui.Layer').requires([
 
 		} else {
 
-			this.entities.forEach(function(entity) {
+			this.entities.forEach(entity => {
 
 				let w = entity.width;
 				let h = entity.height;
@@ -571,39 +570,21 @@ lychee.define('lychee.ui.Layer').requires([
 		 * CUSTOM API
 		 */
 
-		query: function(query) {
+		collides: function(entity) {
 
-			query = typeof query === 'string' ? query : null;
+			entity = lychee.interfaceof(_Entity, entity) ? entity : null;
 
 
-			if (query !== null) {
-
-				let tmp    = query.split(' > ');
-				let entity = this.getEntity(tmp[0].trim());
-				if (entity !== null) {
-
-					for (let t = 1, tl = tmp.length; t < tl; t++) {
-
-						entity = entity.getEntity(tmp[t].trim());
-
-						if (entity === null) {
-							break;
-						}
-
-					}
-
-				}
-
-				return entity;
-
+			if (entity !== null) {
+				// XXX: UI Layers cannot collide
 			}
 
 
-			return null;
+			return false;
 
 		},
 
-		isAtPosition: function(position) {
+		confines: function(position) {
 
 			position = position instanceof Object ? position : null;
 
@@ -633,7 +614,6 @@ lychee.define('lychee.ui.Layer').requires([
 						let colX    = (ax >= bx - hwidth)  && (ax <= bx + hwidth);
 						let colY    = (ay >= by - hheight) && (ay <= by + hheight);
 
-
 						return colX && colY;
 
 					}
@@ -644,6 +624,90 @@ lychee.define('lychee.ui.Layer').requires([
 
 
 			return false;
+
+		},
+
+		query: function(query) {
+
+			query = typeof query === 'string' ? query : null;
+
+
+			if (query !== null) {
+
+				let tmp    = query.split(' > ');
+				let eid    = tmp.shift().trim();
+				let entity = this.getEntity(eid);
+				if (entity !== null) {
+
+					if (tmp.length > 0) {
+
+						if (typeof entity.query === 'function') {
+							return entity.query(tmp.join(' > ').trim());
+						} else {
+
+							if (lychee.debug === true) {
+								console.warn('lychee.ui.Layer: Invalid query "' + tmp.join(' > ') + '" on entity "' + eid + '".');
+							}
+
+						}
+
+					} else {
+						return entity;
+					}
+
+				}
+
+				return entity;
+
+			}
+
+
+			return null;
+
+		},
+
+		trace: function(position) {
+
+			position = position instanceof Object ? position : null;
+
+
+			if (position !== null) {
+
+				let found = null;
+				let pos   = {
+					x: (position.x || 0) + this.offset.x,
+					y: (position.y || 0) + this.offset.y
+				};
+
+				for (let e = this.entities.length - 1; e >= 0; e--) {
+
+					let entity = this.entities[e];
+					if (entity.visible === false) continue;
+
+					if (typeof entity.trace === 'function') {
+
+						if (entity.trace(pos) !== null) {
+							found = entity;
+							break;
+						}
+
+					} else if (typeof entity.confines === 'function') {
+
+						if (entity.confines(pos) === true) {
+							found = entity;
+							break;
+						}
+
+					}
+
+				}
+
+				return found;
+
+			}
+
+
+			return null;
 
 		},
 
@@ -810,7 +874,7 @@ lychee.define('lychee.ui.Layer').requires([
 						let entity = this.entities[e];
 						if (entity.visible === false) continue;
 
-						if (entity.isAtPosition(position) === true) {
+						if (entity.confines(position) === true) {
 							found = entity;
 							break;
 						}

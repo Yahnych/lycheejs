@@ -36,19 +36,24 @@
 					"json"
 				]
 			},
+			"event": {
+				"flow": {
+					"Check": [
+						"json"
+					],
+					"Simulate": [
+						"json"
+					],
+					"Transcribe": [
+						"json"
+					]
+				}
+			},
 			"fix": {
 				"API": [
 					"json"
 				],
 				"ESLINT": [
-					"json"
-				]
-			},
-			"flow": {
-				"Check": [
-					"json"
-				],
-				"Transcribe": [
 					"json"
 				]
 			},
@@ -72,7 +77,10 @@
 				"API": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
@@ -113,6 +121,7 @@
 				"sandbox": false,
 				"tags": {
 					"platform": [
+						"node-sdl",
 						"node"
 					]
 				},
@@ -165,22 +174,58 @@
 		"files": {
 			"html": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node-sdl": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -234,19 +279,24 @@
 					"js"
 				]
 			},
+			"event": {
+				"flow": {
+					"Check": [
+						"js"
+					],
+					"Simulate": [
+						"js"
+					],
+					"Transcribe": [
+						"js"
+					]
+				}
+			},
 			"fix": {
 				"API": [
 					"js"
 				],
 				"ESLINT": [
-					"js"
-				]
-			},
-			"flow": {
-				"Check": [
-					"js"
-				],
-				"Transcribe": [
 					"js"
 				]
 			},

@@ -11,15 +11,15 @@ lychee.define('app.state.App').requires([
 	'app.ui.layer.Overlay'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha     = lychee.import('lychee.effect.Alpha');
 	const _Astronaut = lychee.import('app.sprite.Astronaut');
 	const _Position  = lychee.import('lychee.effect.Position');
 	const _Room      = lychee.import('app.sprite.Room');
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
-	const _MUSIC     = attachments["msc"];
+	const _BLOB      = attachments['json'].buffer;
+	const _MUSIC     = attachments['msc'];
 
 
 
@@ -29,11 +29,7 @@ lychee.define('app.state.App').requires([
 
 	const _get_room = function(name) {
 
-		let entities = this.query('bg3 > ship').entities.filter(function(val) {
-			return val instanceof _Room && val.state === name;
-		});
-
-
+		let entities = this.query('bg3 > ship').entities.filter(e => e instanceof _Room && e.state === name);
 		if (entities.length > 0) {
 			return entities[0];
 		}
@@ -192,7 +188,7 @@ lychee.define('app.state.App').requires([
 					}));
 
 					entity = this.query('bg3 > ship');
-					entity.entities.forEach(function(other) {
+					entity.entities.forEach(other => {
 
 						if (other !== target) {
 
@@ -229,7 +225,7 @@ lychee.define('app.state.App').requires([
 					}));
 
 					entity = this.query('bg3 > ship');
-					entity.entities.forEach(function(other) {
+					entity.entities.forEach(other => {
 
 						other.addEffect(new _Alpha({
 							type:     _Alpha.TYPE.easeout,
@@ -258,9 +254,7 @@ lychee.define('app.state.App').requires([
 			}
 
 
-			this.query('bg3 > ship').entities.filter(function(val) {
-				return val instanceof _Room;
-			}).forEach(function(room) {
+			this.query('bg3 > ship').entities.filter(e => e instanceof _Room).forEach(room => {
 				room.properties['name'] = room.state;
 			});
 

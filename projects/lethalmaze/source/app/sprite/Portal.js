@@ -5,15 +5,15 @@ lychee.define('game.app.sprite.Portal').requires([
 	'game.effect.Lightning'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity    = lychee.import('lychee.app.Entity');
 	const _Lightning = lychee.import('game.effect.Lightning');
 	const _Sound     = lychee.import('lychee.effect.Sound');
 	const _Sprite    = lychee.import('lychee.app.Sprite');
-	const _TEXTURE   = attachments["png"];
-	const _CONFIG    = attachments["json"].buffer;
-	const _SOUND     = attachments["snd"];
+	const _TEXTURE   = attachments['png'];
+	const _CONFIG    = attachments['json'].buffer;
+	const _SOUND     = attachments['snd'];
 
 
 
@@ -63,7 +63,7 @@ lychee.define('game.app.sprite.Portal').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
 		let states = Object.assign({}, data);
 

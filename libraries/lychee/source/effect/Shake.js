@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Shake').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Shake').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

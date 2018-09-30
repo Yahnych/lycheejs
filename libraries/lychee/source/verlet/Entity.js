@@ -4,7 +4,7 @@ lychee.define('lychee.verlet.Entity').requires([
 	'lychee.verlet.Constraint'
 ]).includes([
 	'lychee.app.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Constraint = lychee.import('lychee.verlet.Constraint');
 	const _Entity     = lychee.import('lychee.app.Entity');

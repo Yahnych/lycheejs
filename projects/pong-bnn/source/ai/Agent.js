@@ -5,7 +5,7 @@ lychee.define('game.ai.Agent').requires([
 	'game.policy.Paddle'
 ]).includes([
 	'lychee.ai.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent  = lychee.import('lychee.ai.Agent');
 	const _Ball   = lychee.import('game.policy.Ball');

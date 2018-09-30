@@ -3,12 +3,12 @@ lychee.define('game.app.sprite.Goal').requires([
 	'game.app.sprite.Plane'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Plane   = lychee.import('game.app.sprite.Plane');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
-	const _CONFIG  = attachments["json"].buffer;
-	const _TEXTURE = attachments["png"];
+	const _CONFIG  = attachments['json'].buffer;
+	const _TEXTURE = attachments['png'];
 
 
 
@@ -62,7 +62,7 @@ lychee.define('game.app.sprite.Goal').requires([
 		 * CUSTOM API
 		 */
 
-		collidesWith: function(plane) {
+		collides: function(plane) {
 
 			plane = plane instanceof _Plane ? plane : null;
 

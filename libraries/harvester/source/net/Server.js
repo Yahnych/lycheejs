@@ -5,19 +5,15 @@ lychee.define('harvester.net.Server').requires([
 	'harvester.net.server.Redirect'
 ]).includes([
 	'lychee.net.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _File     = lychee.import('harvester.net.server.File');
 	const _Redirect = lychee.import('harvester.net.server.Redirect');
 	const _Remote   = lychee.import('harvester.net.Remote');
 	const _Server   = lychee.import('lychee.net.Server');
 	const _CODEC    = {
-		encode: function(data) {
-			return data;
-		},
-		decode: function(data) {
-			return data;
-		}
+		encode: data => data,
+		decode: data => data
 	};
 
 
@@ -29,9 +25,9 @@ lychee.define('harvester.net.Server').requires([
 	const Composite = function(data) {
 
 		let states = Object.assign({
-			codec:  _CODEC,
-			remote: _Remote,
-			type:   _Server.TYPE.HTTP
+			codec:    _CODEC,
+			protocol: _Server.PROTOCOL.HTTP,
+			remote:   _Remote
 		}, data);
 
 
@@ -45,7 +41,7 @@ lychee.define('harvester.net.Server').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('connect', function(remote) {
+		this.bind('connect', remote => {
 
 			remote.bind('receive', function(payload, headers) {
 

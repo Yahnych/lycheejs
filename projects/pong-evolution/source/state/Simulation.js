@@ -9,12 +9,12 @@ lychee.define('game.state.Simulation').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent     = lychee.import('game.ai.Agent');
 	const _Evolution = lychee.import('game.ai.Evolution');
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 
 
 
@@ -28,7 +28,6 @@ lychee.define('game.state.Simulation').requires([
 
 
 		this.__evolution = new _Evolution({
-			history:    4,
 			population: 16
 		});
 
@@ -60,6 +59,7 @@ lychee.define('game.state.Simulation').requires([
 				let evolution  = this.__evolution;
 				let template   = this.getLayer('game-template');
 				let population = evolution.cycle();
+
 
 				console.log(population);
 

@@ -4,14 +4,14 @@ lychee.define('lychee.app.Element').requires([
 	'lychee.app.entity.Text'
 ]).includes([
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Label = lychee.import('lychee.app.entity.Label');
 	const _Layer = lychee.import('lychee.app.Layer');
 	const _Text  = lychee.import('lychee.app.entity.Text');
 	const _FONTS = {
-		label: attachments["label.fnt"],
-		order: attachments["order.fnt"]
+		label: attachments['label.fnt'],
+		order: attachments['order.fnt']
 	};
 
 
@@ -28,7 +28,6 @@ lychee.define('lychee.app.Element').requires([
 				typeof entity.update === 'function'
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -321,7 +320,7 @@ lychee.define('lychee.app.Element').requires([
 						let entity = this.entities[e];
 						if (entity.visible === false) continue;
 
-						if (entity.isAtPosition(position) === true) {
+						if (entity.confines(position) === true) {
 							found = entity;
 							break;
 						}

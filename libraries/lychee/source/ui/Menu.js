@@ -10,7 +10,7 @@ lychee.define('lychee.ui.Menu').requires([
 	'lychee.ui.entity.Select'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Alpha    = lychee.import('lychee.effect.Alpha');
 	const _Event    = lychee.import('lychee.effect.Event');
@@ -21,7 +21,7 @@ lychee.define('lychee.ui.Menu').requires([
 	const _Select   = lychee.import('lychee.ui.entity.Select');
 	const _Visible  = lychee.import('lychee.effect.Visible');
 	const _Width    = lychee.import('lychee.effect.Width');
-	const _FONT     = attachments["fnt"];
+	const _FONT     = attachments['fnt'];
 
 
 
@@ -93,7 +93,7 @@ lychee.define('lychee.ui.Menu').requires([
 					let helper = this.__helpers[h];
 					if (helper.visible === false) continue;
 
-					if (helper.isAtPosition(position) === true) {
+					if (helper.confines(position) === true) {
 
 						args[1].x = position.x - helper.position.x;
 						args[1].y = position.y - helper.position.y;
@@ -441,9 +441,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (helpers !== null) {
 
-				this.helpers = helpers.map(function(helper) {
-					return '' + helper;
-				});
+				this.helpers = helpers.map(helper => '' + helper);
 
 
 				this.__helpers = [];
@@ -500,10 +498,7 @@ lychee.define('lychee.ui.Menu').requires([
 
 			if (options !== null) {
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
-
+				this.options = options.map(option => '' + option);
 				this.getEntity('@select').setOptions(this.options);
 
 

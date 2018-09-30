@@ -1,7 +1,7 @@
 
 lychee.define('ranger.ui.entity.Status').includes([
 	'lychee.ui.entity.Label'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Label = lychee.import('lychee.ui.entity.Label');
 

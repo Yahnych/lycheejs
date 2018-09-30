@@ -1,5 +1,5 @@
 
-# lychee.js (2018-Q2)
+# lychee.js (2018-Q3)
 
 <img src="./guides/asset/qr-codes.png" align="right" width="500px">
 
@@ -12,8 +12,8 @@ Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin
 
 These are the things that we are currently working on:
 
-- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable (`feature/neat` branch).
-- lychee.js Guide is subject to change (to integrate new AI stack).
+- lychee.ai.neat (ES/HyperNEAT AI) is being refactored and unstable.
+- lychee.js Studio is being extended with Entity/Scene editing features.
 
 
 ## ELI5 - What is lychee.js?
@@ -96,11 +96,9 @@ the [lychee.js Engine](./libraries/lychee) Library.
 The lychee.js Project started in 2012 and is in active development.
 The following Repositories are related to the lychee.js Engine:
 
-- [lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide.git) contains architecture explanations and concept documentations (WIP).
 - [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
 - [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
 - [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
-- [lychee.js Bundle](https://github.com/Artificial-Engineering/lycheejs-bundle.git) generates the OS-ready lychee.js Bundles (published at [releases](https://github.com/Artificial-Engineering/lycheejs-bundle/releases) section).
 - [lychee.js Future](https://github.com/Artificial-Engineering/lycheejs-future.git) contains all Concepts and Ideas not yet finished.
 
 The following Accounts are related to the lychee.js Engine:
@@ -159,44 +157,46 @@ using a serialized `lychee.Environment` that is setup in
 each Project's or Library's `lychee.pkg` file.
 
 
-| Target       | Fertilizer                           | Package   | armv7 |  x86  | x86\_64 |
-|:-------------|:-------------------------------------|:----------|:-----:|:-----:|:-------:|
-| Browser      | html                                 | zip, html |   x   |   x   |    x    |
-| GNU/Linux    | html-nwjs, nidium, node, node-sdl    | bin       |   x   |   x   |    x    |
-| OSX          | html-nwjs, nidium, node, node-sdl    | app, bin  |       |       |    x    |
-| Windows      | html-nwjs, node, node-sdl            | exe       |       |   x   |    x    |
-| Android      | html-webview, nidium, node, node-sdl | apk, bin  |   x   |   x   |    x    |
-| BlackberryOS | html-webview, node, node-sdl         | apk, bin  |   x   |   x   |    x    |
-| FirefoxOS    | html-webview                         | zip       |   x   |   x   |    x    |
-| iOS          | html, nidium                         |           |   x   |       |         |
-| Ubuntu Touch | html-webview, node                   | deb, bin  |   x   |   x   |    x    |
+| Target       | Fertilizer                              | Binary | Package | armv7 |  x86  | x86\_64 |
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
+| Web Browser  | html                                    |        |         |   x   |   x   |    x    |
+| GNU/Linux    | html-nwjs, nidium, node, node-sdl       |   x    |    x    |   x   |   x   |    x    |
+| MacOS        | html-nwjs, nidium, node, node-sdl       |   x    |    x    |       |       |    x    |
+| Ubuntu       | html-nwjs, html-webview, node, node-sdl |   x    |    x    |   x   |   x   |    x    |
+| Windows      | html-nwjs, node, node-sdl               |   x    |         |       |   x   |    x    |
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
+| Android      | html-webview, nidium, node              |   x    |    x    |   x   |   x   |    x    |
+| Blackberry   | html-webview, node, node-sdl            |   x    |    x    |   x   |   x   |    x    |
+| iOS          | html, nidium                            |        |         |   x   |       |         |
+| Ubuntu Touch | html-webview, node, node-sdl            |   x    |    x    |   x   |   x   |    x    |
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
 
-The iOS Fertilizer has currently no support for cross-compilation
-due to XCode's gcc limitations. It is still possible to create
-a WebView iOS App and use the `html` platform adapter. Advanced
-users are encouraged to use the `nidium` runtime on iOS and OSX.
+Explanations of Target Matrix:
+
+- The `Binary` column describes whether there is a native binary built.
+- The `Package` column describes whether there is a native package built.
+- The CPU architecture columns describe the target architecture, the host architecture is `x86_64` for all external SDKs.
+
+The `iOS` target currently cannot be delivered to via external SDK on a `Linux` development host; however
+it is still possible to create a WebView-using App and use the `html` platform as a fertilizer target.
+Alternatively, advanced users are encouraged to use the `nidium` runtime on iOS and MacOS.
 
 
 ## Quickstart Guide
 
-If you want to install lychee.js, the best way is to follow
-through the [Install Guide](./guides/INSTALL.md) or the
-[lychee.js Guide's Quickstart section](https://github.com/Artificial-Engineering/lycheejs-guide#quickstart-guide).
+If you want to install the lychee.js Engine, the best way to do
+so is to follow through the [Quickstart Guide](/guides/quickstart).
 
-If you want to develop lychee.js Projects or Libraries, the
-[lychee.js Guide](https://github.com/Artificial-Engineering/lycheejs-guide)
-helps you to get started easily.
+```bash
+# Install lychee.js Engine into /opt/lycheejs
+sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
+```
+
+![Installation CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/quickstart/asset/installation.svg)
 
 Please let us know if we can improve anything in these documents
-by opening up an [Issue](https://github.com/Artificial-Engineering/lycheejs/issues/new).
-
-
-## Contributor Manuals
-
-- [Install Guide](./guides/INSTALL.md)
-- [Codestyle Guide](./guides/CODESTYLE.md)
-- [Contribution Guide](./guides/CONTRIBUTION.md)
-- [Release Guide](./guides/RELEASE.md)
+by opening up a [Documentation Problem](https://github.com/Artificial-Engineering/lycheejs/issues/new?template=documentation-problem.md)
+issue.
 
 
 ## Help

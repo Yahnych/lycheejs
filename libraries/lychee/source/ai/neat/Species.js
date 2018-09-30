@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.neat.Species').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.neat.Species').exports((lychee, global, attachments) => {
 
 	const Composite = function(data) {
 

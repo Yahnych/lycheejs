@@ -1,10 +1,10 @@
 
 lychee.define('lychee.app.entity.Text').includes([
 	'lychee.app.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.app.Entity');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 
@@ -209,7 +209,7 @@ lychee.define('lychee.app.entity.Text').includes([
 					let realheight = 0;
 					let lines      = value.split('\n');
 
-					lines.forEach(function(line) {
+					lines.forEach(line => {
 
 						let tmp = font.measure(line);
 						if (tmp.realwidth  > realwidth)  realwidth  = tmp.realwidth;

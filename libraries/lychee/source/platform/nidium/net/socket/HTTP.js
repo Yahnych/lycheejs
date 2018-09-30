@@ -5,7 +5,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 	'lychee.net.protocol.HTTP'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.Socket === 'function') {
 		return true;
@@ -14,7 +14,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _Protocol = lychee.import('lychee.net.protocol.HTTP');
@@ -54,10 +54,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _connect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection !== socket) {
+		if (this.__connection !== socket) {
 
-			socket.onread = function(data) {
+			socket.onread = data => {
 
 				let blob = null;
 				if (typeof data === 'string') {
@@ -70,24 +69,24 @@ lychee.define('lychee.net.socket.HTTP').tags({
 				if (chunks.length > 0) {
 
 					for (let c = 0, cl = chunks.length; c < cl; c++) {
-						that.trigger('receive', [ chunks[c].payload, chunks[c].headers ]);
+						this.trigger('receive', [ chunks[c].payload, chunks[c].headers ]);
 					}
 
 				}
 
 			};
 
-			socket.onconnect = function() {
-				that.trigger('connect');
-			};
-
-			socket.ondisconnect = function() {
-				that.disconnect();
+			socket.ondisconnect = _ => {
+				this.disconnect();
 			};
 
 
-			that.__connection = socket;
-			that.__protocol   = protocol;
+			this.__connection = socket;
+			this.__protocol   = protocol;
+
+			socket.onconnect = _ => {
+				this.trigger('connect');
+			};
 
 		}
 
@@ -96,8 +95,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _disconnect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection === socket) {
+		if (this.__connection === socket) {
 
 			socket.onconnect    = function() {};
 			socket.ondisconnect = function() {};
@@ -107,10 +105,10 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			protocol.close();
 
 
-			that.__connection = null;
-			that.__socket     = null;
+			this.__connection = null;
+			this.__socket     = null;
 
-			that.trigger('disconnect');
+			this.trigger('disconnect');
 
 		}
 
@@ -164,18 +162,9 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			connection = typeof connection === 'object' ? connection : null;
 
 
-			let that     = this;
-			let protocol = null;
-
-
 			if (host !== null && port !== null) {
 
 				if (connection !== null) {
-
-					protocol = new _Protocol({
-						type: _Protocol.TYPE.remote
-					});
-
 
 					// TODO: Allow half open
 					// TODO: setTimeout(0)
@@ -183,20 +172,21 @@ lychee.define('lychee.net.socket.HTTP').tags({
 					// TODO: setKeepAlive(true, 0)
 					// TODO: removeAllListeners('timeout')
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.remote
+					}));
 
 					// TODO: connection.resume();
 
 				} else {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.client
-					});
 					connection = new _Socket(host, port);
 
 					// TODO: Like above
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.client
+					}));
 
 					connection.connect();
 

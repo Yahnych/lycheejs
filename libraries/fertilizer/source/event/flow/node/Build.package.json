@@ -1,0 +1,12 @@
+{
+	"main":        "./index.js",
+	"name":        "${id}",
+	"title":       "${id} (powered by lychee.js)",
+	"homepage":    "https://lychee.js.org",
+	"description": "Next-Gen Isomorphic Application Engine",
+	"license":     "(MIT AND GPL-3.0)",
+	"repository":  {
+		"type": "git",
+		"url": "https://github.com/Artificial-Engineering/lycheejs.git"
+	}
+}

@@ -42,24 +42,15 @@
 				"Server": [
 					"json"
 				],
-				"client": {
-					"Console": [
+				"server": {
+					"File": [
 						"json"
 					],
-					"Harvester": [
-						"json"
-					],
-					"Library": [
-						"json"
-					],
-					"Profile": [
-						"json"
-					],
-					"Project": [
+					"Redirect": [
 						"json"
 					]
 				},
-				"remote": {
+				"service": {
 					"Console": [
 						"json"
 					],
@@ -78,17 +69,21 @@
 					"Server": [
 						"json"
 					]
-				},
-				"server": {
-					"File": [
-						"json"
-					],
-					"Redirect": [
-						"json"
-					]
 				}
 			},
 			"platform": {
+				"html": {
+					"data": {
+						"Filesystem": [
+							"json"
+						]
+					},
+					"mod": {
+						"Server": [
+							"json"
+						]
+					}
+				},
 				"node": {
 					"data": {
 						"Filesystem": [
@@ -110,7 +105,10 @@
 						]
 					}
 				}
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
@@ -123,6 +121,7 @@
 				"sandbox": false,
 				"tags": {
 					"platform": [
+						"node-sdl",
 						"node"
 					]
 				},
@@ -188,15 +187,39 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node-sdl": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -249,24 +272,15 @@
 				"Server": [
 					"js"
 				],
-				"client": {
-					"Console": [
+				"server": {
+					"File": [
 						"js"
 					],
-					"Harvester": [
-						"js"
-					],
-					"Library": [
-						"js"
-					],
-					"Profile": [
-						"js"
-					],
-					"Project": [
+					"Redirect": [
 						"js"
 					]
 				},
-				"remote": {
+				"service": {
 					"Console": [
 						"js"
 					],
@@ -285,17 +299,21 @@
 					"Server": [
 						"js"
 					]
-				},
-				"server": {
-					"File": [
-						"js"
-					],
-					"Redirect": [
-						"js"
-					]
 				}
 			},
 			"platform": {
+				"html": {
+					"data": {
+						"Filesystem": [
+							"js"
+						]
+					},
+					"mod": {
+						"Server": [
+							"js"
+						]
+					}
+				},
 				"node": {
 					"data": {
 						"Filesystem": [
@@ -321,6 +339,7 @@
 		},
 		"tags": {
 			"platform": {
+				"html": "platform/html",
 				"node": "platform/node"
 			}
 		}

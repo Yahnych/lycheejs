@@ -4,17 +4,17 @@ lychee.define('game.app.sprite.Tank').requires([
 	'lychee.effect.Position'
 ]).includes([
 	'lychee.app.Sprite'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	let   _id      = 0;
 	const _Entity  = lychee.import('lychee.app.Entity');
 	const _Sprite  = lychee.import('lychee.app.Sprite');
 	const _IDS     = [ 'rainbow', 'red', 'green', 'blue', 'black', 'white' ];
-	const _TEXTURE = attachments["png"];
-	const _CONFIG  = attachments["json"].buffer;
+	const _TEXTURE = attachments['png'];
+	const _CONFIG  = attachments['json'].buffer;
 	const _SOUNDS  = {
-		powerup: attachments["powerup.snd"],
-		shoot:   attachments["shoot.snd"]
+		powerup: attachments['powerup.snd'],
+		shoot:   attachments['shoot.snd']
 	};
 
 

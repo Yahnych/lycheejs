@@ -1,7 +1,7 @@
 
 lychee.define('lychee.app.Flow').includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 
@@ -17,12 +17,10 @@ lychee.define('lychee.app.Flow').includes([
 
 			if (this.___timeout === null) {
 
-				this.___timeout = setTimeout(function() {
-
+				this.___timeout = setTimeout(_ => {
 					this.___timeout = null;
 					_process_stack.call(this);
-
-				}.bind(this), 0);
+				}, 0);
 
 			}
 
@@ -151,28 +149,6 @@ lychee.define('lychee.app.Flow').includes([
 		 * CUSTOM API
 		 */
 
-		then: function(callback, scope) {
-
-			callback = callback instanceof Function ? callback : null;
-			scope    = scope !== undefined          ? scope    : this;
-
-
-			if (callback !== null) {
-
-				this.___stack.push({
-					callback: callback,
-					scope:    scope
-				});
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
 		init: function() {
 
 			if (this.___init === false) {
@@ -187,6 +163,36 @@ lychee.define('lychee.app.Flow').includes([
 					return true;
 
 				}
+
+			}
+
+
+			return false;
+
+		},
+
+		reset: function() {
+
+			this.__stack = [];
+
+			return true;
+
+		},
+
+		then: function(callback, scope) {
+
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (callback !== null) {
+
+				this.___stack.push({
+					callback: callback,
+					scope:    scope
+				});
+
+				return true;
 
 			}
 

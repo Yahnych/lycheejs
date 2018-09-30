@@ -1,7 +1,7 @@
 
 lychee.define('lychee.app.Loop').includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.setInterval === 'function') {
 		return true;
@@ -9,7 +9,7 @@ lychee.define('lychee.app.Loop').includes([
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _INSTANCES = [];

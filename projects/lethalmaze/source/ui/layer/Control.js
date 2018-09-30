@@ -4,7 +4,7 @@ lychee.define('game.ui.layer.Control').requires([
 	'lychee.ui.entity.Joystick'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Button   = lychee.import('lychee.ui.entity.Button');
 	const _Joystick = lychee.import('lychee.ui.entity.Joystick');

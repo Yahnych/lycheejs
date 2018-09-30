@@ -10,7 +10,7 @@ lychee.define('game.state.Game').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent      = lychee.import('game.ai.Agent');
 	const _Explosion  = lychee.import('game.effect.Explosion');
@@ -18,7 +18,7 @@ lychee.define('game.state.Game').requires([
 	const _Mersenne   = lychee.import('lychee.math.Mersenne');
 	const _Plane      = lychee.import('game.app.sprite.Plane');
 	const _State      = lychee.import('lychee.app.State');
-	const _BLOB       = attachments["json"].buffer;
+	const _BLOB       = attachments['json'].buffer;
 	const _POPULATION = 1;
 
 
@@ -390,7 +390,7 @@ lychee.define('game.state.Game').requires([
 
 					if (plane.alive === true) {
 
-						if (plane.position.y > 1 / 2 * height || next_goal.collidesWith(plane) === true) {
+						if (plane.position.y > 1 / 2 * height || next_goal.collides(plane) === true) {
 
 							if (agent !== null) {
 								agent.punish(1);

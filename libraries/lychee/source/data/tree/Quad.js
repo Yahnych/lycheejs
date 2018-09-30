@@ -1,5 +1,5 @@
 
-lychee.define('lychee.data.tree.Quad').exports(function(lychee, global, attachments) {
+lychee.define('lychee.data.tree.Quad').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

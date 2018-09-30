@@ -131,9 +131,9 @@
 			let path_ogg = lychee.environment.resolve(this.url + '.ogg');
 			let path_mp3 = lychee.environment.resolve(this.url + '.mp3');
 
-			_fs.readFile(path_ogg, 'binary', function(error_ogg, buffer_ogg) {
+			_fs.readFile(path_ogg, (error_ogg, buffer_ogg) => {
 
-				_fs.readFile(path_mp3, 'binary', function(error_mp3, buffer_mp3) {
+				_fs.readFile(path_mp3, (error_mp3, buffer_mp3) => {
 
 					this.__buffer.ogg = buffer_ogg || null;
 					this.__buffer.mp3 = buffer_mp3 || null;
@@ -144,9 +144,9 @@
 						this.onload = null;
 					}
 
-				}.bind(this));
+				});
 
-			}.bind(this));
+			});
 
 		},
 

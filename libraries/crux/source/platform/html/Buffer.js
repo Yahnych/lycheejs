@@ -413,6 +413,55 @@
 
 	};
 
+	Buffer.concat = function(list, length) {
+
+		list   = list instanceof Array      ? list         : null;
+		length = typeof length === 'number' ? (length | 0) : null;
+
+
+		if (list !== null && length === null) {
+
+			length = 0;
+
+			for (let l = 0, ll = list.length; l < ll; l++) {
+				length += list[l].length;
+			}
+
+		}
+
+
+		if (list !== null && length !== null) {
+
+			let buffer = Buffer.alloc(length);
+			let offset = 0;
+
+			for (let l = 0, ll = list.length; l < ll; l++) {
+
+				let other = list[l];
+
+				other.copy(buffer, offset);
+
+				offset += other.length;
+
+			}
+
+			if (offset < length) {
+				buffer.fill(0, offset, length);
+			}
+
+			return buffer;
+
+		} else if (length !== null) {
+
+			return Buffer.alloc(length);
+
+		}
+
+
+		return Buffer.alloc(0);
+
+	};
+
 	Buffer.from = function(subject, encoding) {
 
 		encoding = typeof encoding === 'string' ? encoding : 'utf8';
@@ -496,9 +545,9 @@
 			end          = typeof end === 'number'          ? (end   | 0)        : this.length;
 
 
-			if (start === end)       return;
-			if (target.length === 0) return;
-			if (this.length === 0)   return;
+			if (start === end)       return 0;
+			if (target.length === 0) return 0;
+			if (this.length === 0)   return 0;
 
 
 			end = Math.min(end, this.length);
@@ -513,6 +562,36 @@
 			for (let b = 0; b < diff; b++) {
 				target[b + target_start] = this[b + start];
 			}
+
+			return diff;
+
+		},
+
+		fill: function(value, start, end) {
+
+			let val = typeof value === 'number' ? (value | 0) : 0;
+			start   = typeof start === 'number' ? (start | 0) : 0;
+			end     = typeof end === 'number'   ? (end   | 0) : this.length;
+
+			if (typeof value === 'string') {
+				val = value.charCodeAt(0);
+			}
+
+
+			if (start === end)     return this;
+			if (this.length === 0) return this;
+
+
+			if (start < end && start < this.length && end <= this.length) {
+
+				for (let b = start; b < end; b++) {
+					this[b] = val;
+				}
+
+			}
+
+
+			return this;
 
 		},
 

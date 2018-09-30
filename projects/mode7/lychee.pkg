@@ -29,7 +29,10 @@
 				"Game": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {

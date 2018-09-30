@@ -37,6 +37,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"sprite": {
 					"Background": [

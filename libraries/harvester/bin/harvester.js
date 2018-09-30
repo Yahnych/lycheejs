@@ -1,9 +1,18 @@
 #!/usr/local/bin/lycheejs-helper env:node
 
 
-const _fs   = require('fs');
-const _path = require('path');
-const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _fs    = require('fs');
+const _path  = require('path');
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _PID   = '/tmp/lycheejs-harvester.pid';
+const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
+
+if (process.argv.includes('--autocomplete')) {
+	console.log   = function() {};
+	console.info  = function() {};
+	console.warn  = function() {};
+	console.error = function() {};
+}
 
 
 
@@ -70,7 +79,7 @@ const _print_help = function() {
 	console.log('                                                          ');
 	console.log('Available Profiles:                                       ');
 	console.log('                                                          ');
-	profiles.forEach(function(profile) {
+	profiles.forEach(profile => {
 		let diff = ('                                                      ').substr(profile.length);
 		console.log('    ' + profile + diff);
 	});
@@ -92,16 +101,15 @@ const _print_help = function() {
 
 const _clear_pid = function() {
 
+	let result = true;
+
 	try {
-
-		_fs.unlinkSync(_ROOT + '/bin/harvester.pid');
-		return true;
-
+		_fs.unlinkSync(_PID);
 	} catch (err) {
-
-		return false;
-
+		result = false;
 	}
+
+	return result;
 
 };
 
@@ -111,10 +119,10 @@ const _read_pid = function() {
 
 	try {
 
-		pid = _fs.readFileSync(_ROOT + '/bin/harvester.pid', 'utf8');
+		let tmp = _fs.readFileSync(_PID, 'utf8');
 
-		if (!isNaN(parseInt(pid, 10))) {
-			pid = parseInt(pid, 10);
+		if (!isNaN(parseInt(tmp, 10))) {
+			pid = parseInt(tmp, 10);
 		}
 
 	} catch (err) {
@@ -127,16 +135,15 @@ const _read_pid = function() {
 
 const _write_pid = function() {
 
+	let result = false;
+
 	try {
-
-		_fs.writeFileSync(_ROOT + '/bin/harvester.pid', process.pid);
-		return true;
-
+		_fs.writeFileSync(_PID, '' + process.pid, 'utf8');
 	} catch (err) {
-
-		return false;
-
+		result = false;
 	}
+
+	return result;
 
 };
 
@@ -148,12 +155,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/harvester';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			lychee.ROOT.project = lychee.ROOT.lychee;
 
@@ -169,10 +176,7 @@ const _bootup = function(settings) {
 
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new harvester.Main(settings);
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(0);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 				_write_pid();
 
@@ -190,7 +194,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 
@@ -225,7 +229,6 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
@@ -317,20 +320,27 @@ const _SETTINGS = (function() {
 
 		let pid = _read_pid();
 		if (pid !== null) {
-			console.log('Running (' + pid + ')');
-			process.exit(0);
-		} else {
-			console.log('Not running');
-			process.exit(1);
-		}
 
+			console.log('harvester: -> Checking');
+			console.info('harvester: -> Instance active ("' + pid + '").');
+
+			process.exit(0);
+
+		} else {
+
+			console.log('harvester: -> Checking');
+			console.error('harvester: -> Instance inactive.');
+
+			process.exit(1);
+
+		}
 
 	} else if (action === 'stop') {
 
 		let pid = _read_pid();
 		if (pid !== null) {
 
-			console.info('SHUTDOWN (' + pid + ')');
+			console.log('harvester: -> Stopping "' + pid + '"');
 
 			let killed = false;
 
@@ -351,20 +361,25 @@ const _SETTINGS = (function() {
 
 				_clear_pid();
 
+				console.info('harvester: -> SUCCESS');
+				process.exit(0);
+
 			} else {
 
-				console.info('RIGHTS FAILURE (OR PROCESS ' + pid + ' ALEADY DEAD?)');
+				console.error('harvester: -> FAILURE');
+				console.error('harvester: Please check whether process "' + pid + '" is already dead.');
+				console.error('harvester: Current user possibly has no rights to kill processes.');
+
+				process.exit(1);
 
 			}
 
-
-			process.exit(0);
-
 		} else {
 
-			console.info('PROCESS ALREADY DEAD!');
+			console.log('harvester: -> Stopping');
+			console.info('harvester: -> SUCCESS');
 
-			process.exit(1);
+			process.exit(0);
 
 		}
 

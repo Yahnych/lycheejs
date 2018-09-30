@@ -1,9 +1,17 @@
 #!/usr/local/bin/lycheejs-helper env:node
 
 
-const _fs   = require('fs');
-const _path = require('path');
-const _ROOT = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const _fs    = require('fs');
+const _path  = require('path');
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
+
+if (process.argv.includes('--autocomplete')) {
+	console.log   = function() {};
+	console.info  = function() {};
+	console.warn  = function() {};
+	console.error = function() {};
+}
 
 
 
@@ -78,14 +86,14 @@ const _print_help = function() {
 	console.log('                                                          ');
 	console.log('Available Libraries:                                      ');
 	console.log('                                                          ');
-	libraries.forEach(function(library) {
+	libraries.forEach(library => {
 		let diff = ('                                                      ').substr(library.length);
 		console.log('    ' + library + diff);
 	});
 	console.log('                                                          ');
 	console.log('Available Projects:                                       ');
 	console.log('                                                          ');
-	projects.forEach(function(project) {
+	projects.forEach(project => {
 		let diff = ('                                                      ').substr(project.length);
 		console.log('    ' + project + diff);
 	});
@@ -102,6 +110,9 @@ const _print_help = function() {
 	console.log('    lycheejs-breeder init;                                ');
 	console.log('    lycheejs-breeder fork /projects/boilerplate;          ');
 	console.log('                                                          ');
+	console.log('    # Create lychee.Definition and lychee.Specification   ');
+	console.log('    lycheejs-breeder init app.net.service.Example;        ');
+	console.log('                                                          ');
 	console.log('    lycheejs-breeder pull /libraries/harvester;           ');
 	console.log('    lycheejs-breeder push;                                ');
 	console.log('                                                          ');
@@ -116,12 +127,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/breeder';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/main', function(environment) {
+	lychee.pkg('build', 'node/main', environment => {
 
 		lychee.init(environment, {
 			debug:   settings.debug === true,
 			sandbox: settings.debug === true ? false : true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			if (sandbox !== null) {
 
@@ -135,11 +146,7 @@ const _bootup = function(settings) {
 
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new breeder.Main(settings);
-
-				sandbox.MAIN.bind('destroy', function() {
-					process.exit(0);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 
 
@@ -154,7 +161,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 
@@ -187,19 +194,20 @@ if (process.argv.includes('--autocomplete')) {
 
 
 
-const lychee    = require(_ROOT + '/libraries/crux/build/node/dist.js')(_ROOT);
 const _SETTINGS = (function() {
 
 	let args     = process.argv.slice(2).filter(val => val !== '');
 	let settings = {
-		action:  null,
-		project: null,
-		library: null,
-		debug:   false
+		action:     null,
+		identifier: null,
+		library:    null,
+		project:    null,
+		debug:      false
 	};
 
 
-	let action     = args.find(val => /^(init|fork|pull|push)/g.test(val));
+	let action     = args.find(val => /^(init|fork|pull|push)$/g.test(val));
+	let identifier = args.find(val => val.includes('.') && /^([A-Za-z.]+)$/g.test(val));
 	let library    = args.find(val => /^\/(libraries|projects)\/([A-Za-z0-9-_/]+)$/g.test(val));
 	let project    = args.find(val => /--project=\/(libraries|projects)\/([A-Za-z0-9-_/]+)/g.test(val));
 	let debug_flag = args.find(val => /--([debug]{5})/g.test(val));
@@ -235,46 +243,53 @@ const _SETTINGS = (function() {
 
 	}
 
+	if (library !== undefined) {
 
-	if (action === 'pull' || action === 'fork') {
+		try {
 
-		if (library !== undefined) {
+			let stat1 = _fs.lstatSync(_ROOT + library);
+			let stat2 = _fs.lstatSync(_ROOT + library + '/lychee.pkg');
 
-			settings.action = action;
+			if (stat1.isSymbolicLink()) {
 
+				let tmp   = _fs.realpathSync(_ROOT + library);
+				let stat3 = _fs.lstatSync(tmp);
+				let stat4 = _fs.lstatSync(tmp + '/lychee.pkg');
 
-			try {
-
-				let stat1 = _fs.lstatSync(_ROOT + library);
-				let stat2 = _fs.lstatSync(_ROOT + library + '/lychee.pkg');
-
-				if (stat1.isSymbolicLink()) {
-
-					let tmp   = _fs.realpathSync(_ROOT + library);
-					let stat3 = _fs.lstatSync(tmp);
-					let stat4 = _fs.lstatSync(tmp + '/lychee.pkg');
-
-					if (stat3.isDirectory() && stat4.isFile()) {
-						settings.library = library;
-					}
-
-				} else if (stat1.isDirectory()) {
-
-					if (stat2.isFile()) {
-						settings.library = library;
-					}
-
+				if (stat3.isDirectory() && stat4.isFile()) {
+					settings.library = library;
 				}
 
-			} catch (err) {
+			} else if (stat1.isDirectory()) {
 
-				settings.library = null;
+				if (stat2.isFile()) {
+					settings.library = library;
+				}
 
 			}
 
+		} catch (err) {
+
+			settings.library = null;
+
 		}
 
-	} else if (action !== undefined) {
+	}
+
+
+	if (action === 'init') {
+
+		settings.action = action;
+
+		if (identifier !== undefined) {
+			settings.identifier = identifier;
+		}
+
+	} else if (action === 'fork') {
+
+		settings.action = action;
+
+	} else if (action === 'pull') {
 
 		settings.action = action;
 
@@ -298,12 +313,22 @@ const _SETTINGS = (function() {
 	 * IMPLEMENTATION
 	 */
 
-	let action      = settings.action;
-	let has_project = settings.project !== null;
-	let has_library = settings.library !== null;
+	let action         = settings.action;
+	let has_identifier = settings.identifier !== null;
+	let has_project    = settings.project !== null;
+	let has_library    = settings.library !== null;
 
 
-	if (action === 'init' && has_project) {
+	if (action === 'init' && has_project && has_identifier) {
+
+		_bootup({
+			action:     'init',
+			debug:      settings.debug === true,
+			identifier: settings.identifier,
+			project:    settings.project
+		});
+
+	} else if (action === 'init' && has_project) {
 
 		_bootup({
 			action:  'init',

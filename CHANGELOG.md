@@ -20,7 +20,43 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
-## [2018-Q3] - UNRELEASED
+## [2018-Q3] - 30.09.2018
+
+- **Changed**: lychee.net.Tunnel `setType(type)` is renamed into `setProtocol(protocol)`.
+- **Changed**: `Stuff` data type uses `Buffer` as `.buffer` property.
+- **Changed**: lychee.js Fertilizer supports event flow based platform adapters.
+- **Added**: lychee.js Breeder supports `init <identifier>` for mockup purposes.
+- **Added**: lychee.js Strainer supports `no-composite`.
+- **Added**: lychee.Package supports `getDefinitions(tags)` and `getFiles(tags)`.
+- **Added**: lychee.Package supports `getEnvironments(tags)` and `getSimulations(tags)`.
+- **Added**: lychee.event.Emitter supports `has(event, callback, scope)` syntax.
+- **Added**: lychee.net.Service supports Composite syntax.
+- **Fixed**: `node` platform fixes serialization of binary assets.
+- **Fixed**: lychee.js Strainer supports memory analysis of lychee.js Crux.
+- Changed: lychee.js Harvester stores `pid` in `/tmp/lycheejs-harvester.pid`.
+- Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
+- Changed: lychee.ai.Entity `collides(entity)` returns collision state.
+- Changed: lychee.ai.Layer `collides(entity)` returns collision state.
+- Changed: lychee.app.Entity `collides(entity)` returns collision state.
+- Changed: lychee.app.Layer `collides(entity)` returns collision state.
+- Changed: lychee.app.Layer `trace(position)` traces entities.
+- Changed: lychee.ui.Entity `collides(entity)` returns collision state.
+- Changed: lychee.ui.Layer `collides(entity)` returns collision state.
+- Changed: lychee.ui.Layer `trace(position)` traces entities.
+- Removed: lychee.app.Entity `collidesWith(entity)`.
+- Removed: lychee.ui.Entity `collidesWith(entity)`.
+- Removed: lychee.app.Entity `isAtPosition(position)`.
+- Removed: lychee.ui.Entity `isAtPosition(position)`.
+- Added: `lychee.decycle(target, object, path)` supports de-cycling nested objects.
+- Added: lychee.Environment supports `application` and `library` variant.
+- Added: lychee.Environment supports detection of cyclic dependencies.
+- Added: lychee.codec Stack supports `Date` data type.
+- Added: lychee.codec.INI supports INI format with JSON-compatible data types.
+- Added: lychee.event.Emitter supports `publish()`, `subscribe()` and `transfer()`.
+- Fixed: lychee.Environment supports `requires()` and `includes()` of lychee.js Crux identifiers.
+- Fixed: lychee.app.Entity `isAtPosition(position)` supports incremental coordinates.
+- Fixed: lychee.ui.Entity `isAtPosition(position)` supports incremental coordinates.
+- Fixed: lychee.codec.DIXY `encode(data)` returns `null` in error case.
 
 
 ## [2018-Q2] - 2018-06-29
@@ -212,7 +248,8 @@ and `fixed`.
 
 # GIT CHANGELOG
 
-- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q2...HEAD)
+- [Unreleased](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q3...HEAD)
+- [2018-Q3](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q2...2018-Q3)
 - [2018-Q2](https://github.com/Artificial-Engineering/lycheejs/compare/2018-Q1...2018-Q2)
 - [2018-Q1](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q4...2018-Q1)
 - [2017-Q4](https://github.com/Artificial-Engineering/lycheejs/compare/2017-Q3...2017-Q4)

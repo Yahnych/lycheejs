@@ -5,7 +5,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 	'lychee.net.protocol.HTTP'
 ]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.XMLHttpRequest === 'function'
@@ -17,7 +17,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter  = lychee.import('lychee.event.Emitter');
 	const _Protocol = lychee.import('lychee.net.protocol.HTTP');
@@ -60,7 +60,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 		let headers = {};
 		let payload = blob;
 
-		raw_headers.split('\r\n').forEach(function(line) {
+		raw_headers.split('\r\n').forEach(line => {
 
 			let i1 = line.indexOf(':');
 			if (i1 !== -1) {
@@ -95,22 +95,21 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			let method = tmp[0];
 			let url    = 'http://' + connection.host + ':' + connection.port + tmp[1];
 			let socket = new _XHR();
-			let that   = this;
 
 
 			socket.open(method, url, true);
 			socket.responseType = binary === true ? 'arraybuffer' : 'text';
 
-			socket.onload = function() {
+			socket.onload = _ => {
 
-				let chunks = _receive_xhr.call(that, socket.getAllResponseHeaders(), socket.response);
+				let chunks = _receive_xhr.call(this, socket.getAllResponseHeaders(), socket.response);
 				if (chunks.length > 0) {
 
 					for (let c = 0, cl = chunks.length; c < cl; c++) {
 
 						let chunk = chunks[c];
 						if (chunk.payload !== null) {
-							that.trigger('receive', [ chunk.payload, chunk.headers ]);
+							this.trigger('receive', [ chunk.payload, chunk.headers ]);
 						}
 
 					}
@@ -119,14 +118,14 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 			};
 
-			socket.onerror = function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.onerror = _ => {
+				this.trigger('error');
+				this.disconnect();
 			};
 
-			socket.ontimeout = function() {
-				that.trigger('error');
-				that.disconnect();
+			socket.ontimeout = _ => {
+				this.trigger('error');
+				this.disconnect();
 			};
 
 			for (let key in headers) {
@@ -151,15 +150,14 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _connect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection !== socket) {
+		if (this.__connection !== socket) {
 
 			// TODO: connect socket events
 
-			that.__connection = socket;
-			that.__protocol   = protocol;
+			this.__connection = socket;
+			this.__protocol   = protocol;
 
-			that.trigger('connect');
+			this.trigger('connect');
 
 		}
 
@@ -167,8 +165,7 @@ lychee.define('lychee.net.socket.HTTP').tags({
 
 	const _disconnect_socket = function(socket, protocol) {
 
-		let that = this;
-		if (that.__connection === socket) {
+		if (this.__connection === socket) {
 
 			// TODO: disconnect socket events
 
@@ -176,13 +173,10 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			protocol.close();
 
 
-			that.__connection = null;
-			that.__protocol   = null;
+			this.__connection = null;
+			this.__protocol   = null;
 
-
-			setTimeout(function() {
-				that.trigger('disconnect');
-			}, 0);
+			setTimeout(_ => this.trigger('disconnect'), 0);
 
 		}
 
@@ -236,36 +230,30 @@ lychee.define('lychee.net.socket.HTTP').tags({
 			connection = typeof connection === 'object' ? connection : null;
 
 
-			let that     = this;
-			let protocol = null;
-
-
 			if (host !== null && port !== null) {
 
 				if (connection !== null) {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.remote
-					});
 					connection = null;
 
 					// TODO: Remote Socket API
 
-					// _connect_socket.call(that, connection, protocol);
+					// _connect_socket.call(this, connection, new _Protocol({
+					//	type: _Protocol.TYPE.remote
+					// });
 					// connection.resume();
 
 				} else {
 
-					protocol   = new _Protocol({
-						type: _Protocol.TYPE.client
-					});
 					connection = {
 						host: host,
 						port: port
 					};
 
 
-					_connect_socket.call(that, connection, protocol);
+					_connect_socket.call(this, connection, new _Protocol({
+						type: _Protocol.TYPE.client
+					}));
 
 				}
 

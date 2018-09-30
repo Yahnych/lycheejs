@@ -3,7 +3,7 @@ lychee.define('lychee.Storage').tags({
 	platform: 'nidium'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.File === 'function') {
 		return true;
@@ -12,7 +12,7 @@ lychee.define('lychee.Storage').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let   _id         = 0;
 	const _Emitter    = lychee.import('lychee.event.Emitter');

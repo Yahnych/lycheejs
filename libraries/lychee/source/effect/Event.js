@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Event').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Event').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

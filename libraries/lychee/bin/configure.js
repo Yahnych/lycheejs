@@ -26,7 +26,7 @@ require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 	 */
 
 	const _TEMPLATE_DEFINITION = (function () {/*
-		lychee.define('{{identifier}}').requires([{{requires}}]).exports(function(lychee, global, attachments) {
+		lychee.define('{{identifier}}').requires([{{requires}}]).exports((lychee, global, attachments) => {
 
 			const Module = {
 
@@ -47,9 +47,7 @@ require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 
 		});
 
-	*/}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1].split('\n').map(function(line) {
-		return line.substr(2);
-	}).join('\n');
+	*/}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1].split('\n').map(line => line.substr(2)).join('\n');
 
 
 
@@ -64,18 +62,11 @@ require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
 	setTimeout(_ => {
 
 		let template = '' + _TEMPLATE_DEFINITION;
-		let requires = pkg.getDefinitions().filter(function(id) {
-			return id !== 'DIST';
-		}).map(function(id) {
-			return pkg.id + '.' + id;
-		});
-
+		let requires = pkg.getDefinitions().filter(id => id !== 'DIST').map(id => pkg.id + '.' + id);
 
 		template = template.replace('{{identifier}}', 'lychee.DIST');
 		template = template.replace('{{identifier}}', 'lychee.DIST');
-		template = template.replace('{{requires}}',   '\n\t' + requires.map(function(id) {
-			return '\'' + id + '\'';
-		}).join(',\n\t') + '\n');
+		template = template.replace('{{requires}}',   '\n\t' + requires.map(id => '\'' + id + '\'').join(',\n\t') + '\n');
 		template = '\n' + template.trim() + '\n';
 
 

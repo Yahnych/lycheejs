@@ -10,16 +10,16 @@ lychee.define('game.state.Game').requires([
 	'game.ui.sprite.Background'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent  = lychee.import('game.ai.Agent');
 	const _Color  = lychee.import('lychee.effect.Color');
 	const _Shake  = lychee.import('lychee.effect.Shake');
 	const _State  = lychee.import('lychee.app.State');
-	const _BLOB   = attachments["json"].buffer;
+	const _BLOB   = attachments['json'].buffer;
 	const _SOUNDS = {
-		ping: attachments["ping.snd"],
-		pong: attachments["pong.snd"]
+		ping: attachments['ping.snd'],
+		pong: attachments['pong.snd']
 	};
 
 
@@ -36,8 +36,8 @@ lychee.define('game.state.Game').requires([
 		if (player !== null) {
 
 			// XXX: Training must happen BEFORE ball is reset
-			let evil_ai = this.getLayer('ai').getAgent('evil');
-			let good_ai = this.getLayer('ai').getAgent('good');
+			let evil_ai = this.query('simulation > ai > evil');
+			let good_ai = this.query('simulation > ai > good');
 
 			if (evil_ai !== null && good_ai !== null) {
 
@@ -54,7 +54,7 @@ lychee.define('game.state.Game').requires([
 		}
 
 
-		let ball = this.query('game > ball');
+		let ball = this.query('simulation > game > ball');
 		if (ball !== null) {
 
 			let position = {
@@ -101,8 +101,15 @@ lychee.define('game.state.Game').requires([
 		}
 
 
-		this.query('game > evil').setPosition({ y: 0 });
-		this.query('game > good').setPosition({ y: 0 });
+		let evil_paddle = this.query('simulation > game > evil');
+		if (evil_paddle !== null) {
+			evil_paddle.setPosition({ y: 0 });
+		}
+
+		let good_paddle = this.query('simulation > game > good');
+		if (good_paddle !== null) {
+			good_paddle.setPosition({ y: 0 });
+		}
 
 	};
 
@@ -119,16 +126,7 @@ lychee.define('game.state.Game').requires([
 		}
 
 
-		this.getLayer('game').addEffect(new _Shake({
-			type:     _Shake.TYPE.bounceeaseout,
-			duration: 300,
-			shake:    {
-				x: (Math.random() * 16) | 0,
-				y: (Math.random() * 16) | 0
-			}
-		}));
-
-		this.getLayer('ui').addEffect(new _Shake({
+		this.query('simulation > game').addEffect(new _Shake({
 			type:     _Shake.TYPE.bounceeaseout,
 			duration: 300,
 			shake:    {
@@ -140,6 +138,15 @@ lychee.define('game.state.Game').requires([
 
 		let background = this.query('bg > background');
 		if (background !== null) {
+
+			background.addEffect(new _Shake({
+				type:     _Shake.TYPE.bounceeaseout,
+				duration: 300,
+				shake:    {
+					x: (Math.random() * 16) | 0,
+					y: (Math.random() * 16) | 0
+				}
+			}));
 
 			background.setColor(color);
 			background.addEffect(new _Color({
@@ -210,12 +217,6 @@ lychee.define('game.state.Game').requires([
 						y: -1 / 2 * height + 42
 					});
 
-					entity = this.query('game > good');
-					entity.setPosition({ x: -1 / 2 * width + 42 });
-
-					entity = this.query('game > evil');
-					entity.setPosition({ x:  1 / 2 * width - 42 });
-
 				}
 
 			}, this);
@@ -237,9 +238,13 @@ lychee.define('game.state.Game').requires([
 
 
 			let renderer = this.renderer;
-			let layer    = this.getLayer('ai');
+			let layer    = this.query('simulation > ai');
 
 			if (renderer !== null && layer !== null) {
+
+				lychee.debug = true;
+				console.log(layer.query('what > ever'));
+				console.log(this.query('simulation > game > ball > what > ever'));
 
 				layer.unbind('epoche');
 
@@ -253,10 +258,9 @@ lychee.define('game.state.Game').requires([
 				};
 
 
-				let ball = this.query('game > ball');
-				let evil = this.query('game > evil');
-				let good = this.query('game > good');
-
+				let ball = this.query('simulation > game > ball');
+				let evil = this.query('simulation > game > evil');
+				let good = this.query('simulation > game > good');
 
 				if (evil !== null && ball !== null) {
 
@@ -337,13 +341,12 @@ lychee.define('game.state.Game').requires([
 
 
 			let jukebox  = this.jukebox;
-			let renderer = this.renderer;
-
-			let ball     = this.query('game > ball');
-			let evil     = this.query('game > evil');
-			let good     = this.query('game > good');
-			let hwidth   = renderer.width / 2;
-			let hheight  = renderer.height / 2;
+			let game     = this.query('simulation > game');
+			let ball     = game.query('ball');
+			let evil     = game.query('evil');
+			let good     = game.query('good');
+			let hwidth   = game.width  / 2;
+			let hheight  = game.height / 2;
 			let position = ball.position;
 			let velocity = ball.velocity;
 
@@ -402,7 +405,7 @@ lychee.define('game.state.Game').requires([
 			 * 3: COLLISIONS
 			 */
 
-			if (ball.collidesWith(good) === true) {
+			if (ball.collides(good) === true) {
 
 				position.x = good.position.x + 24;
 				velocity.x = Math.abs(velocity.x);
@@ -410,7 +413,7 @@ lychee.define('game.state.Game').requires([
 
 				_bounce_effect.call(this, 'good');
 
-			} else if (ball.collidesWith(evil) === true) {
+			} else if (ball.collides(evil) === true) {
 
 				position.x = evil.position.x - 24;
 				velocity.x = -1 * Math.abs(velocity.x);

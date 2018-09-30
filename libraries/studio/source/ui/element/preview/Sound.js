@@ -4,7 +4,7 @@ lychee.define('studio.ui.element.preview.Sound').requires([
 	'lychee.ui.entity.Button'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Button  = lychee.import('lychee.ui.entity.Button');
 	const _Element = lychee.import('lychee.ui.Element');

@@ -1,7 +1,7 @@
 
 lychee.define('lychee.event.Router').includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Emitter = lychee.import('lychee.event.Emitter');
 
@@ -14,7 +14,7 @@ lychee.define('lychee.event.Router').includes([
 	const _get_event = function(path, data) {
 
 		let event  = null;
-		let chunks = path.split('/').map(function(value) {
+		let chunks = path.split('/').map(value => {
 
 			let val = value;
 			if (val === 'true') {

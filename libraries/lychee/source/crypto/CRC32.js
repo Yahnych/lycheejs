@@ -1,5 +1,5 @@
 
-lychee.define('lychee.crypto.CRC32').exports(function(lychee, global, attachments) {
+lychee.define('lychee.crypto.CRC32').exports((lychee, global, attachments) => {
 
 	const _CRC_TABLE = (function(table) {
 

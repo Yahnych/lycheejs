@@ -1,9 +1,11 @@
 
 lychee.define('lychee.Stash').tags({
 	platform: 'html-nwjs'
-}).includes([
+}).requires([
+	'lychee.Asset'
+]).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -22,9 +24,10 @@ lychee.define('lychee.Stash').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let   _id         = 0;
+	const _Asset      = lychee.import('lychee.Asset');
 	const _Emitter    = lychee.import('lychee.event.Emitter');
 	const _PERSISTENT = {
 		data: {},
@@ -231,6 +234,12 @@ lychee.define('lychee.Stash').tags({
 				}
 
 
+				if (result === false) {
+					console.error('lychee.Stash: Could not write "' + id + '".');
+					console.info('lychee.Stash: Check filesystem quota and permissions.');
+				}
+
+
 				return result;
 
 			};
@@ -269,60 +278,6 @@ lychee.define('lychee.Stash').tags({
 		}
 
 		return false;
-
-	};
-
-	const _on_batch_remove = function(stash, others) {
-
-		let keys = Object.keys(others);
-
-		for (let k = 0, kl = keys.length; k < kl; k++) {
-
-			let key   = keys[k];
-			let index = this.load.indexOf(key);
-			if (index !== -1) {
-
-				if (this.ready.indexOf(key) === -1) {
-					this.ready.push(null);
-					this.load.splice(index, 1);
-				}
-
-			}
-
-		}
-
-
-		if (this.load.length === 0) {
-			stash.trigger('batch', [ 'remove', this.ready ]);
-			stash.unbind('sync', _on_batch_remove);
-		}
-
-	};
-
-	const _on_batch_write = function(stash, others) {
-
-		let keys = Object.keys(others);
-
-		for (let k = 0, kl = keys.length; k < kl; k++) {
-
-			let key   = keys[k];
-			let index = this.load.indexOf(key);
-			if (index !== -1) {
-
-				if (this.ready.indexOf(key) === -1) {
-					this.ready.push(others[key]);
-					this.load.splice(index, 1);
-				}
-
-			}
-
-		}
-
-
-		if (this.load.length === 0) {
-			stash.trigger('batch', [ 'write', this.ready ]);
-			stash.unbind('sync', _on_batch_write);
-		}
 
 	};
 
@@ -495,7 +450,6 @@ lychee.define('lychee.Stash').tags({
 
 			let result = false;
 
-
 			if (Object.keys(this.__assets).length > 0) {
 
 				this.__operations.push({
@@ -504,13 +458,11 @@ lychee.define('lychee.Stash').tags({
 
 			}
 
-
 			if (this.__operations.length > 0) {
 				result = _write_stash.call(this, silent);
 			} else {
 				result = _read_stash.call(this, silent);
 			}
-
 
 			return result;
 
@@ -568,177 +520,154 @@ lychee.define('lychee.Stash').tags({
 		 * CUSTOM API
 		 */
 
-		batch: function(action, ids, assets) {
+		read: function(urls, callback, scope) {
 
-			action = typeof action === 'string' ? action : null;
-			ids    = ids instanceof Array       ? ids    : null;
-			assets = assets instanceof Array    ? assets : null;
-
-
-			if (action !== null) {
-
-				let cache  = {
-					load:  Array.from(ids),
-					ready: []
-				};
+			urls     = urls instanceof Array        ? urls     : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
 
 
-				let result = true;
-				let that   = this;
+			if (urls !== null) {
 
-				if (action === 'read') {
+				let result  = [];
+				let loading = 0;
 
-					for (let i = 0, il = ids.length; i < il; i++) {
+				for (let u = 0, ul = urls.length; u < ul; u++) {
 
-						let asset = this.read(ids[i]);
+					let url = urls[u];
+					if (typeof url === 'string') {
+
+						let asset = new _Asset(url, null, true);
 						if (asset !== null) {
 
-							asset.onload = function(result) {
+							loading++;
 
-								let index = cache.load.indexOf(this.url);
-								if (index !== -1) {
-									cache.ready.push(this);
-									cache.load.splice(index, 1);
-								}
+							asset.onload = function() {
 
-								if (cache.load.length === 0) {
-									that.trigger('batch', [ 'read', cache.ready ]);
+								loading--;
+
+								if (callback !== null && loading === 0) {
+									callback.call(scope, result);
 								}
 
 							};
 
+							this.__assets[url] = asset;
+							result.push(asset);
 							asset.load();
 
-						} else {
+						}
 
-							result = false;
+					}
+
+				}
+
+				if (callback !== null) {
+					return;
+				} else {
+					return result;
+				}
+
+			}
+
+
+			if (callback !== null) {
+				callback.call(scope, []);
+			} else {
+				return [];
+			}
+
+		},
+
+		remove: function(urls, callback, scope) {
+
+			urls     = urls instanceof Array        ? urls     : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (urls !== null) {
+
+				for (let u = 0, ul = urls.length; u < ul; u++) {
+
+					let url = urls[u];
+					if (typeof url === 'string') {
+						this.__operations.push({
+							type: 'remove',
+							id:   urls[u]
+						});
+					}
+
+				}
+
+				_write_stash.call(this);
+
+				if (callback !== null) {
+					callback.call(scope, true);
+					return;
+				} else {
+					return true;
+				}
+
+			}
+
+
+			if (callback !== null) {
+				callback.call(scope, false);
+			} else {
+				return false;
+			}
+
+		},
+
+		write: function(urls, assets, callback, scope) {
+
+			urls     = urls instanceof Array        ? urls     : null;
+			assets   = assets instanceof Array      ? assets   : null;
+			callback = callback instanceof Function ? callback : null;
+			scope    = scope !== undefined          ? scope    : this;
+
+
+			if (urls !== null && assets !== null) {
+
+				if (urls.length === assets.length) {
+
+					for (let u = 0, ul = urls.length; u < ul; u++) {
+
+						let url   = urls[u];
+						let asset = assets[u];
+
+						if (typeof url === 'string' && _validate_asset(asset) === true) {
+
+							this.__operations.push({
+								type:  'update',
+								id:    url,
+								asset: asset
+							});
 
 						}
 
 					}
 
+					_write_stash.call(this);
 
-					return result;
-
-				} else if (action === 'remove') {
-
-					this.bind('#sync', _on_batch_remove, cache);
-
-					for (let i = 0, il = ids.length; i < il; i++) {
-
-						if (this.remove(ids[i]) === false) {
-							result = false;
-						}
-
+					if (callback !== null) {
+						callback.call(scope, true);
+						return;
+					} else {
+						return true;
 					}
-
-					if (result === false) {
-						this.unbind('sync', _on_batch_remove);
-					}
-
-
-					return result;
-
-				} else if (action === 'write' && ids.length === assets.length) {
-
-					this.bind('#sync', _on_batch_write, cache);
-
-					for (let i = 0, il = ids.length; i < il; i++) {
-
-						if (this.write(ids[i], assets[i]) === false) {
-							result = false;
-						}
-
-					}
-
-					if (result === false) {
-						this.unbind('sync', _on_batch_write);
-					}
-
-
-					return result;
 
 				}
 
 			}
 
 
-			return false;
-
-		},
-
-		read: function(id) {
-
-			id = typeof id === 'string' ? id : null;
-
-
-			if (id !== null) {
-
-				let asset = new lychee.Asset(id, null, true);
-				if (asset !== null) {
-
-					this.__assets[id] = asset;
-
-					return asset;
-
-				}
-
+			if (callback !== null) {
+				callback.call(scope, false);
+			} else {
+				return false;
 			}
-
-
-			return null;
-
-		},
-
-		remove: function(id) {
-
-			id = typeof id === 'string' ? id : null;
-
-
-			if (id !== null) {
-
-				this.__operations.push({
-					type: 'remove',
-					id:   id
-				});
-
-
-				_write_stash.call(this);
-
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
-		write: function(id, asset) {
-
-			id    = typeof id === 'string'          ? id    : null;
-			asset = _validate_asset(asset) === true ? asset : null;
-
-
-			if (id !== null && asset !== null) {
-
-				this.__operations.push({
-					type:  'update',
-					id:    id,
-					asset: asset
-				});
-
-
-				_write_stash.call(this);
-
-
-				return true;
-
-			}
-
-
-			return false;
 
 		},
 

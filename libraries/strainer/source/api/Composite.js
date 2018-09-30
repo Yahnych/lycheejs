@@ -2,7 +2,7 @@
 lychee.define('strainer.api.Composite').requires([
 	'strainer.api.PARSER',
 	'strainer.api.TRANSCRIPTOR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER       = lychee.import('strainer.api.PARSER');
 	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
@@ -51,6 +51,36 @@ lychee.define('strainer.api.Composite').requires([
 	 * HELPERS
 	 */
 
+	const _get_serialize = function(identifier, include) {
+
+		let code = [];
+		let data = lychee.assignunlink({}, _SERIALIZE);
+
+		code.push('function() {');
+		code.push('');
+		code.push('\tlet data = ' + include + '.prototype.serialize.call(this);');
+		code.push('\tdata[\'constructor\'] = \'' + identifier + '\';');
+		code.push('');
+		code.push('');
+		code.push('\tlet states = data[\'arguments\'][0];');
+		code.push('\tlet blob   = (data[\'blob\'] || {});');
+		code.push('');
+		code.push('');
+		code.push('\tdata[\'arguments\'][0] = states;');
+		code.push('\tdata[\'blob\']         = Object.keys(blob).length > 0 ? blob : null;');
+		code.push('');
+		code.push('');
+		code.push('\treturn data;');
+		code.push('');
+		code.push('}');
+
+		data.chunk = code.join('\n');
+		data.hash  = _PARSER.hash(data.chunk);
+
+		return data;
+
+	};
+
 	const _validate_asset = function(asset) {
 
 		if (asset instanceof Object && typeof asset.serialize === 'function') {
@@ -73,7 +103,7 @@ lychee.define('strainer.api.Composite').requires([
 		};
 
 		let lines = stream.split('\n');
-		let line  = lines.findIndex(function(other) {
+		let line  = lines.findIndex(other => {
 
 			if (fuzzy === true) {
 				return other.includes(chunk.trim());
@@ -139,7 +169,12 @@ lychee.define('strainer.api.Composite').requires([
 		let i2 = stream.indexOf(str2, i1);
 
 		if (i1 !== -1 && i2 !== -1) {
-			return 'function' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+
+			let body = '\t\tfunction' + stream.substr(i1 + str1.length, i2 - i1 - str1.length + str2.length).trim();
+			if (body !== '\t\tfunction') {
+				return _PARSER.outdent(body, '\t\t');
+			}
+
 		}
 
 		return 'undefined';
@@ -148,12 +183,18 @@ lychee.define('strainer.api.Composite').requires([
 
 	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
+		let i1 = stream.indexOf('.exports((lychee, global, attachments) => {\n');
+		let d1 = 42;
 		let i2 = stream.indexOf('\n\tconst Composite =');
+
+		if (i1 === -1) {
+			i1 = stream.indexOf('(function(global) {');
+			d1 = 19;
+		}
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48);
+			let body = stream.substr(i1 + d1, i2 - i1 - d1);
 			if (body.length > 0) {
 
 				body.split('\n')
@@ -213,7 +254,7 @@ lychee.define('strainer.api.Composite').requires([
 			let chunk = stream.substr(i1 + 20, i2 - i1 - 17).trim();
 			if (chunk.length > 0) {
 
-				constructor.chunk      = chunk;
+				constructor.chunk      = _PARSER.outdent('\t' + chunk.trim(), '\t');
 				constructor.type       = 'function';
 				constructor.hash       = _PARSER.hash(chunk);
 				constructor.memory     = _PARSER.memory(chunk);
@@ -287,10 +328,7 @@ lychee.define('strainer.api.Composite').requires([
 								let mutations = _PARSER.mutations(prop.chunk, body);
 								if (mutations.length > 0) {
 
-									let val = mutations.find(function(mutation) {
-										return mutation.type !== 'undefined';
-									});
-
+									let val = mutations.find(mutation => mutation.type !== 'undefined');
 									if (val !== undefined) {
 										prop.type  = val.type;
 										prop.value = val.value;
@@ -339,60 +377,59 @@ lychee.define('strainer.api.Composite').requires([
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			stream.substr(i1, i2 - i1).trim().split('\n')
-				.filter(function(line) {
+			stream.substr(i1, i2 - i1).trim().split('\n').filter(line => {
 
-					let tmp = line.trim();
-					if (tmp.startsWith('Composite.') && tmp.includes('=')) {
-						return true;
+				let tmp = line.trim();
+				if (tmp.startsWith('Composite.') && tmp.includes('=')) {
+					return true;
+				}
+
+				return false;
+
+			}).forEach(chunk => {
+
+				let enam = null;
+
+				if (chunk.includes('//')) {
+					chunk = chunk.split('//')[0];
+				}
+
+
+				if (chunk.endsWith(';')) {
+
+					enam = _PARSER.enum(chunk.trim());
+
+				} else {
+
+					let name = chunk.split('=')[0].trim().split('.')[1];
+					let body = _find_enum(name, stream);
+
+					if (body !== 'undefined') {
+						enam = _PARSER.enum(body);
 					}
 
-					return false;
-
-				}).forEach(function(chunk) {
-
-					let enam = null;
-
-					if (chunk.includes('//')) {
-						chunk = chunk.split('//')[0];
-					}
+				}
 
 
-					if (chunk.endsWith(';')) {
+				if (enam !== null && enam.name !== undefined) {
 
-						enam = _PARSER.enum(chunk.trim());
+					if (enam.values !== undefined) {
 
-					} else {
+						enums[enam.name] = {
+							values: enam.values
+						};
 
-						let name = chunk.split('=')[0].trim().split('.')[1];
-						let body = _find_enum(name, stream);
+					} else if (enam.value !== undefined) {
 
-						if (body !== 'undefined') {
-							enam = _PARSER.enum(body);
-						}
-
-					}
-
-
-					if (enam !== null && enam.name !== undefined) {
-
-						if (enam.values !== undefined) {
-
-							enums[enam.name] = {
-								values: enam.values
-							};
-
-						} else if (enam.value !== undefined) {
-
-							enums[enam.name] = {
-								value: enam.value
-							};
-
-						}
+						enums[enam.name] = {
+							value: enam.value
+						};
 
 					}
 
-				});
+				}
+
+			});
 
 		}
 
@@ -437,7 +474,7 @@ lychee.define('strainer.api.Composite').requires([
 
 				if (c_params.length > e_params.length) {
 
-					c_params.forEach(function(param, c) {
+					c_params.forEach((param, c) => {
 
 						let other = e_params[c];
 						if (other !== undefined) {
@@ -454,7 +491,7 @@ lychee.define('strainer.api.Composite').requires([
 
 				} else {
 
-					e_params.forEach(function(param, e) {
+					e_params.forEach((param, e) => {
 
 						let other = c_params[e];
 						if (other !== undefined) {
@@ -485,11 +522,7 @@ lychee.define('strainer.api.Composite').requires([
 
 			let ewents = _PARSER.events(construct);
 			if (ewents.length > 0) {
-
-				ewents.forEach(function(event) {
-					_add_event(events, event);
-				});
-
+				ewents.forEach(event => _add_event(events, event));
 			}
 
 		}
@@ -500,11 +533,7 @@ lychee.define('strainer.api.Composite').requires([
 			let chunk  = method.chunk;
 			let ewents = _PARSER.events(chunk);
 			if (ewents.length > 0) {
-
-				ewents.forEach(function(event) {
-					_add_event(events, event, mid);
-				});
-
+				ewents.forEach(event => _add_event(events, event, mid));
 			}
 
 		}
@@ -540,7 +569,6 @@ lychee.define('strainer.api.Composite').requires([
 
 				let name = chunk.split(':')[0].trim();
 				let body = _find_method(name, stream);
-
 				if (body !== 'undefined') {
 					methods[name] = _PARSER.detect(body);
 				}
@@ -721,7 +749,7 @@ lychee.define('strainer.api.Composite').requires([
 
 						check.type = 'Object';
 
-					} else if (/^(main|client|remote|server)$/g.test(check.name) === false) {
+					} else if (/^(main|server)$/g.test(check.name) === false) {
 
 						let chunk = result.constructor.chunk.split('\n')[0];
 						let ref   = _find_reference('\n\tconst Composite = ' + chunk, stream);
@@ -736,6 +764,20 @@ lychee.define('strainer.api.Composite').requires([
 						});
 
 					}
+
+				} else if (result.constructor.parameters.length > 1) {
+
+					let chunk = result.constructor.chunk.split('\n')[0];
+					let ref   = _find_reference('\n\tconst Composite = ' + chunk, stream);
+
+					errors.push({
+						url:       null,
+						rule:      'no-composite',
+						reference: 'constructor',
+						message:   'Composite has too many arguments.',
+						line:      ref.line,
+						column:    ref.column
+					});
 
 				} else {
 
@@ -856,10 +898,7 @@ lychee.define('strainer.api.Composite').requires([
 						let method = result.methods['set' + p.charAt(0).toUpperCase() + p.substr(1)] || null;
 						if (method !== null) {
 
-							let found = method.parameters.find(function(val) {
-								return p === val.name;
-							});
-
+							let found = method.parameters.find(val => p === val.name);
 							if (found !== undefined && found.type !== 'undefined') {
 								property.value.type = found.type;
 							}
@@ -945,8 +984,9 @@ lychee.define('strainer.api.Composite').requires([
 				let api = asset.buffer;
 				if (api instanceof Object) {
 
-					let memory = api.memory || null;
-					let result = api.result || null;
+					let header = api.header || {};
+					let memory = api.memory || {};
+					let result = api.result || {};
 
 
 					if (memory instanceof Object) {
@@ -962,28 +1002,85 @@ lychee.define('strainer.api.Composite').requires([
 
 					}
 
-
-					let construct = result.constructor || null;
+					let construct = Object.hasOwnProperty.call(result, 'constructor') ? result.constructor : null;
 					if (construct !== null) {
 
 						let chunk = _TRANSCRIPTOR.transcribe('Composite', construct);
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							code.push('\t' + chunk);
+							code.push(_PARSER.indent(chunk, '\t'));
+						}
+
+					} else {
+
+						construct = {
+							chunk:      null,
+							hash:       null,
+							type:       'function',
+							parameters: [{
+								chunk: null,
+								name: 'data',
+								type: 'Object'
+							}]
+						};
+
+						let chunk = _TRANSCRIPTOR.transcribe('Composite', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					}
 
 
-					if (Object.keys(result.methods).length > 0) {
+					let methods = result.methods || {};
 
-						let chunk = _TRANSCRIPTOR.transcribe('Composite.prototype', result.methods, true);
-						if (chunk !== null) {
-							code.push('');
-							code.push('');
-							code.push('\t' + chunk);
+					let check_serialize = methods.serialize || null;
+					if (check_serialize === null) {
+
+						let includes  = header.includes || [];
+						let variables = Object.keys(memory).filter(variable => {
+
+							let data = memory[variable] || null;
+							if (data !== null) {
+
+								if (data.type === 'lychee.Definition') {
+									return includes.includes(data.value.reference);
+								}
+
+							}
+
+							return false;
+
+						});
+
+						methods.serialize = _get_serialize(header.identifier, variables[0]);
+
+					}
+
+					let mids = Object.keys(methods);
+					if (mids.length > 0) {
+
+						code.push('');
+						code.push('');
+						code.push('\tComposite.prototype = {');
+
+						let last = mids[mids.length - 1];
+
+						for (let mid in methods) {
+
+							let chunk = _TRANSCRIPTOR.transcribe(null, methods[mid]);
+							if (chunk !== null) {
+								code.push('');
+								code.push('\t\t' + mid + ': ' + _PARSER.indent(chunk, '\t\t').trim() + ((mid === last) ? '' : ','));
+							}
+
 						}
+
+						code.push('');
+						code.push('\t};');
 
 					}
 

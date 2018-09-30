@@ -178,12 +178,12 @@ const _bootup = function(settings) {
 	lychee.ROOT.project = lychee.ROOT.lychee + '/libraries/strainer';
 
 	lychee.init(null);
-	lychee.pkg('build', 'node/fixer', function(environment) {
+	lychee.pkg('build', 'node/fixer', environment => {
 
 		lychee.init(environment, {
 			debug:   false,
 			sandbox: true
-		}, function(sandbox) {
+		}, sandbox => {
 
 			if (sandbox !== null) {
 
@@ -191,13 +191,13 @@ const _bootup = function(settings) {
 				let strainer = sandbox.strainer;
 
 
+				// Show less debug messages
+				lychee.debug = false;
+
+
 				// This allows using #MAIN in JSON files
 				sandbox.MAIN = new strainer.Fixer(settings);
-
-				sandbox.MAIN.bind('destroy', function(code) {
-					process.exit(code);
-				});
-
+				sandbox.MAIN.bind('destroy', code => process.exit(code));
 				sandbox.MAIN.init();
 
 
@@ -212,7 +212,7 @@ const _bootup = function(settings) {
 				process.on('SIGABRT', _on_process_error);
 				process.on('SIGTERM', _on_process_error);
 				process.on('error',   _on_process_error);
-				process.on('exit',    function() {});
+				process.on('exit',    code => {});
 
 			} else {
 

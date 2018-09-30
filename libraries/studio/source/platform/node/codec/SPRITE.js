@@ -1,7 +1,7 @@
 
 lychee.define('studio.codec.SPRITE').tags({
 	platform: 'node'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -23,7 +23,7 @@ lychee.define('studio.codec.SPRITE').tags({
 	// XXX: This is correct
 	// return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	// const _Canvas = global.require('canvas');
 	// const _CANVAS = new _Canvas(300, 150);
@@ -66,7 +66,7 @@ lychee.define('studio.codec.SPRITE').tags({
 		let frame_width  = 0;
 		let frame_height = 0;
 
-		textures.forEach(function(texture) {
+		textures.forEach(texture => {
 			frame_width  = Math.max(frame_width,  texture.width);
 			frame_height = Math.max(frame_height, texture.height);
 		});
@@ -109,15 +109,10 @@ lychee.define('studio.codec.SPRITE').tags({
 
 		} else {
 
-			let border = _BORDER.find(function(value) {
-				return value > frame_width && value > frame_height;
-			}) || null;
-
+			let border = _BORDER.find(v => v > frame_width && v > frame_height) || null;
 			if (border !== null) {
-
 				atlas_border = border;
 				atlas_frames = 1;
-
 			}
 
 		}
@@ -184,7 +179,7 @@ lychee.define('studio.codec.SPRITE').tags({
 		 * 1. Measure frame dimensions
 		 */
 
-		settings.textures.forEach(function(texture, index) {
+		settings.textures.forEach((texture, index) => {
 
 			let state   = texture.url.split('/').pop().toLowerCase().split('_')[0].split('.')[0];
 			let mapx    = (index % atlas.frames)       * atlas.frame.width;
@@ -220,7 +215,7 @@ lychee.define('studio.codec.SPRITE').tags({
 		 * 2. Generate Config States
 		 */
 
-		settings.textures.forEach(function(texture) {
+		settings.textures.forEach(texture => {
 
 			let state = texture.url.split('/').pop().toLowerCase().split('_')[0].split('.')[0];
 			if (states[state] === undefined) {
@@ -240,7 +235,7 @@ lychee.define('studio.codec.SPRITE').tags({
 		});
 
 
-		frames.forEach(function(frame) {
+		frames.forEach(frame => {
 
 			let state = frame.state;
 			if (map[state] === undefined) {
@@ -298,7 +293,7 @@ lychee.define('studio.codec.SPRITE').tags({
 
 		}
 
-		settings.textures.forEach(function(texture) {
+		settings.textures.forEach(texture => {
 
 			let url = texture.url || null;
 			if (url !== null) {
@@ -316,9 +311,7 @@ lychee.define('studio.codec.SPRITE').tags({
 		_CANVAS.width  = atlas.border;
 		_CANVAS.height = atlas.border;
 
-		frames.forEach(function(frame) {
-			_render_frame(frame);
-		});
+		frames.forEach(frame => _render_frame(frame));
 
 
 

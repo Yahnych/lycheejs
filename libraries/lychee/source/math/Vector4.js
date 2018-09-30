@@ -1,5 +1,5 @@
 
-lychee.define('lychee.math.Vector4').exports(function(lychee, global, attachments) {
+lychee.define('lychee.math.Vector4').exports((lychee, global, attachments) => {
 
 
 

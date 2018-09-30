@@ -4,7 +4,7 @@ lychee.define('studio.ui.element.modify.Music').requires([
 	'lychee.ui.entity.Upload'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Upload  = lychee.import('lychee.ui.entity.Upload');

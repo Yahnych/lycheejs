@@ -2,7 +2,7 @@
 lychee.define('strainer.api.Callback').requires([
 	'strainer.api.PARSER',
 	'strainer.api.TRANSCRIPTOR'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _PARSER       = lychee.import('strainer.api.PARSER');
 	const _TRANSCRIPTOR = lychee.import('strainer.api.TRANSCRIPTOR');
@@ -35,7 +35,7 @@ lychee.define('strainer.api.Callback').requires([
 		};
 
 		let lines = stream.split('\n');
-		let line  = lines.findIndex(function(other) {
+		let line  = lines.findIndex(other => {
 
 			if (fuzzy === true) {
 				return other.includes(chunk.trim());
@@ -63,12 +63,18 @@ lychee.define('strainer.api.Callback').requires([
 
 	const _parse_memory = function(memory, stream, errors) {
 
-		let i1 = stream.indexOf('.exports(function(lychee, global, attachments) {');
+		let i1 = stream.indexOf('.exports((lychee, global, attachments) => {\n');
+		let d1 = 42;
 		let i2 = stream.indexOf('\n\tconst Callback =');
+
+		if (i1 === -1) {
+			i1 = stream.indexOf('(function(global) {');
+			d1 = 19;
+		}
 
 		if (i1 !== -1 && i2 !== -1) {
 
-			let body = stream.substr(i1 + 48, i2 - i1 - 48);
+			let body = stream.substr(i1 + d1, i2 - i1 - d1);
 			if (body.length > 0) {
 
 				body.split('\n')
@@ -128,7 +134,7 @@ lychee.define('strainer.api.Callback').requires([
 			let chunk = stream.substr(i1 + 19, i2 - i1 - 16).trim();
 			if (chunk.length > 0) {
 
-				constructor.chunk      = chunk;
+				constructor.chunk      = _PARSER.outdent('\t' + chunk.trim(), '\t');
 				constructor.type       = 'function';
 				constructor.hash       = _PARSER.hash(chunk);
 				constructor.parameters = _PARSER.parameters(chunk);
@@ -245,14 +251,34 @@ lychee.define('strainer.api.Callback').requires([
 					}
 
 
-					let construct = result.constructor || null;
+					let construct = Object.hasOwnProperty.call(result, 'constructor') ? result.constructor : null;
 					if (construct !== null) {
 
 						let chunk = _TRANSCRIPTOR.transcribe('Callback', construct);
 						if (chunk !== null) {
 							code.push('');
 							code.push('');
-							code.push('\t' + chunk);
+							code.push(_PARSER.indent(chunk, '\t'));
+						}
+
+					} else {
+
+						construct = {
+							chunk:      null,
+							hash:       null,
+							type:       'function',
+							parameters: [{
+								chunk: null,
+								name: 'data',
+								type: 'Object'
+							}]
+						};
+
+						let chunk = _TRANSCRIPTOR.transcribe('Callback', construct);
+						if (chunk !== null) {
+							code.push('');
+							code.push('');
+							code.push(_PARSER.indent(chunk, '\t'));
 						}
 
 					}

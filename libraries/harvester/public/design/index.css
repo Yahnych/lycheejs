@@ -15,6 +15,11 @@
 	font-style: normal;
 }
 
+::selection {
+	color: #ffffff;
+	background: #32afe5;
+}
+
 body {
 	color: #efefef;
 	background: #405050;
@@ -42,19 +47,8 @@ body > article div {
 body > article div button,
 body > article div a.button {
 	width: 160px;
-	margin: 0px 16px;
+	margin: 0px 8px;
 	vertical-align: middle;
-}
-
-body > article hr {
-	margin: 16px 0px;
-	border: 0 none;
-	border-top: 1px solid #545454;
-}
-
-body > article > p:last-child {
-	margin-bottom: 0px;
-	text-align: center;
 }
 
 #lychee-MESSAGE {
@@ -103,6 +97,12 @@ article a {
 	text-decoration: none;
 }
 
+article hr {
+	margin: 16px 0px;
+	border: 0 none;
+	border-top: 1px solid #545454;
+}
+
 article label {
 	display: block;
 	height: 64px;
@@ -122,6 +122,11 @@ article p {
 	font-family: 'museo-sans-300';
 	font-size: 16px;
 	text-align: justify;
+}
+
+article > p.message:last-child {
+	margin-bottom: 0px;
+	text-align: center;
 }
 
 article q {
@@ -199,9 +204,14 @@ article a.button:active {
 article pre {
 	display: block;
 	margin: 0px;
-	padding: 16px;
+	padding: 0px;
 	background: #1f2726;
 	overflow: auto;
+}
+
+article pre code {
+	tab-size: 4;
+	padding: 0px 16px;
 }
 
 

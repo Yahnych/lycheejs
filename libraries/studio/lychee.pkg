@@ -20,6 +20,16 @@
 					"json"
 				]
 			},
+			"event": {
+				"flow": {
+					"Font": [
+						"json"
+					],
+					"Sprite": [
+						"json"
+					]
+				}
+			},
 			"net": {
 				"Client": [
 					"json"
@@ -61,6 +71,9 @@
 					"json"
 				]
 			},
+			"strainer": [
+				"pkg"
+			],
 			"ui": {
 				"element": {
 					"modify": {
@@ -204,15 +217,39 @@
 		"files": {
 			"html": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			},
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -242,6 +279,16 @@
 				"Project": [
 					"js"
 				]
+			},
+			"event": {
+				"flow": {
+					"Font": [
+						"js"
+					],
+					"Sprite": [
+						"js"
+					]
+				}
 			},
 			"net": {
 				"Client": [

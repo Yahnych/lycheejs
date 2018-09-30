@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Offset').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Offset').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

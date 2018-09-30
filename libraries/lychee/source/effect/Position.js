@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Position').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Position').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

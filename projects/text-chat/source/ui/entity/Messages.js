@@ -3,11 +3,11 @@ lychee.define('app.ui.entity.Messages').requires([
 	'app.ui.sprite.Avatar'
 ]).includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Avatar = lychee.import('app.ui.sprite.Avatar');
 	const _Entity = lychee.import('lychee.ui.Entity');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 
@@ -141,7 +141,13 @@ lychee.define('app.ui.entity.Messages').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('touch', function() {}, this);
+		this.bind('touch', function() {
+
+			if (this.state === 'active') {
+				// XXX: Do nothing
+			}
+
+		}, this);
 
 		this.bind('relayout', function() {
 			this.__isDirty = true;

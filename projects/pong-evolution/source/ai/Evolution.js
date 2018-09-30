@@ -1,10 +1,9 @@
 
 lychee.define('game.ai.Evolution').requires([
 	'game.ai.Agent'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
-	const _Agent       = lychee.import('game.ai.Agent');
-	const _GENERATIONS = [];
+	const _Agent = lychee.import('game.ai.Agent');
 
 
 
@@ -17,10 +16,12 @@ lychee.define('game.ai.Evolution').requires([
 		let states = Object.assign({}, data);
 
 
-		this.history    = 4;
-		this.population = 16;
+		this.generations = [];
+		this.history     = 4;
+		this.population  = 16;
 
 
+		this.setGenerations(states.generations);
 		this.setHistory(states.history);
 		this.setPopulation(states.population);
 
@@ -35,9 +36,18 @@ lychee.define('game.ai.Evolution').requires([
 
 		serialize: function() {
 
+			let states = {};
+
+
+			if (this.generations.length === 0) states.generations = this.generations;
+			if (this.history !== 4)            states.history     = this.history;
+			if (this.population !== 16)        states.population  = this.population;
+
+
 			return {
 				'constructor': 'game.ai.Evolution',
-				'arguments': []
+				'arguments':   [ states ],
+				'blob':        null
 			};
 
 		},
@@ -50,6 +60,7 @@ lychee.define('game.ai.Evolution').requires([
 
 		cycle: function() {
 
+			let generations  = this.generations;
 			let population   = [];
 			let s_history    = this.history;
 			let s_population = this.population;
@@ -58,7 +69,7 @@ lychee.define('game.ai.Evolution').requires([
 			// No Generations available
 			// - fast route, just generate a new plain one
 
-			if (_GENERATIONS.length === 0) {
+			if (generations.length === 0) {
 
 				for (let p = 0; p < s_population; p++) {
 
@@ -75,8 +86,8 @@ lychee.define('game.ai.Evolution').requires([
 				// - Higher fitness first (to 0)
 				// - Lower fitness last (to length - 1)
 
-				let current        = _GENERATIONS[_GENERATIONS.length - 1];
-				let old_population = current.sort(function(agent_a, agent_b) {
+				let current        = generations[generations.length - 1];
+				let old_population = current.sort((agent_a, agent_b) => {
 					if (agent_a.fitness > agent_b.fitness) return -1;
 					if (agent_a.fitness < agent_b.fitness) return  1;
 					return 0;
@@ -129,19 +140,37 @@ lychee.define('game.ai.Evolution').requires([
 			// Track the Population
 			// - just for the sake of Debugging, tbh.
 
-			_GENERATIONS.push(population);
+			generations.push(population);
 
 
 			// Optionally track more Generations
 			// - in case something goes wrong
 			// - set settings.history to higher value
 
-			if (_GENERATIONS.length > s_history) {
-				_GENERATIONS.splice(0, _GENERATIONS.length - s_history);
+			if (generations.length > s_history) {
+				generations.splice(0, generations.length - s_history);
 			}
 
 
 			return population;
+
+		},
+
+		setGenerations: function(generations) {
+
+			generations = generations instanceof Array ? generations : null;
+
+
+			if (generations !== null) {
+
+				this.generations = generations.map(population => population.filter(agent => agent instanceof _Agent));
+
+				return true;
+
+			}
+
+
+			return false;
 
 		},
 

@@ -5,7 +5,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 	'lychee.ui.Element'
 ]).includes([
 	'lychee.ui.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element  = lychee.import('lychee.ui.Element');
 	const _Layer    = lychee.import('lychee.ui.Layer');
@@ -27,7 +27,6 @@ lychee.define('lychee.ui.Blueprint').requires([
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
 				&& typeof entity.setOrder === 'function'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}
@@ -106,7 +105,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100 * e,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -153,7 +152,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -191,7 +190,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -233,7 +232,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -285,7 +284,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -322,7 +321,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -381,7 +380,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -418,7 +417,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -455,7 +454,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 						entity.addEffect(new _Position({
 							type:     _Position.TYPE.easeout,
 							delay:    100,
-							duration: 300,
+							duration: 250,
 							position: {
 								x: pos_x,
 								y: pos_y
@@ -661,7 +660,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 						this.addEffect(new _Offset({
 							type:     _Offset.TYPE.easeout,
-							duration: 300,
+							duration: 250,
 							offset:   {
 								y: offset_y
 							}
@@ -707,7 +706,7 @@ lychee.define('lychee.ui.Blueprint').requires([
 
 						this.addEffect(new _Offset({
 							type:     _Offset.TYPE.easeout,
-							duration: 300,
+							duration: 250,
 							offset:   {
 								x: offset_x
 							}

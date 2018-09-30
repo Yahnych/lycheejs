@@ -1,10 +1,10 @@
 
 lychee.define('lychee.ui.entity.List').includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
-	const _FONT   = attachments["fnt"];
+	const _FONT   = attachments['fnt'];
 
 
 
@@ -338,13 +338,11 @@ lychee.define('lychee.ui.entity.List').includes([
 
 				}
 
-				this.options = options.map(function(option) {
-					return '' + option;
-				});
+				this.options = options.map(option => '' + option);
 
-				this.options.forEach(function(option) {
+				this.options.forEach(option => {
 					this.value[option] = this.value[option] === true;
-				}.bind(this));
+				});
 
 
 				return true;
@@ -403,9 +401,9 @@ lychee.define('lychee.ui.entity.List').includes([
 				let prev   = Object.keys(value)[0] || null;
 
 
-				this.options.forEach(function(option) {
+				this.options.forEach(option => {
 					value[option] = value[option] !== undefined ? value[option] === true : this.value[option];
-				}.bind(this));
+				});
 
 				cursor.previous = prev;
 				this.value      = value;

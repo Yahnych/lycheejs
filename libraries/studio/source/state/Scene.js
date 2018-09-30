@@ -9,11 +9,11 @@ lychee.define('studio.state.Scene').requires([
 	'lychee.ui.Layer'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _State = lychee.import('lychee.ui.State');
 	const _SCENE = lychee.import('studio.codec.SCENE');
-	const _BLOB  = attachments["json"].buffer;
+	const _BLOB  = attachments['json'].buffer;
 
 
 
@@ -87,15 +87,11 @@ lychee.define('studio.state.Scene').requires([
 
 			if (modify !== null && preview !== null) {
 
-				modify.bind('change', function(value) {
-
+				modify.bind('change', value => {
 					preview.setValue(value);
-
-					setTimeout(function() {
-						preview.trigger('relayout');
-					}, 200);
-
+					setTimeout(_ => preview.trigger('relayout'), 200);
 				}, this);
+
 				preview.bind('change', _on_preview_change, this);
 
 			}
@@ -123,7 +119,7 @@ lychee.define('studio.state.Scene').requires([
 
 					let remaining = scenes.length;
 
-					scenes.forEach(function(path) {
+					scenes.forEach(path => {
 
 						let config = new Config(sandbox + '/' + path);
 

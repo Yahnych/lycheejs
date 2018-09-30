@@ -4,7 +4,7 @@ lychee.define('lychee.ui.entity.Texture').requires([
 	'lychee.ui.Sprite'
 ]).includes([
 	'lychee.ui.Entity'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Entity = lychee.import('lychee.ui.Entity');
 	const _Upload = lychee.import('lychee.ui.entity.Upload');

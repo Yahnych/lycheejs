@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 	platform: 'node'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (typeof global.require === 'function') {
 
@@ -22,12 +22,12 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _child_process = global.require('child_process');
 	const _Button        = lychee.import('lychee.ui.entity.Button');
-	const _CONFIG        = attachments["json"].buffer;
-	const _TEXTURE       = attachments["png"];
+	const _CONFIG        = attachments['json'].buffer;
+	const _TEXTURE       = attachments['png'];
 	const _ROOT          = lychee.ROOT.lychee;
 
 
@@ -77,7 +77,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 	};
 
-	const _help = function(value) {
+	const _on_change = function(value) {
 
 		let action = value.split('=')[0];
 		let result = false;
@@ -92,11 +92,11 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 			try {
 
-				let helper = _child_process.execFile(_ROOT + '/bin/helper.sh', [
+				let helper = _child_process.execFile(_ROOT + '/bin/helper/helper.sh', [
 					'lycheejs://' + value
 				], {
 					cwd: _ROOT
-				}, function(error, stdout, stderr) {
+				}, (error, stdout, stderr) => {
 
 					stderr = (stderr.trim() || '').toString();
 
@@ -104,7 +104,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 						if (lychee.debug === true) {
 
-							stderr.trim().split('\n').forEach(function(line) {
+							stderr.trim().split('\n').forEach(line => {
 								console.error('lychee.ui.entity.Helper: "' + line.trim() + '"');
 							});
 
@@ -114,14 +114,21 @@ lychee.define('lychee.ui.entity.Helper').tags({
 
 				});
 
-				helper.stdout.on('data', function(lines) {});
-				helper.stderr.on('data', function(lines) {});
+				helper.stdout.on('data', _ => {
+					// XXX: Do nothing
+				});
 
-				helper.on('error', function() {
+				helper.stderr.on('data', _ => {
+					// XXX: Do nothing
+				});
+
+				helper.on('error', _ => {
 					this.kill('SIGTERM');
 				});
 
-				helper.on('exit', function(code) {});
+				helper.on('exit', code => {
+					// XXX: Do nothing
+				});
 
 				result = true;
 
@@ -164,9 +171,7 @@ lychee.define('lychee.ui.entity.Helper').tags({
 		 * INITIALIZATION
 		 */
 
-		this.bind('change', function(value) {
-			return _help(value);
-		}, this);
+		this.bind('change', _on_change, this);
 
 	};
 

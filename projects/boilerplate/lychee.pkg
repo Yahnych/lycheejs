@@ -11,12 +11,7 @@
 				"Server": [
 					"json"
 				],
-				"client": {
-					"Ping": [
-						"json"
-					]
-				},
-				"remote": {
+				"service": {
 					"Ping": [
 						"json"
 					]
@@ -26,7 +21,10 @@
 				"Welcome": [
 					"json"
 				]
-			}
+			},
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
@@ -120,12 +118,7 @@
 				"Server": [
 					"js"
 				],
-				"client": {
-					"Ping": [
-						"js"
-					]
-				},
-				"remote": {
+				"service": {
 					"Ping": [
 						"js"
 					]

@@ -9,28 +9,16 @@ LYCHEEJS_HELPER=`which lycheejs-helper`;
 if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="$PWD";
 	LYCHEEJS_FERTILIZER="$PWD/libraries/fertilizer/bin/fertilizer.sh";
-	LYCHEEJS_HELPER="$PWD/bin/helper.sh";
+	LYCHEEJS_HELPER="$PWD/bin/helper/helper.sh";
 fi;
 
 
 if [ "$LYCHEEJS_HELPER" != "" ] && [ "$LYCHEEJS_FERTILIZER" != "" ]; then
 
-	cd $LYCHEEJS_ROOT/libraries/studio;
-	cp ./index-normal.html ./index.html;
-	sed -i "s|/libraries/lychee/build/html|file:///opt/lycheejs/libraries/lychee/build/html-nwjs|g" index.html;
-	sed -i "s|'html/main'|'html-nwjs/main'|g" index.html;
-
 	cd $LYCHEEJS_ROOT;
 
-	bash $LYCHEEJS_FERTILIZER html-nwjs/main /libraries/studio;
-
-	project="$1";
-
-	if [ "$project" != "" ]; then
-		bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio "$project";
-	else
-		bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio;
-	fi;
+	bash $LYCHEEJS_FERTILIZER /libraries/studio html-nwjs/main;
+	bash $LYCHEEJS_HELPER run:html-nwjs/main /libraries/studio "$1" "$2" "$3" "$4";
 
 	exit $?;
 

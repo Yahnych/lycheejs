@@ -1,15 +1,15 @@
 
 lychee.define('lychee.net.Client').requires([
-	'lychee.net.client.Debugger',
-	'lychee.net.client.Stash',
-	'lychee.net.client.Storage'
+	'lychee.net.service.Debugger',
+	'lychee.net.service.Stash',
+	'lychee.net.service.Storage'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
-	const _Debugger = lychee.import('lychee.net.client.Debugger');
-	const _Stash    = lychee.import('lychee.net.client.Stash');
-	const _Storage  = lychee.import('lychee.net.client.Storage');
+	const _Debugger = lychee.import('lychee.net.service.Debugger');
+	const _Stash    = lychee.import('lychee.net.service.Stash');
+	const _Storage  = lychee.import('lychee.net.service.Storage');
 	const _Tunnel   = lychee.import('lychee.net.Tunnel');
 
 
@@ -22,6 +22,8 @@ lychee.define('lychee.net.Client').requires([
 
 		let states = Object.assign({}, data);
 
+
+		states.type = 'client';
 
 		_Tunnel.call(this, states);
 
@@ -36,7 +38,12 @@ lychee.define('lychee.net.Client').requires([
 		if (lychee.debug === true) {
 
 			this.bind('connect', function() {
-				this.addService(new _Debugger(this));
+
+				this.addService(new _Debugger({
+					id: 'debugger',
+					tunnel: this
+				}));
+
 			}, this);
 
 		}
@@ -44,8 +51,15 @@ lychee.define('lychee.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new _Stash(this));
-			this.addService(new _Storage(this));
+			this.addService(new _Stash({
+				id: 'stash',
+				tunnel: this
+			}));
+
+			this.addService(new _Storage({
+				id: 'storage',
+				tunnel: this
+			}));
 
 		}, this);
 

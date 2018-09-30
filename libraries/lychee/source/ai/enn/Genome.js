@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.enn.Genome').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.enn.Genome').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

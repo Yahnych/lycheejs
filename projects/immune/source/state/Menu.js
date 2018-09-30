@@ -9,10 +9,10 @@ lychee.define('game.state.Menu').requires([
 	'lychee.ui.entity.Label'
 ]).includes([
 	'lychee.app.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _State     = lychee.import('lychee.app.State');
-	const _BLOB      = attachments["json"].buffer;
+	const _BLOB      = attachments['json'].buffer;
 	const _CAMPAIGNS = _BLOB.campaigns;
 	const _PALETTE   = {
 	};
@@ -29,7 +29,7 @@ lychee.define('game.state.Menu').requires([
 	const _move_unit = function(id, position, delta) {
 
 		let confirm = this.query('ui > confirm');
-		if (confirm !== null && confirm.isAtPosition(position)) {
+		if (confirm !== null && confirm.confines(position)) {
 			return;
 		}
 
@@ -41,11 +41,7 @@ lychee.define('game.state.Menu').requires([
 				this.query('game > immune'),
 				this.query('game > virus'),
 				this.query('game > neutral')
-			].filter(function(cell) {
-				return cell !== null;
-			});
-
-
+			].filter(cell => cell !== null);
 			let found = null;
 			let fdist = Infinity;
 
@@ -106,10 +102,7 @@ lychee.define('game.state.Menu').requires([
 					if (campaign !== null && subtitle !== null) {
 
 						let index = found.vesicles.indexOf(vesicle);
-						let level = campaign.find(function(entry) {
-							return entry.vesicle === index;
-						}) || null;
-
+						let level = campaign.find(entry => entry.vesicle === index) || null;
 						if (level !== null) {
 
 							subtitle.setValue(level.label);

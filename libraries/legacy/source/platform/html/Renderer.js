@@ -3,7 +3,7 @@ lychee.define('legacy.Renderer').tags({
 	platform: 'html'
 }).includes([
 	'lychee.Renderer'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.document !== 'undefined'
@@ -25,7 +25,7 @@ lychee.define('legacy.Renderer').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Renderer = lychee.import('lychee.Renderer');
 	const _CACHE    = {
@@ -43,25 +43,27 @@ lychee.define('legacy.Renderer').tags({
 
 	const _render_template = function(identifier, asset) {
 
-		let wrapper  = document.createElement('custom-wrapper');
-		let raw_html = (asset.buffer || '');
-		let dynamic  = /\$\{([A-Za-z]+)\}/g.test(raw_html);
-		let element  = null;
+		let element = null;
 
+		if (asset.buffer !== null) {
 
-		wrapper.innerHTML = raw_html;
+			let wrapper  = document.createElement('custom-wrapper');
+			let raw_html = asset.buffer.toString('utf8');
+			let dynamic  = /\$\{([A-Za-z]+)\}/g.test(raw_html);
 
+			wrapper.innerHTML = raw_html;
 
-		let tmp = wrapper.querySelector('template');
-		if (tmp !== null) {
+			let tmp = wrapper.querySelector('template');
+			if (tmp !== null) {
 
-			element = global.document.createElement(identifier);
-			element._template = raw_html;
-			element._dynamic  = dynamic;
-			element.innerHTML = tmp.innerHTML;
+				element = global.document.createElement(identifier);
+				element._template = raw_html;
+				element._dynamic  = dynamic;
+				element.innerHTML = tmp.innerHTML;
+
+			}
 
 		}
-
 
 		return element;
 
@@ -69,53 +71,57 @@ lychee.define('legacy.Renderer').tags({
 
 	const _render_stylesheet = function(identifier, asset) {
 
-		let raw_css = (asset.buffer || '');
+		let stylesheet = null;
 
+		if (asset.buffer !== null) {
 
-		raw_css += '\n' + identifier + '{\ndisplay:block;\nposition: absolute;\n}';
-		raw_css  = raw_css.split('\n').map(function(line) {
+			let raw_css = asset.buffer.toString('utf8');
 
-			let tmp = line.trim();
-			if (tmp.startsWith(':host(')) {
+			raw_css += '\n' + identifier + '{\ndisplay:block;\nposition: absolute;\n}';
+			raw_css  = raw_css.split('\n').map(line => {
 
-				let i3 = tmp.indexOf(')', 6);
-				let i4 = tmp.indexOf(' ', 6);
+				let tmp = line.trim();
+				if (tmp.startsWith(':host(')) {
 
-				if (i3 !== -1 && i3 < i4) {
-					return identifier + tmp.substr(6, i3 - 6) + tmp.substr(i3 + 1);
+					let i3 = tmp.indexOf(')', 6);
+					let i4 = tmp.indexOf(' ', 6);
+
+					if (i3 !== -1 && i3 < i4) {
+						return identifier + tmp.substr(6, i3 - 6) + tmp.substr(i3 + 1);
+					}
+
+				} else if (tmp.startsWith(':host')) {
+					return identifier + tmp.substr(5);
+				} else if (tmp.indexOf(':host') !== -1) {
+					return tmp.split(':host').join(identifier);
 				}
 
-			} else if (tmp.startsWith(':host')) {
-				return identifier + tmp.substr(5);
-			} else if (tmp.indexOf(':host') !== -1) {
-				return tmp.split(':host').join(identifier);
+
+				return tmp;
+
+			}).map(line => {
+
+				let tmp = line.trim();
+				if (tmp.startsWith('::content')) {
+					return identifier + ' content ' + tmp.substr(9);
+				} else if (tmp.indexOf(' ::content') !== -1) {
+					return tmp.split(' ::content').join(' content');
+				}
+
+
+				return tmp;
+
+			}).join('\n');
+
+			stylesheet = global.document.createElement('style');
+
+			if (stylesheet !== null) {
+				stylesheet.setAttribute('data-identifier', identifier);
+				stylesheet.innerHTML = raw_css;
+				global.document.head.appendChild(stylesheet);
 			}
 
-
-			return tmp;
-
-		}).map(function(line) {
-
-			let tmp = line.trim();
-			if (tmp.startsWith('::content')) {
-				return identifier + ' content ' + tmp.substr(9);
-			} else if (tmp.indexOf(' ::content') !== -1) {
-				return tmp.split(' ::content').join(' content');
-			}
-
-
-			return tmp;
-
-		}).join('\n');
-
-
-		let stylesheet = global.document.createElement('style');
-		if (stylesheet !== null) {
-			stylesheet.setAttribute('data-identifier', identifier);
-			stylesheet.innerHTML = raw_css;
-			global.document.head.appendChild(stylesheet);
 		}
-
 
 		return stylesheet;
 

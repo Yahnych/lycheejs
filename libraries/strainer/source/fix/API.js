@@ -1,5 +1,5 @@
 
-lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) {
+lychee.define('strainer.fix.API').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -175,8 +175,8 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 						let i3 = code.indexOf('attaches({');
 						let i4 = code.indexOf('requires([');
 						let i5 = code.indexOf('includes([');
-						let i6 = code.indexOf('supports(function(lychee, global) {');
-						let i7 = code.indexOf('exports(function(lychee, global, attachments) {');
+						let i6 = code.indexOf('supports((lychee, global) => {');
+						let i7 = code.indexOf('exports((lychee, global, attachments) => {');
 
 						if (i7 === -1) {
 
@@ -197,7 +197,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 							}
 
 							if (chunk !== null) {
-								return chunk[0] + '.exports(function(lychee, global, attachments) {\n\n\n})' + chunk[1];
+								return chunk[0] + '.exports((lychee, global, attachments) => {\n\n\n})' + chunk[1];
 							}
 
 						}
@@ -206,7 +206,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 
 						let i1 = code.indexOf('lychee.specify(');
 						let i2 = code.indexOf('requires([');
-						let i3 = code.indexOf('exports(function(lychee, sandbox) {');
+						let i3 = code.indexOf('exports((lychee, sandbox) => {');
 
 						if (i3 === -1) {
 
@@ -219,7 +219,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 							}
 
 							if (chunk !== null) {
-								return chunk[0] + '.exports(function(lychee, sandbox) {\n\n\n})' + chunk[1];
+								return chunk[0] + '.exports((lychee, sandbox) => {\n\n\n})' + chunk[1];
 							}
 
 						}
@@ -244,7 +244,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 				let ref = entry.value.reference;
 				let i1  = code.indexOf('requires([');
 				let i2  = code.indexOf('\n])', i1);
-				let i3  = code.indexOf('exports(function(lychee, global, attachments) {\n');
+				let i3  = code.indexOf('exports((lychee, global, attachments) => {\n');
 
 				if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -289,7 +289,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 				let ref = entry.value.reference;
 				let i1  = code.indexOf('includes([');
 				let i2  = code.indexOf('\n])', i1);
-				let i3  = code.indexOf('exports(function(lychee, global, attachments) {\n');
+				let i3  = code.indexOf('exports((lychee, global, attachments) => {\n');
 
 				if (i1 !== -1 && i2 !== -1 && i3 !== -1 && i1 < i3) {
 
@@ -401,10 +401,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 					if (i1 !== -1 && i2 !== -1) {
 
 						let chunk = code.substr(i1, i2 - i1 + 4).split('\n');
-						let i3    = chunk.findIndex(function(line) {
-							return line.includes('states = null');
-						});
-
+						let i3    = chunk.findIndex(line => line.includes('states = null'));
 						if (i3 !== -1) {
 							chunk.splice(i3, 0, '\t\t' + name + '.call(this, states);\n');
 						} else {
@@ -433,7 +430,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 			let ids = report.header.includes;
 			if (type === 'Composite' && ids.length > 0) {
 
-				ids.map(function(id) {
+				ids.map(id => {
 
 					let reference = null;
 
@@ -454,9 +451,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 
 					return reference;
 
-				}).filter(function(reference) {
-					return reference !== null;
-				}).forEach(function(reference, r) {
+				}).filter(reference => reference !== null).forEach(reference => {
 					chunk.push('' + reference + '.prototype.deserialize.call(this, blob);');
 				});
 
@@ -465,15 +460,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 
 			let inject = '\n\t\t// deserialize: function(blob) {},\n';
 			if (chunk.length > 0) {
-
-				inject = '\n\t\tdeserialize: function(blob) {\n\n' + chunk.map(function(ch) {
-					if (ch !== '') {
-						return ch.padStart(ch.length + 3, '\t');
-					} else {
-						return ch;
-					}
-				}).join('\n') + '\n\n\t\t},\n';
-
+				inject = '\n\t\tdeserialize: function(blob) {\n\n' + chunk.map(ch => ch !== '' ? ch.padStart(ch.length + 3, '\t') : ch).join('\n') + '\n\n\t\t},\n';
 			}
 
 
@@ -518,7 +505,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 			let ids = report.header.includes;
 			if (type === 'Composite' && ids.length > 0) {
 
-				ids.map(function(id) {
+				ids.map(id => {
 
 					let reference = null;
 
@@ -539,9 +526,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 
 					return reference;
 
-				}).filter(function(reference) {
-					return reference !== null;
-				}).forEach(function(reference, r) {
+				}).filter(reference => reference !== null).forEach((reference, r) => {
 
 					if (r === 0) {
 						chunk.push('let data = ' + reference + '.prototype.serialize.call(this);');
@@ -573,14 +558,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 			}
 
 
-			let inject = '\n\t\tserialize: function() {\n\n' + chunk.map(function(ch) {
-				if (ch !== '') {
-					return ch.padStart(ch.length + 3, '\t');
-				} else {
-					return ch;
-				}
-			}).join('\n') + '\n\n\t\t}';
-
+			let inject = '\n\t\tserialize: function() {\n\n' + chunk.map(ch => ch !== '' ? ch.padStart(ch.length + 3, '\t') : ch).join('\n') + '\n\n\t\t}';
 			if (has_methods === true) {
 				inject += ',\n\n';
 			} else {
@@ -654,10 +632,7 @@ lychee.define('strainer.fix.API').exports(function(lychee, global, attachments) 
 			let method = report.result.methods[err.reference] || null;
 			if (method !== null) {
 
-				let has_already = method.values.find(function(val) {
-					return val.type !== 'undefined';
-				});
-
+				let has_already = method.values.find(val => val.type !== 'undefined');
 				if (has_already !== undefined) {
 					return code;
 				}

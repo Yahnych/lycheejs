@@ -4,9 +4,62 @@
 			"Main": [
 				"json"
 			],
-			"Template": [
-				"json"
-			],
+			"event": {
+				"Flow": [
+					"json"
+				],
+				"flow": {
+					"Build": [
+						"json"
+					],
+					"Configure": [
+						"json"
+					],
+					"Fertilize": [
+						"json"
+					],
+					"Package": [
+						"json"
+					],
+					"Publish": [
+						"json"
+					],
+					"html": {
+						"Build": [
+							"json"
+						]
+					},
+					"html-nwjs": {
+						"Build": [
+							"json"
+						],
+						"Package": [
+							"json"
+						]
+					},
+					"html-webview": {
+						"Build": [
+							"json"
+						]
+					},
+					"nidium": {
+						"Build": [
+							"json"
+						],
+						"Package": [
+							"json"
+						]
+					},
+					"node": {
+						"Build": [
+							"json"
+						],
+						"Package": [
+							"json"
+						]
+					}
+				}
+			},
 			"platform": {
 				"node": {
 					"data": {
@@ -16,48 +69,9 @@
 					}
 				}
 			},
-			"template": {
-				"html": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"html-nwjs": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"html-webview": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"nidium": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				},
-				"node": {
-					"Application": [
-						"json"
-					],
-					"Library": [
-						"json"
-					]
-				}
-			}
+			"strainer": [
+				"pkg"
+			]
 		}
 	},
 	"build": {
@@ -109,8 +123,39 @@
 		"files": {
 			"node": {
 				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
 					"index": [
 						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
+					]
+				}
+			},
+			"node-sdl": {
+				"dist": {
+					"crux": [
+						"js"
+					],
+					"icon": [
+						"png"
+					],
+					"index": [
+						"js"
+					],
+					"manifest": [
+						"json"
+					],
+					"package": [
+						"json"
 					]
 				}
 			}
@@ -130,9 +175,80 @@
 			"Main": [
 				"js"
 			],
-			"Template": [
-				"js"
-			],
+			"event": {
+				"Flow": [
+					"js"
+				],
+				"flow": {
+					"Build": [
+						"js"
+					],
+					"Configure": [
+						"js"
+					],
+					"Fertilize": [
+						"js"
+					],
+					"Package": [
+						"js"
+					],
+					"Publish": [
+						"js"
+					],
+					"html": {
+						"Build": [
+							"index.appcache",
+							"index.html",
+							"index.js",
+							"js",
+							"package.json"
+						]
+					},
+					"html-nwjs": {
+						"Build": [
+							"index.html",
+							"index.js",
+							"js",
+							"package.json"
+						],
+						"Package": [
+							"js"
+						]
+					},
+					"html-webview": {
+						"Build": [
+							"index.appcache",
+							"index.html",
+							"index.js",
+							"js",
+							"package.json"
+						]
+					},
+					"nidium": {
+						"Build": [
+							"index.js",
+							"index.nml",
+							"js"
+						],
+						"Package": [
+							"index.sh",
+							"js"
+						]
+					},
+					"node": {
+						"Build": [
+							"index.js",
+							"js",
+							"package.json"
+						],
+						"Package": [
+							"index.cmd",
+							"index.sh",
+							"js"
+						]
+					}
+				}
+			},
 			"platform": {
 				"node": {
 					"data": {
@@ -140,64 +256,6 @@
 							"js"
 						]
 					}
-				}
-			},
-			"template": {
-				"html": {
-					"Application": [
-						"appcache.tpl",
-						"config.tpl",
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"html-nwjs": {
-					"Application": [
-						"config.tpl",
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"html-webview": {
-					"Application": [
-						"icon.png",
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"nidium": {
-					"Application": [
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
-				},
-				"node": {
-					"Application": [
-						"index.tpl",
-						"js"
-					],
-					"Library": [
-						"js",
-						"tpl"
-					]
 				}
 			}
 		}

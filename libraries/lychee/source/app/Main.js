@@ -13,7 +13,7 @@ lychee.define('lychee.app.Main').requires([
 	'lychee.net.Server'
 ]).includes([
 	'lychee.event.Emitter'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Client   = lychee.import('lychee.net.Client');
 	const _Emitter  = lychee.import('lychee.event.Emitter');
@@ -120,7 +120,7 @@ lychee.define('lychee.app.Main').requires([
 
 
 			// Give custom clients 1000ms to connect
-			setTimeout(function() {
+			setTimeout(_ => {
 
 				let client = this.client;
 				if (client !== null) {
@@ -138,15 +138,13 @@ lychee.define('lychee.app.Main').requires([
 
 						}, this);
 
-						this.stash.bind('sync', function(assets) {
-							service.sync(assets);
-						}, this);
+						this.stash.bind('sync', assets => service.sync(assets), this);
 
 					}
 
 				}
 
-			}.bind(this), 1000);
+			}, 1000);
 
 		}
 
@@ -156,7 +154,7 @@ lychee.define('lychee.app.Main').requires([
 
 
 			// Give custom clients 1000ms to connect
-			setTimeout(function() {
+			setTimeout(_ => {
 
 				let client = this.client;
 				if (client !== null) {
@@ -174,15 +172,13 @@ lychee.define('lychee.app.Main').requires([
 
 						}, this);
 
-						this.storage.bind('sync', function(objects) {
-							service.sync(objects);
-						}, this);
+						this.storage.bind('sync', objects => service.sync(objects), this);
 
 					}
 
 				}
 
-			}.bind(this), 1000);
+			}, 1000);
 
 		}
 
@@ -622,7 +618,6 @@ lychee.define('lychee.app.Main').requires([
 			data = data !== undefined     ? data : null;
 
 
-			let that     = this;
 			let oldstate = this.state;
 			let newstate = this.__states[id] || null;
 
@@ -631,16 +626,16 @@ lychee.define('lychee.app.Main').requires([
 
 				if (oldstate !== null) {
 
-					oldstate.leave(function(result) {
-						newstate.enter(function(result) {
-							that.state = newstate;
+					oldstate.leave(_ => {
+						newstate.enter(_ => {
+							this.state = newstate;
 						}, data);
 					});
 
 				} else {
 
-					newstate.enter(function(result) {
-						that.state = newstate;
+					newstate.enter(_ => {
+						this.state = newstate;
 					}, data);
 
 				}
@@ -652,8 +647,8 @@ lychee.define('lychee.app.Main').requires([
 
 				if (oldstate !== null) {
 
-					oldstate.leave(function(result) {
-						that.state = null;
+					oldstate.leave(_ => {
+						this.state = null;
 					});
 
 				}

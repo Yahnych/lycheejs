@@ -257,6 +257,31 @@ lychee = (function(global) {
 
 	}
 
+	if (typeof Object.entries !== 'function') {
+
+		Object.entries = function(object) {
+
+			if (object !== Object(object)) {
+				throw new TypeError('Object.entries called on a non-object');
+			}
+
+
+			let values = [];
+
+			for (let prop in object) {
+
+				if (Object.prototype.hasOwnProperty.call(object, prop)) {
+					values.push([ prop, object[prop] ]);
+				}
+
+			}
+
+			return values;
+
+		};
+
+	}
+
 	if (typeof Object.filter !== 'function') {
 
 		Object.filter = function(object, predicate/*, thisArg */) {
@@ -400,7 +425,7 @@ lychee = (function(global) {
 
 				if (value instanceof Array) {
 
-					clone[key] = value.map(function(element) {
+					clone[key] = value.map(element => {
 
 						if (element instanceof Array) {
 							return element;
@@ -527,9 +552,9 @@ lychee = (function(global) {
 				let value = values[k];
 
 				if (value instanceof Array) {
-					value = JSON.stringify(value);
+					value = JSON.stringify(value, null, '\t');
 				} else if (value instanceof Object) {
-					value = JSON.stringify(value);
+					value = JSON.stringify(value, null, '\t');
 				} else if (typeof value !== 'string') {
 					value = '' + value;
 				}
@@ -680,6 +705,59 @@ lychee = (function(global) {
 
 	};
 
+	const _decycle = function(target, object, path) {
+
+		let check = this.has(object);
+		if (check === false) {
+
+			this.set(object, path);
+
+			for (let prop in object) {
+
+				if (object.hasOwnProperty(prop) === true) {
+
+					let ovalue = object[prop];
+					if (ovalue instanceof Array) {
+
+						target[prop] = [];
+
+						let ref = _decycle.call(this, target[prop], object[prop], path + '.' + prop);
+						if (ref !== null) {
+							target[prop] = ref;
+						}
+
+					} else if (ovalue instanceof Object) {
+
+						target[prop] = {};
+
+						let ref = _decycle.call(this, target[prop], object[prop], path + '.' + prop);
+						if (ref !== null) {
+							target[prop] = ref;
+						}
+
+					} else {
+
+						target[prop] = object[prop];
+
+					}
+
+				}
+
+			}
+
+			return null;
+
+		} else {
+
+			return {
+				'reference': this.get(object),
+				'arguments': []
+			};
+
+		}
+
+	};
+
 
 
 	/*
@@ -704,7 +782,7 @@ lychee = (function(global) {
 			project: null
 		},
 
-		VERSION: "2018-Q2",
+		VERSION: '2018-Q3',
 
 
 
@@ -857,6 +935,21 @@ lychee = (function(global) {
 
 
 			return false;
+
+		},
+
+		decycle: function(target, object, path) {
+
+			target = target instanceof Object ? target : {};
+			object = object instanceof Object ? object : null;
+			path   = typeof path === 'string' ? path   : '';
+
+
+			if (object !== null) {
+				_decycle.call(new WeakMap(), target, object, path);
+			}
+
+			return target;
 
 		},
 
@@ -1147,7 +1240,7 @@ lychee = (function(global) {
 					let resolved_composite = _resolve_reference.call(scope, data.constructor);
 					if (typeof resolved_composite === 'function') {
 
-						let bindargs = Array.from(data.arguments).map(function(value) {
+						let bindargs = Array.from(data.arguments).map(value => {
 
 							if (typeof value === 'string' && value.charAt(0) === '#') {
 
@@ -1281,25 +1374,6 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let that = this;
-
-
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-
 				let asset = new lychee.Asset(target, null, false);
 				if (asset !== null) {
 					asset.load();
@@ -1310,8 +1384,9 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.assimilate: Invalid target');
-				console.info('lychee.assimilate: Use lychee.assimilate(target) where target is a path to an Asset');
+				console.warn('lychee.assimilate: Invalid target.');
+				console.info('lychee.assimilate: Use lychee.assimilate(target).');
+				console.info('lychee.assimilate: target is a URL to an Asset.');
 
 			}
 
@@ -1330,34 +1405,23 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let that       = this;
 				let definition = new lychee.Definition({
 					id:  identifier,
 					url: lychee.FILENAME || null
 				});
 
 
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
+				let count   = 0;
+				let sandbox = this;
 
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
+				while (count < 64 && sandbox.environment.sandbox === true) {
+					sandbox = sandbox.environment.global.lychee;
+					count++;
 				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
 
 				definition.exports = function(callback) {
-
 					lychee.Definition.prototype.exports.call(this, callback);
-					that.environment.define(this, false);
-
+					sandbox.environment.define(this, false);
 				};
 
 
@@ -1365,8 +1429,10 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.define: Invalid identifier');
-				console.info('lychee.define: Use lychee.define(id).exports(function(lychee, global, attachments) {})');
+				console.warn('lychee.define: Invalid identifier.');
+				console.info('lychee.define: Use lychee.define(id).exports(function(lychee, global, attachments) {}).');
+				console.info('lychee.define: identifier is a dot-separated notation, e.g. "app.entity.Example".');
+				console.info('lychee.define: The "lycheejs-breeder init <identifier>" command may help you.');
 
 			}
 
@@ -1388,13 +1454,29 @@ lychee = (function(global) {
 
 				let definition = this.environment.definitions[reference] || null;
 				if (definition !== null) {
-					return definition.export(sandbox);
+
+					let result = definition.export(sandbox);
+					if (result === true) {
+
+						let instance = _resolve_reference.call(sandbox, reference);
+						if (instance !== null) {
+							return instance;
+						}
+
+					}
+
 				}
+
+			} else {
+
+				console.warn('lychee.export: Invalid reference.');
+				console.info('lychee.export: Use lychee.export(reference, sandbox).');
+				console.info('lychee.export: reference is a Definition identifier.');
 
 			}
 
 
-			return false;
+			return null;
 
 		},
 
@@ -1408,33 +1490,23 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
+				let count    = 0;
 				let instance = null;
-				let that     = this;
+				let sandbox  = this;
 
-				// XXX: First sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
+				while (count < 64 && sandbox.environment.sandbox === true) {
+					sandbox = sandbox.environment.global.lychee;
+					count++;
 				}
 
-				// XXX: Second sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-				// XXX: Third sandboxed hierarchy
-				if (that.environment.sandbox === true) {
-					that = that.environment.global.lychee;
-				}
-
-
-				let resolved_module = _resolve_reference.call(that.environment.global, reference);
+				let resolved_module = _resolve_reference.call(sandbox.environment.global, reference);
 				if (resolved_module !== null) {
 					instance = resolved_module;
 				}
 
 
 				if (instance === null) {
-					console.info('lychee.deserialize: Require ' + (reference) + ' to import it.');
+					console.info('lychee.import: Require "' + reference + '" to import it.');
 				}
 
 
@@ -1442,8 +1514,9 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.import: Invalid reference');
-				console.info('lychee.import: Use lychee.import(reference)');
+				console.warn('lychee.import: Invalid reference.');
+				console.info('lychee.import: Use lychee.import(reference).');
+				console.info('lychee.import: reference is a Definition identifier.');
 
 			}
 
@@ -1471,13 +1544,13 @@ lychee = (function(global) {
 
 					if (environment instanceof lychee.Environment) {
 
-						Object.values(_environment.definitions).forEach(function(definition) {
+						Object.values(_environment.definitions).forEach(definition => {
 							environment.define(definition, true);
 						});
 
 					} else if (environment instanceof lychee.Simulation) {
 
-						Object.values(_environment.definitions).forEach(function(definition) {
+						Object.values(_environment.definitions).forEach(definition => {
 							environment.environment.define(definition, true);
 						});
 
@@ -1569,7 +1642,7 @@ lychee = (function(global) {
 
 					lychee.setEnvironment(environment);
 
-					environment.init(function(sandbox) {
+					environment.init(sandbox => {
 
 						if (sandbox === null) {
 							console.error('lychee: environment.init() failed.');
@@ -1591,8 +1664,9 @@ lychee = (function(global) {
 
 			} else if (message === true) {
 
-				console.warn('lychee.init: Invalid environment');
-				console.info('lychee.init: Use lychee.init(env, settings, callback) where env can be a lychee.Environment or lychee.Simulation instance.');
+				console.warn('lychee.init: Invalid environment.');
+				console.info('lychee.init: Use lychee.init(environment, settings, callback).');
+				console.info('lychee.init: environment is either a lychee.Environment or lychee.Simulation instance.');
 
 			}
 
@@ -1615,10 +1689,8 @@ lychee = (function(global) {
 
 				if (this.environment !== null) {
 
-					let that = this;
-
-					Object.values(environment.definitions).forEach(function(definition) {
-						that.environment.define(definition, true);
+					Object.values(environment.definitions).forEach(definition => {
+						this.environment.define(definition, true);
 					});
 
 					let build_old = this.environment.definitions[this.environment.target] || null;
@@ -1635,14 +1707,15 @@ lychee = (function(global) {
 				} else {
 
 					console.warn('lychee.inject: Invalid default environment for injection.');
-					console.info('lychee.inject: Use lychee.setEnvironment(env) before using lychee.inject(other).');
+					console.info('lychee.inject: Use lychee.setEnvironment(environment) before using lychee.inject(other).');
 
 				}
 
 			} else if (message === true) {
 
-				console.warn('lychee.inject: Invalid environment');
-				console.info('lychee.inject: Use lychee.inject(env) where env is a lychee.Environment instance');
+				console.warn('lychee.inject: Invalid environment.');
+				console.info('lychee.inject: Use lychee.inject(environment).');
+				console.info('lychee.inject: environment is a lychee.Environment instance.');
 
 			}
 
@@ -1689,8 +1762,8 @@ lychee = (function(global) {
 
 							} else {
 
-								console.warn('lychee.pkg: Invalid settings for "' + id + '" in lychee.pkg.');
-								console.info('lychee.pkg: Insert settings at "/' + type + '/environments/' + id + '" in lychee.pkg.');
+								console.warn('lychee.pkg: Invalid Settings for "' + id + '" in "' + this.url + '".');
+								console.info('lychee.pkg: Verify Settings at "/' + type + '/environments/' + id + '" in lychee.pkg.');
 
 								callback(null, null);
 
@@ -1698,8 +1771,9 @@ lychee = (function(global) {
 
 						} else {
 
-							console.warn('lychee.pkg: Invalid package at "' + this.url + '".');
+							console.warn('lychee.pkg: Invalid Package at "' + this.url + '".');
 							console.info('lychee.pkg: Replace lychee.pkg with the one from "/projects/boilerplate".');
+							console.info('lychee.pkg: The "lycheejs-harvester start" command may help you.');
 
 							callback(null, null);
 
@@ -1730,18 +1804,15 @@ lychee = (function(global) {
 				_bootstrap_simulation.call(this);
 
 
-				let that          = this;
+				let sandbox       = this;
 				let specification = new lychee.Specification({
 					id:  identifier,
 					url: lychee.FILENAME || null
 				});
 
-
 				specification.exports = function(callback) {
-
 					lychee.Specification.prototype.exports.call(this, callback);
-					that.simulation.specify(this, false);
-
+					sandbox.simulation.specify(this, false);
 				};
 
 
@@ -1749,8 +1820,10 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.specify: Invalid identifier');
-				console.info('lychee.specify: Use lychee.specify(id).exports(function(lychee, global, simulation) {})');
+				console.warn('lychee.specify: Invalid identifier.');
+				console.info('lychee.specify: Use lychee.specify(id).exports(function(lychee, sandbox) {}).');
+				console.info('lychee.specify: identifier is a dot-separated notation, e.g. "app.entity.Example".');
+				console.info('lychee.specify: The "lycheejs-breeder init <identifier>" command may help you.');
 
 			}
 

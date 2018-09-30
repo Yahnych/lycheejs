@@ -1,24 +1,25 @@
 
 lychee.define('harvester.net.Client').requires([
-	'harvester.net.client.Console',
-	'harvester.net.client.Harvester',
-	'harvester.net.client.Library',
-	'harvester.net.client.Profile',
-	'harvester.net.client.Project',
+	'harvester.net.service.Console',
+	'harvester.net.service.Harvester',
+	'harvester.net.service.Library',
+	'harvester.net.service.Profile',
+	'harvester.net.service.Project',
+	'harvester.net.service.Server',
 	'lychee.codec.BENCODE',
 	'lychee.codec.BITON',
 	'lychee.codec.JSON',
 	'lychee.net.Client'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
-	const _client  = lychee.import('harvester.net.client');
 	const _Client  = lychee.import('lychee.net.Client');
 	const _Tunnel  = lychee.import('lychee.net.Tunnel');
 	const _BENCODE = lychee.import('lychee.codec.BENCODE');
 	const _BITON   = lychee.import('lychee.codec.BITON');
 	const _JSON    = lychee.import('lychee.codec.JSON');
+	const _service = lychee.import('harvester.net.service');
 
 
 
@@ -29,13 +30,15 @@ lychee.define('harvester.net.Client').requires([
 	const Composite = function(data) {
 
 		let states = Object.assign({
+			codec:     _JSON,
 			host:      'localhost',
 			port:      4848,
-			codec:     _JSON,
-			type:      _Client.TYPE.HTTP,
+			protocol:  _Tunnel.PROTOCOL.HTTP,
 			reconnect: 10000
 		}, data);
 
+
+		states.type = 'client';
 
 		_Tunnel.call(this, states);
 
@@ -49,11 +52,35 @@ lychee.define('harvester.net.Client').requires([
 
 		this.bind('connect', function() {
 
-			this.addService(new _client.Console(this));
-			this.addService(new _client.Harvester(this));
-			this.addService(new _client.Library(this));
-			this.addService(new _client.Profile(this));
-			this.addService(new _client.Project(this));
+			this.addService(new _service.Console({
+				id: 'console',
+				tunnel: this
+			}));
+
+			this.addService(new _service.Harvester({
+				id: 'harvester',
+				tunnel: this
+			}));
+
+			this.addService(new _service.Library({
+				id: 'library',
+				tunnel: this
+			}));
+
+			this.addService(new _service.Profile({
+				id: 'profile',
+				tunnel: this
+			}));
+
+			this.addService(new _service.Project({
+				id: 'project',
+				tunnel: this
+			}));
+
+			this.addService(new _service.Server({
+				id: 'server',
+				tunnel: this
+			}));
 
 
 			if (lychee.debug === true) {
@@ -62,7 +89,7 @@ lychee.define('harvester.net.Client').requires([
 
 		}, this);
 
-		this.bind('disconnect', function(code) {
+		this.bind('disconnect', code => {
 
 			if (lychee.debug === true) {
 				console.log('harvester.net.Client: Remote disconnected (' + code + ')');

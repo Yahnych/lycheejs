@@ -1,7 +1,7 @@
 
 lychee.define('lychee.Renderer').tags({
 	platform: 'node'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	if (
 		typeof global.process !== 'undefined'
@@ -14,7 +14,7 @@ lychee.define('lychee.Renderer').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _process = global.process;
 	let   _id      = 0;

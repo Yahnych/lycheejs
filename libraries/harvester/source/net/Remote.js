@@ -5,7 +5,7 @@ lychee.define('harvester.net.Remote').requires([
 	'lychee.codec.JSON'
 ]).includes([
 	'lychee.net.Tunnel'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Tunnel  = lychee.import('lychee.net.Tunnel');
 	const _BENCODE = lychee.import('lychee.codec.BENCODE');
@@ -22,6 +22,8 @@ lychee.define('harvester.net.Remote').requires([
 
 		let states = Object.assign({}, data);
 
+
+		states.type = 'remote';
 
 		_Tunnel.call(this, states);
 

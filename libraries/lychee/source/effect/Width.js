@@ -1,5 +1,5 @@
 
-lychee.define('lychee.effect.Width').exports(function(lychee, global, attachments) {
+lychee.define('lychee.effect.Width').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

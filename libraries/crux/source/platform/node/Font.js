@@ -25,10 +25,9 @@
 		if (data.texture !== undefined) {
 
 			let texture = new Texture(data.texture);
-			let that    = this;
 
-			texture.onload = function() {
-				that.texture = this;
+			texture.onload = result => {
+				this.texture = texture;
 			};
 
 			texture.load();
@@ -374,7 +373,7 @@
 
 			let path = lychee.environment.resolve(this.url);
 
-			_fs.readFile(path, 'utf8', function(error, buffer) {
+			_fs.readFile(path, 'utf8', (error, buffer) => {
 
 				let data = null;
 				try {
@@ -395,7 +394,7 @@
 					this.onload = null;
 				}
 
-			}.bind(this));
+			});
 
 		}
 

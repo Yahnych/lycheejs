@@ -8,7 +8,7 @@ lychee.define('studio.ui.element.modify.Font').requires([
 	'lychee.ui.entity.Slider'
 ]).includes([
 	'lychee.ui.Element'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element = lychee.import('lychee.ui.Element');
 	const _Font    = lychee.import('studio.ui.entity.input.Font');

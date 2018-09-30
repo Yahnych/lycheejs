@@ -1,5 +1,5 @@
 
-lychee.define('game.effect.Lightning').exports(function(lychee, global, attachments) {
+lychee.define('game.effect.Lightning').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

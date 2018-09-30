@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.Agent').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.Agent').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

@@ -3,7 +3,7 @@ lychee.define('lychee.ai.enn.Layer').requires([
 	'lychee.ai.enn.Agent'
 ]).includes([
 	'lychee.ai.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Agent = lychee.import('lychee.ai.enn.Agent');
 	const _Layer = lychee.import('lychee.ai.Layer');
@@ -46,7 +46,7 @@ lychee.define('lychee.ai.enn.Layer').requires([
 
 		let old_a      = 0;
 		let new_agents = [];
-		let old_agents = agents.slice(0).sort(function(a, b) {
+		let old_agents = agents.slice(0).sort((a, b) => {
 			if (a.fitness > b.fitness) return -1;
 			if (a.fitness < b.fitness) return  1;
 			return 0;

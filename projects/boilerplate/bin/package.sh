@@ -12,27 +12,32 @@ if [ -d $PROJECT_ROOT/build ]; then
 	if [ "$PROJECT_BUILD" == "html/main" ]; then
 
 		cd "$PROJECT_ROOT/build/$PROJECT_BUILD";
-		zip -qr "$PROJECT_ROOT/build/boilerplate_browser_all.zip" ./*;
+		zip -qr "$PROJECT_ROOT/build/boilerplate-browser-all.zip" ./*;
 
-
+		# XXX: Keep html build for website embedding
 		# rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD";
 
 	elif [ "$PROJECT_BUILD" == "html-nwjs/main" ]; then
 
-		cd "$PROJECT_ROOT/build/$PROJECT_BUILD-linux/x86_64";
-		zip -qr "$PROJECT_ROOT/build/boilerplate_linux_x86_64.zip" ./*;
-		rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-linux";
+		if [ -d "$PROJECT_ROOT/build/$PROJECT_BUILD-linux-x86_64" ]; then
+			cd "$PROJECT_ROOT/build/$PROJECT_BUILD-linux-x86_64";
+			zip -qr "$PROJECT_ROOT/build/boilerplate-linux-x86_64.zip" ./*;
+			rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-linux-x86_64";
+		fi;
 
-		cd "$PROJECT_ROOT/build/$PROJECT_BUILD-osx/x86_64";
-		zip -qr "$PROJECT_ROOT/build/boilerplate_osx_x86_64.zip" ./*;
-		rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-osx";
+		if [ -d "$PROJECT_ROOT/build/$PROJECT_BUILD-macos-x86_64" ]; then
+			cd "$PROJECT_ROOT/build/$PROJECT_BUILD-macos-x86_64";
+			zip -qr "$PROJECT_ROOT/build/boilerplate-macos-x86_64.zip" ./*;
+			rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-macos-x86_64";
+		fi;
 
-		cd "$PROJECT_ROOT/build/$PROJECT_BUILD-windows/x86_64";
-		zip -qr "$PROJECT_ROOT/build/boilerplate_windows_x86_64.zip" ./*;
-		rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-windows";
+		if [ -d "$PROJECT_ROOT/build/$PROJECT_BUILD-windows-x86_64" ]; then
+			cd "$PROJECT_ROOT/build/$PROJECT_BUILD-windows-x86_64";
+			zip -qr "$PROJECT_ROOT/build/boilerplate-windows-x86_64.zip" ./*;
+			rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD-windows-x86_64";
+		fi;
 
-
-		rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD";
+		rm -rf "$PROJECT_ROOT/build/$PROJECT_BUILD" 2> /dev/null;
 
 	elif [ "$PROJECT_BUILD" == "html-webview/main" ]; then
 

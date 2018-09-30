@@ -4,7 +4,7 @@ lychee.define('lychee.app.Blueprint').requires([
 	'lychee.app.Element'
 ]).includes([
 	'lychee.app.Layer'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Element  = lychee.import('lychee.app.Element');
 	const _Layer    = lychee.import('lychee.app.Layer');
@@ -25,7 +25,6 @@ lychee.define('lychee.app.Blueprint').requires([
 				&& typeof entity.render === 'function'
 				&& typeof entity.shape === 'number'
 				&& typeof entity.setOrder === 'function'
-				&& typeof entity.isAtPosition === 'function'
 			) {
 				return true;
 			}

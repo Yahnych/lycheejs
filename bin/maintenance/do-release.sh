@@ -18,6 +18,23 @@ if [ "$1" == "--simulation" ] || [ "$1" == "-s" ] || [ "$2" == "--simulation" ] 
 fi;
 
 
+REPO_LYCHEEJS="git@github.com:Artificial-Engineering/lycheejs.git";
+REPO_LYCHEEJS_LIBRARY="git@github.com:Artificial-Engineering/lycheejs-library.git";
+REPO_LYCHEEJS_RUNTIME="git@github.com:Artificial-Engineering/lycheejs-runtime.git";
+FILE_LYCHEEJS_RUNTIME="https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest";
+
+
+
+_check_or_exit () {
+
+	local code="$1";
+
+	if [ "$code" == "1" ]; then
+		echo -e "\e[41m\e[97m (E) ABORTED DUE TO ERROR \e[0m";
+		exit 1;
+	fi;
+
+}
 
 _get_version () {
 
@@ -76,7 +93,7 @@ fi;
 
 
 CURRENT_FOLDER=$(cd "$(dirname "$0")/../../"; pwd);
-CURRENT_VERSION=$(cd $CURRENT_FOLDER && cat ./libraries/crux/source/lychee.js | grep VERSION | cut -d\" -f2);
+CURRENT_VERSION=$(grep "VERSION" "$CURRENT_FOLDER/libraries/crux/source/lychee.js" | cut -d"'" -f2);
 TARGET_VERSION=$(_get_version);
 LYCHEEJS_FERTILIZER="$TARGET_FOLDER/libraries/fertilizer/bin/fertilizer.sh";
 
@@ -160,37 +177,65 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	# INIT lycheejs
 	#
 
+	echo " (L) ";
+	echo " (L) > Initializing lychee.js Engine ...";
+
 	if [ -d $TARGET_FOLDER ]; then
 
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git checkout development";
 		cd $TARGET_FOLDER;
 		git checkout development;
-		git pull origin development -f;
+		_check_or_exit $?;
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git fetch --all";
+		cd $TARGET_FOLDER;
+		git fetch --all;
+		_check_or_exit $?;
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git reset \"origin/development\" --hard";
+		cd $TARGET_FOLDER;
+		git reset "origin/development" --hard;
+		_check_or_exit $?;
 
 	else
 
+		echo " (L)   mkdir -p $TARGET_FOLDER";
+		echo " (L)   git clone $REPO_LYCHEEJS $TARGET_FOLDER";
 		mkdir -p $TARGET_FOLDER;
-		git clone git@github.com:Artificial-Engineering/lycheejs.git $TARGET_FOLDER;
+		git clone $REPO_LYCHEEJS $TARGET_FOLDER;
+		_check_or_exit $?;
 
 	fi;
 
+
+	echo " (L) ";
+	echo " (L) > Initializing lychee.js Runtimes ...";
 
 	if [ ! -d $TARGET_FOLDER/bin/runtime ]; then
 
 		if [ ! -f $TARGET_FOLDER/bin/runtime.zip ]; then
 
-			DOWNLOAD_URL=$(curl -s https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest | grep browser_download_url | grep lycheejs-runtime | head -n 1 | cut -d'"' -f4);
+			echo " (L)   (This might take a while)";
+
+			DOWNLOAD_URL=$(curl -s "$FILE_LYCHEEJS_RUNTIME" | grep browser_download_url | grep "lycheejs-runtime.zip" | head -n 1 | cut -d'"' -f4);
 
 			if [ "$DOWNLOAD_URL" != "" ]; then
 
+				echo " (L)   cd $TARGET_FOLDER/bin";
+				echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $DOWNLOAD_URL > $TARGET_FOLDER/bin/runtime.zip";
 				cd $TARGET_FOLDER/bin;
-				curl -sSL $DOWNLOAD_URL > $TARGET_FOLDER/bin/runtime.zip;
+				curl --location --retry 8 --retry-connrefused --progress-bar $DOWNLOAD_URL > $TARGET_FOLDER/bin/runtime.zip;
+				_check_or_exit $?;
 
 			else
 
 				echo -e "\e[41m\e[97m";
-				echo " (E) No lycheejs-runtime download URL found.                                   ";
-				echo "     Please download it manually to $TARGET_FOLDER/bin/runtime.zip.             ";
-				echo "     https://github.com/Artificial-Engineering/lycheejs-runtime/releases/latest";
+				echo " (E) No lycheejs-runtime download URL found.                        ";
+				echo "     Please download it manually to $TARGET_FOLDER/bin/runtime.zip. ";
+				echo "     $FILE_LYCHEEJS_RUNTIME                                         ";
 				echo -e "\e[0m";
 
 				exit 1;
@@ -200,11 +245,17 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 		fi;
 
 
-		mkdir $TARGET_FOLDER/bin/runtime;
-		git clone --single-branch --branch master --depth 1 git@github.com:Artificial-Engineering/lycheejs-runtime.git $TARGET_FOLDER/bin/runtime;
+		echo " (L)   mkdir $TARGET_FOLDER/bin/runtime";
+		echo " (L)   git clone --single-branch --branch=master --depth=1 $REPO_LYCHEEJS_RUNTIME $TARGET_FOLDER/bin/runtime";
+		mkdir "$TARGET_FOLDER/bin/runtime";
+		git clone --single-branch --branch master --depth 1 "$REPO_LYCHEEJS_RUNTIME" "$TARGET_FOLDER/bin/runtime";
+		_check_or_exit $?;
 
+		echo " (L)   cd $TARGET_FOLDER/bin/runtime";
+		echo " (L)   unzip -nqq ../runtime.zip";
 		cd $TARGET_FOLDER/bin/runtime;
-		unzip -nq ../runtime.zip;
+		unzip -nqq ../runtime.zip;
+		_check_or_exit $?;
 
 		chmod +x $TARGET_FOLDER/bin/runtime/bin/*.sh     2> /dev/null;
 		chmod +x $TARGET_FOLDER/bin/runtime/*/update.sh  2> /dev/null;
@@ -221,8 +272,13 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	# UPDATE lycheejs
 	#
 
+	echo " (L) ";
+	echo " (L) > Updating lychee.js Engine ...";
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   git checkout development";
 	cd $TARGET_FOLDER;
 	git checkout development;
+	_check_or_exit $?;
 
 	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$TARGET_VERSION'|g' ./README.md;
 	sed -i 's|2[0-9][0-9][0-9]-Q[1-4]|'$TARGET_VERSION'|g' ./libraries/crux/source/lychee.js;
@@ -232,16 +288,52 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 	if [ "$readme_diff" != "" ] || [ "$lychee_diff" != "" ]; then
 
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git add ./README.md";
+		echo " (L)   git add ./libraries/crux/source/lychee.js";
+		cd $TARGET_FOLDER;
 		git add ./README.md;
 		git add ./libraries/crux/source/lychee.js;
-		git commit -m "lychee.js $TARGET_VERSION release";
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git commit -m \":rainbow: lychee.js $TARGET_VERSION release\"";
+		cd $TARGET_FOLDER;
+		git commit -m ":rainbow: lychee.js $TARGET_VERSION release";
+		_check_or_exit $?;
 
 	fi;
 
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   git checkout master";
+	cd $TARGET_FOLDER;
+	git checkout master;
+	_check_or_exit $?;
 
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   git merge --squash --no-commit development";
+	cd $TARGET_FOLDER;
+	git merge --squash --no-commit development;
+	_check_or_exit $?;
+
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   git commit -m \":balloon: lychee.js $TARGET_VERSION release\"";
+	cd $TARGET_FOLDER;
+	git commit -m ":balloon: lychee.js $TARGET_VERSION release";
+	_check_or_exit $?;
+
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   git checkout development";
+	cd $TARGET_FOLDER;
+	git checkout development;
+	_check_or_exit $?;
+
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   export LYCHEEJS_ROOT=\"$TARGET_FOLDER\"";
+	echo " (L)   bash $TARGET_FOLDER/bin/configure.sh";
 	cd $TARGET_FOLDER;
 	export LYCHEEJS_ROOT="$TARGET_FOLDER";
 	bash $TARGET_FOLDER/bin/configure.sh;
+	_check_or_exit $?;
 
 
 
@@ -249,10 +341,20 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	# UPDATE lycheejs-runtime
 	#
 
+	echo " (L) > Updating lychee.js Runtimes ...";
+	echo " (L)   cd $TARGET_FOLDER/bin/runtime";
+	echo " (L)   export LYCHEEJS_ROOT=\"$TARGET_FOLDER\"";
+	echo " (L)   bash $TARGET_FOLDER/bin/runtime/bin/do-update.sh";
 	cd $TARGET_FOLDER/bin/runtime;
 	export LYCHEEJS_ROOT="$TARGET_FOLDER";
 	bash $TARGET_FOLDER/bin/runtime/bin/do-update.sh;
+	_check_or_exit $?;
+
+	echo " (L)   cd $TARGET_FOLDER/bin/runtime";
+	echo " (L)   bash $TARGET_FOLDER/bin/runtime/bin/package.sh";
+	cd $TARGET_FOLDER/bin/runtime;
 	bash $TARGET_FOLDER/bin/runtime/bin/package.sh;
+	_check_or_exit $?;
 
 
 
@@ -262,41 +364,41 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 	if [ ! -d "$TARGET_FOLDER/projects/lycheejs-library" ]; then
 
-		git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-library.git $TARGET_FOLDER/projects/lycheejs-library;
+		echo " (L) ";
+		echo " (L) > Initializing lychee.js Library ...";
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git clone --single-branch --branch master $REPO_LYCHEEJS_LIBRARY $TARGET_FOLDER/projects/lycheejs-library";
+		cd $TARGET_FOLDER;
+		git clone --single-branch --branch master $REPO_LYCHEEJS_LIBRARY $TARGET_FOLDER/projects/lycheejs-library;
+		_check_or_exit $?;
 
 	else
 
+		echo " (L) ";
+		echo " (L) > Updating lychee.js Library ...";
+		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-library";
+		echo " (L)   git checkout master";
 		cd "$TARGET_FOLDER/projects/lycheejs-library";
 		git checkout master;
-		git pull origin master -f;
+		_check_or_exit $?;
+
+		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-library";
+		echo " (L)   git fetch --all";
+		echo " (L)   git reset \"origin/master\" --hard";
+		cd "$TARGET_FOLDER/projects/lycheejs-library";
+		git fetch --all;
+		git reset "origin/master" --hard;
+		_check_or_exit $?;
 
 	fi;
 
+	echo " (L)   cd $TARGET_FOLDER";
+	echo " (L)   export LYCHEEJS_ROOT=\"$TARGET_FOLDER\"";
+	echo " (L)   $LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-library";
 	cd $TARGET_FOLDER;
 	export LYCHEEJS_ROOT="$TARGET_FOLDER";
-	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-library;
-
-
-
-	#
-	# FERTILIZE lycheejs-bundle
-	#
-
-	if [ ! -d "$TARGET_FOLDER/projects/lycheejs-bundle" ]; then
-
-		git clone --single-branch --branch master git@github.com:Artificial-Engineering/lycheejs-bundle.git $TARGET_FOLDER/projects/lycheejs-bundle;
-
-	else
-
-		cd "$TARGET_FOLDER/projects/lycheejs-bundle";
-		git checkout master;
-		git pull origin master -f;
-
-	fi;
-
-	cd $TARGET_FOLDER;
-	export LYCHEEJS_ROOT="$TARGET_FOLDER";
-	$LYCHEEJS_FERTILIZER auto /projects/lycheejs-bundle;
+	$LYCHEEJS_FERTILIZER fertilize /projects/lycheejs-library;
+	_check_or_exit $?;
 
 
 
@@ -333,20 +435,37 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	# PUBLISH lycheejs
 	#
 
-	cd $TARGET_FOLDER;
+	echo " (L) ";
+	echo " (L) Publishing lychee.js Engine ...";
 
 	if [ "$SIMULATION" == "false" ]; then
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git checkout development";
+		cd $TARGET_FOLDER;
 		git checkout development;
+		_check_or_exit $?;
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git push origin development";
+		cd $TARGET_FOLDER;
 		git push origin development;
-	fi;
+		_check_or_exit $?;
 
-	git checkout master;
-	git merge --squash --no-commit development;
-	git commit -m "lychee.js $TARGET_VERSION release";
-
-	if [ "$SIMULATION" == "false" ]; then
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git checkout master";
+		cd $TARGET_FOLDER;
 		git checkout master;
+		_check_or_exit $?;
+
+		echo " (L)   cd $TARGET_FOLDER";
+		echo " (L)   git push origin master";
+		cd $TARGET_FOLDER;
 		git push origin master;
+		_check_or_exit $?;
+
+	else
+		echo -e "\e[43m\e[97m (W) SIMULATION SKIP \e[0m";
 	fi;
 
 
@@ -355,9 +474,19 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	# PUBLISH lycheejs-library
 	#
 
+	echo " (L) ";
+	echo " (L) Publishing lychee.js Library ...";
+
 	if [ "$SIMULATION" == "false" ]; then
+
+		echo " (L)   cd $TARGET_FOLDER/projects/lycheejs-library";
+		echo " (L)   bash $TARGET_FOLDER/projects/lycheejs-library/bin/publish.sh";
 		cd $TARGET_FOLDER/projects/lycheejs-library;
 		bash $TARGET_FOLDER/projects/lycheejs-library/bin/publish.sh;
+		_check_or_exit $?;
+
+	else
+		echo -e "\e[43m\e[97m (W) SIMULATION SKIP \e[0m";
 	fi;
 
 
@@ -367,36 +496,31 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 	#
 
 	if [ "$SIMULATION" == "false" ]; then
+
+		echo " (L)   cd $TARGET_FOLDER/bin/runtime";
+		echo " (L)   bash $TARGET_FOLDER/bin/runtime/bin/publish.sh";
 		cd $TARGET_FOLDER/bin/runtime;
 		bash $TARGET_FOLER/bin/runtime/bin/publish.sh;
+		_check_or_exit $?;
+
+	else
+		echo -e "\e[43m\e[97m (W) SIMULATION SKIP \e[0m";
 	fi;
 
-
-
-	#
-	# PUBLISH lycheejs-bundle
-	#
-
-	if [ "$SIMULATION" == "false" ]; then
-		cd $TARGET_FOLDER/projects/lycheejs-bundle;
-		bash $TARGET_FOLDER/projects/lycheejs-bundle/bin/publish.sh;
-	fi;
 
 
 	if [ "$SIMULATION" == "true" ]; then
 
 		echo " (L) ";
 		echo -e "\e[42m\e[97m (I) SUCCESS \e[0m";
-		echo " (L) ";
-		echo " (L) Simulation complete.";
+		echo -e "\e[42m\e[97m (I) lychee.js Release Simulation is complete. \e[0m";
 		echo " (L) ";
 
 	else
 
 		echo " (L) ";
 		echo -e "\e[42m\e[97m (I) SUCCESS \e[0m";
-		echo " (L) ";
-		echo " (L) Release complete.";
+		echo -e "\e[42m\e[97m (I) lychee.js Release is complete. \e[0m";
 		echo " (L) ";
 		echo " (L) - Create $TARGET_VERSION release of lycheejs-website repository. ";
 		echo " (L) ";

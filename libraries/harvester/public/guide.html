@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>lychee.js Guide</title>
+	<link rel="shortcut icon" type="image/png" href="/desktop.png">
+	<meta name="viewport" content="initial-scale=1, minimum-scale=0.25, maximum-scale=1, user-scalable=yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="robots" content="noindex">
+
+	<!-- BOOTSTRAP -->
+	<script src="/libraries/crux/build/html/dist.js"></script>
+
+	<!-- DESIGN -->
+	<link rel="stylesheet" href="/design/index.css">
+	<link rel="stylesheet" href="/design/guide.css">
+	<script src="/design/index.js"></script>
+
+</head>
+<body id="body">
+<menu id="menu">
+	<ul>
+		<li><b>Welcome</b></li>
+		<li><a href="#!welcome">Welcome</a></li>
+	</ul>
+	<ul>
+		<li><b>Quickstart</b></li>
+		<li><a href="#!quickstart/installation">Installation</a></li>
+		<li><a href="#!quickstart/troubleshooting">Troubleshooting</a></li>
+		<li><a href="#!quickstart/filesystem">Filesystem</a></li>
+		<li><a href="#!quickstart/workflow">Workflow</a></li>
+		<li><a href="#!quickstart/updates">Updates</a></li>
+	</ul>
+	<ul>
+		<li><b>Software</b></li>
+		<li><a href="#!software/lycheejs-breeder">lychee.js Breeder</a></li>
+		<li><a href="#!software/lycheejs-fertilizer">lychee.js Fertilizer</a></li>
+		<li><a href="#!software/lycheejs-harvester">lychee.js Harvester</a></li>
+		<li><a href="#!software/lycheejs-helper">lychee.js Helper</a></li>
+		<li><a href="#!software/lycheejs-strainer">lychee.js Strainer</a></li>
+		<li><a href="#!software/lycheejs-strainer-fixer">lychee.js Strainer Fixer</a></li>
+	</ul>
+	<ul>
+		<li><b>Contributor</b></li>
+		<li><a href="#!contributor/workflow">Workflow</a></li>
+		<li><a href="#!contributor/codestyle">Codestyle</a></li>
+	</ul>
+	<ul>
+		<li><b>Maintenance</b></li>
+		<li><a href="#!maintenance/do-release">do-release.sh</a></li>
+	</ul>
+</menu>
+<main id="main">
+	<article id="welcome" class="active">
+		<label>lychee.js Guide</label>
+		<h1>Quickstart</h1>
+		<p>
+			The Quickstart Guide helps you to get started
+			and to get an overview of a typical lychee.js
+			Engine installation.
+		</p>
+		<ul>
+			<li><a href="#!quickstart/installation">Installation</a></li>
+			<li><a href="#!quickstart/troubleshooting">Troubleshooting</a></li>
+			<li><a href="#!quickstart/filesystem">Filesystem</a></li>
+			<li><a href="#!quickstart/workflow">Workflow</a></li>
+			<li><a href="#!quickstart/updates">Updates</a></li>
+		</ul>
+		<hr>
+		<h1>Software</h1>
+		<p>
+			The Software Guide helps you to figure
+			out what tasks which tool automates and how
+			to use them in detail.
+		</p>
+		<ul>
+			<li><a href="#!software/lycheejs-breeder">lychee.js Breeder</a></li>
+			<li><a href="#!software/lycheejs-fertilizer">lychee.js Fertilizer</a></li>
+			<li><a href="#!software/lycheejs-harvester">lychee.js Harvester</a></li>
+			<li><a href="#!software/lycheejs-helper">lychee.js Helper</a></li>
+			<li><a href="#!software/lycheejs-strainer">lychee.js Strainer</a></li>
+			<li><a href="#!software/lycheejs-strainer-fixer">lychee.js Strainer Fixer</a></li>
+		</ul>
+		<hr>
+		<h1>Contributor</h1>
+		<p>
+			The Contributor Guide helps you to get
+			started with contributing your code
+			that the robot overlords need in order
+			to conquer this planet.
+		</p>
+		<ul>
+			<li><a href="#!contributor/workflow">Workflow</a></li>
+			<li><a href="#!contributor/codestyle">Codestyle</a></li>
+		</ul>
+		<hr>
+		<h1>Maintenance</h1>
+		<p>
+			The Maintenance Guide helps codemonkeys
+			to get started in maintaining the Engine
+			stack and explains the detailed configurations
+			and setups regarding the <a target="_blank" href="https://github.com/humansneednotapply">@humansneednotapply</a>
+			bot. Beep bop beep beep.
+		</p>
+		<ul>
+			<li><a href="#!maintenance/do-release">do-release.sh</a></li>
+		</ul>
+		<hr>
+		<p class="hint">
+			Need Help? Join our IRC channel <a target="_blank" href="https://webchat.freenode.net/?channels=%23artificial-engineering">#artificial-engineering @ freenode</a>
+		</p>
+	</article>
+</main>
+<script>
+(function(global) {
+
+	lychee.init(null);
+
+
+
+	/*
+	 * HELPERS
+	 */
+
+	const _CACHE = {};
+
+	const $load = function(path, callback) {
+
+		let cache = _CACHE[path] || null;
+		if (cache !== null) {
+
+			callback(cache);
+
+		} else {
+
+			let url   = '/guides/' + path;
+			let stuff = new Stuff(url);
+
+			stuff.onload = function(result) {
+				_CACHE[path] = stuff;
+				callback(stuff);
+			};
+
+			stuff.load();
+
+		}
+
+	};
+
+	const _format_code = function(str) {
+		return str;
+	};
+
+	const _format_href = function(url) {
+
+		if (url.startsWith('/guides/')) {
+
+			url = '#!' + url.substr(8);
+
+			if (url.endsWith('.md')) {
+				url = url.substr(0, url.length - 3);
+			}
+
+		} else if (url.startsWith('/bin/')) {
+			url = 'lycheejs://file=' + url;
+		} else if (url.startsWith('/libraries/')) {
+			url = 'lycheejs://file=' + url;
+		} else if (url.startsWith('../')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/');
+
+				for (let p = 0, pl = path_url.length; p < pl; p++) {
+
+					let tmp = path_url[p];
+					if (tmp === '..') {
+						path_url.splice(p, 1);
+						path_cwd.splice(path_cwd.length - 1, 1);
+						pl--;
+						p--;
+					}
+
+				}
+
+				url = path_cwd.join('/') + '/' + path_url.join('/');
+
+				if (url.endsWith('.md')) {
+					url = url.substr(0, url.length - 3);
+				}
+
+			}
+
+		} else if (url.startsWith('./')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/').slice(1);
+
+				url = path_cwd.join('/') + '/' + path_url.join('/');
+
+				if (url.endsWith('.md')) {
+					url = url.substr(0, url.length - 3);
+				}
+
+			}
+
+		}
+
+		return url;
+
+	};
+
+	const _format_src = function(url) {
+
+		if (url.startsWith('../')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/');
+
+				for (let p = 0, pl = path_url.length; p < pl; p++) {
+
+					let tmp = path_url[p];
+					if (tmp === '..') {
+						path_url.splice(p, 1);
+						path_cwd.splice(path_cwd.length - 1, 1);
+						pl--;
+						p--;
+					}
+
+				}
+
+				url = '/guides/' + path_cwd.join('/') + '/' + path_url.join('/');
+
+			}
+
+		} else if (url.startsWith('./')) {
+
+			let hash = global.location.hash || '';
+			if (hash.startsWith('#!') === true) {
+
+				let path_cwd = hash.substr(2).split('/').slice(0, -1);
+				let path_url = url.split('/').slice(1);
+
+				url = '/guides/' + path_cwd.join('/') + '/' + path_url.join('/');
+
+			}
+
+		}
+
+		return url;
+
+	};
+
+	const _render_inline = function(str) {
+
+		let loop = true;
+
+		while (loop === true) {
+
+			let check_a   = str.includes('[');
+			let check_b   = str.includes('**');
+			let check_em  = str.includes('`');
+			let check_img = str.includes('![');
+
+
+			if (check_img === true) {
+
+				let c0 = str.indexOf('![');
+				let c1 = str.indexOf('](', c0 + 2);
+				let c2 = str.indexOf(')',  c1 + 2);
+
+				if (c0 !== -1 && c1 !== -1 && c2 !== -1) {
+
+					let title = str.substr(c0 + 2, c1 - c0 - 2);
+					let state = 'normal';
+
+					let src = _format_src(str.substr(c1 + 2, c2 - c1 - 2));
+					if (src.endsWith('.png') || src.endsWith('.svg')) {
+						state = 'wide';
+					}
+
+					str = str.substr(0, c0) + '<img class="' + state + '" src="' + src + '" title="' + title + '" alt="' + title + '">' + str.substr(c2 + 1);
+
+				} else if (c0 !== -1 && c1 !== -1) {
+					str = str.replace('![', '');
+					str = str.replace('](', '');
+				} else if (c0 !== -1) {
+					str = str.replace('![', '');
+				}
+
+			} else if (check_b === true) {
+
+				let c0 = str.indexOf('**');
+				let c1 = str.indexOf('**', c0 + 2);
+
+				if (c0 !== -1 && c1 !== -1) {
+					str = str.substr(0, c0) + '<b>' + str.substr(c0 + 2, c1 - c0 - 2) + '</b>' + str.substr(c1 + 2);
+				} else if (c0 !== -1) {
+					str = str.replace('**', '');
+				}
+
+			} else if (check_em === true) {
+
+				let c0 = str.indexOf('`');
+				let c1 = str.indexOf('`', c0 + 1);
+
+				if (c0 !== -1 && c1 !== -1) {
+					str = str.substr(0, c0) + '<em>' + str.substr(c0 + 1, c1 - c0 - 1) + '</em>' + str.substr(c1 + 1);
+				} else if (c0 !== -1) {
+					str = str.replace('`', '');
+				}
+
+			} else if (check_a === true) {
+
+				let c0 = str.indexOf('[');
+				let c1 = str.indexOf('](', c0 + 1);
+				let c2 = str.indexOf(')',  c1 + 2);
+
+				if (c0 !== -1 && c1 !== -1 && c2 !== -1) {
+					let href = _format_href(str.substr(c1 + 2, c2 - c1 - 2));
+					str = str.substr(0, c0) + '<a href="' + href + '">' + str.substr(c0 + 1, c1 - c0 - 1) + '</a>' + str.substr(c2 + 1);
+				} else {
+					loop = false;
+				}
+
+			} else {
+				loop = false;
+			}
+
+		}
+
+		return str;
+
+	};
+
+	const _render = function(stuff) {
+
+		let path = stuff.url;
+		if (path.includes('/guides/')) {
+			path = path.split('/guides/').pop();
+		}
+
+		if (path.endsWith('.md')) {
+			path = path.substr(0, path.length - 3);
+		}
+
+		let article = $('article').set({
+			'data-id': path
+		});
+
+
+		let buffer  = [];
+		let element = null;
+
+		stuff.buffer.toString('utf8').split('\n').forEach(function(line, l) {
+
+			let chunk = line.trim();
+			if (chunk === '' && element !== null) {
+
+				if (/^(pre|ul|ol|p)$/g.test(element.type) === false) {
+					element = null;
+				}
+
+			}
+
+
+			if (element !== null && element.type === 'pre') {
+
+				if (chunk === '```') {
+					element = null;
+				} else {
+
+					$('code').set({
+						html: _format_code(line)
+					}).appendTo(element);
+
+					let code = element.query('code');
+					if (code !== null) {
+					}
+
+				}
+
+			} else if (element !== null && element.type === 'p') {
+
+				if (chunk === '') {
+					element = null;
+				} else {
+					element.html(element.chunk + ' ' + _render_inline(chunk));
+				}
+
+			} else if (chunk.startsWith('```')) {
+
+				if (element === null || element.type !== 'pre') {
+					element = $('pre');
+				}
+
+				if (chunk.length > 3) {
+
+					let lang = chunk.substr(3).trim();
+					element.state(lang);
+
+				} else if (element !== null) {
+					element = null;
+				}
+
+			} else if (chunk.startsWith('#')) {
+
+				let type = null;
+				let tmp  = chunk.split(' ').shift().trim();
+
+				if (/#/g.test(tmp) === true) {
+
+					if (tmp === '#') {
+						type = 'label';
+					} else if (tmp === '##') {
+						type = 'h1';
+					} else if (tmp === '###') {
+						type = 'h2';
+					} else if (tmp === '####') {
+						type = 'h3';
+					}
+
+				}
+
+				if (type !== null) {
+
+					element = $(type).set({
+						html: _render_inline(chunk.split(' ').slice(1).join(' '))
+					});
+
+				}
+
+			} else if (chunk.startsWith('-')) {
+
+				if (element === null || element.type !== 'ul') {
+					element = $('ul');
+				}
+
+				$('li').set({
+					html: _render_inline(chunk.substr(2).trim())
+				}).appendTo(element);
+
+			} else if (/^([0-9]+)\./g.test(chunk)) {
+
+				if (element === null || element.type !== 'ol') {
+					element = $('ol');
+				}
+
+				$('li').set({
+					html: _render_inline(chunk.split('.').slice(1).join('.'))
+				}).appendTo(element);
+
+
+			} else if (chunk !== '') {
+
+				if (element === null || element.type !== 'p') {
+					element = $('p');
+				}
+
+				element.set({
+					html: _render_inline(chunk)
+				});
+
+			}
+
+
+			if (element !== null && buffer.includes(element) === false) {
+				buffer.push(element);
+			}
+
+		});
+
+		buffer.forEach(function(element) {
+			element.appendTo(article);
+		});
+
+		return article;
+
+	};
+
+	const _OTHER = [];
+	const _VIEWS = {
+		'welcome.md': $('#welcome')
+	};
+
+	const _navigate = function(url, stuff) {
+
+		let name = url;
+		if (name.endsWith('.md')) {
+			name = name.substr(0, name.length - 3);
+		}
+
+		let item = $('#menu a').filter(function(item) {
+			return item.get('href').endsWith(name);
+		})[0] || null;
+
+		if (item !== null) {
+
+			$('#menu a').forEach(function(item) {
+				item.state('');
+			});
+
+		} else {
+
+			let other = $('#menu-other');
+			if (other === null) {
+
+				other = $('ul').set({
+					id: 'menu-other'
+				});
+
+				$('li').set({
+					html: '<b>Other</b>'
+				}).appendTo(other);
+
+				other.appendTo($('#menu'));
+			}
+
+			$('li').set({
+				html: '<a href="#!' + name + '">' + name + '</a>'
+			}).appendTo(other);
+
+			item = $('#menu a').filter(function(item) {
+				return item.get('href').endsWith(name);
+			})[0] || null;
+
+		}
+
+
+		Object.keys(_VIEWS).filter(function(v) {
+			return v !== url;
+		}).forEach(function(v) {
+			_VIEWS[v].state('');
+		});
+
+
+		let article = _VIEWS[url] || null;
+		if (article === null) {
+			article = _VIEWS[url] = _render(stuff);
+			article.appendTo(main);
+		}
+
+
+		setTimeout(function() {
+
+			if (article !== null) {
+				article.state('active');
+			}
+
+			if (item !== null) {
+				item.state('active');
+			}
+
+		}, 250);
+
+	};
+
+	const _retro = function() {
+
+		let body = $('#body');
+		if (body !== null) {
+
+			let time = new Date();
+			let hour = time.getHours() + time.getMinutes() / 60;
+			if (hour > 0 && hour < 6) {
+				body.state('retro');
+			} else {
+				body.state('');
+			}
+
+		}
+
+	};
+
+
+
+	/*
+	 * IMPLEMENTATION
+	 */
+
+	const body = $('#body');
+	const main = $('#main');
+
+	if (main !== null) {
+
+		global.onhashchange = function() {
+
+			let hash = global.location.hash || '';
+			if (hash === '' || hash === '#!welcome') {
+
+				_navigate('welcome.md');
+
+			} else if (hash.startsWith('#!') === true) {
+
+				let url = hash.substr(2);
+				if (url.endsWith('.md') === false) {
+					url = url + '.md';
+				}
+
+				$load(url, function(stuff) {
+					_navigate(url, stuff);
+				});
+
+			}
+
+		};
+
+		global.onhashchange();
+
+	}
+
+	if (body !== null) {
+		setInterval(_retro, 1000 * 60 * 15);
+		_retro();
+	}
+
+})(typeof global !== 'undefined' ? global : this);
+</script>
+</body>
+</html>

@@ -113,7 +113,7 @@
 
 			let path = lychee.environment.resolve(this.url);
 
-			_fs.readFile(path, 'utf8', function(error, buffer) {
+			_fs.readFile(path, 'utf8', (error, buffer) => {
 
 				let data = null;
 				try {
@@ -135,7 +135,7 @@
 					this.onload = null;
 				}
 
-			}.bind(this));
+			});
 
 		}
 

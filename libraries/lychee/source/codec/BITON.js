@@ -1,5 +1,5 @@
 
-lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments) {
+lychee.define('lychee.codec.BITON').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS
@@ -36,24 +36,22 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 		'\\': '\\\\'
 	};
 
+	const _format_date = function(n) {
+		return n < 10 ? '0' + n : '' + n;
+	};
+
 	const _sanitize_string = function(str) {
 
 		let san  = str;
 		let keys = Object.keys(_CHARS_META);
 		let vals = Object.values(_CHARS_META);
 
-
-		keys.forEach(function(key, i) {
+		keys.forEach((key, i) => {
 			san = san.replace(key, vals[i]);
 		});
 
-
 		if (_CHARS_ESCAPABLE.test(san)) {
-
-			san = san.replace(_CHARS_ESCAPABLE, function(chr) {
-				return '\\u' + (chr.charCodeAt(0).toString(16)).slice(-4);
-			});
-
+			san = san.replace(_CHARS_ESCAPABLE, chr => '\\u' + (chr.charCodeAt(0).toString(16)).slice(-4));
 		}
 
 		return san;
@@ -66,15 +64,13 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 		let keys = Object.keys(_CHARS_META);
 		let vals = Object.values(_CHARS_META);
 
-
-		vals.forEach(function(val, i) {
+		vals.forEach((val, i) => {
 
 			if (val !== '') {
 				str = str.replace(val, keys[i]);
 			}
 
 		});
-
 
 		return str;
 
@@ -145,9 +141,10 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 
 				// 0: Boolean or Null or EOS
+				this.write(0, 4);
+
+				// 0: EOS
 				this.write(0, 3);
-				// 00: EOS
-				this.write(0, 2);
 
 			}
 
@@ -297,7 +294,7 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 			)
 		) {
 
-			stream.write(0, 3);
+			stream.write(0, 4);
 
 			if (data === null) {
 				stream.write(1, 3);
@@ -325,7 +322,7 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 			}
 
 
-			stream.write(type, 3);
+			stream.write(type, 4);
 
 
 			// Negative value
@@ -445,7 +442,7 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 			data = _sanitize_string(data);
 
 
-			stream.write(3, 3);
+			stream.write(3, 4);
 
 
 			let l = data.length;
@@ -482,30 +479,44 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 			stream.writeRAW(data);
 
+		} else if (data instanceof Date) {
 
-		// 4: Start of Array
+			stream.write(4, 4);
+
+			let str = '';
+
+			str += data.getUTCFullYear()                + '-';
+			str += _format_date(data.getUTCMonth() + 1) + '-';
+			str += _format_date(data.getUTCDate())      + 'T';
+			str += _format_date(data.getUTCHours())     + ':';
+			str += _format_date(data.getUTCMinutes())   + ':';
+			str += _format_date(data.getUTCSeconds())   + 'Z';
+
+			stream.writeRAW(str);
+
+		// 12: Start of Array
 		} else if (data instanceof Array) {
 
-			stream.write(4, 3);
+			stream.write(12, 4);
 
 			for (let d = 0, dl = data.length; d < dl; d++) {
-				stream.write(0, 3);
+				stream.write(0, 4);
 				_encode(stream, data[d]);
 			}
 
 			// Write EOO marker
-			stream.write(7, 3);
+			stream.write(15, 4);
 
 
-		// 5: Start of Object
+		// 13: Start of Object
 		} else if (data instanceof Object && typeof data.serialize !== 'function') {
 
-			stream.write(5, 3);
+			stream.write(13, 4);
 
 			for (let prop in data) {
 
 				if (data.hasOwnProperty(prop)) {
-					stream.write(0, 3);
+					stream.write(0, 4);
 					_encode(stream, prop);
 					_encode(stream, data[prop]);
 				}
@@ -513,20 +524,20 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 			}
 
 			// Write EOO marker
-			stream.write(7, 3);
+			stream.write(15, 4);
 
 
-		// 6: Custom High-Level Implementation
+		// 14: Custom High-Level Implementation
 		} else if (data instanceof Object && typeof data.serialize === 'function') {
 
-			stream.write(6, 3);
+			stream.write(14, 4);
 
 			let blob = lychee.serialize(data);
 
 			_encode(stream, blob);
 
 			// Write EOO marker
-			stream.write(7, 3);
+			stream.write(15, 4);
 
 		}
 
@@ -541,7 +552,7 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 		if (stream.pointer() < stream.length()) {
 
-			let type = stream.read(3);
+			let type = stream.read(4);
 
 
 			// 0: Boolean, Null (or EOS), Undefined, Infinity, NaN
@@ -649,20 +660,29 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 				value = _desanitize_string(stream.readRAW(size));
 
-
-			// 4: Array
+			// 4: Date
 			} else if (type === 4) {
+
+				check = stream.readRAW(20);
+
+				if (check[19] === 'Z') {
+					value = new Date(check);
+				}
+
+
+			// 12: Array
+			} else if (type === 12) {
 
 				value = [];
 
 
 				while (errors === 0) {
 
-					check = stream.read(3);
+					check = stream.read(4);
 
 					if (check === 0) {
 						value.push(_decode(stream));
-					} else if (check === 7) {
+					} else if (check === 15) {
 						break;
 					} else {
 						errors++;
@@ -671,19 +691,19 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 				}
 
 
-			// 5: Object
-			} else if (type === 5) {
+			// 13: Object
+			} else if (type === 13) {
 
 				value = {};
 
 
 				while (errors === 0) {
 
-					check = stream.read(3);
+					check = stream.read(4);
 
 					if (check === 0) {
 						value[_decode(stream)] = _decode(stream);
-					} else if (check === 7) {
+					} else if (check === 15) {
 						break;
 					} else {
 						errors++;
@@ -691,15 +711,15 @@ lychee.define('lychee.codec.BITON').exports(function(lychee, global, attachments
 
 				}
 
-			// 6: Custom High-Level Implementation
-			} else if (type === 6) {
+			// 14: Custom High-Level Implementation
+			} else if (type === 14) {
 
 				let blob = _decode(stream);
 
 				value = lychee.deserialize(blob);
-				check = stream.read(3);
+				check = stream.read(4);
 
-				if (check !== 7) {
+				if (check !== 15) {
 					value = undefined;
 				}
 

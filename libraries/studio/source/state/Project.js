@@ -8,11 +8,11 @@ lychee.define('studio.state.Project').requires([
 	'lychee.ui.element.Search'
 ]).includes([
 	'lychee.ui.State'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Project = lychee.import('studio.data.Project');
 	const _State   = lychee.import('lychee.ui.State');
-	const _BLOB    = attachments["json"].buffer;
+	const _BLOB    = attachments['json'].buffer;
 	const _CACHE   = {};
 
 
@@ -28,19 +28,15 @@ lychee.define('studio.state.Project').requires([
 
 			let filtered = Array.from(select.data);
 
-			data.map(function(project) {
-				return project.identifier;
-			}).forEach(function(value) {
+			data.map(project => project.identifier).forEach(identifier => {
 
-				if (filtered.indexOf(value) === -1) {
-					filtered.push(value);
+				if (filtered.includes(identifier) === false) {
+					filtered.push(identifier);
 				}
 
 			});
 
-			filtered = filtered.filter(function(value) {
-				return value !== '/libraries/harvester';
-			});
+			filtered = filtered.filter(v => v !== '/libraries/harvester');
 
 			select.setData(filtered);
 
@@ -116,18 +112,30 @@ lychee.define('studio.state.Project').requires([
 
 				if (asset !== null && stash !== null) {
 
+					let assets = [];
+					let urls   = [];
+
 					if (asset.icon !== null) {
-						stash.write(asset.icon.url, asset.icon);
+						assets.push(asset.icon);
+						urls.push(asset.icon.url);
 					}
 
 					if (asset.config !== null) {
-						stash.write(asset.config.url, asset.config);
+						assets.push(asset.config);
+						urls.push(asset.config.url);
 					}
 
+					if (urls.length > 0) {
 
-					if (notice !== null) {
-						notice.setLabel('Project saved.');
-						notice.setState('active');
+						stash.write(urls, assets, result => {
+
+							if (notice !== null) {
+								notice.setLabel('Project saved.');
+								notice.setState('active');
+							}
+
+						}, this);
+
 					}
 
 				}

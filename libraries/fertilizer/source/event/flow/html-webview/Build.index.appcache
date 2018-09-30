@@ -1,0 +1,15 @@
+CACHE MANIFEST
+
+CACHE:
+/favicon.ico
+crux.js
+icon.png
+index.html
+index.js
+manifest.json
+
+NETWORK:
+/api
+http://harvester.artificial.engineering:4848
+http://localhost:4848
+

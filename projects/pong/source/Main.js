@@ -3,7 +3,7 @@ lychee.define('game.Main').requires([
 	'game.state.Game'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _game = lychee.import('game');
 	const _Main = lychee.import('lychee.app.Main');
@@ -58,7 +58,7 @@ lychee.define('game.Main').requires([
 		 * INITIALIZATION
 		 */
 
-		this.bind('load', function(oncomplete) {
+		this.bind('load', oncomplete => {
 			oncomplete(true);
 		}, this);
 

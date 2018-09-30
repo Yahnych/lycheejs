@@ -6,7 +6,7 @@ lychee.define('ranger.Main').requires([
 	'harvester.net.Client'
 ]).includes([
 	'lychee.app.Main'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _lychee = lychee.import('lychee');
 	const _ranger = lychee.import('ranger');

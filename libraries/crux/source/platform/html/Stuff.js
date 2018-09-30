@@ -122,10 +122,9 @@
 
 			if (typeof blob.buffer === 'string') {
 
-				let tmp1 = blob.buffer.substr(blob.buffer.indexOf(',') + 1);
-				let tmp2 = Buffer.from(tmp1, 'base64');
+				let tmp = blob.buffer.substr(blob.buffer.indexOf(',') + 1);
 
-				this.buffer = tmp2.toString('utf8');
+				this.buffer = Buffer.from(tmp, 'base64');
 				this.__load = false;
 
 			}
@@ -144,11 +143,7 @@
 
 
 			if (this.buffer !== null) {
-
-				let tmp = Buffer.from(this.buffer, 'utf8');
-
-				blob.buffer = 'data:' + mime + ';base64,' + tmp.toString('base64');
-
+				blob.buffer = 'data:' + mime + ';base64,' + this.buffer.toString('base64');
 			}
 
 
@@ -188,29 +183,42 @@
 				xhr.open('GET', path, true);
 			}
 
+			xhr.responseType = 'arraybuffer';
+
 			xhr.onload = function() {
 
-				let raw = xhr.responseText || null;
+				let raw = xhr.response || null;
 				if (raw !== null) {
-					this.buffer = raw;
+
+					this.buffer = Buffer.from(raw);
 					this.__load = false;
-				}
 
+					_execute_stuff.call(this, function(result) {
 
-				_execute_stuff.call(this, function(result) {
+						if (this.onload instanceof Function) {
+							this.onload(result);
+							this.onload = null;
+						}
+
+					});
+
+				} else {
+
+					this.buffer = null;
+					this.__load = false;
 
 					if (this.onload instanceof Function) {
-						this.onload(result);
+						this.onload(false);
 						this.onload = null;
 					}
 
-				});
+				}
 
 			}.bind(this);
 
 			xhr.onerror = xhr.ontimeout = function() {
 
-				this.buffer = '';
+				this.buffer = null;
 				this.__load = false;
 
 				if (this.onload instanceof Function) {

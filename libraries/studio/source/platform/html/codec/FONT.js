@@ -1,7 +1,7 @@
 
 lychee.define('studio.codec.FONT').tags({
 	platform: 'html'
-}).supports(function(lychee, global) {
+}).supports((lychee, global) => {
 
 	/*
 	 * XXX: typeof CanvasRenderingContext2D is:
@@ -20,7 +20,7 @@ lychee.define('studio.codec.FONT').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	let _CANVAS  = null;
 	let _CONTEXT = null;
@@ -88,7 +88,7 @@ lychee.define('studio.codec.FONT').tags({
 		}
 
 
-		baselines.sort(function(a, b) {
+		baselines.sort((a, b) => {
 			if (a < b) return -1;
 			if (a > b) return  1;
 			return 0;

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.Color').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.Color').exports((lychee, global, attachments) => {
 
 	/*
 	 * HELPERS

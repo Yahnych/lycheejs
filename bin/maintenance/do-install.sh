@@ -11,16 +11,35 @@ LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
 SYSTEMCTL_BIN=`which systemctl`;
 
 ALWAYS_YES="false";
+SKIP_UPDATES="false";
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
+if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
 	ALWAYS_YES="true";
+fi;
+
+if [ "$1" == "--skip" ] || [ "$1" == "-s" ] || [ "$2" == "--skip" ] || [ "$2" == "-s" ]; then
+	SKIP_UPDATES="yes";
 fi;
 
 
 
+_check_or_exit() {
+
+	local result="$1";
+
+	if [ "$result" == "0" ]; then
+		echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
+	else
+		echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
+		exit 1;
+	fi;
+
+}
+
+
 _install() {
 
-	cmd="$1";
+	local cmd="$1";
 	echo -e " (L)   $cmd";
 	$cmd 1> /dev/null 2> /dev/null;
 
@@ -36,7 +55,7 @@ _install() {
 
 if [ "$OS" == "darwin" ]; then
 
-	OS="osx";
+	OS="macos";
 
 elif [ "$OS" == "linux" ]; then
 
@@ -128,20 +147,20 @@ else
 
 	if [ "$ALWAYS_YES" == "true" ] && [ "$SYSTEMCTL_BIN" != "" ]; then
 
-		SELECTION_SERVICE="systemd";
+		SELECTION_SERVICE="yes";
 
 	elif [ "$SYSTEMCTL_BIN" != "" ]; then
 
 		echo " (L) ";
-		echo " (L) Do you want systemd autostart integration on bootup? ";
+		echo " (L) Do you want lychee.js Harvester autostart integration on bootup? ";
 		echo " (L) ";
 
 		read -p " (L) Yes or No (y/n)? " -r
 
 		if [[ $REPLY =~ ^[Yy]$ ]]; then
-			SELECTION_SERVICE="systemd";
+			SELECTION_SERVICE="yes";
 		elif [[ $REPLY =~ ^[Nn]$ ]]; then
-			SELECTION_SERVICE="";
+			SELECTION_SERVICE="no";
 		else
 			echo -e "\e[41m\e[97m (E) INVALID SELECTION \e[0m";
 			exit 1;
@@ -251,288 +270,127 @@ else
 	fi;
 
 
+	if [ "$SKIP_UPDATES" == "false" ]; then
 
-	if [ "$UPDATE_CMD" != "" ]; then
+		if [ "$UPDATE_CMD" != "" ]; then
 
-		echo " (L) ";
-		echo " (L) > Updating package information ...";
+			echo " (L) ";
+			echo " (L) > Updating package information ...";
 
+			_install "$UPDATE_CMD";
+			_check_or_exit $?;
 
-		_install "$UPDATE_CMD";
+		fi;
 
+		if [ "$REQUIRED_CMD" != "" ]; then
 
-		if [ $? -eq 0 ]; then
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-		else
-			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
+			echo " (L) ";
+			echo " (L) > Installing required dependencies ...";
+
+			_install "$REQUIRED_CMD";
+			_check_or_exit $?;
+
+		elif [ "$REQUIRED_CMD" == "" ]; then
+
+			echo " (L) ";
+			echo -e "\e[41m\e[97m";
+			echo " (E)                                                           ";
+			echo " (E) Your package manager is not supported.                    ";
+			echo " (E) Feel free to modify this script!                          ";
+			echo " (E)                                                           ";
+			echo " (E) Please let us know about this at                          ";
+			echo " (E) https://github.com/Artificial-Engineering/lycheejs/issues ";
+			echo " (E)                                                           ";
+			echo -e "\e[0m";
+
 			exit 1;
+
+		fi;
+
+		if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION_PACKAGES" == "optional" ]; then
+
+			echo " (L) ";
+			echo " (L) > Installing optional dependencies ...";
+
+			_install "$OPTIONAL_CMD";
+			_check_or_exit $?;
+
 		fi;
 
 	fi;
 
 
+	if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ] || [ "$OS" == "macos" ]; then
 
-	if [ "$REQUIRED_CMD" != "" ]; then
+		cd $LYCHEEJS_ROOT;
 
 		echo " (L) ";
-		echo " (L) > Installing required dependencies ...";
+		echo " (L) > Integrating lychee.js Helper ...";
+		echo " (L)   bash ./bin/helper/install.sh";
+		bash ./bin/helper/install.sh;
+		_check_or_exit $?;
 
 
-		_install "$REQUIRED_CMD";
+		echo " (L) ";
+		echo " (L) > Integrating lychee.js Harvester ...";
+
+		if [ "$SELECTION_SERVICE" == "yes" ]; then
+			echo " (L)   bash ./libraries/harvester/bin/install.sh --service";
+			bash ./libraries/harvester/bin/install.sh --service;
+			_check_or_exit $?;
+		else
+			echo " (L)   bash ./libraries/harvester/bin/install.sh";
+			bash ./libraries/harvester/bin/install.sh;
+			_check_or_exit $?;
+		fi;
 
 
-		if [ $? -eq 0 ]; then
+		echo " (L) ";
+		echo " (L) > Integrating CLI/GUI applications ...";
+
+		cd $LYCHEEJS_ROOT;
+
+		result=0;
+
+		echo " (L)   bash ./libraries/breeder/bin/install.sh";
+		bash ./libraries/breeder/bin/install.sh;
+		if [ $? != 0 ]; then result=1; fi;
+
+		echo " (L)   bash ./libraries/fertilizer/bin/install.sh";
+		bash ./libraries/fertilizer/bin/install.sh;
+		if [ $? != 0 ]; then result=1; fi;
+
+		echo " (L)   bash ./libraries/ranger/bin/install.sh";
+		bash ./libraries/ranger/bin/install.sh;
+		if [ $? != 0 ]; then result=1; fi;
+
+		echo " (L)   bash ./libraries/strainer/bin/install.sh";
+		bash ./libraries/strainer/bin/install.sh;
+		if [ $? != 0 ]; then result=1; fi;
+
+		echo " (L)   bash ./libraries/studio/bin/install.sh";
+		bash ./libraries/studio/bin/install.sh;
+		if [ $? != 0 ]; then result=1; fi;
+
+		if [ "$result" != "$0" ]; then
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
 		else
-			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
-			exit 1;
+			echo -e "\e[43m\e[97m (W) > FAILURE \e[0m";
 		fi;
 
-	elif [ "$REQUIRED_CMD" == "" ]; then
-
-		echo " (L) ";
-		echo -e "\e[41m\e[97m";
-		echo " (E)                                                           ";
-		echo " (E) Your package manager is not supported.                    ";
-		echo " (E) Feel free to modify this script!                          ";
-		echo " (E)                                                           ";
-		echo " (E) Please let us know about this at                          ";
-		echo " (E) https://github.com/Artificial-Engineering/lycheejs/issues ";
-		echo " (E)                                                           ";
-		echo -e "\e[0m";
-
-		exit 1;
-
-	fi;
-
-	if [ "$OPTIONAL_CMD" != "" ] && [ "$SELECTION_PACKAGES" == "optional" ]; then
-
-		echo " (L) ";
-		echo " (L) > Installing optional dependencies ...";
-
-
-		_install "$OPTIONAL_CMD";
-
-
-		if [ $? -eq 0 ]; then
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-		else
-			echo -e "\e[41m\e[97m (E) > FAILURE \e[0m";
-			exit 1;
+		update_desktop=`which update-desktop-database`;
+		if [ "$update_desktop" != "" ]; then
+			echo " (L)   update-desktop-database";
+			$update_desktop 1> /dev/null 2> /dev/null;
 		fi;
 
-	fi;
-
-
-
-	if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
-
-		if [ -d /usr/lib/systemd/system ] && [ "$SELECTION_SERVICE" == "systemd" ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating Harvester Service ...";
-
-
-			cp "$LYCHEEJS_ROOT/bin/helper/harvester.service" /usr/lib/systemd/system/lycheejs-harvester.service 2> /dev/null;
-			systemctl enable lycheejs-harvester.service                                                         2> /dev/null;
-
-			if [ $? == 0 ]; then
-				echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-			else
-				echo -e "\e[43m\e[97m (W) > FAILURE \e[0m";
-			fi;
-
+		update_desktop=`which xdg-desktop-menu`;
+		if [ "$update_desktop" != "" ]; then
+			echo " (L)   xdg-desktop-menu forceupdate";
+			$update_desktop forceupdate 1> /dev/null 2> /dev/null;
 		fi;
-
-		if [ -d /usr/share/applications ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating GUI applications ...";
-
-
-			cp "$LYCHEEJS_ROOT/bin/helper/linux/lycheejs.svg" /usr/share/icons/lycheejs.svg                         2> /dev/null;
-			cp "$LYCHEEJS_ROOT/bin/helper/linux/helper.desktop" /usr/share/applications/lycheejs-helper.desktop     2> /dev/null;
-			sed -i 's|__ROOT__|'$LYCHEEJS_ROOT'|g' "/usr/share/applications/lycheejs-helper.desktop"                2> /dev/null;
-
-			cp "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.desktop" /usr/share/applications/lycheejs-ranger.desktop 2> /dev/null;
-			ranger_root="$LYCHEEJS_ROOT/libraries/ranger";
-			sed -i 's|__ROOT__|'$ranger_root'|g' /usr/share/applications/lycheejs-ranger.desktop                    2> /dev/null;
-
-			cp "$LYCHEEJS_ROOT/libraries/studio/bin/studio.desktop" /usr/share/applications/lycheejs-studio.desktop 2> /dev/null;
-			studio_root="$LYCHEEJS_ROOT/libraries/studio";
-			sed -i 's|__ROOT__|'$studio_root'|g' /usr/share/applications/lycheejs-studio.desktop                    2> /dev/null;
-
-
-			update_desktop=`which update-desktop-database`;
-			if [ "$update_desktop" != "" ]; then
-				echo " (L)   update-desktop-database";
-				$update_desktop 1> /dev/null 2> /dev/null;
-			fi;
-
-			update_desktop=`which xdg-desktop-menu`;
-			if [ "$update_desktop" != "" ]; then
-				echo " (L)   xdg-desktop-menu forceupdate";
-				$update_desktop forceupdate 1> /dev/null 2> /dev/null;
-			fi;
-
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		fi;
-
-
-		BASH_RC="$HOME/.bashrc";
-
-		if [ "$SUDO_USER" != "" ] && [ -d "/home/$SUDO_USER" ]; then
-			BASH_RC="/home/$SUDO_USER/.bashrc";
-		fi;
-
-		if [ -d /usr/local/bin ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI applications ...";
-
-
-			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
-			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
-			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
-			rm /usr/local/bin/lycheejs-ranger         2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer       2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer-fixer 2> /dev/null;
-			rm /usr/local/bin/lycheejs-studio         2> /dev/null;
-
-			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                            /usr/local/bin/lycheejs-helper;
-			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"         /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh"   /usr/local/bin/lycheejs-fertilizer;
-			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"     /usr/local/bin/lycheejs-harvester;
-			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"           /usr/local/bin/lycheejs-ranger;
-			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh"       /usr/local/bin/lycheejs-strainer;
-			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer-fixer.sh" /usr/local/bin/lycheejs-strainer-fixer;
-			ln -s "$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh"           /usr/local/bin/lycheejs-studio;
-
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		elif [ -f "$BASH_RC" ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI applications ...";
-
-			check=$(cat $BASH_RC | grep lycheejs-helper);
-
-			if [ "$check" == "" ]; then
-
-				echo -e "\n\n# lychee.js Engine\n"                                                                   >> $BASH_RC;
-				echo -e "alias lycheejs-helper=\"$LYCHEEJS_ROOT/bin/helper.sh\";"                                    >> $BASH_RC;
-				echo -e "alias lycheejs-breeder=\"$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh\";"                >> $BASH_RC;
-				echo -e "alias lycheejs-fertilizer=\"$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh\";"       >> $BASH_RC;
-				echo -e "alias lycheejs-harvester=\"$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh\";"          >> $BASH_RC;
-				echo -e "alias lycheejs-ranger=\"$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh\";"                   >> $BASH_RC;
-				echo -e "alias lycheejs-strainer=\"$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh\";"             >> $BASH_RC;
-				echo -e "alias lycheejs-strainer-fixer=\"$LYCHEEJS_ROOT/libraries/strainer/bin/strainer-fixer.sh\";" >> $BASH_RC;
-				echo -e "alias lycheejs-studio=\"$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh\";"                   >> $BASH_RC;
-
-			fi;
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		fi;
-
-		if [ -d /usr/share/bash-completion/completions ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI autocompletions ...";
-
-
-			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /usr/share/bash-completion/completions/lycheejs;
-
-			rm /usr/share/bash-completion/completions/lycheejs-breeder    2> /dev/null;
-			rm /usr/share/bash-completion/completions/lycheejs-fertilizer 2> /dev/null;
-			rm /usr/share/bash-completion/completions/lycheejs-harvester  2> /dev/null;
-			rm /usr/share/bash-completion/completions/lycheejs-strainer   2> /dev/null;
-
-			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-breeder;
-			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-fertilizer;
-			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-harvester;
-			ln -s /usr/share/bash-completion/completions/lycheejs /usr/share/bash-completion/completions/lycheejs-strainer;
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		elif [ -d /etc/bash_completion.d ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI autocompletions ...";
-
-
-			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /etc/bash_completion.d/lycheejs;
-
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		fi;
-
-	elif [ "$OS" == "osx" ]; then
-
-		echo " (L) ";
-		echo " (L) > Integrating GUI applications ...";
-
-
-		echo " (L)   open ./bin/helper/osx/helper.app";
-		open ./bin/helper/osx/helper.app 2> /dev/null;
-
 
 		echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-
-		if [ -d /usr/local/bin ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI applications ...";
-
-
-			# Well, fuck you, Apple.
-			if [ ! -f /usr/local/bin/png2icns ]; then
-				cp "$LYCHEEJS_ROOT/bin/helper/osx/png2icns.sh" /usr/local/bin/png2icns;
-				chmod +x /usr/local/bin/png2icns;
-			fi;
-
-
-			rm /usr/local/bin/lycheejs-breeder        2> /dev/null;
-			rm /usr/local/bin/lycheejs-fertilizer     2> /dev/null;
-			rm /usr/local/bin/lycheejs-harvester      2> /dev/null;
-			rm /usr/local/bin/lycheejs-helper         2> /dev/null;
-			rm /usr/local/bin/lycheejs-ranger         2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer       2> /dev/null;
-			rm /usr/local/bin/lycheejs-strainer-fixer 2> /dev/null;
-			rm /usr/local/bin/lycheejs-studio         2> /dev/null;
-
-			ln -s "$LYCHEEJS_ROOT/bin/helper.sh"                            /usr/local/bin/lycheejs-helper;
-			ln -s "$LYCHEEJS_ROOT/libraries/breeder/bin/breeder.sh"         /usr/local/bin/lycheejs-breeder;
-			ln -s "$LYCHEEJS_ROOT/libraries/fertilizer/bin/fertilizer.sh"   /usr/local/bin/lycheejs-fertilizer;
-			ln -s "$LYCHEEJS_ROOT/libraries/harvester/bin/harvester.sh"     /usr/local/bin/lycheejs-harvester;
-			ln -s "$LYCHEEJS_ROOT/libraries/ranger/bin/ranger.sh"           /usr/local/bin/lycheejs-ranger;
-			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer.sh"       /usr/local/bin/lycheejs-strainer;
-			ln -s "$LYCHEEJS_ROOT/libraries/strainer/bin/strainer-fixer.sh" /usr/local/bin/lycheejs-strainer-fixer;
-			ln -s "$LYCHEEJS_ROOT/libraries/studio/bin/studio.sh"           /usr/local/bin/lycheejs-studio;
-
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		fi;
-
-		if [ -d /etc/bash_completion.d ]; then
-
-			echo " (L) ";
-			echo " (L) > Integrating CLI autocompletions ...";
-
-
-			cp "$LYCHEEJS_ROOT/bin/helper-autocomplete.sh" /etc/bash_completion.d/lycheejs;
-
-
-			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
-
-		fi;
 
 	fi;
 

@@ -1,5 +1,5 @@
 
-lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachments) {
+lychee.define('lychee.ai.neat.Brain').exports((lychee, global, attachments) => {
 
 	const _MAX_NODES = 8192;
 
@@ -40,14 +40,8 @@ lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachmen
 
 	const _init_network = function() {
 
-		let input_size = this.__sensors_map.reduce(function(a, b) {
-			return a + b;
-		}, 0);
-
-		let output_size = this.__controls_map.reduce(function(a, b) {
-			return a + b;
-		}, 0);
-
+		let input_size  = this.__sensors_map.reduce((a, b) => a + b, 0);
+		let output_size = this.__controls_map.reduce((a, b) => a + b, 0);
 
 		if (input_size === 0 || output_size === 0) {
 			return;
@@ -82,7 +76,7 @@ lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachmen
 		}
 
 
-		genes.sort(function(a, b) {
+		genes.sort((a, b) => {
 			if (a.out < b.out) return -1;
 			if (a.out > b.out) return  1;
 			return 0;
@@ -348,15 +342,9 @@ lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachmen
 
 				this.controls = controls;
 
-				this.__controls_map = controls.map(function(control) {
-					return (control.sensor() || [ 1 ]).length;
-				});
+				this.__controls_map = controls.map(control => (control.sensor() || [ 1 ]).length);
 
-
-				let size = this.__controls_map.reduce(function(a, b) {
-					return a + b;
-				}, 0);
-
+				let size = this.__controls_map.reduce((a, b) => a + b, 0);
 				if (size !== this.__size.output) {
 					_init_network.call(this);
 				}
@@ -380,15 +368,9 @@ lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachmen
 
 				this.sensors = sensors;
 
-				this.__sensors_map = sensors.map(function(sensor) {
-					return (sensor.sensor() || [ 1 ]).length;
-				});
+				this.__sensors_map = sensors.map(sensor => (sensor.sensor() || [ 1 ]).length);
 
-
-				let size = this.__sensors_map.reduce(function(a, b) {
-					return a + b;
-				}, 0);
-
+				let size = this.__sensors_map.reduce((a, b) => a + b, 0);
 				if (size !== this.__size.input) {
 					_init_network.call(this);
 				}
@@ -422,9 +404,7 @@ lychee.define('lychee.ai.neat.Brain').exports(function(lychee, global, attachmen
 
 			if (genes !== null) {
 
-				this.genes = genes.filter(function(gene) {
-					return _validate_gene(gene);
-				});
+				this.genes = genes.filter(gene => _validate_gene(gene));
 
 				_init_network.call(this);
 

@@ -3,7 +3,7 @@ lychee.define('lychee.Input').tags({
 	platform: 'nidium'
 }).includes([
 	'lychee.event.Emitter'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.window === 'object'
@@ -16,7 +16,7 @@ lychee.define('lychee.Input').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	const _Emitter   = lychee.import('lychee.event.Emitter');
 	const _INSTANCES = [];

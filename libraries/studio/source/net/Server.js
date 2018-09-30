@@ -1,12 +1,9 @@
 
-lychee.define('studio.net.Server').requires([
-	'lychee.net.remote.Stash'
-]).includes([
+lychee.define('studio.net.Server').includes([
 	'lychee.net.Server'
-]).exports(function(lychee, global, attachments) {
+]).exports((lychee, global, attachments) => {
 
 	const _Server = lychee.import('lychee.net.Server');
-	const _Stash  = lychee.import('lychee.net.remote.Stash');
 
 
 
@@ -16,23 +13,33 @@ lychee.define('studio.net.Server').requires([
 
 	const _on_stash_sync = function(data) {
 
-		let root  = lychee.ROOT.project;
-		let stash = this.stash;
+		let main = this.main || null;
+		if (main !== null) {
 
-		if (stash !== null) {
+			let stash = main.stash || null;
+			if (stash !== null) {
 
-			lychee.ROOT.project = lychee.ROOT.lychee;
+				let urls   = [];
+				let assets = [];
+				let root   = lychee.ROOT.project;
 
-			for (let id in data.assets) {
+				lychee.ROOT.project = lychee.ROOT.lychee;
 
-				let asset = lychee.deserialize(data.assets[id]);
-				if (asset !== null) {
-					stash.write(id, asset);
+				for (let url in data.assets) {
+
+					let asset = lychee.deserialize(data.assets[url]);
+					if (asset !== null) {
+						assets.push(asset);
+						urls.push(url);
+					}
+
 				}
 
-			}
+				stash.write(urls, assets);
 
-			lychee.ROOT.project = root;
+				lychee.ROOT.project = root;
+
+			}
 
 		}
 
@@ -44,10 +51,12 @@ lychee.define('studio.net.Server').requires([
 	 * IMPLEMENTATION
 	 */
 
-	const Composite = function(data, main) {
+	const Composite = function(data) {
 
-		let states = Object.assign({
-		}, data);
+		let states = Object.assign({}, data);
+
+
+		this.main = states.main || null;
 
 
 		_Server.call(this, states);
@@ -64,20 +73,16 @@ lychee.define('studio.net.Server').requires([
 
 			console.log('studio.net.Server: Remote connected (' + remote.id + ')');
 
-			remote.addService(new _Stash(remote));
-
 
 			let service = remote.getService('stash');
 			if (service !== null) {
-				service.bind('sync', _on_stash_sync, main);
+				service.bind('sync', _on_stash_sync, this);
 			}
 
 		}, this);
 
-		this.bind('disconnect', function(remote) {
-
+		this.bind('disconnect', remote => {
 			console.log('studio.net.Server: Remote disconnected (' + remote.id + ')');
-
 		}, this);
 
 

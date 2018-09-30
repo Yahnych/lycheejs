@@ -1,5 +1,5 @@
 
-lychee.define('lychee.policy.Height').exports(function(lychee, global, attachments) {
+lychee.define('lychee.policy.Height').exports((lychee, global, attachments) => {
 
 	/*
 	 * IMPLEMENTATION

@@ -3,7 +3,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 	platform: 'html-nwjs'
 }).includes([
 	'lychee.ui.entity.Button'
-]).supports(function(lychee, global) {
+]).supports((lychee, global) => {
 
 	if (
 		typeof global.require === 'function'
@@ -26,7 +26,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 	return false;
 
-}).exports(function(lychee, global, attachments) {
+}).exports((lychee, global, attachments) => {
 
 	// const Buffer  = lychee.import('Buffer');
 	const _fs     = global.require('fs');
@@ -147,11 +147,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 		this.unbind('touch');
 		this.bind('touch', function() {
-
-			this.value.forEach(function(asset) {
-				_download(asset);
-			});
-
+			this.value.forEach(asset => _download(asset));
 		}, this);
 
 	};
@@ -188,7 +184,7 @@ lychee.define('lychee.ui.entity.Download').tags({
 
 			if (value !== null) {
 
-				this.value = value.filter(function(asset) {
+				this.value = value.filter(asset => {
 
 					if (asset instanceof global.Config)  return true;
 					if (asset instanceof global.Font)    return true;
