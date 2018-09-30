@@ -204,9 +204,14 @@ article a.button:active {
 article pre {
 	display: block;
 	margin: 0px;
-	padding: 16px;
+	padding: 0px;
 	background: #1f2726;
 	overflow: auto;
+}
+
+article pre code {
+	tab-size: 4;
+	padding: 0px 16px;
 }
 
 

@@ -29,18 +29,34 @@ that includes all necessary runtimes, binaries and external SDKs that
 you need for further cross-compilation or deployment to its supported
 target platforms and architectures.
 
-The Net Installer shell script allows to automatically install the
-lychee.js Engine on any UNIX-compatible machine (`armhf`, `x86` or
-`x86_64`). The only preinstalled requirements beforehand are `bash`,
-`curl` and `git`.
+The [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) shell script
+allows to automatically install the lychee.js Engine on any UNIX-compatible
+machine (`armhf`, `x86` or `x86_64`). The only required preinstalled
+dependencies are `bash`, `curl` and `git`.
+
+The lychee.js Engine installation requires at least 4GB of free memory
+space at `/opt/lycheejs`. 16GB are recommended to have a fully working
+AI knowledge integration.
+
+Depending on the internet connection speed the installation will take
+a couple minutes (needs to download ca. 800MB zip file of runtime
+binaries which is hosted in the releases section of the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases)
+repository).
+
+**Notes**:
+
+- Windows 10 is supported via Windows Subsystem for Linux (WSL) and Ubuntu.
+- GNU/Linux requires either of `apk`, `apt-get`, `dnf`, `pacman`, `yum` or `zipper` installed beforehand.
+- Mac OSX requires [brew](https://brew.sh) installed beforehand.
+- FreeBSD/NetBSD requires `pkg` installed and [Linux Compatibility](https://www.freebsd.org/doc/handbook/linuxemu-lbc-install.html) activated beforehand.
 
 ```bash
-# This will install lycheejs into /opt/lycheejs
+# Install lychee.js Engine into /opt/lycheejs
 
 sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
 ```
 
-![Quickstart CLI Animation](/guides/asset/quickstart.svg)
+![Quickstart CLI Animation](./asset/installation.svg)
 
 In detail, the [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) will do these steps:
 
@@ -48,6 +64,27 @@ In detail, the [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) will do the
 2. Execute the [/bin/maintenance/do-install.sh](/bin/maintenance/do-install.sh) script.
 3. Execute the [/bin/maintenance/do-update.sh](/bin/maintenance/do-update.sh) script.
 4. Execute the [/bin/configure.sh](/bin/configure.sh) script.
+
+## (Required) Manual ESLint Installation
+
+The lychee.js Engine heavily relies on [eslint](https://github.com/eslint)
+for both static and dynamic code analysis, as eslint helps
+to ease up the parsing part in the lychee.js Strainer as
+it can rely on an easy-to-parse codestyle.
+
+If `eslint` is not installed, most of the AI-related code
+learning features and autofix functionalities will be
+deactivated and/or probably throw an endless list of errors.
+
+Therefore it is recommended to install eslint on your system
+globally and to link it into the lychee.js folder.
+
+```bash
+sudo npm install -g eslint;
+
+cd /opt/lycheejs;
+npm link eslint;
+```
 
 ## Configuration and Bootup
 

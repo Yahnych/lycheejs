@@ -26,11 +26,11 @@
 	</ul>
 	<ul>
 		<li><b>Quickstart</b></li>
-		<li><a href="#!quickstart/Installation">Installation</a></li>
-		<li><a href="#!quickstart/Troubleshooting">Troubleshooting</a></li>
-		<li><a href="#!quickstart/Filesystem">Filesystem</a></li>
-		<li><a href="#!quickstart/Workflow">Workflow</a></li>
-		<li><a href="#!quickstart/Updates">Updates</a></li>
+		<li><a href="#!quickstart/installation">Installation</a></li>
+		<li><a href="#!quickstart/troubleshooting">Troubleshooting</a></li>
+		<li><a href="#!quickstart/filesystem">Filesystem</a></li>
+		<li><a href="#!quickstart/workflow">Workflow</a></li>
+		<li><a href="#!quickstart/updates">Updates</a></li>
 	</ul>
 	<ul>
 		<li><b>Software</b></li>
@@ -41,25 +41,34 @@
 		<li><a href="#!software/lycheejs-strainer">lychee.js Strainer</a></li>
 		<li><a href="#!software/lycheejs-strainer-fixer">lychee.js Strainer Fixer</a></li>
 	</ul>
+	<ul>
+		<li><b>Contributor</b></li>
+		<li><a href="#!contributor/workflow">Workflow</a></li>
+		<li><a href="#!contributor/codestyle">Codestyle</a></li>
+	</ul>
+	<ul>
+		<li><b>Maintenance</b></li>
+		<li><a href="#!maintenance/do-release">do-release.sh</a></li>
+	</ul>
 </menu>
 <main id="main">
 	<article id="welcome" class="active">
 		<label>lychee.js Guide</label>
-		<h3>Quickstart</h3>
+		<h1>Quickstart</h1>
 		<p>
 			The Quickstart Guide helps you to get started
 			and to get an overview of a typical lychee.js
 			Engine installation.
 		</p>
 		<ul>
-			<li><a href="#!quickstart/Installation">Installation</a></li>
-			<li><a href="#!quickstart/Troubleshooting">Troubleshooting</a></li>
-			<li><a href="#!quickstart/Filesystem">Filesystem</a></li>
-			<li><a href="#!quickstart/Workflow">Workflow</a></li>
-			<li><a href="#!quickstart/Updates">Updates</a></li>
+			<li><a href="#!quickstart/installation">Installation</a></li>
+			<li><a href="#!quickstart/troubleshooting">Troubleshooting</a></li>
+			<li><a href="#!quickstart/filesystem">Filesystem</a></li>
+			<li><a href="#!quickstart/workflow">Workflow</a></li>
+			<li><a href="#!quickstart/updates">Updates</a></li>
 		</ul>
 		<hr>
-		<h3>Software</h3>
+		<h1>Software</h1>
 		<p>
 			The Software Guide helps you to figure
 			out what tasks which tool automates and how
@@ -72,6 +81,30 @@
 			<li><a href="#!software/lycheejs-helper">lychee.js Helper</a></li>
 			<li><a href="#!software/lycheejs-strainer">lychee.js Strainer</a></li>
 			<li><a href="#!software/lycheejs-strainer-fixer">lychee.js Strainer Fixer</a></li>
+		</ul>
+		<hr>
+		<h1>Contributor</h1>
+		<p>
+			The Contributor Guide helps you to get
+			started with contributing your code
+			that the robot overlords need in order
+			to conquer this planet.
+		</p>
+		<ul>
+			<li><a href="#!contributor/workflow">Workflow</a></li>
+			<li><a href="#!contributor/codestyle">Codestyle</a></li>
+		</ul>
+		<hr>
+		<h1>Maintenance</h1>
+		<p>
+			The Maintenance Guide helps codemonkeys
+			to get started in maintaining the Engine
+			stack and explains the detailed configurations
+			and setups regarding the <a target="_blank" href="https://github.com/humansneednotapply">@humansneednotapply</a>
+			bot. Beep bop beep beep.
+		</p>
+		<ul>
+			<li><a href="#!maintenance/do-release">do-release.sh</a></li>
 		</ul>
 		<hr>
 		<p class="hint">
@@ -113,6 +146,10 @@
 
 		}
 
+	};
+
+	const _format_code = function(str) {
+		return str;
 	};
 
 	const _format_href = function(url) {
@@ -342,9 +379,12 @@
 					element = null;
 				} else {
 
+					$('code').set({
+						html: _format_code(line)
+					}).appendTo(element);
+
 					let code = element.query('code');
 					if (code !== null) {
-						code.html((code.chunk !== '' ? (code.chunk + '\n') : '') + chunk);
 					}
 
 				}
@@ -361,7 +401,6 @@
 
 				if (element === null || element.type !== 'pre') {
 					element = $('pre');
-					$('code').appendTo(element);
 				}
 
 				if (chunk.length > 3) {
@@ -375,9 +414,30 @@
 
 			} else if (chunk.startsWith('#')) {
 
-				element = $(chunk.startsWith('##') ? 'h3' : 'h1').set({
-					html: _render_inline(chunk.split(' ').slice(1).join(' '))
-				});
+				let type = null;
+				let tmp  = chunk.split(' ').shift().trim();
+
+				if (/#/g.test(tmp) === true) {
+
+					if (tmp === '#') {
+						type = 'label';
+					} else if (tmp === '##') {
+						type = 'h1';
+					} else if (tmp === '###') {
+						type = 'h2';
+					} else if (tmp === '####') {
+						type = 'h3';
+					}
+
+				}
+
+				if (type !== null) {
+
+					element = $(type).set({
+						html: _render_inline(chunk.split(' ').slice(1).join(' '))
+					});
+
+				}
 
 			} else if (chunk.startsWith('-')) {
 

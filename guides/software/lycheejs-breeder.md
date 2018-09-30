@@ -9,7 +9,7 @@ It can be seen as a wizard that eases up annoying copy/paste
 actions and that automates configuration of any kind.
 
 The workflow and how it is used is explained in the
-[Workflow](../quickstart/Workflow.md) chapter.
+[Workflow](../quickstart/workflow.md) chapter.
 
 
 ## Usage

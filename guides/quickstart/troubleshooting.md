@@ -8,7 +8,7 @@ for an untrained eye.
 
 ## Installation Problems
 
-**BSD**
+### BSD
 
 FreeBSD, OpenBSD and CentOS may in some circumstances require
 a better integration with their package managers. Currently we
@@ -19,7 +19,7 @@ know in the [Issues](https://github.com/Artificial-Engineering/lycheejs/issues)
 of the upstream lychee.js Engine project.
 
 
-**GNU/Linux**
+### GNU/Linux
 
 It is confirmed that Arch Linux, Debian, Ubuntu, Fedora,
 Linux Mint, Red Hat and openSUSE are working by using the
@@ -31,9 +31,9 @@ know in the [Issues](https://github.com/Artificial-Engineering/lycheejs/issues)
 of the upstream lychee.js Engine project.
 
 
-**Mac OSX**
+### MacOS
 
-Mac OSX (El Capitan and Sierra) is known to work with the
+MacOS (El Capitan, Sierra, High Sierra) is known to work with the
 netinstaller from the [Install](https://lychee.js.org/#!install)
 page.
 
@@ -44,7 +44,7 @@ as it's way more up-to-date and has a bigger superset of
 available packages.
 
 
-**Windows**
+### Windows
 
 Windows as a development machine is currently not officially supported.
 
@@ -69,8 +69,8 @@ also compile Apps to Windows as a target platform.
 
 Here's a list of common problems that may happen if something went wrong.
 
-Please make sure that you followed the Installation instructions in the [README.md](https://github.com/Artificial-Engineering/lycheejs/#quickstart)
-correctly.
+Please make sure that you followed the Installation instructions in the
+[README.md](/README.md) correctly.
 
 - Current shell is not a `bash` compatible shell.
 - Did not install all dependencies via `sudo ./bin/maintenance/do-install.sh`

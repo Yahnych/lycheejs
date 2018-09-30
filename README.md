@@ -158,18 +158,18 @@ each Project's or Library's `lychee.pkg` file.
 
 
 | Target       | Fertilizer                              | Binary | Package | armv7 |  x86  | x86\_64 |
-|:-------------|:----------------------------------------|:------:|:--------|:-----:|:-----:|:-------:|
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
 | Web Browser  | html                                    |        |         |   x   |   x   |    x    |
 | GNU/Linux    | html-nwjs, nidium, node, node-sdl       |   x    |    x    |   x   |   x   |    x    |
 | MacOS        | html-nwjs, nidium, node, node-sdl       |   x    |    x    |       |       |    x    |
 | Ubuntu       | html-nwjs, html-webview, node, node-sdl |   x    |    x    |   x   |   x   |    x    |
 | Windows      | html-nwjs, node, node-sdl               |   x    |         |       |   x   |    x    |
-|:-------------|:----------------------------------------|:------:|:--------|:-----:|:-----:|:-------:|
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
 | Android      | html-webview, nidium, node              |   x    |    x    |   x   |   x   |    x    |
 | Blackberry   | html-webview, node, node-sdl            |   x    |    x    |   x   |   x   |    x    |
 | iOS          | html, nidium                            |        |         |   x   |       |         |
 | Ubuntu Touch | html-webview, node, node-sdl            |   x    |    x    |   x   |   x   |    x    |
-|:-------------|:----------------------------------------|:------:|:--------|:-----:|:-----:|:-------:|
+|:------------:|:---------------------------------------:|:------:|:--------|:-----:|:-----:|:-------:|
 
 Explanations of Target Matrix:
 
@@ -192,7 +192,7 @@ so is to follow through the [Quickstart Guide](/guides/quickstart).
 sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
 ```
 
-![Quickstart CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/asset/quickstart.svg)
+![Installation CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/quickstart/asset/installation.svg)
 
 Please let us know if we can improve anything in these documents
 by opening up a [Documentation Problem](https://github.com/Artificial-Engineering/lycheejs/issues/new?template=documentation-problem.md)

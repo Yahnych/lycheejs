@@ -38,7 +38,7 @@ standalone Project that is not coupled with the
 lychee.js Engine ecosystem.
 
 Every Library is tracked inside a Project's `lychee.pkg`
-file. Please read the [Package Format](../project-architecture/Package-Format.md)
+file. Please read the [Package Format](../project-architecture/package-format.md)
 Chapter for more details.
 
 ```bash

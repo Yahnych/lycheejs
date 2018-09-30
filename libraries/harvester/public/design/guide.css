@@ -1,5 +1,5 @@
 
-#menu {
+menu {
 	position: fixed;
 	width: 192px;
 	top: 0px;
@@ -12,12 +12,12 @@
 	background: #363f3e;
 }
 
-#menu ul {
+menu ul {
 	margin: 0px;
 	padding: 0px;
 }
 
-#menu ul > li {
+menu ul > li {
 	margin: 0px;
 	padding: 0px;
 	font-size: 16px;
@@ -25,31 +25,35 @@
 	list-style-type: none;
 }
 
-#menu ul > li > b {
+menu b {
 	display: block;
-	margin: 32px 0px 0px 16px;
-	padding: 0px;
+	margin: 32px 0px 0px 0px;
+	padding: 8px 16px;
 	font-family: 'museo-sans-500';
 	font-size: 16px;
 	font-weight: normal;
 }
 
-#menu ul > li > a {
+menu ul:first-child b {
+	margin-top: 0px;
+}
+
+menu a {
 	display: block;
 	margin: 0px;
 	padding: 0px 0px 0px 16px;
 	color: #ffffff;
 	text-decoration: none;
-	transition: background 250ms ease-out;
+	transition: all 250ms ease-out;
 }
 
-#menu ul > li > a:hover,
-#menu ul > li > a.active {
+menu a:hover,
+menu a.active {
 	background: rgba(255, 255, 255, 0.2);
-	transition: background 250ms ease-out;
+	transition: all 250ms ease-out;
 }
 
-#menu ul > li > a:hover {
+menu a:hover {
 	text-decoration: underline;
 }
 
@@ -97,41 +101,40 @@ article.active {
 	transform: translate(0%, 0%);
 }
 
-article h1 {
+article h1,
+article h2,
+article h3 {
 	display: block;
-	margin: 64px 0px;
+	margin: 0px 0px;
 	padding: 0px 16px;
 	font-family: 'museo-sans-500';
-	font-size: 32px;
 	font-weight: normal;
-	line-height: 32px;
-	text-align: center;
+	line-height: 100%;
+	text-align: left;
+}
+
+article h1 {
+	margin-top: 64px;
+	font-size: 24px;
+	line-height: 24px;
+}
+
+article h2 {
+	margin-top: 32px;
+	font-family: 'museo-sans-300';
+	font-size: 24px;
+	line-height: 24px;
 }
 
 article h3 {
-	display: block;
-	margin: 64px 0px 0px 0px;
-	padding: 0px 16px;
-	font-family: 'museo-sans-500';
-	font-size: 24px;
-	font-weight: normal;
-	line-height: 24px;
-	text-align: left;
-}
-
-article label ~ h3 {
-	margin: 16px 0px 0px 0px;
-}
-
-article h4 {
-	display: block;
-	margin: 16px 0px 0px 0px;
-	padding: 0px 16px;
-	font-family: 'museo-sans-500';
+	margin-top: 16px;
+	font-family: 'museo-sans-300';
 	font-size: 16px;
-	font-weight: normal;
 	line-height: 16px;
-	text-align: left;
+}
+
+article label + h1 {
+	margin-top: 16px;
 }
 
 article em {
@@ -172,12 +175,54 @@ article li {
 }
 
 article pre {
+	counter-reset: line;
 	margin: 16px 0px 32px 0px;
+}
+
+article pre code {
+	display: block;
+	padding: 0px;
+	counter-increment: line;
+}
+
+article pre code:before {
+	display: inline-block;
+	width: 32px;
+	margin: 0px 8px 0px 0px;
+	content: counter(line);
+	text-align: center;
+	background: rgba(255, 255, 255, 0.25);
+	user-select: none;
 }
 
 body > article hr {
 	margin: 64px 0px 16px 0px;
 }
+
+
+
+body.retro menu {
+	background: #222222;
+}
+
+body.retro menu b {
+	background: #8f202f;
+}
+
+body.retro menu ul > li > a {
+	color: #8f202f;
+}
+
+body.retro menu a:hover,
+body.retro menu a.active {
+	color: #ffffff;
+}
+
+body.retro article em {
+	background: #333333;
+}
+
+
 
 @media screen and (max-width: 1000px) {
 
