@@ -126,8 +126,9 @@ lychee.define('strainer.api.Core').requires([
 				let i1 = stream.indexOf('=');
 				let i2 = stream.indexOf(': (function(global) {\n', i1);
 				let i3 = stream.indexOf('= (function(global) {\n');
+				let i4 = stream.indexOf('(function(lychee, global) {\n');
 
-				if (i1 === -1) {
+				if (i1 === -1 && i4 === -1) {
 
 					errors.push({
 						url:       null,
@@ -140,7 +141,7 @@ lychee.define('strainer.api.Core').requires([
 
 				}
 
-				if (i1 !== i3 && i2 === -1) {
+				if (i1 !== i3 && i2 === -1 && i4 === -1) {
 
 					errors.push({
 						url:       null,

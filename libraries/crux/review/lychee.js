@@ -1,5 +1,5 @@
 
-lychee.specify('lychee').exports(function(lychee, sandbox) {
+lychee.specify('lychee').exports((lychee, sandbox) => {
 
 	const _Definition    = lychee.import('lychee.Definition');
 	const _Environment   = lychee.import('lychee.Environment');

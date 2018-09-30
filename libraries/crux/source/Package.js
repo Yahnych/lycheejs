@@ -1289,7 +1289,7 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				config.onload = result => {
 
-					let buffer = this.buffer || null;
+					let buffer = config.buffer || null;
 					if (
 						buffer !== null
 						&& buffer instanceof Object

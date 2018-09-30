@@ -32,6 +32,7 @@ and `fixed`.
 - **Added**: lychee.event.Emitter supports `has(event, callback, scope)` syntax.
 - **Added**: lychee.net.Service supports Composite syntax.
 - **Fixed**: `node` platform fixes serialization of binary assets.
+- **Fixed**: lychee.js Strainer supports memory analysis of lychee.js Crux.
 - Changed: lychee.js Harvester stores `pid` in `/tmp/lycheejs-harvester.pid`.
 - Changed: `lychee.export(reference, sandbox)` returns exported definition or `null`.
 - Changed: lychee.ai.Entity `collides(entity)` returns collision state.

@@ -22,6 +22,12 @@
 		"global": true,
 		"lychee": true
 	},
+	"overrides": [{
+		"files": [ "libraries/crux/review/**/*.js" ],
+		"rules": {
+			"prefer-arrow-callback": "off"
+		}
+	}],
 	"rules": {
 		"array-bracket-spacing": [ "error", "always", {
 			"singleValue": true,

@@ -33,16 +33,29 @@ lychee.define('strainer.event.flow.Check').requires([
 		let configs      = this.configs;
 		let dependencies = [];
 
-		configs.filter(config => config !== null).map(config => config.buffer.source.header || { requires: [], includes: [] }).forEach(header => {
+		configs.filter(config => config !== null).map(config => {
+
+			let source = config.buffer.source;
+			if (source !== null) {
+				return source.header;
+			} else {
+				return { requires: [], includes: [] };
+			}
+
+		}).forEach(header => {
 
 			let requires = header.requires || [];
 			if (requires.length > 0) {
-				dependencies.concat(requires.filter(id => dependencies.includes(id) === false));
+				requires.filter(id => dependencies.includes(id) === false).forEach(id => {
+					dependencies.push(id);
+				});
 			}
 
 			let includes = header.includes || [];
 			if (includes.length > 0) {
-				dependencies.concat(includes.filter(id => dependencies.includes(id) === false));
+				includes.filter(id => dependencies.includes(id) === false).forEach(id => {
+					dependencies.push(id);
+				});
 			}
 
 		});
@@ -87,7 +100,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 			if (variable !== undefined) {
 
-				if (variable.value !== undefined) {
+				if (variable.value !== undefined && variable.value instanceof Object) {
 
 					let identifier = variable.value.reference;
 					let config     = this.configs.find(other => {
@@ -159,7 +172,7 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					}
 
-				} else if (variable.values !== undefined) {
+				} else if (variable.values !== undefined && variable.values instanceof Array) {
 
 					let check = tmp.shift();
 					if (check.startsWith('call(') || check.startsWith('(')) {
@@ -170,6 +183,8 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					}
 
+				} else if (variable.value !== undefined) {
+					values.push(variable.value);
 				}
 
 			}

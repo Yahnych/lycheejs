@@ -70,10 +70,9 @@ lychee.define('strainer.plugin.API').requires([
 				let first  = stream.trim().split('\n')[0];
 
 
-				let is_core          = asset.url.startsWith('/libraries/crux/source') && first.endsWith('(function(global) {');
+				let is_core          = asset.url.startsWith('/libraries/crux/source') && (first.endsWith('(function(global) {') || first.endsWith('(function(lychee, global) {'));
 				let is_definition    = first.startsWith('lychee.define(');
 				let is_specification = first.startsWith('lychee.specify(');
-
 
 				if (is_definition === true) {
 
