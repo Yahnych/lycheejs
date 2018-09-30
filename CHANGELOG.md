@@ -20,7 +20,7 @@ are listed in this specific order: `changed`, `removed`, `added`
 and `fixed`.
 
 
-## [2018-Q3] - UNRELEASED
+## [2018-Q3] - 30.09.2018
 
 - **Changed**: lychee.net.Tunnel `setType(type)` is renamed into `setProtocol(protocol)`.
 - **Changed**: `Stuff` data type uses `Buffer` as `.buffer` property.
