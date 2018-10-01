@@ -817,10 +817,8 @@ lychee.define('strainer.event.flow.Check').requires([
 				let dependencies = _trace_dependencies.call(this);
 				if (dependencies.length > 0) {
 
-					console.log('strainer: CHECK/TRACE-INCLUDES "' + project + '" (' + dependencies.length + ')');
-
-
-					let candidates = [];
+					let candidates  = [];
+					let identifiers = [];
 
 					dependencies.forEach(identifier => {
 
@@ -829,13 +827,12 @@ lychee.define('strainer.event.flow.Check').requires([
 						let pkg = packages[ns] || null;
 						if (pkg !== null) {
 
-							console.log('strainer: -> Tracing ' + identifier + ' in "' + ns + '"');
-
 							let prefix = pkg.url.split('/').slice(0, -1).join('/');
 							let found  = false;
 
 							let resolved = pkg.resolve(id, null);
 							if (resolved.length > 0) {
+								identifiers.push(identifier);
 								candidates.push(prefix + '/api/' + resolved[0] + '.json');
 								found = true;
 							}
@@ -857,7 +854,15 @@ lychee.define('strainer.event.flow.Check').requires([
 
 					});
 
+
+					console.log('strainer: CHECK/TRACE-INCLUDES "' + project + '" (' + candidates.length + ')');
+
+
 					if (candidates.length > 0) {
+
+						identifiers.forEach(id => {
+							console.log('strainer: -> Tracing ' + id + ' in "' + id.split('.')[0] + '"');
+						});
 
 						stash.read(candidates, function(assets) {
 
