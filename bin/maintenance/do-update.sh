@@ -110,23 +110,33 @@ else
 	fi;
 
 
-
 	if [ "$LYCHEEJS_BRANCH" != "$SELECTION_BRANCH" ]; then
 
-		cd $LYCHEEJS_ROOT;
+		echo " (L) ";
+		echo " (L) > Preparing lychee.js Engine ...";
 
+		echo " (L)   cd $LYCHEEJS_ROOT";
+		echo " (L)   git checkout \"$SELECTION_BRANCH\"";
+		cd $LYCHEEJS_ROOT;
 		git checkout $SELECTION_BRANCH;
 
 		if [ $? != 0 ]; then
 
+			echo " (L)   cd $LYCHEEJS_ROOT";
+			echo " (L)   git checkout -b \"$SELECTION_BRANCH\"";
+			cd $LYCHEEJS_ROOT;
 			git checkout -b $SELECTION_BRANCH;
 
 			has_upstream=$(git remote -v | grep upstream | grep "(fetch)");
 
 			if [ "$has_upstream" != "" ]; then
+				echo " (L)   git fetch upstream;";
+				echo " (L)   git pull -f;";
 				git fetch upstream;
 				git pull -f;
 			else
+				echo " (L)   git fetch origin;";
+				echo " (L)   git pull -f;";
 				git fetch origin;
 				git pull -f;
 			fi;
@@ -147,10 +157,19 @@ else
 
 	if [ $? == 0 ]; then
 
-		echo " (L)   cd $LYCHEEJS_ROOT";
-		echo " (L)   git reset \"origin/$SELECTION_BRANCH\" --hard";
-		cd $LYCHEEJS_ROOT;
-		git reset "origin/$SELECTION_BRANCH" --hard;
+		has_upstream=$(git remote -v | grep upstream | grep "(fetch)");
+
+		if [ "$has_upstream" != "" ]; then
+			echo " (L)   cd $LYCHEEJS_ROOT";
+			echo " (L)   git reset \"upstream/$SELECTION_BRANCH\" --hard";
+			cd $LYCHEEJS_ROOT;
+			git reset "upstream/$SELECTION_BRANCH" --hard;
+		else
+			echo " (L)   cd $LYCHEEJS_ROOT";
+			echo " (L)   git reset \"origin/$SELECTION_BRANCH\" --hard";
+			cd $LYCHEEJS_ROOT;
+			git reset "origin/$SELECTION_BRANCH" --hard;
+		fi;
 
 		if [ $? == 0 ]; then
 			echo -e "\e[42m\e[97m (I) > SUCCESS \e[0m";
@@ -171,8 +190,17 @@ else
 	LYCHEEJS_RUNTIME_EXTRACT_SUCCESS=0;
 	LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=0;
 
-	if [ -f $LYCHEEJS_ROOT/bin/runtime.zip ]; then
-		LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=1;
+	if [ -f "$LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE" ]; then
+
+		zipfile_check=`zip -T "$LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE"`;
+
+		if [[ "$zipfile_check" == *"OK" ]]; then
+			LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS=1;
+		fi;
+
+		# XXX: Do not remove file to let curl try to resume download.
+		# XXX: curl automatically rewrites file if it cannot resume.
+
 	fi;
 
 	if [ ! -d $LYCHEEJS_ROOT/bin/runtime ]; then
@@ -193,13 +221,13 @@ else
 
 					echo -e "\e[43m\e[97m (W) Detected an outdated curl version. \e[0m";
 					echo -e "\e[43m\e[97m (W) If you experience problems due to unstable internet connection, update curl. \e[0m";
-					echo " (L)   curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
-					curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+					echo " (L)   curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE";
+					curl --location --retry 8 --progress-bar $download_url > $LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE;
 
 				else
 
-					echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip";
-					curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/runtime.zip;
+					echo " (L)   curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE";
+					curl --location --retry 8 --retry-connrefused --progress-bar $download_url > $LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE;
 
 				fi;
 
@@ -210,15 +238,29 @@ else
 
 			fi;
 
+		else
+
+			echo " (L)   (Using cached "$LYCHEEJS_ROOT/bin/$LYCHEEJS_RUNTIME_FILE")";
+
 		fi;
+
 
 		if [ "$LYCHEEJS_RUNTIME_DOWNLOAD_SUCCESS" == "1" ]; then
 
-			mkdir $LYCHEEJS_ROOT/bin/runtime;
+			if [ -d "$LYCHEEJS_ROOT/bin/runtime" ]; then
+				echo " (L)   mv $LYCHEEJS_ROOT/bin/runtime $LYCHEEJS_ROOT/bin/runtime-backup";
+				echo " (L)   mkdir $LYCHEEJS_ROOT/bin/runtime";
+				mv $LYCHEEJS_ROOT/bin/runtime $LYCHEEJS_ROOT/bin/runtime-backup;
+				mkdir $LYCHEEJS_ROOT/bin/runtime;
+			else
+				echo " (L)   mkdir $LYCHEEJS_ROOT/bin/runtime";
+				mkdir $LYCHEEJS_ROOT/bin/runtime;
+			fi;
+
 			echo " (L)   cd $LYCHEEJS_ROOT/bin/runtime";
-			echo " (L)   unzip -nqq ../runtime.zip";
+			echo " (L)   unzip -nqq ../$LYCHEEJS_RUNTIME_FILE";
 			cd $LYCHEEJS_ROOT/bin/runtime;
-			unzip -nqq ../runtime.zip;
+			unzip -nqq ../$LYCHEEJS_RUNTIME_FILE
 
 			if [ $? == 0 ]; then
 				LYCHEEJS_RUNTIME_EXTRACT_SUCCESS=1;

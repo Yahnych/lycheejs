@@ -3,7 +3,9 @@
 
 /lychee.store
 /bin/runtime
-/bin/runtime.zip
+/bin/runtime-backup
+/bin/lycheejs-runtime.zip
+/bin/lycheejs-runtime-only-node.zip
 /libraries/studio/.fc-cache
 
 # GitHub Integration
