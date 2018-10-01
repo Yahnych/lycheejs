@@ -195,6 +195,28 @@ article pre code:before {
 	user-select: none;
 }
 
+article table {
+	width: calc(100% - 32px);
+	margin: 32px 16px;
+}
+
+article table th {
+	font-family: 'museo-sans-300';
+	font-size: 24px;
+	font-weight: normal;
+}
+
+article table td,
+article table th {
+	margin: 0px;
+	padding: 2px 4px;
+	text-align: center;
+}
+
+article table hr {
+	margin: 4px 0px;
+}
+
 body > article hr {
 	margin: 64px 0px 16px 0px;
 }

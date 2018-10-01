@@ -128,6 +128,18 @@
 	 */
 
 	const _CACHE = {};
+	const _EMOJI = {
+		'book':         String.fromCodePoint(0x1f4d5),
+		'bug':          String.fromCodePoint(0x1f41b),
+		'construction': String.fromCodePoint(0x1f6a7),
+		'ghost':        String.fromCodePoint(0x1f47b),
+		'rainbow':      String.fromCodePoint(0x1f308),
+		'robot':        String.fromCodePoint(0x1f916),
+		'rocket':       String.fromCodePoint(0x1f680),
+		'satellite':    String.fromCodePoint(0x1f4e1),
+		'snowflake':    String.fromCodePoint(0x2744),
+		'sparkles':     String.fromCodePoint(0x2728)
+	};
 
 	const $load = function(path, callback) {
 
@@ -275,8 +287,44 @@
 			let check_em  = str.includes('`');
 			let check_img = str.includes('![');
 
+			let check_emoji = false;
+			let check_hr    = false;
 
-			if (check_img === true) {
+			if (str.startsWith(':') && str.endsWith(':')) {
+
+				let tmp = str.slice(1, -1);
+				if (tmp.length === tmp.split('').filter(v => v === '-').length) {
+
+					check_hr = true;
+
+				} else {
+
+					let emoji = _EMOJI[tmp] || null;
+					if (emoji !== null) {
+						check_emoji = true;
+					}
+
+				}
+
+			} else if (str.startsWith('-') && str.endsWith('-')) {
+
+				let tmp = str.split('').slice(1, -1);
+				if (tmp.length === tmp.filter(v => v === '-').length) {
+					check_hr = true;
+				}
+
+			}
+
+
+			if (check_emoji === true) {
+
+				str = _EMOJI[str.slice(1, -1)];
+
+			} else if (check_hr === true) {
+
+				str = '<hr>';
+
+			} else if (check_img === true) {
 
 				let c0 = str.indexOf('![');
 				let c1 = str.indexOf('](', c0 + 2);
@@ -401,6 +449,30 @@
 					element.html(element.chunk + ' ' + _render_inline(chunk));
 				}
 
+			} else if (element !== null && element.type === 'table') {
+
+				if (chunk === '') {
+					element = null;
+				} else {
+
+					let tbody = element.query('tbody');
+					if (tbody !== null) {
+
+						let row = $('tr');
+						let tmp = chunk.split('|').slice(1, -1).map(v => v.trim());
+						if (tmp.length > 0) {
+
+							tmp.map(str => $('td').set({
+								html: _render_inline(str)
+							})).forEach(td => td.appendTo(row));
+							row.appendTo(tbody);
+
+						}
+
+					}
+
+				}
+
 			} else if (chunk.startsWith('```')) {
 
 				if (element === null || element.type !== 'pre') {
@@ -414,6 +486,30 @@
 
 				} else if (element !== null) {
 					element = null;
+				}
+
+			} else if (chunk.startsWith('|') && chunk.endsWith('|')) {
+
+				if (element === null || element.type !== 'table') {
+					element = $('table');
+					$('thead').appendTo(element);
+					$('tbody').appendTo(element);
+				}
+
+				let thead = element.query('thead');
+				if (thead !== null) {
+
+					let row = $('tr');
+					let tmp = chunk.split('|').slice(1, -1).map(v => v.trim());
+					if (tmp.length > 0) {
+
+						tmp.map(str => $('th').set({
+							html: _render_inline(str)
+						})).forEach(th => th.appendTo(row));
+						row.appendTo(thead);
+
+					}
+
 				}
 
 			} else if (chunk.startsWith('#')) {
@@ -462,7 +558,6 @@
 				$('li').set({
 					html: _render_inline(chunk.split('.').slice(1).join('.'))
 				}).appendTo(element);
-
 
 			} else if (chunk !== '') {
 
