@@ -377,7 +377,7 @@
 
 				}
 
-			} else if (chunk.startsWith('- ')) {
+			} else if (chunk.startsWith('* ') || chunk.startsWith('- ')) {
 
 				if (element === null || element.type !== 'ul') {
 					element = $('ul');
