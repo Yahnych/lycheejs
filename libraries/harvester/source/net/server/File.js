@@ -34,16 +34,15 @@ lychee.define('harvester.net.server.File').requires([
 		'zip':      { binary: true,  type: 'application/zip'               }
 	};
 
+	const _ROOT_PROJECT = {
+		identifier: '',
+		filesystem: new _Filesystem()
+	};
+
 	const _GUIDES_PROJECT = {
 		identifier: '/guides',
 		filesystem: new _Filesystem({
 			root: '/guides'
-		})
-	};
-	const _PUBLIC_PROJECT = {
-		identifier: '/libraries/harvester/public',
-		filesystem: new _Filesystem({
-			root: '/libraries/harvester/public'
 		})
 	};
 
@@ -163,11 +162,18 @@ lychee.define('harvester.net.server.File').requires([
 
 			} else {
 
-				// /favicon.ico /index.html
-
 				identifier = null;
-				path       = url;
-				project    = _PUBLIC_PROJECT;
+				project    = _ROOT_PROJECT;
+
+				if (url.startsWith('/') === false) {
+					url = '/' + url;
+				}
+
+				if (url === '/CHANGELOG.md' || url === '/README.md') {
+					path = url;
+				} else {
+					path = '/libraries/harvester/public' + url;
+				}
 
 			}
 

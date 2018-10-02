@@ -14,10 +14,8 @@ As we cannot influence decisions of our Artificial Intelligence,
 some things might break temporarily on the `development` and
 `humansneednotapply` branch.
 
-The update behaviour is changed as explained in the
-[RELEASE Guide](./guides/RELEASE.md). All entries in the changelog
-are listed in this specific order: `changed`, `removed`, `added`
-and `fixed`.
+All entries in the changelog are listed in this specific order:
+`changed`, `removed`, `added` and `fixed`.
 
 
 ## [2018-Q3] - 30.09.2018

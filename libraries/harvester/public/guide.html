@@ -23,7 +23,9 @@
 <menu id="menu">
 	<ul>
 		<li><b>Welcome</b></li>
-		<li><a href="#!welcome">Welcome</a></li>
+		<li><a href="#!WELCOME">Welcome</a></li>
+		<li><a href="#!README">Readme</a></li>
+		<li><a href="#!CHANGELOG">Changelog</a></li>
 	</ul>
 	<ul>
 		<li><b>Quickstart</b></li>
@@ -55,7 +57,7 @@
 	</ul>
 </menu>
 <main id="main">
-	<article id="welcome" class="active">
+	<article id="WELCOME" data-id="WELCOME" class="active">
 		<label>lychee.js Guide</label>
 		<h1>Quickstart</h1>
 		<p>
@@ -121,6 +123,14 @@
 (function(global) {
 
 	lychee.init(null);
+	lychee.debug = true;
+
+
+
+	const _CACHE = {};
+	const _FILES = [ 'README.md', 'CHANGELOG.md' ];
+	const _OTHER = [];
+	const _VIEWS = {};
 
 
 
@@ -128,16 +138,26 @@
 	 * HELPERS
 	 */
 
-	const _CACHE = {};
-
 	const $load = function(path, callback) {
+
+		if (lychee.debug === true) {
+			console.log('$load: Loading "' + path + '" ...');
+		}
 
 		let cache = _CACHE[path] || null;
 		if (cache !== null) {
 
+			if (lychee.debug === true) {
+				console.info('$load: Re-using cached version.');
+			}
+
 			callback(cache);
 
 		} else {
+
+			if (lychee.debug === true) {
+				console.info('$load: Re-loading "/guides/' + path + '".');
+			}
 
 			let url   = '/guides/' + path;
 			let stuff = new Stuff(url);
@@ -153,29 +173,17 @@
 
 	};
 
-
-
-	const _OTHER = [];
-	const _VIEWS = {
-		'welcome.md': $('#welcome')
-	};
-
-	const _navigate = function(url, stuff) {
+	const $view = function(url, stuff) {
 
 		let name = url;
 		if (name.endsWith('.md')) {
 			name = name.substr(0, name.length - 3);
 		}
 
-		let item = $('#menu a').filter(function(item) {
-			return item.get('href').endsWith(name);
-		})[0] || null;
-
+		let item = $('#menu a').find(i => i.get('href').endsWith(name)) || null;
 		if (item !== null) {
 
-			$('#menu a').forEach(function(item) {
-				item.state('');
-			});
+			$('#menu a').forEach(item => item.state(''));
 
 		} else {
 
@@ -197,28 +205,30 @@
 				html: '<a href="#!' + name + '">' + name + '</a>'
 			}).appendTo(other);
 
-			item = $('#menu a').filter(function(item) {
-				return item.get('href').endsWith(name);
-			})[0] || null;
+			item = $('#menu a').find(i => i.get('href').endsWith(name)) || null;
 
 		}
 
 
-		Object.keys(_VIEWS).filter(function(v) {
-			return v !== url;
-		}).forEach(function(v) {
-			_VIEWS[v].state('');
+		Object.keys(_VIEWS).filter(v => v !== url).forEach(url => {
+			_VIEWS[url].state('');
 		});
 
 
 		let article = _VIEWS[url] || null;
 		if (article === null) {
+
+			if (lychee.debug === true) {
+				console.log('$view: Rendering "' + url + '" ...');
+			}
+
 			article = _VIEWS[url] = $MARKDOWN.render(stuff);
 			article.appendTo(main);
+
 		}
 
 
-		setTimeout(function() {
+		setTimeout(_ => {
 
 			if (article !== null) {
 				article.state('active');
@@ -263,26 +273,70 @@
 		global.onhashchange = function() {
 
 			let hash = global.location.hash || '';
-			if (hash === '' || hash === '#!welcome') {
-
-				_navigate('welcome.md');
-
-			} else if (hash.startsWith('#!') === true) {
+			if (hash.startsWith('#!') === true) {
 
 				let url = hash.substr(2);
 				if (url.endsWith('.md') === false) {
 					url = url + '.md';
 				}
 
-				$load(url, function(stuff) {
-					_navigate(url, stuff);
-				});
+				$load(url, stuff => $view(url, stuff));
 
 			}
 
 		};
 
-		global.onhashchange();
+
+
+		/*
+		 * INJECTED FILES
+		 */
+
+		_CACHE['WELCOME.md'] = { url: 'WELCOME.md' };
+		_VIEWS['WELCOME.md'] = $('#WELCOME');
+
+		_FILES.forEach(file => {
+
+			let stuff = new Stuff('/' + file);
+
+			stuff.onload = result => {
+
+				_CACHE[file] = stuff;
+				_VIEWS[file] = $MARKDOWN.render(stuff);
+				_VIEWS[file].appendTo(main);
+
+
+				let name = file;
+				if (name.endsWith('.md')) {
+					name = name.substr(0, name.length - 3);
+				}
+
+				let hash = global.location.hash || '';
+				if (hash === '#!' + name) {
+					global.onhashchange();
+				}
+
+			};
+
+			stuff.load();
+
+		});
+
+
+
+		/*
+		 * INITIALIZATION
+		 */
+
+		let hash = global.location.hash || '';
+		if (hash.startsWith('#!')) {
+
+			let file = hash.substr(2) + '.md';
+			if (_FILES.includes(file) === false) {
+				global.onhashchange();
+			}
+
+		}
 
 	}
 

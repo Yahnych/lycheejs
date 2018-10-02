@@ -144,7 +144,7 @@
 			let check_emoji = false;
 			let check_hr    = false;
 
-			if (str.startsWith(':') && str.endsWith(':')) {
+			if (str.length > 3 && str.startsWith(':') && str.endsWith(':')) {
 
 				let tmp = str.slice(1, -1);
 				if (tmp.length === tmp.split('').filter(v => v === '-').length) {
@@ -160,7 +160,7 @@
 
 				}
 
-			} else if (str.startsWith('-') && str.endsWith('-')) {
+			} else if (str.length > 3 && str.startsWith('-') && str.endsWith('-')) {
 
 				let tmp = str.split('').slice(1, -1);
 				if (tmp.length === tmp.filter(v => v === '-').length) {
@@ -377,7 +377,7 @@
 
 				}
 
-			} else if (chunk.startsWith('-')) {
+			} else if (chunk.startsWith('- ')) {
 
 				if (element === null || element.type !== 'ul') {
 					element = $('ul');
@@ -437,6 +437,8 @@
 			let path = stuff.url;
 			if (path.includes('/guides/')) {
 				path = path.split('/guides/').pop();
+			} else if (path.startsWith('/')) {
+				path = path.substr(1);
 			}
 
 			if (path.endsWith('.md')) {

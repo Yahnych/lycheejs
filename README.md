@@ -1,14 +1,16 @@
 
 # lychee.js (2018-Q3)
 
-<img src="./guides/asset/qr-codes.png" align="right" width="500px">
+![/guides/asset/qr-codes.png](/guides/asset/qr-codes.png)
+
+-------------------------------------------------------------------------------
 
 brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
 
 Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
 
 
-**Work-in-Progress (aka alpha)**
+## Work-in-Progress (aka alpha)
 
 These are the things that we are currently working on:
 
