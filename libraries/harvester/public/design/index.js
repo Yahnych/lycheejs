@@ -132,21 +132,14 @@
 
 				let elements = Array.from(global.document.querySelectorAll(name));
 				if (elements.length > 1) {
-
-					return elements.map(function(element) {
-						return new Wrap(element);
-					});
-
+					return elements.map(element => new Wrap(element));
 				} else if (elements.length === 1) {
 					return new Wrap(elements[0]);
 				}
 
 			} else {
 
-				let tmp = name.split(/\.|\[|\]/g).filter(function(v) {
-					return v !== '';
-				});
-
+				let tmp  = name.split(/\.|\[|\]/g).filter(v => v !== '');
 				let type = tmp[0] || '';
 				if (type !== '') {
 
@@ -173,3 +166,4 @@
 	global.$ = $;
 
 })(typeof window !== 'undefined' ? window : this);
+
