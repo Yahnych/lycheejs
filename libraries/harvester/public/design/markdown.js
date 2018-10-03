@@ -18,8 +18,15 @@
 		'sparkles':     String.fromCodePoint(0x2728)
 	};
 
-	const _format_code = function(str) {
-		return str;
+	const _format_code = function(code, lang) {
+
+		let highlight = global.$highlight || null;
+		if (highlight !== null) {
+			code = highlight(code, lang);
+		}
+
+		return code;
+
 	};
 
 	const _format_href = function(url) {
@@ -29,7 +36,13 @@
 			url = '#!' + url.substr(8);
 
 			if (url.endsWith('.md')) {
-				url = url.substr(0, url.length - 3);
+
+				if (url.startsWith('/')) {
+					url = url.substr(1);
+				}
+
+				url = '#!' + url.substr(0, url.length - 3);
+
 			}
 
 		} else if (url.startsWith('/bin/')) {
@@ -59,7 +72,13 @@
 				url = path_cwd.join('/') + '/' + path_url.join('/');
 
 				if (url.endsWith('.md')) {
-					url = url.substr(0, url.length - 3);
+
+					if (url.startsWith('/')) {
+						url = url.substr(1);
+					}
+
+					url = '#!' + url.substr(0, url.length - 3);
+
 				}
 
 			}
@@ -75,7 +94,13 @@
 				url = path_cwd.join('/') + '/' + path_url.join('/');
 
 				if (url.endsWith('.md')) {
-					url = url.substr(0, url.length - 3);
+
+					if (url.startsWith('/')) {
+						url = url.substr(1);
+					}
+
+					url = '#!' + url.substr(0, url.length - 3);
+
 				}
 
 			}
@@ -274,7 +299,7 @@
 				} else {
 
 					$('code').set({
-						html: _format_code(line)
+						html: _format_code(line, element.get('state'))
 					}).appendTo(element);
 
 				}
@@ -284,7 +309,7 @@
 				if (chunk === '') {
 					element = null;
 				} else {
-					element.html(element.chunk + ' ' + _render_inline(chunk));
+					element.html(element.get('html') + ' ' + _render_inline(chunk));
 				}
 
 			} else if (element !== null && element.type === 'table') {

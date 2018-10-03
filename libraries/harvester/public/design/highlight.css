@@ -1,0 +1,57 @@
+
+pre {
+	counter-reset: line;
+}
+
+pre code {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	counter-increment: line;
+}
+
+pre code:before {
+	display: inline-block;
+	width: 32px;
+	margin: 0px 8px 0px 0px;
+	content: counter(line);
+	text-align: center;
+	background: rgba(255, 255, 255, 0.25);
+	user-select: none;
+}
+
+.ast-builtin {
+	color: #d78787;
+}
+
+.ast-comment,
+.ast-comment > * {
+	color: #afafaf !important;
+}
+
+.ast-literal,
+.ast-number {
+	color: #ff005f;
+}
+
+.ast-string,
+.ast-string > * {
+	color: #4ece4a;
+}
+
+.ast-keyword {
+	color: #ae81ff;
+}
+
+.ast-literal.ast-false,
+.ast-keyword.ast-let,
+.ast-literal.ast-true,
+.ast-keyword.ast-this,
+.ast-keyword.ast-that {
+	color: #32afe5;
+}
+
+.ast-keyword.ast-function {
+	color: #d78787;
+}
+

@@ -187,24 +187,11 @@ article li {
 }
 
 article pre {
-	counter-reset: line;
 	margin: 16px 0px 32px 0px;
 }
 
 article pre code {
-	display: block;
-	padding: 0px;
-	counter-increment: line;
-}
-
-article pre code:before {
-	display: inline-block;
-	width: 32px;
-	margin: 0px 8px 0px 0px;
-	content: counter(line);
-	text-align: center;
-	background: rgba(255, 255, 255, 0.25);
-	user-select: none;
+	margin: 0px 0px 0px -16px;
 }
 
 article table {

@@ -1,27 +1,27 @@
 
 (function(global) {
 
-	const _CACHE = {
-		wraps:    [],
-		elements: []
+	const _CACHE = [];
+
+	const _PROPERTIES = {
+		html:  'innerHTML',
+		state: 'className'
 	};
 
 	const Wrap = function(element) {
 
-		let check = _CACHE.elements.indexOf(element);
-		if (check !== -1) {
-			return _CACHE.wraps[check];
+		let cache = _CACHE.find(c => c.element === element) || null;
+		if (cache !== null) {
+			return cache.instance;
 		}
 
-
-		this.chunk   = element.innerHTML || '';
 		this.element = element;
 		this.type    = element.tagName.toLowerCase();
 
-		if (_CACHE.elements.includes(element) === false) {
-			_CACHE.elements.push(element);
-			_CACHE.wraps.push(this);
-		}
+		_CACHE.push({
+			element:  element,
+			instance: this
+		});
 
 	};
 
@@ -49,15 +49,6 @@
 
 		},
 
-		html: function(html) {
-
-			this.chunk             = html;
-			this.element.innerHTML = html || '';
-
-			return this;
-
-		},
-
 		onclick: function(callback) {
 
 			this.element.onclick = function() {
@@ -80,12 +71,13 @@
 
 		},
 
-		get: function(o) {
+		get: function(name) {
 
 			let data = null;
+			let prop = _PROPERTIES[name] || name;
 
-			if (this.element[o] !== undefined) {
-				data = this.element[o];
+			if (this.element[prop] !== undefined) {
+				data = this.element[prop];
 			}
 
 			return data;
@@ -106,17 +98,18 @@
 
 			return this;
 
-		},
-
-		state: function(state) {
-
-			this.element.className = state;
-
-			return this;
-
 		}
 
 	};
+
+
+	Object.keys(_PROPERTIES).forEach(prop => {
+
+		Wrap.prototype[prop] = function(value) {
+			this.element[_PROPERTIES[prop]] = value;
+		};
+
+	});
 
 
 

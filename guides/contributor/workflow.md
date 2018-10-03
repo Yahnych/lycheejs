@@ -26,16 +26,9 @@ already.
 ### Find an Issue
 
 After you have forked the project you can start picking some issues you
-want to help us on.
-
-We use internally our own [GitHub Scrum Board](https://github.com/Artificial-Engineering/AE-github-scrumboard),
-but that's not required for contributors. This extension just shows you
-a neat Scrum Board with easier-to-use Issue Cards and the typical Scrum
-columns with `backlog` (open and unlabeled), `todo`, `in-progress`,
-`in-testing` and `done` (closed).
-
-In any case, you can find all open issues in the Issues overview in
-this repository.
+want to help us on. All issues are managed in the public and can be
+seen in the [Issues](https://github.com/Artificial-Engineering/lycheejs)
+section of the lychee.js Engine repository.
 
 ![Find lychee.js Issues on GitHub](./asset/github-lycheejs-issues.png)
 

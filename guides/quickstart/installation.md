@@ -1,7 +1,7 @@
 
 # Installation
 
-The lychee.js Engine is distributed via 3 different channels:
+The lychee.js Engine is distributed via two different channels:
 
 - `lychee.js Library` which is a prototyping library for use with other tech stacks.
 - `lychee.js Engine` which is an isomorphic engine and contains AI automation, all tools and software bots.

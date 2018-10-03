@@ -14,35 +14,48 @@ FreeBSD, OpenBSD and CentOS may in some circumstances require
 a better integration with their package managers. Currently we
 have no idea on how to achieve that failsafe.
 
+Please note that as of now, all BSD-based systems have to have
+[Linux Binary Compatibility](https://www.freebsd.org/doc/handbook/linuxemu-lbc-install.html)
+activated.
+
+```bash
+sudo kldload linux64;
+sudo pkg install emulators/linux_base-c6;
+
+sudo echo "linux_enable=\"YES\"" >> /etc/rc.conf;
+```
+
 If an error happens on your BSD installation, please let us
 know in the [Issues](https://github.com/Artificial-Engineering/lycheejs/issues)
 of the upstream lychee.js Engine project.
-
 
 ### GNU/Linux
 
 It is confirmed that Arch Linux, Debian, Ubuntu, Fedora,
 Linux Mint, Red Hat and openSUSE are working by using the
-netinstaller from the [Install](https://lychee.js.org/#!install)
-page.
+[do-netinstall.sh](/bin/maintenance/do-netinstall.sh) which
+is also available on the website via [lychee.js.org/install.sh](https://lychee.js.org/install.sh).
+
+The installation process requires either of the following
+package managers installed beforehand:
+`pacman`, `apk`, `apt-get`, `dnf`, `yum`, `zypper` or `apt`.
 
 If we haven't integrated your package manager yet, please let us
 know in the [Issues](https://github.com/Artificial-Engineering/lycheejs/issues)
 of the upstream lychee.js Engine project.
 
-
 ### MacOS
 
-MacOS (El Capitan, Sierra, High Sierra) is known to work with the
-netinstaller from the [Install](https://lychee.js.org/#!install)
-page.
+MacOS (El Capitan, Sierra, High Sierra or later) is known to work
+with the [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) which
+is also available on the website via [lychee.js.org/install.sh](https://lychee.js.org/install.sh).
 
-The requirements beforehand is to have a working [brew](http://brew.sh)
-or (not recommended) [macports](https://macports.org)
-installation. We heavily recommend using brew over macports
-as it's way more up-to-date and has a bigger superset of
-available packages.
+Before executing the `do-netinstall.s`, make sure that the [brew](https://brew.sh)
+package manager is installed on the system.
 
+A fallback exists for [macports](https://macports.org) as well, but
+macports is heavily outdated and unreliable in the provided packages
+it offers.
 
 ### Windows
 
@@ -58,12 +71,13 @@ running on `localhost:4848` which is our local management port.
 The so-called Ephermal Ports ( `49152` to `65534` ) have to be available
 in order to have a working peer-to-peer TCP or WebSocket environment.
 
-As of now the only way to get this to run is by using the `Windows Subsystem for Linux`
-on an up-to-date Windows 10 machine.
+As of now the only way to get this to run is by using the so-called
+[Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+on an up-to-date Windows 10 machine. Don't forget to install a Linux
+distribution from the `Microsoft Store` afterwards.
 
-However, the [lychee.js Fertilizer](../software/lycheejs-fertilizer.md) can
-also compile Apps to Windows as a target platform.
-
+However, the [lychee.js Fertilizer](../software/lycheejs-fertilizer.md)
+can also compile Projects and Libraries to Windows as a target platform.
 
 ## Bootup Problems
 
@@ -79,7 +93,6 @@ Please make sure that you followed the Installation instructions in the
 - Port `8080` is blocked (localhost-only TCP/HTTP serve port).
 - Forgot to modify the profile in `./bin/harvester/<profile>.json`.
 
-
 ## Reinstallation
 
 If you have made no important uncommited changes in the `/opt/lycheejs/projects`
@@ -87,5 +100,6 @@ or `/opt/lycheejs/libraries` folder, you can always achieve a completely
 wiped-as-in-factory-reset lychee.js Engine Installation by using the
 [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) again.
 
-Please remember to backup your Libraries and Projects before to prevent data loss.
+Please remember to backup your Libraries and Projects before to prevent
+unwanted loss of data.
 
