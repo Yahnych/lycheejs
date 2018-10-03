@@ -54,6 +54,12 @@
 			'true'
 		],
 
+		warnings: [
+			'sudo',
+			'su',
+			'su -'
+		],
+
 		constants: {
 			number: [
 				new RegExp('((-?)(\\d+))', 'g')
@@ -101,8 +107,8 @@
 			'return',
 			'static', 'super', 'switch',
 			'that', 'this', 'throw', 'try', 'typeof',
-			'var', 'void',
-			'while', 'with',
+			'void',
+			'while',
 			'yield'
 		],
 
@@ -112,6 +118,11 @@
 			'NaN', 'null',
 			'true',
 			'undefined'
+		],
+
+		warnings: [
+			'var',
+			'with'
 		],
 
 		constants: {
@@ -137,47 +148,43 @@
 	 * HELPERS
 	 */
 
-	const _replace_builtin = function(code, key) {
-
-		let regexp = new RegExp('(\\s|\\(\\))(' + key + ')(\\s|\\(|\\)|,|;|\\.)', 'g');
-		code = (' ' + code).replace(regexp, '$1<span class="ast-builtin ast-' + key.toLowerCase() + '">$2</span>$3');
-
-		return code.substr(1);
-
-	};
-
 	const _replace_comment = function(code) {
 
-		let i0 = code.indexOf('//');
-		if (i0 === -1) i0 = code.indexOf('/*');
-		if (i0 === -1) i0 = code.indexOf('*/');
-		if (i0 === -1) i0 = code.indexOf('#');
+		let single = new RegExp('(//(.*)\n)', 'g');
 
-		if (i0 !== -1) {
-			code = code.substr(0, i0) + '<span class="ast-comment">' + code.substr(i0) + '</span>';
-		} else if (code.trim().startsWith('* ') === true) {
-			code = '<span class="ast-comment">' + code + '</span>';
-		} else if (code.trim().startsWith('# ') === true) {
-			code = '<span class="ast-comment">' + code + '</span>';
+		code = code.replace(single, '<span class="ast-comment">$1</span>');
+
+
+		// XXX: Fuck ES multiline regexes in particular
+		// let multi = /\/\*[\s\S]*?\*\/.*$/gm;
+
+		let off = 0;
+		let i0  = code.indexOf('/*', off);
+		let i1  = code.indexOf('*/', off + i0 + 1);
+
+		while (i0 !== -1 && i1 !== -1) {
+
+			let comment = code.substr(i0, i1 - i0 + 2).split('\n').map(line => {
+				return '<span class="ast-comment">' + line + '</span>';
+			}).join('\n');
+
+			code = code.substr(0, i0) + comment + code.substr(i1 + 2);
+
+			off = i1 + 2;
+			i0  = code.indexOf('/*', off);
+			i1  = code.indexOf('*/', i0 + 1);
+
 		}
 
 		return code;
 
 	};
 
-	const _replace_literal = function(code, key) {
+	const _replace = function(code, key, type) {
 
 		let regexp = new RegExp('(\\s|\\(|\\))(' + key + ')(\\s|\\(|\\)|,|;|\\.)', 'g');
-		code = (' ' + code + ' ').replace(regexp, '$1<span class="ast-literal ast-' + key.toLowerCase() + '">$2</span>$3');
 
-		return code.substr(1, code.length - 2);
-
-	};
-
-	const _replace_keyword = function(code, key) {
-
-		let regexp = new RegExp('(\\s|\\(|\\))(' + key + ')(\\s|\\(|\\)|,|;|\\.)', 'g');
-		code = (' ' + code + ' ').replace(regexp, '$1<span class="ast-keyword ast-' + key.toLowerCase() + '">$2</span>$3');
+		code = (' ' + code + ' ').replace(regexp, '$1<span class="ast-' + type + ' ast-' + key.toLowerCase() + '">$2</span>$3');
 
 		return code.substr(1, code.length - 2);
 
@@ -220,17 +227,66 @@
 
 			code = _replace_comment(code);
 
-			language.builtins.forEach(builtin => {
-				code = _replace_builtin(code, builtin);
-			});
 
-			language.literals.forEach(literal => {
-				code = _replace_literal(code, literal);
-			});
+			let builtins = language.builtins;
+			if (builtins.length > 0) {
 
-			language.keywords.forEach(keyword => {
-				code = _replace_keyword(code, keyword);
-			});
+				for (let b = 0, bl = builtins.length; b < bl; b++) {
+
+					let word  = builtins[b];
+					let check = code.indexOf(word);
+					if (check !== -1) {
+						code = _replace(code, word, 'builtin');
+					}
+
+				}
+
+			}
+
+			let literals = language.literals;
+			if (literals.length > 0) {
+
+				for (let l = 0, ll = literals.length; l < ll; l++) {
+
+					let word  = literals[l];
+					let check = code.indexOf(word);
+					if (check !== -1) {
+						code = _replace(code, word, 'literal');
+					}
+
+				}
+
+			}
+
+			let keywords = language.keywords;
+			if (keywords.length > 0) {
+
+				for (let k = 0, kl = keywords.length; k < kl; k++) {
+
+					let word  = keywords[k];
+					let check = code.indexOf(word);
+					if (check !== -1) {
+						code = _replace(code, word, 'keyword');
+					}
+
+				}
+
+			}
+
+			let warnings = language.warnings;
+			if (warnings.length > 0) {
+
+				for (let w = 0, wl = warnings.length; w < wl; w++) {
+
+					let word  = warnings[w];
+					let check = code.indexOf(word);
+					if (check !== -1) {
+						code = _replace(code, word, 'warning');
+					}
+
+				}
+
+			}
 
 		}
 

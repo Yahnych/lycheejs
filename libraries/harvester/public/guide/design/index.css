@@ -1,4 +1,35 @@
 
+@font-face {
+	font-family: 'museo-sans-300';
+	src: url('/design/museo-sans-300.woff2') format('woff2'),
+	url('/design/museo-sans-300.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'museo-sans-500';
+	src: url('/design/museo-sans-500.woff2') format('woff2'),
+	url('/design/museo-sans-500.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+::selection {
+	color: #ffffff;
+	background: #32afe5;
+}
+
+body {
+	color: #efefef;
+	background: #405050;
+	font-family: 'museo-sans-300';
+	font-size: 16px;
+	margin: 0px;
+	padding: 0px;
+	transition: all 1000ms ease-out;
+}
+
 menu {
 	position: fixed;
 	width: 192px;
@@ -71,23 +102,22 @@ menu a:hover {
 	overflow: hidden auto;
 }
 
-#main > article {
+article {
+	display: block;
 	position: absolute;
 	top: 0px;
 	right: auto;
 	left: 32px;
 	bottom: auto;
 	margin: 0px;
+	padding: 0px 0px 16px 0px;
 	width: auto;
+	height: auto;
 	max-width: 736px;
 	min-width: 544px;
-}
-
-article {
 	text-align: left;
-}
-
-article {
+	color: #efefef;
+	background: #363f3e;
 	opacity: 0;
 	z-index: 1;
 	transition: opacity 250ms ease-out;
@@ -133,12 +163,30 @@ article h3 {
 	line-height: 16px;
 }
 
+article label {
+	display: block;
+	height: 64px;
+	margin: 0px;
+	padding: 0px 16px;
+	background: #2f3736;
+	font-family: 'museo-sans-300';
+	font-size: 24px;
+	line-height: 64px;
+	text-align: center;
+	transition: all 1000ms ease-out;
+}
+
 article label + h1 {
 	margin-top: 16px;
 }
 
 article label:not(:first-child) {
 	margin-top: 64px;
+}
+
+article a {
+	color: #32afe5;
+	text-decoration: none;
 }
 
 article em {
@@ -150,29 +198,29 @@ article em {
 	border-radius: 3px;
 }
 
-article img:after {
-	display: none;
+article hr {
+	margin: 16px 0px;
+	border: 0 none;
+	border-top: 1px solid #545454;
+}
+
+article img {
+	display: block;
+	position: relative;
+	width: 128px;
+	height: 128px;
+	margin: 16px auto;
 }
 
 article img.normal {
-	display: block;
 	width: auto;
 	height: auto;
 }
 
 article img.wide {
-	display: block;
 	width: calc(100% + 32px);
 	height: auto;
 	margin: 0px -16px 0px -16px;
-}
-
-article img[align=left] {
-	padding-right: 24px;
-}
-
-article img[align=right] {
-	padding-left: 24px;
 }
 
 article ul {
@@ -186,12 +234,27 @@ article li {
 	line-height: 24px;
 }
 
+article p {
+	display: block;
+	margin: 16px 16px 0px 16px;
+	font-family: 'museo-sans-300';
+	font-size: 16px;
+	text-align: justify;
+}
+
 article pre {
+	display: block;
 	margin: 16px 0px 32px 0px;
+	padding: 0px;
+	background: #1f2726;
+	overflow: auto;
 }
 
 article pre code {
+	display: block;
 	margin: 0px 0px 0px -16px;
+	padding: 0px 16px;
+	tab-size: 4;
 }
 
 article table {
@@ -214,33 +277,6 @@ article table th {
 
 article table hr {
 	margin: 4px 0px;
-}
-
-body > article hr {
-	margin: 64px 0px 16px 0px;
-}
-
-
-
-body.retro menu {
-	background: #222222;
-}
-
-body.retro menu b {
-	background: #8f202f;
-}
-
-body.retro menu ul > li > a {
-	color: #8f202f;
-}
-
-body.retro menu a:hover,
-body.retro menu a.active {
-	color: #ffffff;
-}
-
-body.retro article em {
-	background: #333333;
 }
 
 

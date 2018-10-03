@@ -1,6 +1,12 @@
 
 pre {
+	display: block;
+	margin: 0px;
+	padding: 0px;
+	color: #efefef;
+	background: #1f2726;
 	counter-reset: line;
+	overflow: auto;
 }
 
 pre code {
@@ -8,6 +14,7 @@ pre code {
 	margin: 0px;
 	padding: 0px;
 	counter-increment: line;
+	tab-size: 4;
 }
 
 pre code:before {
@@ -53,5 +60,9 @@ pre code:before {
 
 .ast-keyword.ast-function {
 	color: #d78787;
+}
+
+.ast-warning {
+	color: #ff0f0f;
 }
 

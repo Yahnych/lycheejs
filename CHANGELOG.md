@@ -18,7 +18,10 @@ All entries in the changelog are listed in this specific order:
 `changed`, `removed`, `added` and `fixed`.
 
 
-## [2018-Q3] - 30.09.2018
+## [2018-Q4] - UNRELEASED
+
+
+## [2018-Q3] - 2018-09-30
 
 - **Changed**: lychee.net.Tunnel `setType(type)` is renamed into `setProtocol(protocol)`.
 - **Changed**: `Stuff` data type uses `Buffer` as `.buffer` property.

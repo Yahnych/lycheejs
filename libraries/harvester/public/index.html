@@ -13,8 +13,8 @@
 	<script src="/libraries/crux/build/html/dist.js"></script>
 
 	<!-- DESIGN -->
-	<link rel="stylesheet" href="/design/index.css">
 	<script src="/design/index.js"></script>
+	<link rel="stylesheet" href="/design/index.css">
 
 </head>
 <body id="body">
@@ -45,7 +45,7 @@ cd /opt/lycheejs;
 		<a class="button" href="lycheejs://cmd=lycheejs-ranger">lychee.js&nbsp;Ranger</a>
 	</div>
 	<hr>
-	<p class="hint">
+	<p>
 		Need Help? Join our IRC channel <a target="_blank" href="https://webchat.freenode.net/?channels=%23artificial-engineering">#artificial-engineering @ freenode</a>
 	</p>
 </article>
@@ -141,35 +141,13 @@ cd /opt/lycheejs;
 
 	};
 
-	const _retro = function() {
-
-		let body = $('#body');
-		if (body !== null) {
-
-			let time = new Date();
-			let hour = time.getHours() + time.getMinutes() / 60;
-			if (hour > 0 && hour < 6) {
-				body.state('retro');
-			} else {
-				body.state('');
-			}
-
-		}
-
-	};
-
 
 
 	/*
 	 * IMPLEMENTATION
 	 */
 
-	const body    = $('#body');
-	const main    = $('#main');
-	const message = $('#lychee-MESSAGE');
-	const version = $('#lychee-VERSION');
-
-
+	let main = $('#main');
 	if (main !== null) {
 
 		const host    = global.location.hostname || 'localhost';
@@ -177,31 +155,19 @@ cd /opt/lycheejs;
 
 
 		$api('http://' + host + ':4848/api/library/index', function(buffer) {
-
-			buffer.map(function(library) {
-				return _render(library, /ranger|studio/g.test(library.identifier) ? [0,1,1] : [0,1,0]);
-			}).forEach(function(article) {
-				article.appendTo(main);
-			});
-
+			buffer.map(l => _render(l, /ranger|studio/g.test(l.identifier) ? [0,1,1] : [0,1,0])).forEach(a => a.appendTo(main));
 			warning.clear();
-
 		});
 
 		$api('http://' + host + ':4848/api/project/index', function(buffer) {
-
-			buffer.map(function(project) {
-				return _render(project, [1,1,1]);
-			}).forEach(function(article) {
-				article.appendTo(main);
-			});
-
+			buffer.map(p => _render(p, [1,1,1])).forEach(a => a.appendTo(main));
 			warning.clear();
-
 		});
 
 	}
 
+
+	let message = $('#lychee-MESSAGE');
 	if (message !== null) {
 
 		let install_year  = parseInt(lychee.VERSION.split('-')[0], 10);
@@ -214,22 +180,15 @@ cd /opt/lycheejs;
 		) || (
 			install_year < current_year && current_month > 0
 		)) {
-
-			setTimeout(function() {
-				message.state('visible');
-			}, 500);
-
+			setTimeout(_ => message.state('active'), 500);
 		}
 
 	}
 
+
+	let version = $('#lychee-VERSION');
 	if (version !== null) {
 		version.html('' + lychee.VERSION);
-	}
-
-	if (body !== null) {
-		setInterval(_retro, 1000 * 60 * 15);
-		_retro();
 	}
 
 })(typeof global !== 'undefined' ? global : this);

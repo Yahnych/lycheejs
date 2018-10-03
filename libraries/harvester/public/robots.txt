@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /
+Disallow: /guides
 Disallow: /projects
 Disallow: /libraries
 Disallow: /api

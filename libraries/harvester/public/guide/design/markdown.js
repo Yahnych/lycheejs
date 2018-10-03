@@ -295,13 +295,17 @@
 			if (element !== null && element.type === 'pre') {
 
 				if (chunk === '```') {
+
+					let text = _format_code(element._raw || '', element.get('state'));
+					if (text !== '') {
+						text.split('\n').slice(1).map(raw => $('code').set({
+							html: raw
+						})).forEach(code => code.appendTo(element));
+					}
+
 					element = null;
 				} else {
-
-					$('code').set({
-						html: _format_code(line, element.get('state'))
-					}).appendTo(element);
-
+					element._raw += '\n' + line;
 				}
 
 			} else if (element !== null && element.type === 'p') {
@@ -340,6 +344,7 @@
 
 				if (element === null || element.type !== 'pre') {
 					element = $('pre');
+					element._raw = '';
 				}
 
 				if (chunk.length > 3) {

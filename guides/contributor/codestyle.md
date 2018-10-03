@@ -256,7 +256,7 @@ lychee.define('my.Definition').tags({
 
 
 		// This order has to be identical to lychee.Definition.prototype.includes() call
-		_Entity.call(this, settings);
+		_Entity.call(this, states);
 		_Emitter.call(this);
 
 
@@ -362,7 +362,7 @@ lychee.define('my.Definition').exports((lychee, global, attachments) => {
 	 * IMPLEMENTATION
 	 */
 
-	let Callback = function() {
+	const Callback = function() {
 
 		return _device; // stub API for demo usage
 
@@ -487,9 +487,9 @@ the memory layout and behaviour of those.
 const _Entity = lychee.app.Entity;
 const _CACHE  = {};
 
-const Constructor = function(settings) {
+const Constructor = function(states) {
 
-	this.entity = new _Entity(settings);
+	this.entity = new _Entity(states);
 
 	_CACHE.push(this);
 
@@ -761,9 +761,9 @@ lychee.define('my.ui.Menu').includes([
 	 * IMPLEMENTATION
 	 */
 
-	let Composite = function(data) {
+	const Composite = function(data) {
 
-		let settings = lychee.extend({}, data);
+		let states = lychee.extend({}, data);
 
 
 		this.state       = 'default';
@@ -772,21 +772,21 @@ lychee.define('my.ui.Menu').includes([
 		this.__behaviour = 'not-awesome';
 
 
-		this.setState(settings.state);
-		this.setType(settings.type);
+		this.setState(states.state);
+		this.setType(states.type);
 
-		delete settings.state;
-		delete settings.type;
-
-
-		settings.font   = _FONT;
-		settings.width  = 256;
-		settings.height = 512;
+		delete states.state;
+		delete states.type;
 
 
-		_Select.call(this, settings);
+		states.font   = _FONT;
+		states.width  = 256;
+		states.height = 512;
 
-		settings = null;
+
+		_Select.call(this, states);
+
+		states = null;
 
 
 
@@ -826,17 +826,18 @@ lychee.define('my.ui.Menu').includes([
 			let data = _Entity.prototype.serialize.call(this);
 			data['constructor'] = 'my.ui.Menu';
 
-			let settings = data['arguments'][0];
-			let blob     = (data['blob'] || {});
+			let states = data['arguments'][0];
+			let blob   = (data['blob'] || {});
 
 
-			if (this.type !== 'awesome') settings.type = this.type;
+			if (this.type !== 'awesome') states.type = this.type;
 
 
 			if (this.__behaviour !== 'not-awesome') blob.behaviour = this.__behaviour;
 
 
-			data['blob'] = Object.keys(blob).length > 0 ? blob : null;
+			data['arguments'][0] = states;
+			data['blob']         = Object.keys(blob).length > 0 ? blob : null;
 
 
 			return data;
