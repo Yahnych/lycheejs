@@ -391,7 +391,7 @@ if (data !== null) {
 // BAD
 let data = _CACHE[id];
 if (data !== null) {
-  data.load(); // This is not easy to rasterize.
+	data.load(); // This is not easy to rasterize.
 }
 ```
 
@@ -625,8 +625,8 @@ are compatible with the `instanceof` operator.
 
 ```javascript
 const _MODE = {
-    'default': 0,
-    'woop':    1
+	'default': 0,
+	'woop':    1
 };
 
 const _my_method = function(config, service, mode) {

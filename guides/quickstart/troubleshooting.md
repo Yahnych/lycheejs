@@ -19,10 +19,10 @@ Please note that as of now, all BSD-based systems have to have
 activated.
 
 ```bash
-sudo kldload linux64;
-sudo pkg install emulators/linux_base-c6;
+sudo kldload "linux64";
+sudo pkg install "emulators/linux_base-c6";
 
-sudo echo "linux_enable=\"YES\"" >> /etc/rc.conf;
+sudo echo 'linux_enable="YES"' >> /etc/rc.conf;
 ```
 
 If an error happens on your BSD installation, please let us

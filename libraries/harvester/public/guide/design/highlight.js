@@ -150,9 +150,9 @@
 
 	const _replace_comment = function(code) {
 
-		let single = new RegExp('(//(.*)\n)', 'g');
+		let single = new RegExp('(//(.*))\n', 'g');
 
-		code = code.replace(single, '<span class="ast-comment">$1</span>');
+		code = code.replace(single, '<span class="ast-comment">$1</span>\n');
 
 
 		// XXX: Fuck ES multiline regexes in particular
@@ -182,11 +182,11 @@
 
 	const _replace = function(code, key, type) {
 
-		let regexp = new RegExp('(\\s|\\(|\\))(' + key + ')(\\s|\\(|\\)|,|;|\\.)', 'g');
+		let regexp = new RegExp('([\\(|\\)|\\n|\\s]+)(' + key + ')(\\s|\\(|\\)|,|;|\\.)', 'g');
 
-		code = (' ' + code + ' ').replace(regexp, '$1<span class="ast-' + type + ' ast-' + key.toLowerCase() + '">$2</span>$3');
+		code = code.replace(regexp, '$1<span class="ast-' + type + ' ast-' + key.toLowerCase() + '">$2</span>$3');
 
-		return code.substr(1, code.length - 2);
+		return code;
 
 	};
 
