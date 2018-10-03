@@ -38,7 +38,7 @@ don't use any of these paths.
 sudo mkdir -m 0777 /opt/lycheejs;
 cd /opt/lycheejs;
 
-git clone https://github.com/Artificial-Engineering/lycheejs.git /opt/lycheejs;
+git clone "https://github.com/Artificial-Engineering/lycheejs.git" /opt/lycheejs;
 
 # Necessary pretty much everywhere, even with System Integrity Protection
 # It will use the normal user ($SUDO_USER) as often as possible.

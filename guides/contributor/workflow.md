@@ -68,7 +68,7 @@ git commit -m "Meaningful description";
 # END of your own work
 
 # After some days of work, make sure you are up-to-date
-git pull https://github.com/Artificial-Engineering/lycheejs.git development;
+git pull "https://github.com/Artificial-Engineering/lycheejs.git" development;
 
 # The final push to your github repository before your pull request
 git push origin fancy-feature;

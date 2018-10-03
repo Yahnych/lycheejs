@@ -150,9 +150,16 @@
 
 	const _replace_comment = function(code) {
 
-		let single = new RegExp('(//(.*))\n', 'g');
+		let pattern = new RegExp('(//(.*))\n', 'g');
+		let match   = code.match(pattern);
+		if (match !== null) {
 
-		code = code.replace(single, '<span class="ast-comment">$1</span>\n');
+			let tmp = match[0];
+			if (tmp.includes('<') === false && tmp.includes('ast-') === false) {
+				code = code.replace(pattern, '<span class="ast-comment">$1</span>\n');
+			}
+
+		}
 
 
 		// XXX: Fuck ES multiline regexes in particular
@@ -225,9 +232,6 @@
 
 			});
 
-			code = _replace_comment(code);
-
-
 			let builtins = language.builtins;
 			if (builtins.length > 0) {
 
@@ -287,6 +291,8 @@
 				}
 
 			}
+
+			code = _replace_comment(code);
 
 		}
 

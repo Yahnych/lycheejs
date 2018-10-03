@@ -41,7 +41,7 @@ with a symbolic link:
 ```bash
 # Install a third-party Project
 cd /home/$USER/Software;
-git clone https://github.com/Artificial-Engineering/research.git;
+git clone "https://github.com/Artificial-Engineering/research.git";
 
 # Track the Project via identifier "/projects/research"
 cd /opt/lycheejs/projects;
