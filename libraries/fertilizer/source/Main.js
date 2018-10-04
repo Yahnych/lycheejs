@@ -348,9 +348,7 @@ lychee.define('fertilizer.Main').requires([
 
 		this.bind('load', function() {
 
-			let debug   = this.settings.debug   || false;
 			let project = this.settings.project || null;
-
 			if (project !== null) {
 
 				lychee.ROOT.project                           = _lychee.ROOT.lychee + project;
@@ -368,19 +366,15 @@ lychee.define('fertilizer.Main').requires([
 
 					if (pkg.config !== null && pkg.config.buffer !== null) {
 
-						if (debug === true) {
-							console.info('fertilizer: Valid Package at "' + project + '/lychee.pkg".');
-							console.info('fertilizer: Initializing lychee.js Mode.');
-						}
+						console.info('fertilizer: Valid Package at "' + project + '/lychee.pkg".');
+						console.info('fertilizer: Initializing lychee.js Mode.');
 
 						this.trigger('init');
 
 					} else {
 
-						if (debug === true) {
-							console.warn('fertilizer: Invalid Package at "' + project + '/lychee.pkg".');
-							console.warn('fertilizer: Initializing Third-Party Mode.');
-						}
+						console.warn('fertilizer: Invalid Package at "' + project + '/lychee.pkg".');
+						console.warn('fertilizer: Initializing Third-Party Mode.');
 
 						this.trigger('init-thirdparty');
 
@@ -390,9 +384,7 @@ lychee.define('fertilizer.Main').requires([
 
 			} else {
 
-				if (debug === true) {
-					console.error('fertilizer: FAILURE ("' + project + '") at "load" event.');
-				}
+				console.error('fertilizer: FAILURE ("' + project + '") at "load" event.');
 
 				this.destroy(1);
 
@@ -460,9 +452,7 @@ lychee.define('fertilizer.Main').requires([
 
 				} else {
 
-					if (debug === true) {
-						console.error('fertilizer: FAILURE ("' + project + '") at "init" event.');
-					}
+					console.error('fertilizer: FAILURE ("' + project + '") at "init" event.');
 
 					this.destroy(1);
 
@@ -496,9 +486,7 @@ lychee.define('fertilizer.Main').requires([
 
 			} else {
 
-				if (debug === true) {
-					console.error('fertilizer: FAILURE ("' + project + '") at "init-thirdparty" event.');
-				}
+				console.error('fertilizer: FAILURE ("' + project + '") at "init-thirdparty" event.');
 
 				this.destroy(1);
 
