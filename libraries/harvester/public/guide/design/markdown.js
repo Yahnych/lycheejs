@@ -161,10 +161,10 @@
 
 		while (loop === true) {
 
-			let check_a   = str.includes('[');
+			let check_a   = str.includes('[') && str.includes('](') && str.includes(')');
 			let check_b   = str.includes('**');
 			let check_em  = str.includes('`');
-			let check_img = str.includes('![');
+			let check_img = str.includes('![') && str.includes('](') && str.includes(')');
 
 			let check_emoji = false;
 			let check_hr    = false;
@@ -208,6 +208,15 @@
 				let c0 = str.indexOf('![');
 				let c1 = str.indexOf('](', c0 + 2);
 				let c2 = str.indexOf(')',  c1 + 2);
+
+				if (c1 !== -1) {
+
+					let check = str.lastIndexOf('![', c1);
+					if (check !== c0) {
+						c0 = check;
+					}
+
+				}
 
 				if (c0 !== -1 && c1 !== -1 && c2 !== -1) {
 
@@ -255,6 +264,15 @@
 				let c0 = str.indexOf('[');
 				let c1 = str.indexOf('](', c0 + 1);
 				let c2 = str.indexOf(')',  c1 + 2);
+
+				if (c1 !== -1) {
+
+					let check = str.lastIndexOf('[', c1);
+					if (check !== c0) {
+						c0 = check;
+					}
+
+				}
 
 				if (c0 !== -1 && c1 !== -1 && c2 !== -1) {
 					let href = _format_href(str.substr(c1 + 2, c2 - c1 - 2));

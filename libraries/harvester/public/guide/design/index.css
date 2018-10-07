@@ -32,7 +32,7 @@ body {
 
 menu {
 	position: fixed;
-	width: 192px;
+	width: 224px;
 	top: 0px;
 	right: auto;
 	bottom: 0px;
@@ -41,6 +41,7 @@ menu {
 	padding: 0px;
 	color: #ffffff;
 	background: #363f3e;
+	overflow: hidden auto;
 }
 
 menu ul {
@@ -69,6 +70,10 @@ menu ul:first-child b {
 	margin-top: 0px;
 }
 
+menu ul:last-child {
+	margin-bottom: 64px;
+}
+
 menu a {
 	display: block;
 	margin: 0px;
@@ -92,7 +97,7 @@ menu a:hover {
 	display: block;
 	position: absolute;
 	top: 0px;
-	left: 192px;
+	left: 224px;
 	right: 0px;
 	bottom: 0px;
 	margin: 0px;
@@ -110,7 +115,7 @@ article {
 	left: 32px;
 	bottom: auto;
 	margin: 0px;
-	padding: 0px 0px 16px 0px;
+	padding: 0px;
 	width: auto;
 	height: auto;
 	max-width: 736px;
@@ -279,9 +284,13 @@ article table hr {
 	margin: 4px 0px;
 }
 
+article > *:last-child {
+	margin-bottom: 64px;
+}
 
 
-@media screen and (max-width: 1000px) {
+
+@media screen and (max-width: 1024px) {
 
 	#main > article {
 		width: calc(100% - 64px);
