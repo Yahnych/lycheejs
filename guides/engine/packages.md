@@ -120,7 +120,9 @@ file and its provided data.
 The `lychee.pkg(type, identifier, callback)` method allows
 to instanciate the [Environment](./environments.md) or
 [Simulation](./simulations.md) via the `type` and `identifier`
-parameter. The `./lychee.pkg` URL is revoled via `lychee.ROOT.project`.
+parameter.
+
+The `./lychee.pkg` URL is resolved via `lychee.ROOT.project`.
 
 ```javascript
 lychee.init(null);
@@ -248,6 +250,6 @@ setTimeout(_ => {
 	console.log(definitions_html);
 	console.log(namespaces_html);
 
-});
+}, 200);
 ```
 
