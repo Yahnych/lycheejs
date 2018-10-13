@@ -6,14 +6,22 @@ lowercase() {
 
 OS=`lowercase \`uname\``;
 ARCH=`lowercase \`uname -m\``;
+CHILD_PID="";
+
 
 # XXX: Allow /tmp/lycheejs usage
 if [ -z "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="/opt/lycheejs";
 fi;
 
-LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" | cut -d"'" -f2);
-CHILD_PID="";
+LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" 2> /dev/null | cut -d"'" -f2);
+
+# XXX: Try to recover from missing core
+if [ "$LYCHEEJS_VERSION" == "" ]; then
+	cd "$LYCHEEJS_ROOT";
+	bash ./bin/configure.sh --core;
+	LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" 2> /dev/null | cut -d"'" -f2);
+fi;
 
 
 if [ "$ARCH" == "x86_64" -o "$ARCH" == "amd64" ]; then
