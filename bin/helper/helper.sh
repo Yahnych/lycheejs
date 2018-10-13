@@ -14,6 +14,13 @@ if [ -z "$LYCHEEJS_ROOT" ]; then
 	LYCHEEJS_ROOT="/opt/lycheejs";
 fi;
 
+# XXX: Allow sandboxed emulator usage
+CHECK_ROOT=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")");
+if [ "$CHECK_ROOT" != "$LYCHEEJS_ROOT" ]; then
+	LYCHEEJS_ROOT="$CHECK_ROOT";
+fi;
+
+
 LYCHEEJS_VERSION=$(grep "VERSION" "$LYCHEEJS_ROOT/libraries/crux/source/lychee.js" 2> /dev/null | cut -d"'" -f2);
 
 # XXX: Try to recover from missing core
