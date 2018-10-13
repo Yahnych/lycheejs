@@ -148,7 +148,30 @@
 	 * HELPERS
 	 */
 
-	const _replace_comment = function(code) {
+	const _get_line = function(code, index) {
+
+		let line = '';
+
+		if (index !== -1) {
+
+			let i0 = code.lastIndexOf('\n', index);
+			let i1 = code.indexOf('\n',     index + 1);
+
+			if (i1 === -1) {
+				i1 = code.length - 1;
+			}
+
+			if (i0 !== -1 && i1 !== -1) {
+				line = code.substr(i0 + 1, i1 - i0 - 1);
+			}
+
+		}
+
+		return line;
+
+	};
+
+	const _replace_comment_single = function(code) {
 
 		let pattern = new RegExp('(//(.*))\n', 'g');
 		let match   = code.match(pattern);
@@ -161,6 +184,11 @@
 
 		}
 
+		return code;
+
+	};
+
+	const _replace_comment_multi = function(code) {
 
 		// XXX: Fuck ES multiline regexes in particular
 		// let multi = /\/\*[\s\S]*?\*\/.*$/gm;
@@ -224,6 +252,8 @@
 		let language = _LANGUAGES[lang] || null;
 		if (language !== null) {
 
+			code = _replace_comment_single(code);
+
 			Object.keys(language.constants).reverse().forEach(type => {
 
 				language.constants[type].forEach(regexp => {
@@ -240,7 +270,12 @@
 					let word  = builtins[b];
 					let check = code.indexOf(word);
 					if (check !== -1) {
-						code = _replace(code, word, 'builtin');
+
+						let line = _get_line(code, check);
+						if (line.startsWith('<span class="ast-comment">') === false) {
+							code = _replace(code, word, 'builtin');
+						}
+
 					}
 
 				}
@@ -255,7 +290,12 @@
 					let word  = literals[l];
 					let check = code.indexOf(word);
 					if (check !== -1) {
-						code = _replace(code, word, 'literal');
+
+						let line = _get_line(code, check);
+						if (line.startsWith('<span class="ast-comment">') === false) {
+							code = _replace(code, word, 'literal');
+						}
+
 					}
 
 				}
@@ -270,7 +310,12 @@
 					let word  = keywords[k];
 					let check = code.indexOf(word);
 					if (check !== -1) {
-						code = _replace(code, word, 'keyword');
+
+						let line = _get_line(code, check);
+						if (line.startsWith('<span class="ast-comment">') === false) {
+							code = _replace(code, word, 'keyword');
+						}
+
 					}
 
 				}
@@ -292,7 +337,7 @@
 
 			}
 
-			code = _replace_comment(code);
+			code = _replace_comment_multi(code);
 
 		}
 
