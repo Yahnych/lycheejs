@@ -73,42 +73,38 @@ const _print_help = function() {
 		.filter(val => _fs.existsSync(_ROOT + val + '/lychee.pkg'));
 
 
-	console.log('                                                              ');
+	console.log('');
 	console.info('lychee.js ' + lychee.VERSION + ' Strainer');
-	console.log('                                                              ');
-	console.log('Usage: lycheejs-strainer [Action] [Library/Project] [Flag]    ');
-	console.log('                                                              ');
-	console.log('                                                              ');
-	console.log('Available Actions:                                            ');
-	console.log('                                                              ');
-	console.log('    check, simulate, transcribe                               ');
-	console.log('                                                              ');
-	console.log('Available Libraries:                                          ');
-	console.log('                                                              ');
-	libraries.forEach(library => {
-		let diff = ('                                                          ').substr(library.length);
-		console.log('    ' + library + diff);
-	});
-	console.log('                                                              ');
-	console.log('Available Projects:                                           ');
-	console.log('                                                              ');
-	projects.forEach(project => {
-		let diff = ('                                                          ').substr(project.length);
-		console.log('    ' + project + diff);
-	});
-	console.log('                                                              ');
-	console.log('Available Flags:                                              ');
-	console.log('                                                              ');
-	console.log('    --debug    Enable debug messages.                         ');
-	console.log('                                                              ');
-	console.log('Examples:                                                     ');
-	console.log('                                                              ');
+	console.log('');
+	console.log('Detected lychee.js Installation: "' + lychee.ROOT.lychee + '"');
+	console.log('');
+	console.log('Usage: lycheejs-strainer [Action] [Library/Project] [Flag]');
+	console.log('');
+	console.log('');
+	console.log('Available Actions:');
+	console.log('');
+	console.log('    check, simulate, transcribe');
+	console.log('');
+	console.log('Available Libraries:');
+	console.log('');
+	libraries.forEach(library => console.log('    ' + library));
+	console.log('');
+	console.log('Available Projects:');
+	console.log('');
+	projects.forEach(project => console.log('    ' + project));
+	console.log('');
+	console.log('Available Flags:');
+	console.log('');
+	console.log('    --debug    Enable debug messages.');
+	console.log('');
+	console.log('Examples:');
+	console.log('');
 	console.log('    lycheejs-strainer check /libraries/lychee;                ');
 	console.log('    lycheejs-strainer simulate /libraries/lychee;             ');
-	console.log('                                                              ');
+	console.log('');
 	console.log('    lycheejs-strainer transcribe /projects/pong /projects/tmp;');
 	console.log('    lycheejs-strainer transcribe /projects/tmp /projects/pong;');
-	console.log('                                                              ');
+	console.log('');
 
 };
 

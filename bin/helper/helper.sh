@@ -11,13 +11,15 @@ CHILD_PID="";
 
 # XXX: Allow /tmp/lycheejs usage
 if [ -z "$LYCHEEJS_ROOT" ]; then
-	LYCHEEJS_ROOT="/opt/lycheejs";
-fi;
 
-# XXX: Allow sandboxed emulator usage
-CHECK_ROOT=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")");
-if [ "$CHECK_ROOT" != "$LYCHEEJS_ROOT" ]; then
-	LYCHEEJS_ROOT="$CHECK_ROOT";
+	LYCHEEJS_ROOT="/opt/lycheejs";
+
+	# XXX: Allow sandboxed usage
+	auto_root=$(dirname "$(dirname "$(dirname "$(realpath "$0")")")");
+	if [ "$auto_root" != "$LYCHEEJS_ROOT" ]; then
+		export LYCHEEJS_ROOT="$auto_root";
+	fi;
+
 fi;
 
 
@@ -31,31 +33,21 @@ if [ "$LYCHEEJS_VERSION" == "" ]; then
 fi;
 
 
-if [ "$ARCH" == "x86_64" -o "$ARCH" == "amd64" ]; then
+if [ "$ARCH" == "x86_64" ] || [ "$ARCH" == "amd64" ]; then
 	ARCH="x86_64";
-fi;
-
-if [ "$ARCH" == "i386" -o "$ARCH" == "i686" -o "$ARCH" == "i686-64" ]; then
+elif [ "$ARCH" == "i386" ] || [ "$ARCH" == "i686" ] || [ "$ARCH" == "i686-64" ]; then
 	ARCH="x86";
-fi;
-
-if [ "$ARCH" == "armv7l" -o "$ARCH" == "armv8" ]; then
+elif [ "$ARCH" == "armv7l" ] || [ "$ARCH" == "armv8" ]; then
 	ARCH="arm";
 fi;
 
 
 if [ "$OS" == "darwin" ]; then
-
-	OS="osx";
-
+	OS="macos";
 elif [ "$OS" == "linux" ]; then
-
 	OS="linux";
-
 elif [ "$OS" == "freebsd" ] || [ "$OS" == "netbsd" ]; then
-
 	OS="bsd";
-
 fi;
 
 
@@ -64,6 +56,8 @@ _print_help() {
 
 	echo " (L) ";
 	echo -e "\e[42m\e[97m (I) lychee.js $LYCHEEJS_VERSION Helper \e[0m";
+	echo " (L) ";
+	echo " (L) Detected lychee.js Installation: \"$LYCHEEJS_ROOT\"";
 	echo " (L) ";
 	echo " (L) Usage: lycheejs-helper lycheejs://[Action]=[Library/Project]             ";
 	echo " (L)        lycheejs-helper lycheejs://[Action]=[Command/Profile]?data=[Data] ";
@@ -150,7 +144,7 @@ _start_bin () {
 
 		else
 
-			>&2 echo "lycheejs-helper: '$prog_native': No such file or directory";
+			>&2 echo "lycheejs-helper: \"$prog_native\": No such file or directory";
 			exit 1;
 
 		fi;
@@ -331,7 +325,7 @@ _handle_action () {
 
 			if [ -f "$studio" ]; then
 
-				if [ "$OS" == "linux" ] || [ "$OS" == "osx" ] || [ "$OS" == "bsd" ]; then
+				if [ "$OS" == "linux" ] || [ "$OS" == "macos" ] || [ "$OS" == "bsd" ]; then
 
 					cd $LYCHEEJS_ROOT;
 					"$studio" "$resource" 2>&1;
@@ -362,7 +356,7 @@ _handle_action () {
 
 					exit 0;
 
-				elif [ "$OS" == "osx" ]; then
+				elif [ "$OS" == "macos" ]; then
 
 					open "file://$LYCHEEJS_ROOT$resource" 2>&1;
 					exit 0;
@@ -439,7 +433,7 @@ _handle_action () {
 
 				exit 0;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
 				chrome1="/Applications/Google Chrome.app";
 
@@ -582,7 +576,7 @@ elif [ "$protocol" == "env" ]; then
 
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
 				chrome1="/Applications/Google Chrome.app";
 
@@ -598,32 +592,32 @@ elif [ "$protocol" == "env" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
-			elif [ "$OS" == "osx" ]; then
-				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+			elif [ "$OS" == "macos" ]; then
+				_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/macos/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 			fi;
 
 		elif [ "$platform" == "nidium" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_env $LYCHEEJS_ROOT/bin/runtime/nidium/linux/$ARCH/nidium $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
-			elif [ "$OS" == "osx" ]; then
-				_start_env $LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+			elif [ "$OS" == "macos" ]; then
+				_start_env $LYCHEEJS_ROOT/bin/runtime/nidium/macos/$ARCH/nidium $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 			fi;
 
 		elif [ "$platform" == "node" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_env $LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
-			elif [ "$OS" == "osx" ]; then
-				_start_env $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+			elif [ "$OS" == "macos" ]; then
+				_start_env $LYCHEEJS_ROOT/bin/runtime/node/macos/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 			fi;
 
 		elif [ "$platform" == "node-sdl" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
-			elif [ "$OS" == "osx" ]; then
-				_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+			elif [ "$OS" == "macos" ]; then
+				_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/macos/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 			fi;
 
 		fi;
@@ -653,7 +647,7 @@ elif [ "$protocol" == "env" ]; then
 					"$x_www";
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
 				chrome1="/Applications/Google Chrome.app";
 
@@ -667,8 +661,8 @@ elif [ "$protocol" == "env" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_bin $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
-			elif [ "$OS" == "osx" ]; then
-				_start_bin $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
+			elif [ "$OS" == "macos" ]; then
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/html-nwjs/macos/$ARCH/nwjs.app/Contents/MacOS/nwjs;
 			fi;
 
 		elif [ "$platform" == "html-webview" ]; then
@@ -681,24 +675,24 @@ elif [ "$protocol" == "env" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_bin $LYCHEEJS_ROOT/bin/runtime/nidium/linux/$ARCH/nidium;
-			elif [ "$OS" == "osx" ]; then
-				_start_bin $LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium;
+			elif [ "$OS" == "macos" ]; then
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/nidium/macos/$ARCH/nidium;
 			fi;
 
 		elif [ "$platform" == "node" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_bin $LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node;
-			elif [ "$OS" == "osx" ]; then
-				_start_bin $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node;
+			elif [ "$OS" == "macos" ]; then
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node/macos/$ARCH/node;
 			fi;
 
 		elif [ "$platform" == "node-sdl" ]; then
 
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 				_start_bin $LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node;
-			elif [ "$OS" == "osx" ]; then
-				_start_bin $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node;
+			elif [ "$OS" == "macos" ]; then
+				_start_bin $LYCHEEJS_ROOT/bin/runtime/node-sdl/macos/$ARCH/node;
 			fi;
 
 		fi;
@@ -774,7 +768,7 @@ elif [ "$protocol" == "run" ]; then
 					exit 1;
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
 				if [ -d "$build/html/$identifier" ]; then
 
@@ -820,11 +814,11 @@ elif [ "$protocol" == "run" ]; then
 
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
-				if [ -d "$build/html-nwjs/$identifier-osx/$ARCH" ]; then
+				if [ -d "$build/html-nwjs/$identifier-macos/$ARCH" ]; then
 
-					program="$build/html-nwjs/$identifier-osx/$ARCH/$name.app";
+					program="$build/html-nwjs/$identifier-macos/$ARCH/$name.app";
 
 					if [ -f $program ]; then
 						chmod +x $program;
@@ -836,7 +830,7 @@ elif [ "$protocol" == "run" ]; then
 				elif [ -d "$build/html-nwjs/$identifier" ]; then
 
 					program="$build/html-nwjs/$identifier";
-					_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+					_start_env $LYCHEEJS_ROOT/bin/runtime/html-nwjs/macos/$ARCH/nwjs.app/Contents/MacOS/nwjs $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 
 				fi;
 
@@ -870,11 +864,11 @@ elif [ "$protocol" == "run" ]; then
 
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
-				if [ -d "$build/nidium/$identifier-osx/$ARCH" ]; then
+				if [ -d "$build/nidium/$identifier-macos/$ARCH" ]; then
 
-					program="$build/nidium/$identifier-osx/$ARCH/$name.sh";
+					program="$build/nidium/$identifier-macos/$ARCH/$name.sh";
 
 					if [ -f $program ]; then
 						chmod +x $program;
@@ -886,7 +880,7 @@ elif [ "$protocol" == "run" ]; then
 				elif [ -d "$build/nidium/$identifier" ]; then
 
 					program="$build/nidium/$identifier";
-					_start_env $LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+					_start_env $LYCHEEJS_ROOT/bin/runtime/nidium/macos/$ARCH/nidium $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 
 				fi;
 
@@ -914,11 +908,11 @@ elif [ "$protocol" == "run" ]; then
 
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
-				if [ -d "$build/node/$identifier-osx/$ARCH" ]; then
+				if [ -d "$build/node/$identifier-macos/$ARCH" ]; then
 
-					program="$build/node/$identifier-osx/$ARCH/$name.sh";
+					program="$build/node/$identifier-macos/$ARCH/$name.sh";
 
 					if [ -f $program ]; then
 						chmod +x $program;
@@ -930,7 +924,7 @@ elif [ "$protocol" == "run" ]; then
 				elif [ -d "$build/node/$identifier" ]; then
 
 					program="$build/node/$identifier";
-					_start_env $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node/macos/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 
 				fi;
 
@@ -958,11 +952,11 @@ elif [ "$protocol" == "run" ]; then
 
 				fi;
 
-			elif [ "$OS" == "osx" ]; then
+			elif [ "$OS" == "macos" ]; then
 
-				if [ -d "$build/node-sdl/$identifier-osx/$ARCH" ]; then
+				if [ -d "$build/node-sdl/$identifier-macos/$ARCH" ]; then
 
-					program="$build/node-sdl/$identifier-osx/$ARCH/$name.sh";
+					program="$build/node-sdl/$identifier-macos/$ARCH/$name.sh";
 
 					if [ -f $program ]; then
 						chmod +x $program;
@@ -974,7 +968,7 @@ elif [ "$protocol" == "run" ]; then
 				elif [ -d "$build/node-sdl/$identifier" ]; then
 
 					program="$build/node-sdl/$identifier";
-					_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
+					_start_env $LYCHEEJS_ROOT/bin/runtime/node-sdl/macos/$ARCH/node $program $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8;
 
 				fi;
 
@@ -1014,7 +1008,7 @@ elif [ "$protocol" == "which" ]; then
 				echo "$(readlink -f "$x_www")";
 			fi;
 
-		elif [ "$OS" == "osx" ]; then
+		elif [ "$OS" == "macos" ]; then
 
 			chrome1="/Applications/Google Chrome.app";
 			safari1="/Applications/Safari.app";
@@ -1032,32 +1026,32 @@ elif [ "$protocol" == "which" ]; then
 
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/linux/$ARCH/nw;
-		elif [ "$OS" == "osx" ]; then
-			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/osx/$ARCH/nwjs.app/Contents/MacOS/nwjs;
+		elif [ "$OS" == "macos" ]; then
+			echo $LYCHEEJS_ROOT/bin/runtime/html-nwjs/macos/$ARCH/nwjs.app/Contents/MacOS/nwjs;
 		fi;
 
 	elif [ "$platform" == "nidium" ]; then
 
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 			echo $LYCHEEJS_ROOT/bin/runtime/nidium/linux/$ARCH/nidium;
-		elif [ "$OS" == "osx" ]; then
-			echo $LYCHEEJS_ROOT/bin/runtime/nidium/osx/$ARCH/nidium;
+		elif [ "$OS" == "macos" ]; then
+			echo $LYCHEEJS_ROOT/bin/runtime/nidium/macos/$ARCH/nidium;
 		fi;
 
 	elif [ "$platform" == "node" ]; then
 
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 			echo $LYCHEEJS_ROOT/bin/runtime/node/linux/$ARCH/node;
-		elif [ "$OS" == "osx" ]; then
-			echo $LYCHEEJS_ROOT/bin/runtime/node/osx/$ARCH/node;
+		elif [ "$OS" == "macos" ]; then
+			echo $LYCHEEJS_ROOT/bin/runtime/node/macos/$ARCH/node;
 		fi;
 
 	elif [ "$platform" == "node-sdl" ]; then
 
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 			echo $LYCHEEJS_ROOT/bin/runtime/node-sdl/linux/$ARCH/node;
-		elif [ "$OS" == "osx" ]; then
-			echo $LYCHEEJS_ROOT/bin/runtime/node-sdl/osx/$ARCH/node;
+		elif [ "$OS" == "macos" ]; then
+			echo $LYCHEEJS_ROOT/bin/runtime/node-sdl/macos/$ARCH/node;
 		fi;
 
 	fi;

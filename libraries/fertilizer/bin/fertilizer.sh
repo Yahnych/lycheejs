@@ -1,20 +1,24 @@
 #!/bin/bash
 
-LYCHEEJS_ROOT="/opt/lycheejs";
-LYCHEEJS_HELPER=`which lycheejs-helper`;
-
-
 # XXX: Allow /tmp/lycheejs usage
-if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
-	LYCHEEJS_ROOT="$PWD";
-	LYCHEEJS_HELPER="$PWD/bin/helper/helper.sh";
+if [ -z "$LYCHEEJS_ROOT" ]; then
+
+	LYCHEEJS_ROOT="/opt/lycheejs";
+	LYCHEEJS_HELPER=`which lycheejs-helper`;
+
+	# XXX: Allow sandboxed usage
+	auto_root=$(dirname "$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")");
+	if [ "$auto_root" != "$LYCHEEJS_ROOT" ]; then
+		LYCHEEJS_ROOT="$auto_root";
+		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
+	fi;
+
 fi;
 
 
 if [ "$LYCHEEJS_HELPER" != "" ]; then
 
 	cd $LYCHEEJS_ROOT;
-
 	export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
 	bash $LYCHEEJS_HELPER env:node ./libraries/fertilizer/bin/fertilizer.js "$1" "$2" "$3" "$4" "$5" "$6";
 	exit $?;

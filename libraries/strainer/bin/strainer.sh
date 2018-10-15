@@ -1,15 +1,23 @@
 #!/bin/bash
 
-LYCHEEJS_ROOT="/opt/lycheejs";
-LYCHEEJS_HELPER=`which lycheejs-helper`;
-
-
 # XXX: Allow /tmp/lycheejs usage
-if [ "$(basename $PWD)" == "lycheejs" ] && [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
-	LYCHEEJS_ROOT="$PWD";
-	LYCHEEJS_HELPER="$PWD/bin/helper/helper.sh";
-# XXX: Allow /home/whatever/my-project usage
-elif [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
+if [ -z "$LYCHEEJS_ROOT" ]; then
+
+	LYCHEEJS_ROOT="/opt/lycheejs";
+	LYCHEEJS_HELPER=`which lycheejs-helper`;
+
+	# XXX: Allow sandboxed usage
+	auto_root=$(dirname "$(dirname "$(dirname "$(dirname "$(realpath "$0")")")")");
+	if [ "$auto_root" != "$LYCHEEJS_ROOT" ]; then
+		LYCHEEJS_ROOT="$auto_root";
+		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
+	fi;
+
+fi;
+
+
+# XXX: Allow sandboxed usage
+if [ "$PWD" != "$LYCHEEJS_ROOT" ]; then
 	export STRAINER_CWD="$PWD";
 fi;
 
@@ -17,9 +25,8 @@ fi;
 if [ "$LYCHEEJS_HELPER" != "" ]; then
 
 	cd $LYCHEEJS_ROOT;
-
+	export LYCHEEJS_ROOT="$LYCHEEJS_ROOT";
 	bash $LYCHEEJS_HELPER env:node ./libraries/strainer/bin/strainer.js "$1" "$2" "$3" "$4";
-
 	exit $?;
 
 else
