@@ -84,7 +84,10 @@ const _print_help = function() {
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
-	console.log('    init, fork, pull, push');
+	console.log('    init       Initialize a Project or Definition.  ');
+	console.log('    fork       Fork a Project or Library.           ');
+	console.log('    pull       Pull a Library into "./libraries".   ');
+	console.log('    push       Push a Project or Library to the DHG.');
 	console.log('');
 	console.log('Available Libraries:');
 	console.log('');

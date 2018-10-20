@@ -61,6 +61,9 @@
 		],
 
 		constants: {
+			comment: [
+				new RegExp('(#(.*)\n)', 'g')
+			],
 			number: [
 				new RegExp('((-?)(\\d+))', 'g')
 			],
@@ -90,7 +93,10 @@
 			'Set', 'StopIteration', 'String', 'Symbol', 'SyntaxError',
 			'TypeError',
 			'Uint8Array', 'Uint8ClampedArray', 'Uint16Array', 'Uint32Array', 'unescape',
-			'WeakMap', 'WeakSet'
+			'WeakMap', 'WeakSet',
+
+			// lychee.js Crux
+			'Asset', 'Config', 'Music', 'Sound', 'Stuff', 'Texture'
 		],
 
 		keywords: [
@@ -126,6 +132,9 @@
 		],
 
 		constants: {
+			comment: [
+				new RegExp('(//(.*)\n)', 'g')
+			],
 			number: [
 				new RegExp('(0[bB][01]+?)', 'g'),
 				new RegExp('(0[oO][0-7]+?)', 'g'),
@@ -171,23 +180,6 @@
 
 	};
 
-	const _replace_comment_single = function(code) {
-
-		let pattern = new RegExp('(//(.*))\n', 'g');
-		let match   = code.match(pattern);
-		if (match !== null) {
-
-			let tmp = match[0];
-			if (tmp.includes('<') === false && tmp.includes('ast-') === false) {
-				code = code.replace(pattern, '<span class="ast-comment">$1</span>\n');
-			}
-
-		}
-
-		return code;
-
-	};
-
 	const _replace_comment_multi = function(code) {
 
 		// XXX: Fuck ES multiline regexes in particular
@@ -225,14 +217,16 @@
 
 	};
 
-	const _replace_constant = function(code, pattern, type) {
+	const _replace_regexp = function(code, pattern, type) {
 
 		let match = code.match(pattern);
 		if (match !== null) {
 
-			let tmp = match[0];
-			if (tmp.includes('<') === false && tmp.includes('ast-') === false) {
-				code = code.replace(pattern, '<span class="ast-constant ast-' + type + '">$1</span>');
+			let check    = match[0];
+			let new_line = pattern.source.endsWith('\n)');
+
+			if (check.includes('<') === false && check.includes('ast-') === false) {
+				code = code.replace(pattern, '<span class="ast-constant ast-' + type + '">$1</span>' + (new_line ? '\n' : ''));
 			}
 
 		}
@@ -252,12 +246,10 @@
 		let language = _LANGUAGES[lang] || null;
 		if (language !== null) {
 
-			code = _replace_comment_single(code);
-
-			Object.keys(language.constants).reverse().forEach(type => {
+			Object.keys(language.constants).forEach(type => {
 
 				language.constants[type].forEach(regexp => {
-					code = _replace_constant(code, regexp, type);
+					code = _replace_regexp(code, regexp, type);
 				});
 
 			});

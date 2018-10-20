@@ -27,7 +27,9 @@ pre code:before {
 	user-select: none;
 }
 
-.ast-builtin {
+.ast-builtin,
+.ast-builtin.ast-number,
+.ast-builtin.ast-string {
 	color: #d78787;
 }
 

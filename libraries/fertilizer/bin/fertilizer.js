@@ -129,9 +129,12 @@ const _print_help = function() {
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
-	console.log('    configure, build, package (manual mode)    ');
-	console.log('    fertilize                 (autonomous mode)');
-	console.log('    publish                                    ');
+	console.log('    fertilize    Autonomously Fertilize a Project or Library.');
+	console.log('');
+	console.log('    configure    Configure a Project or Library.         ');
+	console.log('    build        Build a Project or Library.             ');
+	console.log('    package      Package and Bundle a Project or Library.');
+	console.log('    publish      Publish a Project or Library.           ');
 	console.log('');
 	console.log('Available Libraries:');
 	console.log('');

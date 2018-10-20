@@ -40,16 +40,11 @@ should implement at least the `Stuff` data type in order
 to be able to load binary `Buffer` instances and execute
 code.
 
-All Asset Definitions resolve the `url` property based
-on the `lychee.Environment.prototype.resolve()` method
-and on the following two global (user-configurable)
-constants.
-
-- `lychee.ROOT.lychee` represents the global sandboxed root. If the URL starts with `/`, the url is always prefixed with `lychee.ROOT.lychee`.
-- `lychee.ROOT.project` represents the project root. If the URL starts with `./`, the url is always prefixed with `lychee.ROOT.project`.
-
-These Asset Definitions are available for usage
-with the lychee.js Engine stack across all platforms.
+These Asset Definitions are available for usage with the
+lychee.js Engine stack across all platforms. The `buffer`
+property of each Asset instance can be different from
+others, but in general is serializable to at least a
+`base64` encoded string.
 
 - [Config](/libraries/crux/source/platform/html/Config.js) is a `JSON` abstraction that can also be used for `REST` APIs.
 - [Font](/libraries/crux/source/platform/html/Font.js) is a Blitmap-Font implementation that integrates with [lychee.js Studio](../software/lycheejs-studio.md).
@@ -57,6 +52,42 @@ with the lychee.js Engine stack across all platforms.
 - [Sound](/libraries/crux/source/platform/html/Sound.js) is a non-repeating Audio Stream implementation for `ogg` and `mp3` files.
 - [Stuff](/libraries/crux/source/platform/html/Stuff.js) is a Data Stream implementation for both binary buffers and encoded files.
 - [Texture](/libraries/crux/source/platform/html/Texture.js) is a Texture Atlas implementation for `png` files.
+
+```javascript
+let config = new Config('/libraries/harvester/profiles/development.json');
+
+config.onload = result => {
+
+	if (result === true) {
+		console.log(config.buffer instanceof Object);
+	} else {
+		console.log(config.buffer === null);
+	}
+
+};
+
+config.load();
+```
+
+## URL Resolutions
+
+All Asset Definitions resolve the `url` property based on the
+`lychee.environment.resolve()` method and on the following
+two global (user-configurable) constants.
+
+- `lychee.ROOT.lychee` represents the global sandboxed root. If the URL starts with `/`, the url is always prefixed with `lychee.ROOT.lychee`.
+- `lychee.ROOT.project` represents the project root. If the URL starts with `./`, the url is always prefixed with `lychee.ROOT.project`.
+
+```javascript
+console.log(lychee.ROOT.lychee);  // "/opt/lycheejs"
+console.log(lychee.ROOT.project); // "/projects/my-project"
+
+let config = new Config('/libraries/lychee/lychee.pkg');
+let stuff  = new Stuff('./source/Main.js');
+
+console.log(config.url); // "/opt/lycheejs/libraries/lychee/lychee.pkg"
+console.log(stuff.url);  // "/opt/lycheejs/projects/my-project/source/Main.js"
+```
 
 ## Crux Definitions
 
@@ -67,6 +98,22 @@ with the lychee.js Engine stack across all platforms.
 - [lychee.Package](/libraries/crux/source/Package.js) implements an intelligent Package System that allows Feature Prediction.
 - [lychee.Simulation](/libraries/crux/source/Simulation.js) implements the [Simulation API](./simulations.md).
 - [lychee.Specification](/libraries/crux/source/Specification.js) implements an automated Fuzz-Test API that allows descriptions of Definition Behaviours.
+
+```javascript
+// node.js Example
+const _ROOT  = process.env.LYCHEEJS_ROOT || '/opt/lycheejs';
+const lychee = require(_ROOT + '/libraries/crux/build/node/dist.js')(__dirname);
+
+// lychee.js Crux Definitions
+Object.keys(lychee).forEach(key => {
+	console.log('lychee.' + key, typeof lychee[key]);
+});
+
+// Console Output is ...
+// (L) lychee.debug boolean
+// (L) lychee.environment object
+// (L) etc. pp.
+```
 
 ## Feature Detection
 

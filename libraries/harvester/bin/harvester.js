@@ -70,12 +70,14 @@ const _print_help = function() {
 	console.log('');
 	console.log('Usage Notes:');
 	console.log('');
-	console.log('    Profiles are stored in /libraries/harvester/profiles.');
+	console.log('    Profiles are stored in "/libraries/harvester/profiles".');
 	console.log('');
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
-	console.log('    start, status, stop');
+	console.log('    start        Start the Harvester instance.                        ');
+	console.log('    status       Check whether or not a Harvester instance is running.');
+	console.log('    stop         Stop (if any available) Harvester instance.          ');
 	console.log('');
 	console.log('Available Profiles:');
 	console.log('');

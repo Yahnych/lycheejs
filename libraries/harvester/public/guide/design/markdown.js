@@ -254,7 +254,20 @@
 				let c1 = str.indexOf('`', c0 + 1);
 
 				if (c0 !== -1 && c1 !== -1) {
-					str = str.substr(0, c0) + '<em>' + str.substr(c0 + 1, c1 - c0 - 1) + '</em>' + str.substr(c1 + 1);
+
+					let chunk = str.substr(c0 + 1, c1 - c0 - 1);
+					let code = _format_code('\n' + chunk + '\n', 'ecmascript');
+					if (code !== '') {
+
+						if (code.startsWith('\n')) code = code.substr(1);
+						if (code.endsWith('\n'))   code = code.substr(0, code.length - 1);
+
+						str = str.substr(0, c0) + '<code>' + code + '</code>' + str.substr(c1 + 1);
+
+					} else {
+						str = str.replace('`', '');
+					}
+
 				} else if (c0 !== -1) {
 					str = str.replace('`', '');
 				}
@@ -314,11 +327,17 @@
 
 				if (chunk === '```') {
 
-					let text = _format_code(element._raw || '', element.get('state'));
+					let text = _format_code((element._raw || '') + '\n', element.get('state'));
 					if (text !== '') {
+
+						if (text.endsWith('\n')) {
+							text = text.substr(0, text.length - 1);
+						}
+
 						text.split('\n').slice(1).map(raw => $('code').set({
 							html: raw
 						})).forEach(code => code.appendTo(element));
+
 					}
 
 					element = null;

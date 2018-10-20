@@ -83,7 +83,9 @@ const _print_help = function() {
 	console.log('');
 	console.log('Available Actions:');
 	console.log('');
-	console.log('    check, simulate, transcribe');
+	console.log('    check      Check a Project or Library and generate API Knowledge.       ');
+	console.log('    simulate   Simulate a Project or Library.                               ');
+	console.log('    transcribe Transcribe a Project or Library from API Knowledge into Code.');
 	console.log('');
 	console.log('Available Libraries:');
 	console.log('');
