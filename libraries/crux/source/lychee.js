@@ -633,6 +633,39 @@ lychee = (function(global) {
 	let _environment = null;
 	let _simulation  = null;
 
+	const _CRUX_CORE = [
+		'assignsafe',
+		'assignunlink',
+		'blobof',
+		'decycle',
+		'diff',
+		'enumof',
+		'interfaceof',
+		'deserialize',
+		'serialize',
+		'assimilate',
+		'define',
+		// XXX: export/import disabled
+		// 'export',
+		// 'import',
+		'init',
+		'inject',
+		'pkg',
+		'specify',
+		'setEnvironment',
+		'setSimulation'
+	];
+
+	const _CRUX_DEFINITIONS = [
+		'Asset',
+		'Debugger',
+		'Definition',
+		'Environment',
+		'Package',
+		'Simulation',
+		'Specification'
+	];
+
 	const _bootstrap_environment = function() {
 
 		if (_environment === null) {
@@ -647,6 +680,97 @@ lychee = (function(global) {
 		if (this.environment === null) {
 			this.setEnvironment(_environment);
 		}
+
+	};
+
+	const _bootstrap_sandbox = function() {
+
+		if (this.lychee instanceof Object) {
+
+			if (typeof this.lychee['import'] === 'function') {
+				return;
+			}
+
+		}
+
+
+		this.Buffer  = global.Buffer;
+		this.Config  = global.Config;
+		this.Font    = global.Font;
+		this.Music   = global.Music;
+		this.Sound   = global.Sound;
+		this.Texture = global.Texture;
+
+
+		this.lychee              = {};
+		this.lychee.debug        = global.lychee.debug;
+		this.lychee.environment  = null;
+		this.lychee.simulation   = null;
+		this.lychee.ENVIRONMENTS = global.lychee.ENVIRONMENTS;
+		this.lychee.FEATURES     = global.lychee.FEATURES;
+		this.lychee.FILENAME     = global.lychee.FILENAME;
+		this.lychee.PLATFORMS    = global.lychee.PLATFORMS;
+		this.lychee.SIMULATIONS  = global.lychee.SIMULATIONS;
+		this.lychee.ROOT         = {};
+		this.lychee.ROOT.lychee  = global.lychee.ROOT.lychee;
+		this.lychee.ROOT.project = global.lychee.ROOT.project;
+		this.lychee.VERSION      = global.lychee.VERSION;
+
+
+		let scope = this;
+
+		this.lychee.import = function(reference) {
+
+			reference = typeof reference === 'string' ? reference : null;
+
+
+			if (reference !== null) {
+
+				let instance = null;
+
+				let resolved_module = _resolve_reference.call(scope, reference);
+				if (resolved_module !== null) {
+					instance = resolved_module;
+				}
+
+
+				if (instance === null) {
+					console.info('lychee.import: Assimilate "' + reference + '" to import it.');
+				}
+
+
+				return instance;
+
+			} else {
+
+				console.warn('lychee.import: Invalid reference.');
+				console.info('lychee.import: Use lychee.import(reference).');
+				console.info('lychee.import: reference is a Definition identifier.');
+
+			}
+
+
+			return null;
+
+		};
+
+
+		_CRUX_CORE.forEach(identifier => {
+			this.lychee[identifier] = global.lychee[identifier];
+		});
+
+		_CRUX_DEFINITIONS.forEach(identifier => {
+			this.lychee[identifier] = global.lychee[identifier];
+		});
+
+
+		this.setTimeout = function(callback, timeout) {
+			global.setTimeout(callback, timeout);
+		};
+
+		this.setInterval = function(callback, interval) {
+			global.setInterval(callback, interval);
+		};
 
 	};
 
@@ -1448,7 +1572,7 @@ lychee = (function(global) {
 							}
 
 						} else {
-							console.warn('lychee.assimilate: invalid target.');
+							console.warn('lychee.assimilate: Invalid target.');
 							console.info('lychee.assimilate: use lychee.assimilate(target).');
 							console.info('lychee.assimilate: target is a URL to an Asset.');
 						}
@@ -1464,7 +1588,7 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.assimilate: invalid target.');
+				console.warn('lychee.assimilate: Invalid target.');
 				console.info('lychee.assimilate: use lychee.assimilate(target).');
 				console.info('lychee.assimilate: target is a URL to an Asset.');
 
@@ -1531,9 +1655,32 @@ lychee = (function(global) {
 
 				_bootstrap_environment.call(this);
 
+				if (sandbox !== global) {
+					_bootstrap_sandbox.call(sandbox);
+				}
+
 
 				let definition = this.environment.definitions[reference] || null;
 				if (definition !== null) {
+
+					let includes = definition._includes;
+					if (includes.length > 0) {
+
+						includes.filter(inc => _resolve_reference.call(sandbox, inc) === null).forEach(ref => {
+							Module.export(ref, sandbox);
+						});
+
+					}
+
+					let requires = definition._requires;
+					if (requires.length > 0) {
+
+						requires.filter(req => _resolve_reference.call(sandbox, req) === null).forEach(ref => {
+							Module.export(ref, sandbox);
+						});
+
+					}
+
 
 					let result = definition.export(sandbox);
 					if (result === true) {

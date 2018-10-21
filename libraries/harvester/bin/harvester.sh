@@ -13,6 +13,10 @@ if [ -z "$LYCHEEJS_ROOT" ]; then
 		LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
 	fi;
 
+else
+
+	LYCHEEJS_HELPER="$LYCHEEJS_ROOT/bin/helper/helper.sh";
+
 fi;
 
 

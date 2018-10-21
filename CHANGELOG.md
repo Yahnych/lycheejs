@@ -20,6 +20,9 @@ All entries in the changelog are listed in this specific order:
 
 ## [2018-Q4] - UNRELEASED
 
+- **Changed**: `lycheejs-*` CLI tools support different roots than `/opt/lycheejs`.
+- **Added**: `lychee.assimilate(target, sandbox)` supports sandboxed code execution.
+
 
 ## [2018-Q3] - 2018-09-30
 

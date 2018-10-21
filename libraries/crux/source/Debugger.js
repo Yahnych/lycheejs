@@ -69,7 +69,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 		let info1 = 'Report from ' + data.file + '#L' + data.line + ' in ' + data.method;
 		let info2 = data.definition || '';
-		let info3 = data.message.trim();
+		let info3 = ((data.type || '') + ': ' + (data.message || '')).trim();
 		let info4 = data.stacktrace.map(callsite => callsite.file + '#L' + callsite.line + ' in ' + callsite.method).join('\n');
 
 
@@ -102,7 +102,7 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 
 		}
 
-		if (info3.length > 0) {
+		if (info3.length > 1) {
 			console.error('lychee.Debugger: ' + info3);
 		}
 

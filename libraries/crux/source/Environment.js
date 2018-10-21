@@ -448,6 +448,7 @@ lychee.Environment = typeof lychee.Environment !== 'undefined' ? lychee.Environm
 		'assignsafe',
 		'assignunlink',
 		'blobof',
+		'decycle',
 		'diff',
 		'enumof',
 		'interfaceof',

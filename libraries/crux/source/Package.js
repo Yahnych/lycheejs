@@ -142,9 +142,30 @@ lychee.Package = typeof lychee.Package !== 'undefined' ? lychee.Package : (funct
 
 				if (tags[tag] instanceof Array) {
 
-					let tmp = tags[tag].map(value => _resolve_tag.call(this, tag, value) + '/' + candidatepath);
-					if (tmp.length > 0) {
-						values = tmp.filter(path => _resolve_path.call(this, path) !== null);
+					let prefixes = tags[tag].map(value => _resolve_tag.call(this, tag, value)).filter(prefix => prefix !== '');
+					if (prefixes.length > 0) {
+
+						prefixes.forEach(prefix => {
+
+							let path = _resolve_path.call(this, prefix + '/' + candidatepath);
+							if (path !== null) {
+								values.push(prefix + '/' + candidatepath);
+							}
+
+						});
+
+					}
+
+				} else if (typeof tags[tag] === 'string') {
+
+					let prefix = _resolve_tag.call(this, tag, tags[tag]);
+					if (prefix !== '') {
+
+						let path = _resolve_path.call(this, prefix + '/' + candidatepath);
+						if (path !== null) {
+							values.push(prefix + '/' + candidatepath);
+						}
+
 					}
 
 				}
