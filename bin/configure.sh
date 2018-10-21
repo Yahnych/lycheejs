@@ -18,7 +18,15 @@ fi;
 
 # XXX: Allow /tmp/lycheejs usage
 if [ -z "$LYCHEEJS_ROOT" ]; then
+
 	LYCHEEJS_ROOT="/opt/lycheejs";
+
+	# XXX: Allow sandboxed usage
+	auto_root=$(dirname "$(dirname "$(realpath "$0")")");
+	if [ "$auto_root" != "$LYCHEEJS_ROOT" ]; then
+		LYCHEEJS_ROOT="$auto_root";
+	fi;
+
 fi;
 
 
