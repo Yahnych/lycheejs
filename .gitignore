@@ -15,8 +15,8 @@
 
 # Fuck these guys
 
+/experiments
 /node_modules
-/__TODO__
 .fuse_hidden*
 .directory
 .AppleDouble
@@ -47,8 +47,6 @@ Desktop.ini
 !/libraries/ranger
 !/libraries/strainer
 !/libraries/studio
-
-
 
 # Projects
 

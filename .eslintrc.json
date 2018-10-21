@@ -23,9 +23,18 @@
 		"lychee": true
 	},
 	"overrides": [{
-		"files": [ "libraries/crux/review/**/*.js" ],
+		"files": [
+			"libraries/crux/review/**/*.js"
+		],
 		"rules": {
 			"prefer-arrow-callback": "off"
+		}
+	}, {
+		"files": [
+			"experiments/**/*.js"
+		],
+		"rules": {
+			"func-style": "off"
 		}
 	}],
 	"rules": {

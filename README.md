@@ -98,6 +98,7 @@ the [lychee.js Engine](./libraries/lychee) Library.
 The lychee.js Project started in 2012 and is in active development.
 The following Repositories are related to the lychee.js Engine:
 
+- [lychee.js Experiments](https://github.com/Artificial-Engineering/lycheejs-experiments.git) contains all lychee.js Experiments and Prototypes.
 - [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
 - [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
 - [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
