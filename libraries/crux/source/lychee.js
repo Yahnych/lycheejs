@@ -758,6 +758,52 @@ lychee = (function(global) {
 
 	};
 
+	const _fix_export = function(line) {
+
+		let indent = line.substr(0, line.indexOf(line.trim()));
+		let chunk  = line.trim();
+		if (chunk.startsWith('export ')) {
+
+			let check = chunk.split(' ');
+			if (check[0] === 'export') {
+
+				if (check[1] === 'default') {
+					return indent + 'SANDBOX = SANDBOX[\'default\'] = ' + check.slice(2).join(' ');
+				} else if (check[1] === '{') {
+					return indent + 'SANDBOX = ' + check.slice(1).join(' ');
+				} else if (check[1] === 'function') {
+
+					let name = check[2].substr(0, check[2].indexOf('(')).trim();
+					if (name !== '') {
+						return indent + 'SANDBOX[\'' + name + '\'] = ' + check.slice(1).join(' ');
+					}
+
+				} else if ((check[1] === 'const' || check[1] === 'let') && check[3] === '=') {
+
+					let name = check[2].trim();
+					if (name !== '') {
+						return indent + check[1] + ' ' + name + ' = SANDBOX[\'' + name + '\'] = ' + check.slice(4).join(' ');
+					}
+
+				} else if (check[1] === 'class') {
+
+					let name = check[2].trim();
+					if (name !== '') {
+						return indent + 'SANDBOX[\'' + name + '\'] = ' + check.slice(1).join(' ');
+					}
+
+				}
+
+			}
+
+			return indent + line;
+
+		}
+
+		return line;
+
+	};
+
 
 
 	/*
@@ -1364,9 +1410,10 @@ lychee = (function(global) {
 		 * CUSTOM API
 		 */
 
-		assimilate: function(target) {
+		assimilate: function(target, sandbox) {
 
-			target = typeof target === 'string' ? target : null;
+			target  = typeof target === 'string' ? target  : null;
+			sandbox = sandbox !== undefined      ? sandbox : global;
 
 
 			if (target !== null) {
@@ -1374,9 +1421,42 @@ lychee = (function(global) {
 				_bootstrap_environment.call(this);
 
 
-				let asset = new lychee.Asset(target, null, false);
+				let asset = new lychee.Asset(target, null, true);
 				if (asset !== null) {
+
+					asset.onload = function(result) {
+
+						if (result === true) {
+
+							let code = this.buffer.toString('utf8');
+							if (code.trim().length > 0) {
+
+								code = code.split('\n').map(line => _fix_export(line)).join('\n');
+
+								with ({
+									SANDBOX: sandbox
+								}) {
+
+									try {
+										eval(code);
+									} catch (err) {
+										lychee.Debugger.report(lychee.environment, err, asset);
+									}
+
+								}
+
+							}
+
+						} else {
+							console.warn('lychee.assimilate: invalid target.');
+							console.info('lychee.assimilate: use lychee.assimilate(target).');
+							console.info('lychee.assimilate: target is a URL to an Asset.');
+						}
+
+					};
+
 					asset.load();
+
 				}
 
 
@@ -1384,8 +1464,8 @@ lychee = (function(global) {
 
 			} else {
 
-				console.warn('lychee.assimilate: Invalid target.');
-				console.info('lychee.assimilate: Use lychee.assimilate(target).');
+				console.warn('lychee.assimilate: invalid target.');
+				console.info('lychee.assimilate: use lychee.assimilate(target).');
 				console.info('lychee.assimilate: target is a URL to an Asset.');
 
 			}

@@ -68,8 +68,9 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 	const _report_error = function(environment, data) {
 
 		let info1 = 'Report from ' + data.file + '#L' + data.line + ' in ' + data.method;
-		let info2 = data.message.trim();
-		let info3 = data.stacktrace.map(callsite => callsite.file + '#L' + callsite.line + ' in ' + callsite.method).join('\n');
+		let info2 = data.definition || '';
+		let info3 = data.message.trim();
+		let info4 = data.stacktrace.map(callsite => callsite.file + '#L' + callsite.line + ' in ' + callsite.method).join('\n');
 
 
 		let main = environment.global.MAIN || null;
@@ -91,16 +92,28 @@ lychee.Debugger = typeof lychee.Debugger !== 'undefined' ? lychee.Debugger : (fu
 		console.error('lychee.Debugger: ' + info1);
 
 		if (info2.length > 0) {
-			console.error('lychee.Debugger: ' + info2);
+
+			console.error('lychee.Debugger: Referer relative URL is "' + info2 + '"');
+
+			let env = lychee.environment || null;
+			if (env !== null) {
+				console.error('lychee.Debugger: Referer absolute URL is "' + env.resolve(info2) + '"');
+			}
+
 		}
 
 		if (info3.length > 0) {
+			console.error('lychee.Debugger: ' + info3);
+		}
 
-			info3.split('\n').forEach(line => {
+		if (info4.length > 0) {
+
+			info4.split('\n').forEach(line => {
 				console.error('lychee.Debugger: ' + line);
 			});
 
 		}
+
 	};
 
 
