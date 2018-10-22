@@ -187,6 +187,10 @@ lychee.define('lychee.event.Emitter').exports((lychee, global, attachments) => {
 		let events = this.___events[event] || [];
 		if (events.length > 0) {
 
+			if (instance.___events[event] === undefined) {
+				instance.___events[event] = [];
+			}
+
 			for (let e = 0, el = events.length; e < el; e++) {
 
 				let entry = this.___events[event][e];

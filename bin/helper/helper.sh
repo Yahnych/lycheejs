@@ -405,7 +405,7 @@ _handle_action () {
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
 				# XXX: Privacy First
-				chrome1=`which inox 2> /dev/null`;
+				chrome1=`which chromium 2> /dev/null`;
 				chrome2=`which chromium-browser 2> /dev/null`;
 				chrome3=`which google-chrome 2> /dev/null`;
 				chrome4=`which chrome 2> /dev/null`;
@@ -550,7 +550,7 @@ elif [ "$protocol" == "env" ]; then
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
 				# XXX: Privacy First
-				chrome1=`which inox 2> /dev/null`;
+				chrome1=`which chromium 2> /dev/null`;
 				chrome2=`which chromium-browser 2> /dev/null`;
 				chrome3=`which google-chrome 2> /dev/null`;
 				chrome4=`which chrome 2> /dev/null`;
@@ -629,7 +629,7 @@ elif [ "$protocol" == "env" ]; then
 			if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
 				# XXX: Privacy First
-				chrome1=`which inox 2> /dev/null`;
+				chrome1=`which chromium 2> /dev/null`;
 				chrome2=`which chromium-browser 2> /dev/null`;
 				chrome3=`which google-chrome 2> /dev/null`;
 				chrome4=`which chrome 2> /dev/null`;
@@ -734,7 +734,7 @@ elif [ "$protocol" == "run" ]; then
 					if [ -f "$program" ]; then
 
 						# XXX: Privacy First
-						chrome1=`which inox 2> /dev/null`;
+						chrome1=`which chromium 2> /dev/null`;
 						chrome2=`which chromium-browser 2> /dev/null`;
 						chrome3=`which google-chrome 2> /dev/null`;
 						chrome4=`which chrome 2> /dev/null`;
@@ -990,7 +990,7 @@ elif [ "$protocol" == "which" ]; then
 		if [ "$OS" == "linux" ] || [ "$OS" == "bsd" ]; then
 
 			# XXX: Privacy First
-			chrome1=`which inox 2> /dev/null`;
+			chrome1=`which chromium 2> /dev/null`;
 			chrome2=`which chromium-browser 2> /dev/null`;
 			chrome3=`which google-chrome 2> /dev/null`;
 			chrome4=`which chrome 2> /dev/null`;

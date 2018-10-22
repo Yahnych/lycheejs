@@ -147,28 +147,6 @@ lychee.define('lychee.event.Router').includes([
 
 		},
 
-		relay: function(route, instance) {
-
-			route    = typeof route === 'string'              ? route    : null;
-			instance = lychee.interfaceof(_Emitter, instance) ? instance : null;
-
-
-			let result = _Emitter.prototype.relay.call(this, route, instance);
-			if (result === true) {
-
-				if (this.__routes[route] === undefined) {
-					this.__routes[route] = this.___events[route];
-				}
-
-				return true;
-
-			}
-
-
-			return false;
-
-		},
-
 		trigger: function(route, data) {
 
 			route = typeof route === 'string' ? route : null;
