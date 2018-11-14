@@ -20,7 +20,19 @@ USER_WHO=`whoami`;
 USER_LOG=`logname 2> /dev/null`;
 SUDO_BIN=`which sudo`;
 LYCHEEJS_ROOT="/opt/lycheejs";
+
 UPDATE_FLAG="";
+ALWAYS_YES="false";
+
+if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
+	ALWAYS_YES="true";
+fi;
+
+if [ "$1" == "--only-node" ] || [ "$2" == "--only-node" ]; then
+	UPDATE_FLAG="--only-node";
+fi;
+
+
 
 NAME_USER="$USER_WHO";
 NAME_GROUP="";
@@ -125,29 +137,42 @@ fi;
 
 
 
-echo " (L) ";
-echo -e "\e[37m\e[42m (I) lychee.js Git/Net Installer \e[0m";
-echo " (L) ";
-echo " (L) This installer downloads and installs lychee.js. ";
-echo " (L) The installation target folder is $LYCHEEJS_ROOT ";
-echo " (L) ";
-echo " (L) Download size is ~50MB + ~800MB + dependencies. ";
-echo " (L) Installation size is ~2.5GB.                    ";
-echo " (L) Third-Party native packages might add to size.  ";
-echo " (L) ";
+if [ "$ALWAYS_YES" == "true" ]; then
 
-read -p " (L) Continue (y/n)? " -r
+	echo " (L) ";
+	echo -e "\e[37m\e[42m (I) lychee.js Git/Net Installer \e[0m";
+	echo " (L) ";
+	echo " (L) Automatic install without any confirmation...";
 
-if [[ $REPLY =~ ^[Nn]$ ]]; then
-	echo -e "\e[37m\e[41m";
-	echo " (E) ABORTED                                ";
-	echo " (E) Have a nice, long and unautomated day. ";
-	echo -e "\e[0m";
-	exit 1;
-elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
-	echo -e "\e[37m\e[41m (E) INVALID SELECTION \e[0m";
-	exit 1;
+else
+
+	echo " (L) ";
+	echo -e "\e[37m\e[42m (I) lychee.js Git/Net Installer \e[0m";
+	echo " (L) ";
+	echo " (L) This installer downloads and installs lychee.js. ";
+	echo " (L) The installation target folder is $LYCHEEJS_ROOT ";
+	echo " (L) ";
+	echo " (L) Download size is ~50MB + ~800MB + dependencies. ";
+	echo " (L) Installation size is ~2.5GB.                    ";
+	echo " (L) Third-Party native packages might add to size.  ";
+	echo " (L) ";
+
+	read -p " (L) Continue (y/n)? " -r
+
+	if [[ $REPLY =~ ^[Nn]$ ]]; then
+		echo -e "\e[37m\e[41m";
+		echo " (E) ABORTED                                ";
+		echo " (E) Have a nice, long and unautomated day. ";
+		echo -e "\e[0m";
+		exit 1;
+	elif ! [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo -e "\e[37m\e[41m (E) INVALID SELECTION \e[0m";
+		exit 1;
+	fi;
+
 fi;
+
+
 
 
 
