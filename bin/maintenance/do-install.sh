@@ -10,15 +10,30 @@ USER_LOG=`logname 2> /dev/null`;
 LYCHEEJS_ROOT=$(cd "$(dirname "$0")/../../"; pwd);
 SYSTEMCTL_BIN=`which systemctl`;
 
-ALWAYS_YES="false";
-SKIP_UPDATES="false";
+ARGS=("$1" "$2" "$3" "$4" "$5" "$6");
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
+has_arg() {
+
+	if [[ " ${ARGS[@]} " =~ " ${1} " ]]; then
+		echo "true";
+	else
+		echo "";
+	fi;
+
+}
+
+
+
+ALWAYS_YES="false";
+
+if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
 	ALWAYS_YES="true";
 fi;
 
-if [ "$1" == "--skip" ] || [ "$1" == "-s" ] || [ "$2" == "--skip" ] || [ "$2" == "-s" ]; then
-	SKIP_UPDATES="yes";
+SKIP_UPDATES="false";
+
+if [ $(has_arg "-s") ] || [ $(has_arg "--skip") ]; then
+	SKIP_UPDATES="true";
 fi;
 
 

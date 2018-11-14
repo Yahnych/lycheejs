@@ -65,6 +65,28 @@ In detail, the [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) will do the
 3. Execute the [/bin/maintenance/do-update.sh](/bin/maintenance/do-update.sh) script.
 4. Execute the [/bin/configure.sh](/bin/configure.sh) script.
 
+
+The `/bin/maintenance/do-netinstall.sh` script supports the following flags:
+
+- `-y` or `--yes` skips dialogs and installs only required packages.
+- `-n` or `--runtime=node` passes through the flag to the `/bin/maintenance/do-update.sh` step.
+
+The `/bin/maintenance/do-install.sh` script supports the following flags:
+
+- `-y` or `--yes` skips dialogs and installs only required packages.
+- `-s` or `--skip` skips updates and does neither install required nor optional packages.
+
+The `/bin/maintenance/do-update.sh` script supports the following flags:
+
+- `-y` or `--yes` skips dialogs and installs only required packages.
+- `-m` or `--branch=master` switches to the `master` branch (defaults to `development` branch).
+- `-n` or `--runtime=node` uses the minimal `lycheejs-runtime-only-node.zip` from the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases) releases.
+
+The `/bin/configure.sh` script supports the following flags:
+
+- `-c` or `--core` distributes only the [lychee.js Crux](/libraries/crux) Library and nothing else.
+
+
 ## (Required) Manual ESLint Installation
 
 The lychee.js Engine heavily relies on [eslint](https://github.com/eslint)

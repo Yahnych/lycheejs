@@ -3,19 +3,33 @@
 
 set -e;
 
+ARGS=("$1" "$2" "$3" "$4" "$5" "$6");
 
-ACCEPTED="false";
+has_arg() {
+
+	if [[ " ${ARGS[@]} " =~ " ${1} " ]]; then
+		echo "true";
+	else
+		echo "";
+	fi;
+
+}
+
+
+
+ALWAYS_YES="false";
+
+if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
+	ALWAYS_YES="true";
+fi;
+
 SIMULATION="false";
 
-
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
-	ACCEPTED="true";
-fi;
-
-if [ "$1" == "--simulation" ] || [ "$1" == "-s" ] || [ "$2" == "--simulation" ] || [ "$2" == "-s" ]; then
-	ACCEPTED="true";
+if [ $(has_arg "-s") ] || [ $(has_arg "--simulation") ]; then
+	ALWAYS_YES="true";
 	SIMULATION="true";
 fi;
+
 
 
 REPO_LYCHEEJS="git@github.com:Artificial-Engineering/lycheejs.git";
@@ -142,7 +156,7 @@ fi;
 
 if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
-	if [ "$ACCEPTED" == "false" ]; then
+	if [ "$ALWAYS_YES" == "false" ]; then
 
 		echo " (L) ";
 		echo -e "\e[42m\e[97m (I) lychee.js Release Tool \e[0m";
@@ -402,7 +416,7 @@ if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
 
 
 
-	if [ "$ACCEPTED" == "false" ]; then
+	if [ "$ALWAYS_YES" == "false" ]; then
 
 		echo " (L) ";
 		echo " (L) Somebody set us up the bomb.                    ";

@@ -44,10 +44,10 @@ bash ./bin/maintenance/do-update.sh;
 
 **Flags**:
 
-- `--branch=master` or `--master` to switch to the quaterly-released `master` branch.
-- `--branch=development` or `--development` to switch to the up-to-date `development` branch (defaulted).
-- `--yes` or `-y` to deactivate the manual confirmation dialogs.
-- `--only-node` to download only the `node` platform adapters and runtimes (useful for embedded systems).
+- `-y` or `--yes` skips dialogs and installs only required packages.
+- `-m` or `--branch=master` switches to the `master` branch (defaults to `development` branch).
+- `-n` or `--runtime=node` uses the minimal `lycheejs-runtime-only-node.zip` from the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases) releases.
+
 
 ## Update Process
 

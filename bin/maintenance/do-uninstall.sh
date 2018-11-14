@@ -8,9 +8,23 @@ OS=`lowercase \`uname\``;
 USER_WHO=`whoami`;
 USER_LOG=`logname 2> /dev/null`;
 
+ARGS=("$1" "$2" "$3" "$4" "$5" "$6");
+
+has_arg() {
+
+	if [[ " ${ARGS[@]} " =~ " ${1} " ]]; then
+		echo "true";
+	else
+		echo "";
+	fi;
+
+}
+
+
+
 ALWAYS_YES="false";
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ]; then
+if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
 	ALWAYS_YES="true";
 fi;
 

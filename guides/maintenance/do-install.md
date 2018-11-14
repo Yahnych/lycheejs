@@ -50,8 +50,8 @@ sudo bash ./bin/maintenance/do-install.sh;
 
 **Flags**:
 
-- `--yes` or `-y` to deactivate the manual confirmation dialogs.
-- `--skip` or `-s` to skip package synchronization and installations (useful for off-the-grid development).
+- `-y` or `--yes` skips dialogs and assumes yes for all questions.
+- `-s` or `--skip` skips updates and does neither install required nor optional packages (useful for offline development).
 
 ## Installation Process
 

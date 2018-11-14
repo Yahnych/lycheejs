@@ -124,15 +124,9 @@ they use a `-` (dash) in between to sandbox lychee.js installations.
 For example, setting `export RELEASE_FOLDER="/tmp/lycheejs"` leads
 to the bundles being built inside `/tmp/lycheejs-bundles`.
 
-Further parameters and flags:
+**Flags**:
 
-`./bin/maintenance/do-install.sh`:
-
-- `-y` or `--yes` will skip all dialogs and assume yes for all questions.
-
-`./bin/maintenance/do-release.sh`:
-
-- `-y` or `--yes` will skip all dialogs and assume yes for all questions.
+- `-y` or `--yes` skips dialogs and assumes yes for all questions.
 - `-s` or `--simulation` will skip all dialogs and will skip the `publish` step for all projects.
 
 

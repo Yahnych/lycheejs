@@ -38,7 +38,7 @@ PACKAGE_CMD="";
 CORE_FLAG="false";
 
 
-if [ "$1" == "--core" ]; then
+if [ "$1" == "-c" ] || [ "$1" == "--core" ]; then
 	CORE_FLAG="true";
 fi;
 

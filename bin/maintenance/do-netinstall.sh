@@ -21,15 +21,30 @@ USER_LOG=`logname 2> /dev/null`;
 SUDO_BIN=`which sudo`;
 LYCHEEJS_ROOT="/opt/lycheejs";
 
-UPDATE_FLAG="";
+ARGS=("$1" "$2" "$3" "$4" "$5" "$6");
+
+has_arg() {
+
+	if [[ " ${ARGS[@]} " =~ " ${1} " ]]; then
+		echo "true";
+	else
+		echo "";
+	fi;
+
+}
+
+
+
 ALWAYS_YES="false";
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
+if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
 	ALWAYS_YES="true";
 fi;
 
-if [ "$1" == "--only-node" ] || [ "$2" == "--only-node" ]; then
-	UPDATE_FLAG="--only-node";
+UPDATE_FLAG="";
+
+if [ $(has_arg "-n") ] || [ $(has_arg "--runtime=node") ]; then
+	UPDATE_FLAG="--runtime=node";
 fi;
 
 
@@ -89,10 +104,10 @@ elif [ "$OS" == "linux" ]; then
 
 		if [ "$TERMUX_CHECK" != "" ] && [ -d "/sdcard" ]; then
 			LYCHEEJS_ROOT="/sdcard/opt/lycheejs";
-			UPDATE_FLAG="--only-node";
+			UPDATE_FLAG="--runtime=node";
 		elif [ "$TERMUX_CHECK" != "" ] && [ -d "/storage/emulated/0" ]; then
 			LYCHEEJS_ROOT="/storage/emulated/0/opt/lycheejs";
-			UPDATE_FLAG="--only-node";
+			UPDATE_FLAG="--runtime=node";
 		fi;
 
 	elif [ "$OS_CHECK" != "gnu/linux" ]; then

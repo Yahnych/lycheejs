@@ -7,16 +7,29 @@ LYCHEEJS_CHANGE=$(cd $LYCHEEJS_ROOT && git status --porcelain);
 LYCHEEJS_SYMBOL=$(cd $LYCHEEJS_ROOT && git symbolic-ref HEAD 2> /dev/null);
 LYCHEEJS_BRANCH=${LYCHEEJS_SYMBOL##refs/heads/};
 
+ARGS=("$1" "$2" "$3" "$4" "$5" "$6");
+
+has_arg() {
+
+	if [[ " ${ARGS[@]} " =~ " ${1} " ]]; then
+		echo "true";
+	else
+		echo "";
+	fi;
+
+}
+
+
 
 SELECTION_BRANCH="development";
 
-if [ "$1" == "--master" ] || [ "$1" == "--branch=master" ]; then
+if [ $(has_arg "-m") ] || [ $(has_arg "--branch=master") ]; then
 	SELECTION_BRANCH="master";
 fi;
 
 ALWAYS_YES="false";
 
-if [ "$1" == "--yes" ] || [ "$1" == "-y" ] || [ "$2" == "--yes" ] || [ "$2" == "-y" ]; then
+if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
 	ALWAYS_YES="true";
 fi;
 
@@ -24,7 +37,7 @@ fi;
 LYCHEEJS_RUNTIME_URL="https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest";
 LYCHEEJS_RUNTIME_FILE="lycheejs-runtime.zip";
 
-if [ "$1" == "--only-node" ] || [ "$2" == "--only-node" ] || [ "$3" == "--only-node" ]; then
+if [ $(has_arg "-n") ] || [ $(has_arg "--runtime=node") ]; then
 	LYCHEEJS_RUNTIME_FILE="lycheejs-runtime-only-node.zip";
 fi;
 
