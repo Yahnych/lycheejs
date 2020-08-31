@@ -1019,7 +1019,7 @@ lychee = (function(global) {
 
 					for (let prop in object) {
 
-						if (object.hasOwnProperty(prop) === true) {
+						if (Object.prototype.hasOwnProperty.call(object, prop) === true) {
 
 							let ovalue = object[prop];
 							if (ovalue instanceof Array) {
