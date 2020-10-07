@@ -6,8 +6,8 @@ set -e;
 
 TMP_STATUS="/tmp/lycheejs-runtime.json";
 GITHUB_TOKEN=$(cat "/opt/lycheejs/.github/TOKEN");
-RELEASE_USER="Artificial-Engineering";
-RELEASE_REPO="lycheejs-runtime";
+RELEASE_USER="cookiengineer";
+RELEASE_REPO="lycheejs";
 RELEASE_NAME=$(date +"%Y.%m.%d");
 RUNTIME_ROOT=$(cd "$(dirname "$0")/../"; pwd);
 ERROR_HAPPENED="false";

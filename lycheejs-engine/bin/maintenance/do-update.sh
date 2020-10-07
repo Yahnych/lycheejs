@@ -34,7 +34,7 @@ if [ $(has_arg "-y") ] || [ $(has_arg "--yes") ]; then
 fi;
 
 
-LYCHEEJS_RUNTIME_URL="https://api.github.com/repos/Artificial-Engineering/lycheejs-runtime/releases/latest";
+LYCHEEJS_RUNTIME_URL="https://api.github.com/repos/cookiengineer/lycheejs/releases/latest";
 LYCHEEJS_RUNTIME_FILE="lycheejs-runtime.zip";
 
 if [ $(has_arg "-n") ] || [ $(has_arg "--runtime=node") ]; then

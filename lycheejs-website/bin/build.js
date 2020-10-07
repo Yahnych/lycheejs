@@ -28,7 +28,7 @@ _fs.readdir(_ROOT + '/build/examples', function(err, identifiers) {
 
 			let tmp = line.trim();
 			if (tmp.startsWith('lychee.envinit(environment')) {
-				return line.replace('"/api/server', '"http://harvester.artificial.engineering:4848/api/server');
+				return line.replace('"/api/server', '"http://harvester.lycheejs-website.tld:4848/api/server');
 			}
 
 			return line;

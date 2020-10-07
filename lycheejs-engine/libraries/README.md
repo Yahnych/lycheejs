@@ -6,9 +6,6 @@ already contains the core libraries of all lychee.js software
 bots but allows the easy deployment and installation of
 additional libraries from the `Harvester Cloud`.
 
-The libraries of the lychee.js ecosystem and the automatic
-build/deploy/test system is available at [harvester.artificial.engineering](https://harvester.artificial.engineering).
-
 
 
 ### Initialize a Library
@@ -71,7 +68,7 @@ Please read the [Codestyle Guide](../guides/CODESTYLE.md) before
 creating a lychee.js Library, so that you benefit from all
 automations and conventions.
 
-All conventions are documented in the [Project Architecture chapter](https://github.com/Artificial-Engineering/lycheejs-guide#project-architecture)
+All conventions are documented in the Project Architecture chapter
 of the lychee.js Guide.
 
 Always remember, all libraries can be used as projects and all

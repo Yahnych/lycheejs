@@ -1,11 +1,6 @@
 
 # lychee.js Runtimes
 
-brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
-
-Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
-
-
 
 ## Overview
 
@@ -68,14 +63,8 @@ cd /opt/lycheejs/bin/runtime;
 
 The `do-release.sh` script allows to create a release for
 github. It will package everything into a `zip` file that
-is uploaded to the [releases section](https://github.com/Artificial-Engineering/lycheejs-runtime/releases)
+is uploaded to the [releases section](https://github.com/cookiengineer/lycheejs/releases)
 of this repository.
-
-In order to make this work, you have to be a contributor
-inside the [Artificial-Engineering](https://github.com/Artificial-Engineering)
-organization and you must have configured your
-[Personal Access Token](https://github.com/settings/tokens)
-with `repo` rights.
 
 ```bash
 # Dump the Token into the TOKEN file

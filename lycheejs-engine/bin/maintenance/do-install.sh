@@ -313,9 +313,6 @@ else
 			echo " (E) Your package manager is not supported.                    ";
 			echo " (E) Feel free to modify this script!                          ";
 			echo " (E)                                                           ";
-			echo " (E) Please let us know about this at                          ";
-			echo " (E) https://github.com/Artificial-Engineering/lycheejs/issues ";
-			echo " (E)                                                           ";
 			echo -e "\e[0m";
 
 			exit 1;

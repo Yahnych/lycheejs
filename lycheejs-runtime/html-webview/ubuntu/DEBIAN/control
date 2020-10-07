@@ -1,7 +1,7 @@
 Package: __NAME__
 Version: 1.0.0
 Architecture: all
-Maintainer: Artificial Engineering <robot@artificial.engineering>
+Maintainer: Cookie Engineer <@cookiengineer>
 Installed-Size: __SIZE__
 Depends: webapp-container
 Section: misc

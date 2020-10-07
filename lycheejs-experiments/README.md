@@ -6,7 +6,7 @@ that are not meant for the public and are excluded from the AI-related
 `Environment` or `Simulation` stack on purpose.
 
 Yet it is open sourced, so people can try to learn from the sandboxing
-concepts and/or prototyping capabilities of the [lychee.js Engine](https://github.com/Artificial-Engineering/lycheejs.git).
+concepts and/or prototyping capabilities of the lychee.js Engine
 
 Some experiments might require external dependencies for successful
 verifications and/or compatibility checks with reference implementations.
@@ -21,8 +21,7 @@ cd /opt/lycheejs;
 ./bin/configure.sh --core;
 
 # install experiments
-git clone https://github.com/Artificial-Engineering/lycheejs-experiments.git /opt/lycheejs/experiments;
-cd /opt/lycheejs/experiments;
+cd /opt/lycheejs/projects/lycheejs-experiments;
 
 # install dependencies
 npm install;

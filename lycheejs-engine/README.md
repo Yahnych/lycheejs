@@ -1,14 +1,6 @@
 
 # lychee.js (2018-Q3)
 
-![/guides/asset/qr-codes.png](/guides/asset/qr-codes.png)
-
--------------------------------------------------------------------------------
-
-brought to you as libre software with joy and pride by [Artificial Engineering](http://artificial.engineering).
-
-Support our libre Bot Cloud via BTC [1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2](bitcoin:1CamMuvrFU1QAMebPoDsL3JrioVDoxezY2?amount=0.5&label=lychee.js%20Support).
-
 
 ## Work-in-Progress (aka alpha)
 
@@ -95,14 +87,14 @@ the [lychee.js Engine](./libraries/lychee) Library.
 
 ## Overview
 
-The lychee.js Project started in 2012 and is in active development.
+The lychee.js Project started in 2012 and has been developed actively until late 2018.
 The following Repositories are related to the lychee.js Engine:
 
-- [lychee.js Experiments](https://github.com/Artificial-Engineering/lycheejs-experiments.git) contains all lychee.js Experiments and Prototypes.
-- [lychee.js Runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git) contains all pre-compiled lychee.js Runtimes and Fertilizers.
-- [lychee.js Library](https://github.com/Artificial-Engineering/lycheejs-library.git) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
-- [lychee.js Website](https://github.com/Artificial-Engineering/lycheejs-website.git) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
-- [lychee.js Future](https://github.com/Artificial-Engineering/lycheejs-future.git) contains all Concepts and Ideas not yet finished.
+- [lychee.js Experiments](../lycheejs-experiments) contains all lychee.js Experiments and Prototypes.
+- [lychee.js Runtime](../lycheejs-runtime) contains all pre-compiled lychee.js Runtimes and Fertilizers.
+- [lychee.js Library](../lycheejs-library) contains the lychee.js Library (installable via `bower` and `npm`, forked from `/libraries/lychee`).
+- [lychee.js Website](../lycheejs-website) contains the lychee.js Website (hosted at [lychee.js.org](https://lychee.js.org)).
+- [lychee.js Future](../lycheejs-future) contains all Concepts and Ideas not yet finished.
 
 The following Accounts are related to the lychee.js Engine:
 
@@ -195,66 +187,29 @@ so is to follow through the [Quickstart Guide](/guides/quickstart).
 sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
 ```
 
-![Installation CLI Animation](https://rawgit.com/Artificial-Engineering/lycheejs/development/guides/quickstart/asset/installation.svg)
-
-Please let us know if we can improve anything in these documents
-by opening up a [Documentation Problem](https://github.com/Artificial-Engineering/lycheejs/issues/new?template=documentation-problem.md)
-issue.
-
-
-## Help
-
-If you have any questions, feel free to join us on
-[#artificial-engineering @ freenode](https://webchat.freenode.net/?channels=%23artificial-engineering).
-
-These are our official social media channels:
-
-* Twitter: https://twitter.com/lycheejs
-* Reddit:  https://reddit.com/r/lycheejs
-* IRC:     [#artificial-engineering @ freenode](https://webchat.freenode.net/?channels=%23artificial-engineering).
-* Email:   robot [insert an at here] artificial.engineering
+![Installation CLI Animation](./guides/quickstart/asset/installation.svg)
 
 
 ## License
 
-The lychee.js Engine (defined as `/libraries` and `/bin` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
-repository) is (c) 2012-2018 Artificial-Engineering and released under
-[MIT / Expat](./LICENSE_MIT.txt) license.
-
-The projects (defined as `/projects` inside the [lycheejs](https://github.com/Artificial-Engineering/lycheejs.git)
-repository) and their Assets are licensed under [CC BY-SA 4.0](./LICENSE_CC4-BY-SA.txt)
-license.
-
-The lychee.js Runtimes (defined as `/bin/runtime` or the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime.git)
-repository) are owned and copyrighted by their respective owners and those
+The lychee.js Runtimes (defined as `/bin/runtime` or the lycheejs-runtime
+folder) are owned and copyrighted by their respective owners and those
 may be shipped under a different license.
 
 As of now, the runtimes are licensed under the following terms:
 
 - MIT license for `node` platform (node.js)
 - MIT license for `html-nwjs` platform (nw.js)
-- MIT license for `html-webview` platform and (c) 2012-2018 Artificial Engineering
+- MIT license for `html-webview` platform and (c) 2012-2018 Cookie Engineer
 - Apache license for Android SDK toolchain
 
 ----------
 
-The generated code by our Artificial Intelligence (namely the GitHub Account
-[@humansneednotapply](https://github.com/humansneednotapply) or the commit's
-e-mail address `robot [ insert an at here] artificial.engineering`) is released
-under [GNU GPL 3](./LICENSE_GPL3.txt) license.
+The lychee.js Engine is released under the [GNU GPL 3](./LICENSE_GPL3.txt) license.
 
-The date of each commit is equivalent to the date (Central European Timezone)
-of claimed copyright and license, no matter from which timezone or physical
-location they were commited from.
-
-The generated code by the Artificial Intelligence and its GNU GPL 3 license
-overrules the MIT / Expat license in every case, with no exceptions. The code
-is distributed in a libre way to guarantee free and open knowledge distribution
-for our Software Bots.
-
-The owner of the GNU GPL 3 licensed code is the Artificial-Engineering project,
-though the legal entity as of today has to be a human person ([@cookiengineer](https://github.com/cookiengineer))
-under European law and the [Directive 2006/116/EC](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:372:0012:0018:EN:PDF) (p.14 and Art. 1 p.4).
+The owner of the AI-generated code has to be a legal as of today, and therefore has to
+be a human person ([@cookiengineer](https://github.com/cookiengineer)) under European law
+and the [Directive 2006/116/EC](http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:372:0012:0018:EN:PDF) (p.14 and Art. 1 p.4).
 
 Hereby [@cookiengineer](https://github.com/cookiengineer) grants you permission
 to reuse the generated code by the Artificial Intelligence under above terms.

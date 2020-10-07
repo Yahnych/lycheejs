@@ -16,7 +16,7 @@ with the software bots and not integrated with the lychee.js Engine.
 It exists for the purpose of reusing your lychee.js Projects and
 Libraries in other Projects (like in an HTML5 App or a Node.js Server).
 
-The [README](https://github.com/Artificial-Engineering/lycheejs-library/blob/master/README.md)
+The [README](../../../lycheejs-library/README.md)
 of the lychee.js Library repository contains detailed usage instructions.
 
 The recommended, failsafe way is to use our lychee.js Engine
@@ -29,18 +29,13 @@ that includes all necessary runtimes, binaries and external SDKs that
 you need for further cross-compilation or deployment to its supported
 target platforms and architectures.
 
-The [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) shell script
-allows to automatically install the lychee.js Engine on any UNIX-compatible
-machine (`armhf`, `x86` or `x86_64`). The only required preinstalled
-dependencies are `bash`, `curl` and `git`.
-
 The lychee.js Engine installation requires at least 4GB of free memory
 space at `/opt/lycheejs`. 16GB are recommended to have a fully working
 AI knowledge integration.
 
 Depending on the internet connection speed the installation will take
 a couple minutes (needs to download ca. 800MB zip file of runtime
-binaries which is hosted in the releases section of the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases)
+binaries which is hosted in the releases section of the [lycheejs](https://github.com/cookiengineer/lycheejs/releases)
 repository).
 
 **Notes**:
@@ -58,18 +53,11 @@ sudo bash -c "$(curl -fsSL https://lychee.js.org/install.sh)";
 
 ![Quickstart CLI Animation](./asset/installation.svg)
 
-In detail, the [do-netinstall.sh](/bin/maintenance/do-netinstall.sh) will do these steps:
-
-1. Clone the [lycheejs](https://github.com/Artificial-Engineering/lycheejs) repo into `/opt/lycheejs`.
+1. Clone the [lycheejs Engine](../../../lycheejs-engine) folder into `/opt/lycheejs`.
 2. Execute the [/bin/maintenance/do-install.sh](/bin/maintenance/do-install.sh) script.
 3. Execute the [/bin/maintenance/do-update.sh](/bin/maintenance/do-update.sh) script.
 4. Execute the [/bin/configure.sh](/bin/configure.sh) script.
 
-
-The `/bin/maintenance/do-netinstall.sh` script supports the following flags:
-
-- `-y` or `--yes` skips dialogs and installs only required packages.
-- `-n` or `--runtime=node` passes through the flag to the `/bin/maintenance/do-update.sh` step.
 
 The `/bin/maintenance/do-install.sh` script supports the following flags:
 
@@ -80,7 +68,7 @@ The `/bin/maintenance/do-update.sh` script supports the following flags:
 
 - `-y` or `--yes` skips dialogs and installs only required packages.
 - `-m` or `--branch=master` switches to the `master` branch (defaults to `development` branch).
-- `-n` or `--runtime=node` uses the minimal `lycheejs-runtime-only-node.zip` from the [lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime/releases) releases.
+- `-n` or `--runtime=node` uses the minimal `lycheejs-runtime-only-node.zip` from the releases.
 
 The `/bin/configure.sh` script supports the following flags:
 

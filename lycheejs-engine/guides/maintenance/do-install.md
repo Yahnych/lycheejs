@@ -4,10 +4,6 @@
 This install guide will explain what goes on behind
 the scenes regarding a lychee.js Engine installation.
 
-It can be seen as a documentation that contributors
-or users can follow through in case the [do-netinstall.sh](./do-netinstall.md)
-does not work for any reason.
-
 
 ## Prerequisites
 
@@ -20,7 +16,7 @@ executed successfully:
 - Either of the following package managers has to be available: `pacman`, `apk`, `apt-get`, `dnf`, `yum`, `zypper`, `apt`, `brew`, `port`.
 
 In order for the [do-install.sh](/bin/maintenance/do-install.sh)
-script to work, the [lychee.js repo](https://github.com/Artificial-Engineering/lycheejs.git)
+script to work, the [lychee.js Engine](https://github.com/cookiengineer/lycheejs/tree/master/lycheejs-engine)
 has to be installed in the `/opt/lycheejs` folder.
 
 Technically, any folder should suffice as long as it's named
@@ -35,10 +31,9 @@ don't use any of these paths.
 ## Usage
 
 ```bash
-sudo mkdir -m 0777 /opt/lycheejs;
-cd /opt/lycheejs;
-
-git clone "https://github.com/Artificial-Engineering/lycheejs.git" /opt/lycheejs;
+# Move the lycheejs-engine folder to /opt/lycheejs
+mv /path/to/lycheejs-engine /opt/lycheejs;
+chmod 0777 /opt/lycheejs;
 
 # Necessary pretty much everywhere, even with System Integrity Protection
 # It will use the normal user ($SUDO_USER) as often as possible.
@@ -67,7 +62,6 @@ sudo bash ./bin/maintenance/do-install.sh;
 
 After the installation of all tools are finished, it is time
 to execute the [do-update.sh](./do-update.md) script in order
-to make sure everything (including the runtimes from the
-[lycheejs-runtime](https://github.com/Artificial-Engineering/lycheejs-runtime)
-repo) is up to date.
+to make sure everything including the runtimes from the
+[lycheejs-runtime](../../../lycheejs-runtime) is up to date.
 

@@ -41,10 +41,10 @@ with a symbolic link:
 ```bash
 # Install a third-party Project
 cd /home/$USER/Software;
-git clone "https://github.com/Artificial-Engineering/research.git";
+git clone "https://github.com/some/lycheejs-project.git";
 
-# Track the Project via identifier "/projects/research"
+# Track the Project via identifier "/projects/experiment"
 cd /opt/lycheejs/projects;
-ln -s /home/$USER/Software/research ./research;
+ln -s /home/$USER/Software/lycheejs-project ./experiment;
 ```
 
