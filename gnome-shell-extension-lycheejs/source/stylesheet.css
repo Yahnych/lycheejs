@@ -1,0 +1,24 @@
+
+.lycheejs-menu-label {
+	width: 144px;
+	overflow: hidden;
+}
+
+.lycheejs-menu-action {
+	height: 1em;
+	margin: 0px 8px;
+	padding: 0px;
+	border: 0px;
+	border-radius: 0px;
+}
+
+.lycheejs-menu-dummy {
+	width: 16px;
+	height: 1em;
+	margin: 0px 8px;
+	padding: 0px;
+	border-radius: 0px;
+}
+
+/* .lycheejs-menu-separator {} */
+

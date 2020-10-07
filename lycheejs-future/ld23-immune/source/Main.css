@@ -1,0 +1,21 @@
+
+body {
+	margin: 0;
+	padding: 0;
+	color: #fff;
+	background: #444;
+}
+
+canvas#game {
+	display: block;
+	margin: 0 auto;
+	/* border: 3px solid #888; */
+}
+
+#debugger {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	max-width: 200px;
+}
+

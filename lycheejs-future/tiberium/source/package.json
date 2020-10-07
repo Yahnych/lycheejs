@@ -1,0 +1,60 @@
+{
+
+	"tags": {},
+
+	"tree": {
+
+		"model": {
+			"Building": [ "js" ],
+			"Hitmap": [ "js" ],
+			"Level": [ "js" ],
+			"Road": [ "js" ],
+			"Unit": [ "js" ],
+			"Vegetation": [ "js" ],
+			"World": [ "js" ]
+		},
+
+		"state": {
+			"Game": [ "js" ]
+		},
+
+		"logic": {
+			"Logic": [ "js" ],
+			"Pathfinder": [ "js" ],
+			"UI": [ "js" ]
+		},
+
+		"entity": {
+
+			"building": {
+				"Base": [ "js" ]
+			},
+
+			"ui": {
+				"Bar": [ "js" ],
+				"Cursor": [ "js" ],
+				"Field": [ "js" ]
+			},
+
+			"unit": {
+				"Base": [ "js" ]
+			},
+
+			"world": {
+				"Base": [ "js" ]
+			},
+
+			"Level": [ "js" ],
+			"Text": [ "js" ]
+
+		},
+
+		"Data": [ "js" ],
+		"Jukebox": [ "js" ],
+		"Main": [ "js", "css" ],
+		"Parser": [ "js" ],
+		"Renderer": [ "js" ]
+
+	}
+
+}

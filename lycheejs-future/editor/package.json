@@ -1,0 +1,72 @@
+{
+
+	"build": {
+
+		"environments": {
+
+		},
+
+		"files": {
+
+		}
+
+	},
+
+	"source": {
+
+		"environments": {
+
+		},
+
+		"tags": {
+
+		},
+
+		"files": {
+
+			"entity": {
+
+				"base": {
+					"Menu":    [ "js" ],
+					"Sidebar": [ "js" ]
+				},
+
+				"pixel": {
+					"Canvas": [ "js" ]
+				},
+
+				"ui": {
+					"Palette": [ "js" ]
+				}
+
+			},
+
+			"module": {
+				"Base":  [ "js", "json" ],
+				"Pixel": [ "js", "json" ]
+			},
+
+			"net": {
+
+				"client": {
+					"Ping": [ "js" ]
+				},
+
+				"remote": {
+					"Ping": [ "js" ]
+				},
+
+				"Client": [ "js" ],
+				"Server": [ "js" ]
+
+			},
+
+			"Fonts": [ "js", "headline.fnt", "normal.fnt" ],
+			"Main":  [ "js", "css" ],
+			"State": [ "js" ]
+
+		}
+
+	}
+
+}

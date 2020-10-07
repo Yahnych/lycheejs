@@ -1,0 +1,170 @@
+{
+
+	"Barrack": {
+
+		"health":  400,
+		"power":     2,
+		"cost":    300,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0,  9,  1, 1 ],
+			"destroy": [ 10, 20,  0, 0 ],
+			"build":   [ 21, 40,  1, 0 ]
+		}
+
+	},
+
+	"Building-Yard": {
+
+		"health":  800,
+		"power":    -5,
+		"cost":   5000,
+
+		"size":   [ 3, 2 ],
+		"hitmap": [ 1, 1, 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0,  0, 0, 0 ],
+			"active":  [  1, 23, 1, 1 ],
+			"destroy": [ 24, 48, 0, 0 ],
+			"build":   [ 49, 80, 1, 0 ]
+		}
+
+	},
+
+	"Helipad": {
+
+		"health":  200,
+		"power":     2,
+		"cost":   1500,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0,  0, 0, 0 ],
+			"active":  [  1,  6, 1, 1 ],
+			"destroy": [  7, 14, 0, 0 ],
+			"build":   [ 15, 34, 1, 0 ]
+		}
+
+	},
+
+	"Hospital": {
+
+		"health":    350,
+		"power":       3,
+		"cost":     1000,
+		"service":  [ 50, 0, 0, 0, 0 ],
+		"interval": 1000,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0,  0, 0, 0 ],
+			"active":  [  0,  0, 0, 0 ],
+			"destroy": [  1,  8, 0, 0 ],
+			"build":   [  9, 28, 1, 0 ]
+		}
+
+	},
+
+	"Powerplant": {
+
+		"health":  350,
+		"power":   -10,
+		"cost":    500,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0,  0, 0, 0 ],
+			"active":  [  0,  0, 0, 0 ],
+			"destroy": [  1,  8, 0, 0 ],
+			"build":   [  9, 28, 1, 0 ]
+		}
+
+	},
+
+	"Refinery": {
+
+		"health":  750,
+		"power":     3,
+		"cost":   2000,
+
+		"size":   [ 3, 3 ],
+		"hitmap": [ 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+
+		"map": {
+			"default":        [  0,  5, 1, 1 ],
+			"service":        [  6, 11, 1, 1 ],
+			"active":         [ 12, 29, 1, 0 ],
+			"destroy":        [ 30, 35, 0, 0 ],
+			"servicedestroy": [ 36, 41, 0, 0 ],
+			"activedestroy":  [ 42, 59, 0, 0 ],
+			"build":          [ 60, 79, 1, 0 ]
+		}
+
+	},
+
+	"Service-Depot": {
+
+		"health":    400,
+		"power":       1,
+		"cost":     1500,
+		"service":  [ 0, 500, 1000, 0, 0 ],
+		"interval": 1000,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 0, 0, 0, 0 ],
+
+		"map": {
+			"default": [  0,  0, 0, 0 ],
+			"active":  [  1, 13, 1, 1 ],
+			"destroy": [ 14, 14, 0, 0 ],
+			"build":   [ 15, 34, 1, 0 ]
+		}
+
+	},
+
+	"Spy-Center": {
+
+		"health":  600,
+		"power":     5,
+		"cost":   1500,
+
+		"size":   [ 2, 2 ],
+		"hitmap": [ 1, 1, 1, 1 ],
+
+		"map": {
+			"default": [  0, 15, 1, 1, 3000 ],
+			"active":  [  0, 15, 1, 1, 1500 ],
+			"destroy": [ 16, 31, 1, 1 ],
+			"build":   [ 32, 51, 1, 0 ]
+		}
+
+	},
+
+	"Turret": {
+
+		"health": 900,
+		"power":    2,
+		"cost":  1000,
+
+		"size":   [ 1, 1 ],
+		"hitmap": [ 1 ],
+
+		"map": {
+			"default": [  0, 31, 0, 0 ],
+			"destroy": [ 32, 63, 0, 0 ],
+			"build":   [ 64, 83, 1, 0 ]
+		}
+
+	}
+
+}

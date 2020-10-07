@@ -1,0 +1,120 @@
+{
+
+	"layers": {
+
+		"ui-sidebar": {
+			"constructor": "game.entity.base.Sidebar",
+			"arguments": [{
+				"width": 128,
+				"height": 704,
+				"position": {
+					"x": 64,
+					"y": 416
+				}
+			}],
+			"blob": {
+				"entities": [{
+					"constructor": "lychee.ui.Label",
+					"arguments": [{
+						"width": 128,
+						"height": 64,
+						"label": "Tool"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.label.url" ]
+						}
+					}
+				}, {
+					"constructor": "lychee.ui.Switch",
+					"arguments": [{
+						"width": 128,
+						"height": 48,
+						"options": [ "pixel", "line", "bucket" ],
+						"value": "pixel"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.normal.url" ]
+						}
+					}
+				}, {
+					"constructor": "lychee.ui.Label",
+					"arguments": [{
+						"width": 128,
+						"height": 64,
+						"label": "Palette"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.label.url" ]
+						}
+					}
+				}, {
+					"constructor": "game.entity.ui.Palette",
+					"arguments": [{
+						"width": 128,
+						"height": 48,
+						"options": [
+							"#000000",
+							"#ffffff",
+							"#ff0000"
+						],
+						"value": "#ff0000"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.normal.url" ]
+						}
+					}
+				}, {
+					"constructor": "lychee.ui.Label",
+					"arguments": [{
+						"width": 128,
+						"height": 64,
+						"label": "Grid"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.label.url" ]
+						}
+					}
+				}, {
+					"constructor": "lychee.ui.Switch",
+					"arguments": [{
+						"width": 128,
+						"height": 48,
+						"options": [ "on", "off" ],
+						"value": "on"
+					}],
+					"blob": {
+						"font": {
+							"constructor": "Font",
+							"arguments": [ "#MAIN.fonts.normal.url" ]
+						}
+					}
+				}, {
+					"constructor": "lychee.ui.Slider",
+					"arguments": [{
+						"type": 0,
+						"width": 128,
+						"height": 48,
+						"range": {
+							"from": 0,
+							"to": 1,
+							"delta": 0.2
+						},
+						"value": 0.4
+					}]
+				}]
+			}
+		}
+
+	}
+
+}

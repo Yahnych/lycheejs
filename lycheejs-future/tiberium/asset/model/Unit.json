@@ -1,0 +1,203 @@
+{
+
+	"A10": {
+
+		"health":  400,
+		"layer":   "sky",
+		"terrain": [ 0 ],
+		"speed":   [ 7 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+	"C17": {
+
+		"health":  1200,
+		"layer":   "sky",
+		"terrain": [ 0 ],
+		"speed":   [ 3 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+	"Orca": {
+
+		"health":  800,
+		"layer":   "sky",
+		"terrain": [ 0 ],
+		"speed":   [ 5 ],
+
+		"map": {
+			"default": [  0, 31 ],
+			"move":    [  0, 31 ]
+		}
+
+	},
+
+	"APC": {
+
+		"health":  300,
+		"layer":   "ground",
+		"terrain": [ 0, 1, 2 ],
+		"speed":   [ 2, 2, 1 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+ 	"Artillery": {
+
+		"health":  400,
+		"layer":   "ground",
+		"terrain": [ 0, 1, 2 ],
+		"speed":   [ 2, 1, 1 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+ 	"Bike": {
+
+		"health":  300,
+		"layer":   "ground",
+		"terrain": [ 0, 1, 2 ],
+		"speed":   [ 3, 4, 2 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+ 	"Buggy": {
+
+		"health":  350,
+		"layer":   "ground",
+		"terrain": [ 0, 1, 2 ],
+		"speed":   [ 3, 4, 3 ],
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+ 	"Jeep": {
+
+		"health":   350,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 3, 4, 3 ],
+		"range":    4,
+		"damage":   [ 100, 100, 50, 50, 50 ],
+		"interval": 1000,
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+	"Harvester": {
+
+		"classification": 2,
+
+		"health":   800,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 2, 2, 2 ],
+		"damage":   [ 0, 0, 0, 0, 0 ],
+		"interval": null,
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+	"Stealth-Tank": {
+
+		"classification": 2,
+
+		"health":   750,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 3, 4, 2 ],
+		"range":    2,
+		"damage":   [ 50, 100, 75, 0, 0 ],
+		"interval": 1500,
+
+		"map": {
+			"default": [  0, 31 ]
+		}
+
+	},
+
+	"Light-Tank": {
+
+		"classification": 2,
+
+		"health":   500,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 3, 3, 3 ],
+		"range":    2,
+		"damage":   [ 25, 100, 75, 100, 0 ],
+		"interval": 1500,
+
+		"map": {
+			"default": [  0, 31 ],
+			"cannon":  [ 32, 63 ]
+		}
+
+	},
+
+	"Heavy-Tank": {
+
+		"classification": 2,
+
+		"health":   1000,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 2, 2, 2 ],
+		"range":    3,
+		"damage":   [ 50, 200, 150, 200, 0 ],
+		"interval": 2000,
+
+		"map": {
+			"default": [  0, 31 ],
+			"cannon":  [ 32, 63 ]
+		}
+
+	},
+
+	"Mammoth-Tank": {
+
+		"classification": 2,
+
+		"health":   2000,
+		"layer":    "ground",
+		"terrain":  [ 0, 1, 2 ],
+		"speed":    [ 1, 2, 1 ],
+		"range":    3,
+		"damage":   [ 50, 400, 500, 500, 500 ],
+		"interval": 2000,
+
+		"map": {
+			"default": [  0, 31 ],
+			"cannon":  [ 32, 63 ]
+		}
+
+	}
+
+}

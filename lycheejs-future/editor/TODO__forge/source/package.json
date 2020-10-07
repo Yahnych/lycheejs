@@ -1,0 +1,77 @@
+{
+	"tags": {
+
+		"platform": {
+
+			"html": "platform/html"
+
+		}
+
+	},
+
+	"tree": {
+
+		"platform": {
+
+			"html": {
+
+				"data": {
+					"Font": [ "js" ]
+				}
+
+			}
+
+		},
+
+		"data": {
+			"Project": [ "js" ]
+		},
+
+		"entity": {
+
+			"ui": {
+				"Menu":    [ "js", "json" ],
+				"Sandbox": [ "js" ],
+				"Scene":   [ "js" ],
+				"Sidebar": [ "js" ],
+				"Toolbar": [ "js" ],
+				"Widget":  [ "js" ]
+			},
+
+			"Font": [ "js", "normal.fnt" ]
+
+		},
+
+		"net": {
+
+			"proxy": {
+				"Entity":  [ "js" ],
+				"Project": [ "js" ]
+			},
+
+			"client": {
+				"Entity":  [ "js" ],
+				"Project": [ "js" ]
+			},
+
+			"remote": {
+				"Entity":  [ "js" ],
+				"Project": [ "js" ]
+			}
+
+		},
+
+		"state": {
+			"Base":  [ "js" ],
+			"Font":  [ "js" ],
+			"Scene": [ "js" ]
+		},
+
+		"Builder":    [ "js" ],
+		"Client":     [ "js" ],
+		"Controller": [ "js" ],
+		"Main":       [ "js", "css" ],
+		"Server":     [ "js" ]
+
+	}
+}

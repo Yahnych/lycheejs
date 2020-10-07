@@ -1,0 +1,86 @@
+{
+
+	"id":     "AI-Combat",
+	"player": "GDI",
+	"world":  "Desert",
+	"size":  [ 100, 100 ],
+
+	"players": {
+
+		"GDI": {
+
+			"credits": 5000,
+
+			"buildings": [
+
+				[ "Building-Yard",  5, 4.5 ]
+
+			],
+
+			"units": [
+
+				[ "Heavy-Tank",   10,   4 ],
+				[ "Heavy-Tank",   10,   5 ],
+				[ "Heavy-Tank",   10,   6 ],
+				[ "Heavy-Tank",   10,   7 ],
+				[ "Heavy-Tank",   10,   8 ],
+				[ "Heavy-Tank",   10,   9 ],
+				[ "Heavy-Tank",   10,  10 ],
+
+				[ "Mammoth-Tank",  8,   4 ],
+				[ "Mammoth-Tank",  8,   5 ],
+				[ "Mammoth-Tank",  8,   6 ],
+				[ "Mammoth-Tank",  8,   7 ],
+				[ "Mammoth-Tank",  8,   8 ],
+				[ "Mammoth-Tank",  8,   9 ],
+				[ "Mammoth-Tank",  8,  10 ],
+				[ "Buggy",         8,  14 ]
+
+			]
+
+		},
+
+		"NOD": {
+
+			"credits": 5000,
+
+			"buildings": [
+
+				[ "Building-Yard", 15, 4.5 ]
+
+			],
+
+			"units": [
+
+				[ "Heavy-Tank",   38,   4 ],
+				[ "Heavy-Tank",   38,   5 ],
+				[ "Heavy-Tank",   38,   6 ],
+				[ "Heavy-Tank",   38,   7 ],
+				[ "Heavy-Tank",   38,   8 ],
+				[ "Heavy-Tank",   38,   9 ],
+				[ "Heavy-Tank",   38,  10 ],
+
+				[ "Mammoth-Tank", 40,   4 ],
+				[ "Mammoth-Tank", 40,   5 ],
+				[ "Mammoth-Tank", 40,   6 ],
+				[ "Mammoth-Tank", 40,   7 ],
+				[ "Mammoth-Tank", 40,   8 ],
+				[ "Mammoth-Tank", 40,   9 ],
+				[ "Mammoth-Tank", 40,  10 ]
+ 
+			]
+
+		}
+
+	},
+
+
+	"terrain": [
+
+	],
+
+	"vegetation": [
+
+	]
+
+}

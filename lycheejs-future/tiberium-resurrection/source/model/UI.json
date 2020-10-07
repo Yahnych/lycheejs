@@ -1,0 +1,33 @@
+{
+	"interaction-deselect":     [   0,   0, 128,  80 ],
+
+	"building-Barrack":         [   0,  80, 128,  80 ],
+	"building-Building-Yard":   [ 128,  80, 128,  80 ],
+	"building-Flak":            [ 256,  80, 128,  80 ],
+	"building-Helipad":         [ 384,  80, 128,  80 ],
+	"building-Powerplant":      [ 512,  80, 128,  80 ],
+	"building-Refinery":        [ 640,  80, 128,  80 ],
+	"building-Service-Depot":   [ 768,  80, 128,  80 ],
+	"building-Spy-Center":      [ 896,  80, 128,  80 ],
+
+	"building-Turret":          [   0, 160, 128,  80 ],
+	"building-Wall":            [ 128, 160, 128,  80 ],
+	"building-Weapons-Factory": [ 256, 160, 128,  80 ],
+
+	"unit-A10":                 [   0, 240, 128,  80 ],
+	"unit-APC":                 [ 128, 240, 128,  80 ],
+	"unit-Artillery":           [ 256, 240, 128,  80 ],
+	"unit-Bike":                [ 384, 240, 128,  80 ],
+	"unit-Buggy":               [ 512, 240, 128,  80 ],
+	"unit-Harvester":           [ 640, 240, 128,  80 ],
+	"unit-Heavy-Tank":          [ 768, 240, 128,  80 ],
+	"unit-Jeep":                [ 896, 240, 128,  80 ],
+ 
+	"unit-Light-Tank":          [   0, 320, 128,  80 ],
+	"unit-Mammoth-Tank":        [ 128, 320, 128,  80 ],
+	"unit-MCV":                 [ 256, 320, 128,  80 ],
+	"unit-Orca":                [ 384, 320, 128,  80 ],
+	"unit-Rocket-Truck":        [ 512, 320, 128,  80 ],
+	"unit-Stealth-Tank":        [ 640, 320, 128,  80 ]
+
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>LycheeJS Cosmo Game</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+	<!-- BOOTSTRAP -->
+	<script src="./external/lycheejs/lychee/build/html/core.js"></script>
+
+</head>
+<body>
+<script>
+/*
+ * INITIALIZATION
+ */
+
+(function(lychee, global) {
+
+lychee.debug = true;
+
+	var environment = new lychee.Environment({
+		debug:    true,
+		sandbox:  false,
+		build:    'game.Main',
+		packages: [
+			new lychee.Package('game', './lychee.pkg'),
+			new lychee.Package('lychee', '/external/lycheejs/lychee/lychee.pkg')
+		],
+		tags:     {
+			platform: [ 'html' ]
+		}
+	});
+
+
+	lychee.setEnvironment(environment);
+
+	lychee.environment.init(function(sandbox) {
+
+		var lychee = sandbox.lychee;
+		var game   = sandbox.game;
+
+		// This allows using #MAIN in JSON files
+		sandbox.MAIN = new game.Main();
+		sandbox.MAIN.init();
+
+	});
+
+})(lychee, typeof global !== 'undefined' ? global : this);
+</script>
+</body>
+</html>

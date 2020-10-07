@@ -1,0 +1,33 @@
+{
+	"header": {
+		"identifier": "game.Main",
+		"attaches": {},
+		"tags": {},
+		"requires": [],
+		"includes": [],
+		"supports": {}
+	},
+	"memory": {},
+	"errors": [
+		{
+			"url": "/opt/Software/Artificial-Engineering/lycheejs-future/cosmo/source/Main.js",
+			"rule": "no-exports",
+			"reference": null,
+			"message": "Invalid Definition (missing exports()).",
+			"line": 0,
+			"column": 0
+		}
+	],
+	"result": {
+		"constructor": {
+			"body": null,
+			"hash": null,
+			"parameters": []
+		},
+		"settings": {},
+		"properties": {},
+		"enums": {},
+		"events": {},
+		"methods": {}
+	}
+}

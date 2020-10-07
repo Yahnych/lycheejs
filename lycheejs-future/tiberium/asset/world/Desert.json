@@ -1,0 +1,52 @@
+[{
+	"id":      "Terrain",
+	"model":   "Terrain",
+	"tile":    24
+}, {
+
+	"id":      "Road",
+	"model":   "Road",
+	"file":    "Road.json",
+	"tile":    24,
+	"terrain": 1
+
+}, {
+
+	"id":      "Cactus",
+	"model":   "Vegetation",
+	"health":  50,
+	"layer":   "ground",
+	"terrain": 4,
+
+	"map": {
+		"default": [ 0, 0, 0, 0 ],
+		"destroy": [ 0, 9, 0, 0 ]
+	}
+
+}, {
+
+	"id":      "Nere-Tree",
+	"model":   "Vegetation",
+	"health":  50,
+	"layer":   "ground",
+	"terrain": 4,
+
+	"map": {
+		"default": [ 0, 0, 0, 0 ],
+		"destroy": [ 0, 9, 0, 0 ]
+	}
+
+}, {
+
+	"id":      "Shea-Tree",
+	"model":   "Vegetation",
+	"health":  50,
+	"layer":   "ground",
+	"terrain": 4,
+
+	"map": {
+		"default": [ 0, 0, 0, 0 ],
+		"destroy": [ 0, 9, 0, 0 ]
+	}
+
+}]

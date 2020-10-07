@@ -1,0 +1,204 @@
+{
+	"header": {
+		"identifier": "tool.Main",
+		"attaches": {},
+		"tags": {
+			"platform": "html"
+		},
+		"requires": [
+			"tool.data.HTML",
+			"tool.data.MD",
+			"tool.API"
+		],
+		"includes": [
+			"lychee.app.Main"
+		],
+		"supports": {
+			"body": "function(lychee, global) {\n\n\tif (global.location instanceof Object && typeof global.location.hash === 'string') {\n\n\t\tif (typeof global.onhashchange !== 'undefined') {\n\t\t\treturn true;\n\t\t}\n\n\t}\n\n\n\treturn false;\n\n}",
+			"hash": "e81a0a52",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "lychee",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "global",
+					"type": "undefined"
+				}
+			]
+		},
+		"type": "Composite"
+	},
+	"memory": {
+		"_api": {
+			"chunk": "lychee.import('tool.API')",
+			"type": "lychee.Definition",
+			"value": {
+				"reference": "tool.API",
+				"arguments": []
+			}
+		},
+		"_ui": {
+			"chunk": "global.ui",
+			"type": "undefined"
+		},
+		"_Main": {
+			"chunk": "lychee.import('lychee.app.Main')",
+			"type": "lychee.Definition",
+			"value": {
+				"reference": "lychee.app.Main",
+				"arguments": []
+			}
+		},
+		"_API": {
+			"chunk": "lychee.import('tool.API')",
+			"type": "lychee.Definition",
+			"value": {
+				"reference": "tool.API",
+				"arguments": []
+			}
+		},
+		"_HTML": {
+			"chunk": "lychee.import('tool.data.HTML')",
+			"type": "lychee.Definition",
+			"value": {
+				"reference": "tool.data.HTML",
+				"arguments": []
+			}
+		},
+		"_MD": {
+			"chunk": "lychee.import('tool.data.MD')",
+			"type": "lychee.Definition",
+			"value": {
+				"reference": "tool.data.MD",
+				"arguments": []
+			}
+		},
+		"_load_documents": {
+			"body": "function() {\n\n\t\t_DATA.api.forEach(function(path) {\n\n\t\t\tlet identifier = 'lychee.' + path.split('/').join('.');\n\t\t\tif (path.substr(0, 4) === 'core') {\n\t\t\t\tidentifier = path === 'core/lychee' ? 'lychee' : 'lychee.' + path.split('/').pop();\n\t\t\t}\n\n\t\t\tlet stuff = new Stuff('./lychee_api_docs/' + path + '.md');\n\n\t\t\tstuff.onload = function(result) {\n\t\t\t\t_API_CACHE[identifier] = this.buffer;\n\t\t\t};\n\n\t\t\tstuff.load();\n\n\t\t});\n\n\n\t\t_DATA.src.filter(function(path) {\n\n\t\t\tif (path.substr(0, 8) === 'platform') {\n\t\t\t\treturn path.substr(0, 13) === 'platform/html';\n\t\t\t}\n\n\t\t\treturn true;\n\n\t\t}).forEach(function(path) {\n\n\t\t\tlet identifier = 'lychee.' + path.split('/').join('.');\n\t\t\tif (path.substr(0, 8) === 'platform') {\n\t\t\t\tidentifier = 'lychee.' + path.split('/').slice(2).join('.');\n\t\t\t} else if (path.substr(0, 4) === 'core') {\n\t\t\t\tidentifier = path === 'core/lychee' ? 'lychee' : 'lychee.' + path.split('/').pop();\n\t\t\t}\n\n\n\t\t\tlet stuff = new Stuff('/libraries/lychee/source/' + path + '.js', true);\n\n\t\t\tstuff.onload = function(result) {\n\t\t\t\t_SRC_CACHE[identifier] = this.buffer;\n\t\t\t};\n\n\t\t\tstuff.load();\n\n\t\t});\n\n\t}",
+			"hash": "4577ee6f",
+			"parameters": [],
+			"values": []
+		},
+		"_walk_directory": {
+			"body": "function(files, node, path) {\n\n\t\tif (node instanceof Array) {\n\n\t\t\tif (node.indexOf('js') !== -1 || node.indexOf('md') !== -1) {\n\t\t\t\tfiles.push(path);\n\t\t\t}\n\n\t\t} else if (node instanceof Object) {\n\n\t\t\tObject.keys(node).forEach(function(child) {\n\t\t\t\t_walk_directory(files, node[child], path + '/' + child);\n\t\t\t});\n\n\t\t}\n\n\t}",
+			"hash": "30f87e95",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "files",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "node",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "path",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_package_definitions": {
+			"body": "function(json) {\n\n\t\tlet files = [];\n\n\t\tif (json !== null) {\n\t\t\t_walk_directory(files, json, '');\n\t\t}\n\n\t\treturn files.map(function(value) {\n\t\t\treturn value.substr(1);\n\t\t}).sort(function(a, b) {\n\t\t\tif (a > b) return  1;\n\t\t\tif (a < b) return -1;\n\t\t\treturn 0;\n\t\t});\n\n\t}",
+			"hash": "d4d432dd",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "json",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_render_navi": {
+			"body": "function(data) {\n\n\t\tlet code       = '';\n\t\tlet documented = data.api.map(function(path) {\n\n\t\t\tif (path.substr(0, 4) === 'core') {\n\t\t\t\treturn path === 'core/lychee' ? 'lychee' : 'lychee.' + path.split('/').pop();\n\t\t\t} else {\n\t\t\t\treturn 'lychee.' + path.split('/').join('.');\n\t\t\t}\n\n\t\t});\n\t\tlet definitions = data.src.map(function(path) {\n\n\t\t\tif (path.substr(0, 8) === 'platform') {\n\t\t\t\treturn 'lychee.' + path.split('/').slice(2).join('.');\n\t\t\t} else if (path.substr(0, 4) === 'core') {\n\t\t\t\treturn path === 'core/lychee' ? 'lychee' : 'lychee.' + path.split('/').pop();\n\t\t\t} else {\n\t\t\t\treturn 'lychee.' + path.split('/').join('.');\n\t\t\t}\n\n\t\t}).unique().sort(function(a, b) {\n\t\t\tif (a > b) return  1;\n\t\t\tif (a < b) return -1;\n\t\t\treturn 0;\n\t\t});\n\n\n\t\tcode += '<tr><td>';\n\t\tcode += '<ul class=\"select\">';\n\t\tcode += definitions.filter(function(id) {\n\t\t\treturn documented.indexOf(id) !== -1;\n\t\t}).map(function(id) {\n\t\t\treturn '<li><input type=\"radio\" name=\"reference\" value=\"' + id + '\"><span>' + id + '</span></li>';\n\t\t}).join('');\n\t\tcode += '</ul>';\n\t\tcode += '</td></tr>';\n\n\n\t\t_ui.render(code, 'article:nth-of-type(1) table');\n\t\t_ui.render('Definitions (' + documented.length + '/' + definitions.length + ')', 'article:nth-of-type(1) h3');\n\n\n\t\tsetTimeout(function() {\n\n\t\t\tlet elements = [].slice.call(document.querySelectorAll('article:nth-of-type(1) table a'));\n\t\t\tlet hash     = (location.hash.split('!')[1] || 'lychee').split('#')[0];\n\t\t\tlet index    = elements.map(function(element) {\n\t\t\t\treturn element.innerHTML;\n\t\t\t}).indexOf(hash);\n\n\n\t\t\tif (index !== -1) {\n\t\t\t\telements[index].classList.add('active');\n\t\t\t}\n\n\t\t}, 200);\n\n\t}",
+			"hash": "a490244c",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "data",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_render_view": {
+			"body": "function(view, identifier, reference) {\n\n\t\tlet code      = '';\n\t\tlet markdown  = _API_CACHE[identifier] || '';\n\t\tlet generated = new _API(identifier, _SRC_CACHE[identifier] || '').toMD();\n\n\n\t\tif (view === 'code') {\n\t\t\tmarkdown = _SRC_CACHE[identifier] || '';\n\t\t}\n\n\n\t\tif (markdown === '') {\n\n\t\t\tif (view === 'api') {\n\n\t\t\t\tcode += '<article id=\"constructor\">';\n\t\t\t\tcode += '<pre><code class=\"javascript\">' + identifier + ';</code></pre>';\n\t\t\t\tcode += '<textarea>' + generated + '</textarea>';\n\t\t\t\tcode += '</article>';\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\t\t\t} else if (view === 'code') {\n\n\t\t\t\tcode += '<pre><code class=\"javascript\">\\n\\nconsole.log(\\'No source code available.\\');\\n\\n</code></pre>';\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\n\t\t\t} else if (view === 'edit') {\n\n\t\t\t\tcode += '<article id=\"constructor\">';\n\t\t\t\tcode += '<pre><code class=\"javascript\">' + identifier + ';</code></pre>';\n\t\t\t\tcode += '<textarea>' + (markdown || generated) + '</textarea>';\n\t\t\t\tcode += '</article>';\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\t\t\t}\n\n\t\t} else {\n\n\t\t\tif (view === 'api') {\n\n\t\t\t\tcode += _HTML.encode(_MD.decode(markdown));\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\n\t\t\t\tsetTimeout(function() {\n\n\t\t\t\t\tlet element = global.document.querySelector('#' + reference);\n\t\t\t\t\tif (element !== null) {\n\n\t\t\t\t\t\telement.scrollIntoView({\n\t\t\t\t\t\t\tblock:     'start',\n\t\t\t\t\t\t\tbehaviour: 'smooth'\n\t\t\t\t\t\t});\n\n\t\t\t\t\t}\n\n\t\t\t\t}, 200);\n\n\t\t\t} else if (view === 'code') {\n\n\t\t\t\tcode += '<pre><code class=\"javascript\">';\n\t\t\t\tcode += markdown;\n\t\t\t\tcode += '</pre></code>';\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\t\t\t} else if (view === 'edit') {\n\n\t\t\t\tcode += '<article id=\"constructor\">';\n\t\t\t\tcode += '<pre><code class=\"javascript\">' + identifier + ';</code></pre>';\n\t\t\t\tcode += '<textarea>' + (markdown || generated) + '</textarea>';\n\t\t\t\tcode += '</article>';\n\n\n\t\t\t\t_ui.render(code, 'article:nth-of-type(2) div');\n\n\t\t\t}\n\n\n\t\t\tsetTimeout(function() {\n\n\t\t\t\tlet links = [].slice.call(global.document.querySelectorAll('a'));\n\t\t\t\tif (links.length > 0) {\n\n\t\t\t\t\tlinks.forEach(function(link) {\n\n\t\t\t\t\t\tlet hash = (global.location.hash.split('!')[1] || 'lychee').split('#')[0];\n\t\t\t\t\t\tlet href = link.getAttribute('href');\n\t\t\t\t\t\tif (href.substr(0, 1) !== '#') {\n\t\t\t\t\t\t\thref = '#!' + href;\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\thref = '#!' + hash + href;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlink.setAttribute('href', href);\n\n\t\t\t\t\t});\n\n\t\t\t\t}\n\n\t\t\t}, 0);\n\n\t\t}\n\n\t}",
+			"hash": "e09f3620",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "view",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "identifier",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "reference",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		}
+	},
+	"errors": [],
+	"result": {
+		"constructor": {
+			"body": "function(data) {\n\n\t\tlet settings = Object.assign({\n\n\t\t\tclient:   null,\n\t\t\tinput:    null,\n\t\t\tjukebox:  null,\n\t\t\trenderer: null,\n\t\t\tserver:   null,\n\n\t\t\tviewport: {\n\t\t\t\tfullscreen: false\n\t\t\t}\n\n\t\t}, data);\n\n\n\t\t_Main.call(this, settings);\n\n\n\n\t\t/*\n\t\t * INITIALIZATION\n\t\t */\n\n\t\tthis.bind('load', function(oncomplete) {\n\n\t\t\tlet config = new Config('/libraries/lychee/lychee.pkg');\n\n\t\t\tconfig.onload = function(result) {\n\n\t\t\t\tif (result === true) {\n\n\t\t\t\t\t_DATA = {\n\t\t\t\t\t\tapi:       _package_definitions(this.buffer.api.files    || null),\n\t\t\t\t\t\tsrc:       _package_definitions(this.buffer.source.files || null),\n\t\t\t\t\t\treference: (location.hash.split('!')[1] || 'lychee').split('#'),\n\t\t\t\t\t\tview:      'api'\n\t\t\t\t\t};\n\n\n\t\t\t\t\toncomplete(true);\n\n\t\t\t\t} else {\n\n\t\t\t\t\toncomplete(false);\n\n\t\t\t\t}\n\n\t\t\t};\n\n\t\t\tconfig.load();\n\n\t\t}, this);\n\n\t\tthis.bind('init', function() {\n\n\t\t\t_render_navi(_DATA);\n\t\t\t_load_documents();\n\n\t\t\tsetTimeout(function() {\n\t\t\t\t_render_view('api', _DATA.reference[0], _DATA.reference[1] || null);\n\t\t\t}, 1000);\n\n\t\t}, this, true);\n\n\t\tthis.bind('api', function() {\n\t\t\t_render_view('api', _DATA.reference[0], _DATA.reference[1] || null);\n\t\t}, this);\n\n\t\tthis.bind('code', function() {\n\t\t\t_render_view('code', _DATA.reference[0], _DATA.reference[1] || null);\n\t\t}, this);\n\n\t\tthis.bind('edit', function() {\n\t\t\t_render_view('edit', _DATA.reference[0], _DATA.reference[1] || null);\n\t\t}, this);\n\n\t\tthis.bind('download', function() {\n\n\t\t\tlet id   = _DATA.reference[0] || '';\n\t\t\tlet blob = _API_CACHE[id] || null;\n\n\t\t\tif (blob === null) {\n\n\t\t\t\tlet textarea = document.querySelector('textarea');\n\t\t\t\tif (textarea !== null) {\n\t\t\t\t\tblob = _API_CACHE[id] = '\\n' + textarea.value.trim() + '\\n\\n';\n\t\t\t\t}\n\n\t\t\t}\n\n\n\t\t\tlet filename = id.split('.').pop() + '.md';\n\t\t\tlet buffer   = new Buffer(blob, 'utf8');\n\n\t\t\t_API_CACHE[id] = blob;\n\n\t\t\t_ui.download(filename, buffer);\n\n\t\t}, this);\n\n\t\tthis.bind('submit', function(id, settings) {\n\n\t\t\tif (id === 'settings') {\n\n\t\t\t\tlet reference = settings.reference || null;\n\t\t\t\tif (reference !== null) {\n\t\t\t\t\tglobal.location.hash = '!' + reference;\n\t\t\t\t}\n\n\t\t\t}\n\n\t\t}, this);\n\n\n\t\tsettings = null;\n\n\t}",
+			"hash": "d7db8cfc",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "data",
+					"type": "Object"
+				}
+			]
+		},
+		"settings": {},
+		"properties": {},
+		"enums": {},
+		"events": {},
+		"methods": {
+			"deserialize": {
+				"body": "function(blob) {\n\n\t\t\t_Main.prototype.deserialize.call(this, blob);\n\n\t\t}",
+				"chunk": "\t\tdeserialize: function(blob) {",
+				"hash": "74742d00",
+				"parameters": [
+					{
+						"chunk": null,
+						"name": "blob",
+						"type": "undefined"
+					}
+				],
+				"values": [
+					{
+						"type": "undefined"
+					}
+				]
+			},
+			"serialize": {
+				"body": "function() {\n\n\t\t\tlet data = _Main.prototype.serialize.call(this);\n\t\t\tdata['constructor'] = 'tool.Main';\n\n\n\t\t\treturn data;\n\n\t\t}",
+				"chunk": "\t\tserialize: function() {",
+				"hash": "4d02556f",
+				"parameters": [],
+				"values": [
+					{
+						"chunk": "{ 'constructor': 'lychee.event.Emitter',\n\t\t\t\t'arguments':   [],\n\t\t\t\t'blob':        Object.keys(blob).length > 0 ? blob : null\n\t\t\t}",
+						"type": "Object",
+						"value": {}
+					}
+				]
+			}
+		}
+	}
+}

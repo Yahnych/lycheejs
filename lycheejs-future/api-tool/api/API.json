@@ -1,0 +1,127 @@
+{
+	"header": {
+		"identifier": "tool.API",
+		"attaches": {},
+		"tags": {
+			"platform": "html"
+		},
+		"requires": [],
+		"includes": [],
+		"supports": {},
+		"type": "Composite"
+	},
+	"memory": {},
+	"errors": [],
+	"result": {
+		"constructor": {
+			"body": "function(identifier, code) {\n\n\t\tidentifier = typeof identifier === 'string'                ? identifier : '';\n\t\tcode       = code.trim().substr(0, 13) === 'lychee.define' ? code       : '';\n\n\n\t\tthis.identifier = identifier;\n\n\t\tthis.enums      = {};\n\t\tthis.events     = {};\n\t\tthis.properties = {};\n\t\tthis.methods    = {};\n\n\n\t\t_parse_enums.call(this,      code);\n\t\t_parse_events.call(this,     code);\n\t\t_parse_properties.call(this, code);\n\t\t_parse_methods.call(this,    code);\n\n\t}",
+			"hash": "11a004e3",
+			"parameters": [
+				{
+					"chunk": "typeof identifier === 'string'                ? identifier : ''",
+					"name": "identifier",
+					"type": "String",
+					"value": ""
+				},
+				{
+					"chunk": null,
+					"name": "code",
+					"type": "undefined"
+				}
+			]
+		},
+		"settings": {},
+		"properties": {
+			"identifier": {
+				"chunk": "this.identifier = identifier;",
+				"value": {
+					"chunk": "identifier",
+					"type": "String",
+					"value": "<unique identifier>"
+				}
+			},
+			"enums": {
+				"chunk": "this.enums      = {};",
+				"value": {
+					"chunk": "{}",
+					"type": "Object",
+					"value": {}
+				}
+			},
+			"events": {
+				"chunk": "this.events     = {};",
+				"value": {
+					"chunk": "{}",
+					"type": "Object",
+					"value": {}
+				}
+			},
+			"properties": {
+				"chunk": "this.properties = {};",
+				"value": {
+					"chunk": "{}",
+					"type": "Object",
+					"value": {}
+				}
+			},
+			"methods": {
+				"chunk": "this.methods    = {};",
+				"value": {
+					"chunk": "{}",
+					"type": "Object",
+					"value": {}
+				}
+			}
+		},
+		"enums": {},
+		"events": {},
+		"methods": {
+			"deserialize": {
+				"body": "function(blob) {}",
+				"chunk": "function(blob) {",
+				"hash": "cf6d9c5f",
+				"parameters": [
+					{
+						"name": "blob",
+						"type": "SerializationBlob",
+						"value": {}
+					}
+				],
+				"values": [
+					{
+						"type": "undefined"
+					}
+				]
+			},
+			"serialize": {
+				"body": "function() {\n\n\t\t\treturn {\n\t\t\t\t'constructor': 'tool.API',\n\t\t\t\t'arguments': []\n\t\t\t};\n\n\t\t}",
+				"chunk": "\t\tserialize: function() {",
+				"hash": "1ea5df48",
+				"parameters": [],
+				"values": [
+					{
+						"chunk": "{ 'constructor': 'tool.API',\n\t\t\t\t'arguments': []\n\t\t\t}",
+						"type": "Object",
+						"value": {
+							"constructor": "tool.API",
+							"arguments": []
+						}
+					}
+				]
+			},
+			"toMD": {
+				"body": "function() {\n\n\t\t\tlet identifier = this.identifier;\n\t\t\tlet that       = this;\n\t\t\tlet markdown   = [];\n\t\t\tlet data       = {\n\t\t\t\tintroduction: '',\n\t\t\t\tenums:        {},\n\t\t\t\tevents:       {},\n\t\t\t\tproperties:   {},\n\t\t\t\tmethods:      {}\n\t\t\t};\n\n\n\t\t\t(function() {\n\n\t\t\t\tlet code     = '={constructor}\\n';\n\t\t\t\tlet settings = Object.values(that.properties).filter(function(property) {\n\t\t\t\t\treturn property.setting === true;\n\t\t\t\t});\n\n\n\t\t\t\tif (settings.length > 0) {\n\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += '```javascript-constructor\\n';\n\t\t\t\t\tcode += 'new ' + identifier + '(settings);\\n';\n\t\t\t\t\tcode += '```\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += 'This implementation returns an instance of `' + identifier + '`.\\n';\n\t\t\t\t\tcode += 'The `settings` object consists of the following properties:\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += '\\n' + settings.map(function(property) {\n\n\t\t\t\t\t\tlet chunk  = '- `(' + property.type + ') ' + property.name + '`';\n\t\t\t\t\t\tlet method = 'set' + property.name.charAt(0).toUpperCase() + property.name.substr(1);\n\n\t\t\t\t\t\tif (property.method === true) {\n\t\t\t\t\t\t\tchunk += ' which will be passed to [' + method + '](#methods-' + method + ')';\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\treturn chunk + '.';\n\n\t\t\t\t\t}).join('\\n') + '\\n';\n\n\n\t\t\t\t\tlet example_settings = settings.map(function(property) {\n\n\t\t\t\t\t\treturn {\n\t\t\t\t\t\t\tname:  property.name,\n\t\t\t\t\t\t\tvalue: _readable_value.call(that, property, true)\n\t\t\t\t\t\t};\n\n\t\t\t\t\t});\n\n\t\t\t\t\tlet pretty_length = Math.max.apply(null, example_settings.map(function(property) {\n\t\t\t\t\t\treturn property.name.length;\n\t\t\t\t\t}));\n\n\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += 'var settings = {\\n';\n\t\t\t\t\tcode += example_settings.map(function(setting) {\n\t\t\t\t\t\tlet ws = _WHITESPACE.slice(0, pretty_length - setting.name.length);\n\t\t\t\t\t\treturn '\\t' + setting.name + ': ' + ws + setting.value;\n\t\t\t\t\t}).join(',\\n') + '\\n';\n\t\t\t\t\tcode += '};\\n';\n\t\t\t\t\tcode += 'var instance = new ' + identifier + '(settings);\\n';\n\t\t\t\t\tcode += '```\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t} else {\n\n\t\t\t\t\tcode += '```javascript-constructor\\n';\n\t\t\t\t\tcode += '' + identifier + ';\\n';\n\t\t\t\t\tcode += '```\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += 'This implementation is a Module and has no constructor.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += '' + identifier + '; // ' + identifier + ' reference\\n';\n\t\t\t\t\tcode += '```\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t}\n\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '#### Implementation Notes\\n';\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += 'TODO: IMPLEMENTATION NOTES\\n';\n\n\n\t\t\t\tdata.introduction = code;\n\n\t\t\t})();\n\n\t\t\tObject.values(this.enums).forEach(function(enam) {\n\n\t\t\t\tlet code = '={enums-' + enam.name + '}\\n';\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '```javascript-enum\\n';\n\t\t\t\tcode += '(Enum) ' + identifier + '.' + enam.name + ';\\n';\n\t\t\t\tcode += '```\\n';\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tcode += 'The `(Enum) ' + enam.name + '` enum consists of the following properties:\\n';\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tcode += '\\n' + enam.values.map(function(value) {\n\t\t\t\t\treturn '- `(' + value.type + ') ' + value.name + '` reflects (TODO: DESCRIPTION).';\n\t\t\t\t}).join('\\n') + '\\n';\n\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += 'If the instance is set to (TODO: DESCRIPTION).\\n';\n\n\n\t\t\t\tdata.enums[enam.name] = code;\n\n\t\t\t});\n\n\t\t\tObject.values(this.events).forEach(function(event) {\n\n\t\t\t\tlet params = _readable_params(event.params) || 'void';\n\t\t\t\tlet code   = '={events-' + event.name + '}\\n';\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '```javascript-event\\n';\n\t\t\t\tcode += 'new ' + identifier + '().bind(\\'' + event.name + '\\', function(' + params + ') {}, scope);\\n';\n\t\t\t\tcode += '```\\n';\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tcode += 'The `' + event.name + '` event is triggered on (TODO: CALLS).\\n';\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tcode += '\\n' + event.params.map(function(param) {\n\t\t\t\t\treturn '- `(' + param.type + ') ' + param.name + '` is the (TODO: DESCRIPTION).';\n\t\t\t\t}).join('\\n') + '\\n';\n\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += 'If the instance is set to (TODO: DESCRIPTION).\\n';\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '```javascript\\n';\n\t\t\t\tcode += 'var instance = new ' + identifier + '();\\n';\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += 'instance.bind(function(' + params + ') {\\n';\n\t\t\t\tcode += '\\tconsole.log(' + params + ');\\n';\n\t\t\t\tcode += '}, this);\\n';\n\t\t\t\tcode += '```\\n';\n\n\n\t\t\t\tdata.events[event.name] = code;\n\n\t\t\t});\n\n\t\t\tObject.values(this.properties).forEach(function(property) {\n\n\t\t\t\tlet enam   = that.enums[property.name.toUpperCase()] || null;\n\t\t\t\tlet event  = that.events[property.name] || null;\n\t\t\t\tlet method = that.methods['set' + property.name.charAt(0).toUpperCase() + property.name.substr(1)] || null;\n\t\t\t\tlet type   = _readable_type(property.type) || 'void';\n\t\t\t\tlet code   = '={properties-' + property.name + '}\\n';\n\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '```javascript-property\\n';\n\t\t\t\tcode += '(' + type + ') new ' + identifier + '().' + property.name + ';\\n';\n\t\t\t\tcode += '```\\n';\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tcode += 'The `(' + property.type + ') ' + property.name + '` property is (TODO: DESCRIPTION).\\n';\n\t\t\t\tcode += '\\n';\n\n\n\t\t\t\tif (enam !== null) {\n\t\t\t\t\tcode += 'It is part of the [' + enam.name + '](#enums-' + enam.name + ') enum.\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t}\n\n\t\t\t\tif (event !== null) {\n\t\t\t\t\tcode += 'It influences the [' + event.name + '](#events-' + event.name + ') event.\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t}\n\n\n\t\t\t\tlet default_value = _readable_value.call(that, property, true);\n\t\t\t\tlet example_value = _readable_value.call(that, property, false);\n\n\n\t\t\t\tif (property.setting === true && property.method === true) {\n\n\t\t\t\t\tcode += 'It is set via `settings.' + property.name + '` in the [constructor](#constructor) or via [' + method.name + '](#methods-' + method.name + ').\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += 'var instance = new ' + identifier + '({\\n';\n\t\t\t\t\tcode += '\\t' + property.name + ': ' + default_value + '\\n';\n\t\t\t\t\tcode += '});\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + default_value + '\\n';\n\t\t\t\t\tcode += 'instance.' + method.name + '(' + example_value + '); // true\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + example_value + '\\n';\n\t\t\t\t\tcode += '```\\n';\n\n\t\t\t\t} else if (property.setting === true) {\n\n\t\t\t\t\tcode += 'It is set via `settings.' + property.name + '` in the [constructor](#constructor).\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += 'var instance = new ' + identifier + '({\\n';\n\t\t\t\t\tcode += '\\t' + property.name + ': ' + default_value + '\\n';\n\t\t\t\t\tcode += '});\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + default_value + '\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + ' = ' + example_value + ';\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + example_value + '\\n';\n\t\t\t\t\tcode += '```\\n';\n\n\t\t\t\t} else if (property.method === true) {\n\n\t\t\t\t\tcode += 'It is set via via [' + method.name + '()](#methods-' + method.name + ').\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += 'var instance = new ' + identifier + '();\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + default_value + '\\n';\n\t\t\t\t\tcode += 'instance.' + method.name + '(' + example_value + '); // true\\n';\n\t\t\t\t\tcode += 'instance.' + property.name + '; // ' + example_value + '\\n';\n\t\t\t\t\tcode += '```\\n';\n\n\t\t\t\t} else {\n\n\t\t\t\t\tcode += '```javascript\\n';\n\t\t\t\t\tcode += 'var instance = new ' + identifier + '();\\n';\n\t\t\t\t\tcode += '\\n';\n\t\t\t\t\tcode += '// TODO: DEMO CODE\\n';\n\t\t\t\t\tcode += '```\\n';\n\n\t\t\t\t}\n\n\n\t\t\t\tdata.properties[property.name] = code;\n\n\t\t\t});\n\n\t\t\tObject.values(this.methods).forEach(function(method) {\n\n\t\t\t\tlet params = _readable_params(method.params) || 'void';\n\t\t\t\tlet types  = _readable_types(method.types)   || 'void';\n\t\t\t\tlet code   = '={methods-' + method.name + '}\\n';\n\n\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += '```javascript-method\\n';\n\t\t\t\tcode += '(' + types + ') ' + identifier + '.prototype.' + method.name + '(' + params + ');\\n';\n\t\t\t\tcode += '```\\n';\n\t\t\t\tcode += '\\n';\n\n\n\t\t\t\tlet params_list = method.params.map(function(param) {\n\n\t\t\t\t\tlet chunk = '- `(' + param.type + ') ' + param.name + '`';\n\n\t\t\t\t\tif (param.type !== undefined) {\n\n\t\t\t\t\t\tif (param.type.match(/Array|Object/)) {\n\t\t\t\t\t\t\tchunk += ' is an `' + param.type + ' instance`.';\n\t\t\t\t\t\t} else if (param.type.match(/(lychee\\.*)/)) {\n\t\t\t\t\t\t\tchunk += ' is an `[' + param.type + '](' + param.type + ')` instance.';\n\t\t\t\t\t\t} else if (param.type === 'Boolean') {\n\t\t\t\t\t\t\tchunk += ' is a flag. If set to `true`, the method will (TODO: DESCRIPTION).';\n\t\t\t\t\t\t} else if (param.type === 'Enum') {\n\t\t\t\t\t\t\tchunk += ' is an `Enum value` of the `[' + param.name.toUpperCase() + '](#enums-' + param.name.toUpperCase() + ')` enum.';\n\t\t\t\t\t\t} else if (param.type === 'Number') {\n\t\t\t\t\t\t\tchunk += ' is a number.';\n\t\t\t\t\t\t} else if (param.type === 'String') {\n\t\t\t\t\t\t\tchunk += ' is a string.';\n\t\t\t\t\t\t}\n\n\t\t\t\t\t}\n\n\t\t\t\t\tif (param.values.length > 0) {\n\t\t\t\t\t\tchunk += ' It is defaulted with `' + param.values[0] + '`.';\n\t\t\t\t\t}\n\n\t\t\t\t\treturn chunk;\n\n\t\t\t\t});\n\n\n\t\t\t\tif (params_list.length !== 0) {\n\t\t\t\t\tcode += params_list.join('\\n') + '\\n';\n\t\t\t\t} else {\n\t\t\t\t\tcode += '- This method has no arguments\\n';\n\t\t\t\t}\n\n\n\t\t\t\tcode += '\\n';\n\n\t\t\t\tif (types === 'void') {\n\n\t\t\t\t\tcode += 'This method returns nothing.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t} else if (types === 'Boolean') {\n\n\t\t\t\t\tcode += 'This method returns `true` on success and `false` on failure.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t} else if (types.indexOf('||') !== -1) {\n\n\t\t\t\t\tlet tmp = types.split('||').map(function(val) {\n\t\t\t\t\t\treturn val.trim();\n\t\t\t\t\t});\n\t\t\t\t\tcode += 'This method returns `' + tmp[0] + '` on success and `' + tmp[1] + '` on failure.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t} else if (method.name.match(/serialize|deserialize/g)) {\n\n\t\t\t\t\tcode += 'This method is not intended for direct usage.\\n';\n\t\t\t\t\tcode += 'You can serialize an instance using the [lychee.serialize](lychee#methods-serialize) method.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t} else {\n\n\t\t\t\t\tcode += 'This method returns `TODO` on success and `TODO` on failure.\\n';\n\t\t\t\t\tcode += '\\n';\n\n\t\t\t\t\tif (lychee.debug === true) {\n\t\t\t\t\t\tconsole.error('describe method', method);\n\t\t\t\t\t}\n\n\t\t\t\t}\n\n\n\t\t\t\tlet example_params = JSON.parse(JSON.stringify(method.params));\n\n\t\t\t\tif (method.name.substr(0, 3) === 'set') {\n\n\t\t\t\t\texample_params.forEach(function(param) {\n\n\t\t\t\t\t\tif (param.type === 'Object') {\n\n\t\t\t\t\t\t\tlet property = that.properties[param.name] || null;\n\t\t\t\t\t\t\tif (property !== null) {\n\t\t\t\t\t\t\t\tparam.values = property.values;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t}\n\n\t\t\t\t\t});\n\n\t\t\t\t}\n\n\t\t\t\tlet example_values = _readable_values.call(that, example_params, false);\n\n\n\t\t\t\tcode += '```javascript\\n';\n\t\t\t\tcode += 'var instance = new ' + identifier + '();\\n';\n\t\t\t\tcode += '\\n';\n\t\t\t\tcode += 'instance.' + method.name + '(' + example_values + '); // true\\n';\n\t\t\t\tcode += '```\\n';\n\n\n\t\t\t\tdata.methods[method.name] = code;\n\n\t\t\t});\n\n\n\t\t\tmarkdown.push(data.introduction);\n\n\t\t\tmarkdown.push.apply(markdown, Object.keys(this.enums).sort().map(function(id) {\n\t\t\t\treturn data.enums[id] || '';\n\t\t\t}));\n\n\t\t\tmarkdown.push.apply(markdown, Object.keys(this.events).sort().map(function(id) {\n\t\t\t\treturn data.events[id] || '';\n\t\t\t}));\n\n\t\t\tmarkdown.push.apply(markdown, Object.keys(this.properties).sort().map(function(id) {\n\t\t\t\treturn data.properties[id] || '';\n\t\t\t}));\n\n\t\t\tmarkdown.push.apply(markdown, [ 'deserialize', 'serialize', 'update', 'render' ].map(function(id) {\n\t\t\t\treturn data.methods[id] || '';\n\t\t\t}));\n\n\t\t\tmarkdown.push.apply(markdown, Object.keys(this.methods).filter(function(id) {\n\t\t\t\treturn id.match(/deserialize|serialize|update|render/g) ? false : true;\n\t\t\t}).sort().map(function(id) {\n\t\t\t\treturn data.methods[id] || '';\n\t\t\t}));\n\n\n\t\t\treturn '' + markdown.filter(function(val) {\n\t\t\t\treturn val !== '';\n\t\t\t}).join('\\n\\n\\n\\n');\n\n\t\t}",
+				"chunk": "\t\ttoMD: function() {",
+				"hash": "932cccd3",
+				"parameters": [],
+				"values": [
+					{
+						"chunk": "'' + markdown.filter(function(val) { return val !== ''",
+						"type": "String",
+						"value": "' + markdown.filter(function(val) { return val !== '"
+					}
+				]
+			}
+		}
+	}
+}

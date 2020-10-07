@@ -1,0 +1,83 @@
+{
+
+	"tags": {},
+
+	"tree": {
+
+		"entity": {
+
+			"building": {
+				"Base": [ "js" ]
+			},
+
+			"ui": {
+				"Bar": [ "js" ],
+				"Cursor": [ "js" ],
+				"Dialog": [ "js" ],
+				"Field": [ "js" ]
+			},
+
+			"unit": {
+				"Base": [ "js" ]
+			},
+
+			"world": {
+				"Base": [ "js" ]
+			},
+
+			"Font": [
+				"js",
+				"normal.json",
+				"normal.png",
+				"small.json",
+				"small.png"
+			],
+
+			"Level": [ "js" ],
+			"Text": [ "js" ]
+
+		},
+
+		"logic": {
+			"Logic": [ "js" ],
+			"Pathfinder": [ "js" ]
+		},
+
+		"model": {
+
+			"Building": [ "js" ],
+			"Hitmap": [ "js" ],
+			"Level": [ "js" ],
+			"Road": [ "js" ],
+			"Unit": [ "js" ],
+			"Vegetation": [ "js" ],
+			"World": [ "js" ],
+
+			"Player": [ "js" ],
+			"UI": [ "js", "json", "png" ]
+		},
+
+		"state": {
+			"Game": [ "js" ]
+		},
+
+		"ui": {
+
+			"GameBar": [ "js" ],
+			"GameCursor": [ "js" ],
+
+			"MusicBar": [ "js" ],
+
+			"UI": [ "js" ]
+
+		},
+
+		"Data": [ "js" ],
+		"Jukebox": [ "js" ],
+		"Main": [ "js", "css" ],
+		"Parser": [ "js" ],
+		"Renderer": [ "js" ]
+
+	}
+
+}

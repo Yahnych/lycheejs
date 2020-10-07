@@ -1,0 +1,177 @@
+{
+	"header": {
+		"identifier": "tool.data.HTML",
+		"attaches": {},
+		"tags": {},
+		"requires": [],
+		"includes": [],
+		"supports": {},
+		"type": "Module"
+	},
+	"memory": {
+		"_Stream": {
+			"body": "function(buffer, mode) {\n\n\t\tthis.__buffer = typeof buffer === 'string'        ? buffer : '';\n\t\tthis.__mode   = lychee.enumof(_Stream.MODE, mode) ? mode   : 0;\n\n\t\tthis.__index  = 0;\n\n\t}",
+			"hash": "1e02764f",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "buffer",
+					"type": "undefined"
+				},
+				{
+					"chunk": null,
+					"name": "mode",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_encode_inline": {
+			"body": "function(entities) {\n\n\t\tlet text = '';\n\n\n\t\tentities.forEach(function(entity) {\n\n\t\t\tif (entity.token === 'Code') {\n\n\t\t\t\ttext += ' <code>' + entity.value + '</code> ';\n\n\t\t\t} else if (entity.token === 'Text') {\n\n\t\t\t\tif (entity.value.match(/\\.|,|\\?|!/g)) {\n\n\t\t\t\t\ttext += entity.value;\n\n\t\t\t\t} else {\n\n\t\t\t\t\tif (entity.type === 'bold') {\n\t\t\t\t\t\ttext += ' <b>' + entity.value + '</b> ';\n\t\t\t\t\t} else if (entity.type === 'italic') {\n\t\t\t\t\t\ttext += ' <i>'  + entity.value + '</i> ';\n\t\t\t\t\t} else {\n\t\t\t\t\t\ttext += ' ' + entity.value;\n\t\t\t\t\t}\n\n\t\t\t\t}\n\n\t\t\t} else if (entity.token === 'Image') {\n\n\t\t\t\ttext += ' <img src=\"' + entity.value + '\" alt=\"' + entity.type + '\"> ';\n\n\t\t\t} else if (entity.token === 'Link') {\n\n\t\t\t\ttext += ' <a href=\"' + entity.value + '\">' + entity.type + '</a> ';\n\n\t\t\t}\n\n\t\t});\n\n\n\t\treturn text.trim();\n\n\t}",
+			"hash": "879cc44b",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "entities",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_encode": {
+			"body": "function(stream, data) {\n\n\t\tlet open = false;\n\n\n\t\tfor (let d = 0, dl = data.length; d < dl; d++) {\n\n\t\t\tlet entity = data[d];\n\n\t\t\tif (entity.token === 'Article') {\n\n\t\t\t\tif (open === true) {\n\t\t\t\t\tstream.write('</article>');\n\t\t\t\t}\n\n\n\t\t\t\tstream.write('\\n');\n\t\t\t\tstream.write('<article id=\"' + entity.value + '\">');\n\t\t\t\tstream.write('\\n\\n');\n\n\t\t\t\topen = true;\n\n\t\t\t} else if (entity.token === 'Headline') {\n\n\t\t\t\tstream.write('<h' + entity.type + '>');\n\t\t\t\tstream.write(entity.value);\n\t\t\t\tstream.write('</h' + entity.type + '>');\n\t\t\t\tstream.write('\\n\\n');\n\n\t\t\t} else if (entity.token === 'Code') {\n\n\t\t\t\tstream.write('<pre>\\n');\n\t\t\t\tstream.write('<code class=\"' + entity.type + '\">\\n');\n\t\t\t\tstream.write(entity.value);\n\t\t\t\tstream.write('\\n');\n\t\t\t\tstream.write('</code>\\n');\n\t\t\t\tstream.write('</pre>');\n\t\t\t\tstream.write('\\n\\n');\n\n\t\t\t} else if (entity.token === 'List') {\n\n\t\t\t\tstream.write('<ul>\\n');\n\t\t\t\tstream.write(entity.value.map(function(val) {\n\t\t\t\t\treturn '\\t<li>' + _encode_inline(val) + '</li>\\n';\n\t\t\t\t}).join(''));\n\t\t\t\tstream.write('</ul>');\n\t\t\t\tstream.write('\\n\\n');\n\n\t\t\t} else if (entity.token === 'Paragraph') {\n\n\t\t\t\tstream.write('<p>');\n\t\t\t\tstream.write(_encode_inline(entity.value));\n\t\t\t\tstream.write('</p>');\n\t\t\t\tstream.write('\\n\\n');\n\n\t\t\t}\n\n\t\t}\n\n\n\t\tif (open === true) {\n\t\t\tstream.write('</article>\\n');\n\t\t}\n\n\n\t}",
+			"hash": "f2ce4053",
+			"parameters": [
+				{
+					"chunk": "\"' + entity.value + '\">')",
+					"name": "stream",
+					"type": "String",
+					"value": "<string>"
+				},
+				{
+					"chunk": null,
+					"name": "data",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_decode_inline": {
+			"body": "function(text) {\n\n\t\tconsole.info(text);\n\n\t\treturn text;\n\n\t}",
+			"hash": "7f53cfe1",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "text",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		},
+		"_decode": {
+			"body": "function(stream) {\n\n\t\tlet value  = undefined;\n\t\tlet seek   = '';\n\t\tlet size   = 0;\n\t\tlet tmp    = 0;\n\t\tlet errors = 0;\n\t\tlet check  = null;\n\n\n\t\tlet entity = {\n\t\t\ttoken: null,\n\t\t\ttype:  null,\n\t\t\tvalue: null\n\t\t};\n\n\n\t\tlet count = 0;\n\n\t\twhile (errors === 0 && stream.pointer() < stream.length()) {\n\n\t\t\tsize = stream.search('<');\n\n\t\t\tif (size !== -1) {\n\n\t\t\t\t// content of last entity\n\t\t\t\ttmp = stream.read(size);\n\n\t\t\t\tif (entity.token !== null) {\n\t\t\t\t\tentity.value = tmp.trim();\n\t\t\t\t}\n\n\n\t\t\t\tsize = stream.search('>');\n\t\t\t\tstream.read(1);\n\t\t\t\ttmp  = stream.read(size - 1);\n\t\t\t\tstream.read(1);\n\n\n\t\t\t\tcheck = tmp.substr(0, 1);\n\n\t\t\t\tif (check !== '/') {\n\n\t\t\t\t\tseek = tmp.split(' ')[0];\n\n\t\t\t\t\tif (seek === 'article') {\n\n\t\t\t\t\t\tentity.token = 'Article';\n\t\t\t\t\t\tentity.value = tmp.split('id=')[1].replace(/\"/g, '');\n\n\t\t\t\t\t\t// console.log(entity);\n\n\t\t\t\t\t} else if (seek === 'pre') {\n\n\t\t\t\t\t\tconsole.log(seek);\n\n\t\t\t\t\t} else {\n\n\t\t\t\t\t\tconsole.log(seek);\n\n\t\t\t\t\t}\n\n\n\n\t\t\t\t\t// TODO: Read entity token and type\n\n\t\t\t\t} else {\n\n\t\t\t\t\t// TODO: Close last entity\n\n\t\t\t\t}\n\n\n\t\t\t\t// console.log(tmp);\n\n\n\t\t\t}\n\n\t\t\tcount++;\n\n\t\t\tif (count > 200) break;\n\n\t\t}\n\n\n\t\treturn value;\n\n\t}",
+			"hash": "dec05de7",
+			"parameters": [
+				{
+					"chunk": null,
+					"name": "stream",
+					"type": "undefined"
+				}
+			],
+			"values": []
+		}
+	},
+	"errors": [],
+	"result": {
+		"constructor": {},
+		"settings": {},
+		"properties": {},
+		"enums": {},
+		"events": {},
+		"methods": {
+			"deserialize": {
+				"body": "function(blob) {}",
+				"chunk": "function(blob) {",
+				"hash": "cf6d9c5f",
+				"parameters": [
+					{
+						"name": "blob",
+						"type": "SerializationBlob",
+						"value": {}
+					}
+				],
+				"values": [
+					{
+						"type": "undefined"
+					}
+				]
+			},
+			"serialize": {
+				"body": "function() {\n\n\t\t\treturn {\n\t\t\t\t'reference': 'tool.data.HTML',\n\t\t\t\t'blob':      null\n\t\t\t};\n\n\t\t}",
+				"chunk": "\t\tserialize: function() {",
+				"hash": "f30952bd",
+				"parameters": [],
+				"values": [
+					{
+						"chunk": "{ 'reference': 'tool.data.HTML',\n\t\t\t\t'blob':      null\n\t\t\t}",
+						"type": "Object",
+						"value": {
+							"reference": "tool.data.HTML",
+							"blob": null
+						}
+					}
+				]
+			},
+			"encode": {
+				"body": "function(data) {\n\n\t\t\tdata = data instanceof Object ? data : null;\n\n\n\t\t\tif (data !== null) {\n\n\t\t\t\tlet stream = new _Stream('', _Stream.MODE.write);\n\n\t\t\t\t_encode(stream, data);\n\n\t\t\t\treturn stream.toString();\n\n\t\t\t}\n\n\n\t\t\treturn null;\n\n\t\t}",
+				"chunk": "\t\tencode: function(data) {",
+				"hash": "0593ce7b",
+				"parameters": [
+					{
+						"chunk": "data instanceof Object ? data : null",
+						"name": "data",
+						"type": "Object",
+						"value": null
+					}
+				],
+				"values": [
+					{
+						"chunk": "stream.toString()",
+						"type": "String",
+						"value": "<string>"
+					},
+					{
+						"chunk": "null",
+						"type": "null",
+						"value": null
+					}
+				]
+			},
+			"decode": {
+				"body": "function(data) {\n\n\t\t\tdata = typeof data === 'string' ? data : null;\n\n\n\t\t\tif (data !== null) {\n\n\t\t\t\tlet stream = new _Stream(data, _Stream.MODE.read);\n\t\t\t\tlet object = _decode(stream);\n\t\t\t\tif (object !== undefined) {\n\t\t\t\t\treturn object;\n\t\t\t\t}\n\n\t\t\t}\n\n\n\t\t\treturn null;\n\n\t\t}",
+				"chunk": "\t\tdecode: function(data) {",
+				"hash": "8285f6fd",
+				"parameters": [
+					{
+						"chunk": "typeof data === 'string' ? data : null",
+						"name": "data",
+						"type": "String",
+						"value": null
+					}
+				],
+				"values": [
+					{
+						"chunk": "object",
+						"type": "Object",
+						"value": {}
+					},
+					{
+						"chunk": "null",
+						"type": "null",
+						"value": null
+					}
+				]
+			}
+		}
+	}
+}

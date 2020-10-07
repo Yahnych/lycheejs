@@ -1,0 +1,64 @@
+{
+	"api": {
+		"files": {}
+	},
+	"build": {
+		"environments": {
+			"html/main": {
+				"debug": false,
+				"packages": {
+					"tool": "./lychee.pkg",
+					"strainer": "/libraries/strainer/lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"html"
+					]
+				},
+				"target": "tool.Main",
+				"variant": "application"
+			},
+			"node/main": {
+				"debug": false,
+				"packages": {
+					"tool": "./lychee.pkg",
+					"strainer": "/libraries/strainer/lychee.pkg"
+				},
+				"sandbox": false,
+				"tags": {
+					"platform": [
+						"node"
+					]
+				},
+				"target": "tool.Main",
+				"variant": "application"
+			}
+		},
+		"files": {}
+	},
+	"review": {
+		"environments": {},
+		"files": {}
+	},
+	"source": {
+		"environments": {},
+		"files": {
+			"data": {
+				"HTML": [
+					"js"
+				],
+				"MD": [
+					"js"
+				]
+			},
+			"API": [
+				"js"
+			],
+			"Main": [
+				"js"
+			]
+		},
+		"tags": {}
+	}
+}

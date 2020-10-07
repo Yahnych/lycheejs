@@ -1,0 +1,82 @@
+{
+
+	"id":     "Debug",
+	"player": "GDI",
+	"world":  "Desert",
+	"size":  [ 100, 100 ],
+
+	"players": {
+
+		"GDI": {
+
+			"credits": 5000,
+
+			"buildings": [
+
+				[ "Turret",        28.0,  4.0 ],
+				[ "Barrack",       30.5,  5.5 ],
+				[ "Building-Yard", 34.0,  5.5 ],
+				[ "Helipad",       37.5,  5.5 ],
+				[ "Hospital",      40.5,  5.5 ],
+				[ "Turret",        43.0,  4.0 ],
+				[ "Turret",        28.0, 11.0 ],
+				[ "Powerplant",    30.5,  8.5 ],
+				[ "Refinery",      34.0,  9.0 ],
+				[ "Service-Depot", 38.0,  9.0 ],
+				[ "Spy-Center",    40.5,  8.5 ],
+				[ "Turret",        43.0, 11.0 ],
+				[ "Spy-Center",    90.5, 30.5 ]
+
+			],
+
+			"units": [
+
+				[ "A10",          10,  5 ],
+				[ "APC",          12,  5 ],
+				[ "Artillery",    14,  5 ],
+				[ "Bike",         16,  5 ],
+				[ "Buggy",        18,  5 ],
+				[ "C17",          20,  5 ],
+				[ "Harvester",    10,  8 ],
+				[ "Heavy-Tank",   12,  8 ],
+				[ "Jeep",         14,  8 ],
+				[ "Light-Tank",   16,  8 ],
+				[ "Mammoth-Tank", 18,  8 ],
+				[ "MCV",          20,  8 ],
+				[ "Orca",         10, 11 ],
+				[ "Stealth-Tank", 12, 11 ]
+
+			]
+
+		},
+
+		"NOD": {
+
+			"credits": 5000,
+
+			"buildings": [
+			],
+
+			"units": [
+				[ "Heavy-Tank", 20, 14 ]
+			]
+
+		}
+
+	},
+
+
+	"terrain": [
+
+		[ "Road", 20.0,  7.5, "straight-NS-a" ],
+		[ "Road", 20.0,  9.5, "straight-NS-b" ],
+		[ "Road", 20.5, 12.0, "straight-NS-c" ],
+		[ "Road", 19.5, 15.5, "straight-NS-d" ]
+
+	],
+
+	"vegetation": [
+
+	]
+
+}
